@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary: #9a4021;
+  --color-primary-container: #b95837;
+  --color-on-primary: #ffffff;
+  
+  --color-surface: #fbf9f2;
+  --color-surface-container: #efeee7;
+  --color-surface-container-low: #f5f4ed;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #e3e3dc;
+  
+  --color-on-surface: #1b1c18;
+  --color-on-surface-variant: #56423c;
+  
+  --color-secondary: #5f5f57;
+  
+  --color-inverse-surface: #30312c;
+  --color-inverse-on-surface: #f2f1ea;
+  
+  --color-primary-fixed-dim: #ffb59d;
+  --color-secondary-fixed: #e5e3d9;
+  --color-tertiary-fixed-dim: #c9c6c1;
+  
+  --color-outline: #89726b;
+  --color-outline-variant: #dcc1b8;
+
+  --font-headline: "Newsreader", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-body antialiased selection:bg-primary-container selection:text-white;
+  }
+}
+
+/* Custom scrollbar for an elegant feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-outline-variant rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-outline;
+}

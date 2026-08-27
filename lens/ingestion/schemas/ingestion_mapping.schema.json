@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IngestionMapping",
+  "type": "object",
+  "required": ["project_id", "questions"],
+  "properties": {
+    "project_id": {"type": "string"},
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question_code", "bucket", "shape", "source_column", "confidence", "reasoning"],
+        "properties": {
+          "question_code": {"type": "string", "description": "Codebook question identifier, e.g. 'q17'"},
+          "question_text": {"type": "string"},
+          "bucket": {
+            "type": "string",
+            "enum": ["TOM", "SPONT", "AIDED", "EVER_USED", "CURRENT_USER", "CONSIDERATION",
+                     "PREFERRED", "LAST_PURCHASED", "CSAT", "NPS", "BRAND_IMAGERY", "IMPORTANCE",
+                     "ATTITUDE", "PORTFOLIO_AWARENESS", "PRICE_PAID", "PURCHASE_JOURNEY",
+                     "GENDER", "AGE", "CITY", "ZONE", "DEMOGRAPHIC", "SKIP"]
+          },
+          "shape": {
+            "type": "string",
+            "enum": ["multivalent_source", "single_value", "numeric_score", "multi_select_dummies"],
+            "description": "multivalent_source: one delimited column holds all selected codes (e.g. '2 5 9'), with sibling binary dummy columns that must NOT be separately ingested. single_value: one column, one value per respondent. numeric_score: one column, a 0-10 or 1-7 numeric rating. multi_select_dummies: a 'select all that apply' question with NO delimited base column at all -- the raw file only has independent one-hot dummy columns (e.g. q67_1..q67_13, each 0/1); source_column is a nominal/representative stem name only, the real data to read lives in dummy_columns, and delimiter does not apply."
+          },
+          "source_column": {"type": "string", "description": "The ONE real data-file column to read for this question. For shape=multivalent_source this is the delimited column, never a dummy column."},
+          "delimiter": {"type": ["string", "null"], "description": "Required when shape=multivalent_source, e.g. ' ' or ','. Null otherwise."},
+          "dummy_columns": {
+            "type": "array", "items": {"type": "string"},
+            "description": "Informational only when shape=multivalent_source: the sibling one-hot columns that exist in the raw file but must be ignored by the loader in favor of source_column. Empty for single_value/numeric_score."
+          },
+          "code_to_label": {
+            "type": "object", "additionalProperties": {"type": "string"},
+            "description": "Maps each raw code value (as it appears in source_column, e.g. '2') to its real-world label (e.g. 'Amul'). Required whenever bucket implies brand/attribute identity (TOM/SPONT/AIDED/EVER_USED/CURRENT_USER/CONSIDERATION/PREFERRED/BRAND_IMAGERY/PORTFOLIO_AWARENESS)."
+          },
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "reasoning": {"type": "string", "description": "One sentence: why this bucket/shape/source_column, referencing what was observed in the AP, datamap, or raw sample."}
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {"shape": {"const": "multivalent_source"}}
+            },
+            "then": {
+              "required": ["delimiter"],
+              "properties": {"delimiter": {"type": "string"}}
+            }
+          },
+          {
+            "if": {
+              "properties": {"shape": {"const": "multi_select_dummies"}}
+            },
+            "then": {
+              "required": ["dummy_columns"],
+              "properties": {"dummy_columns": {"type": "array", "minItems": 1}}
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "bucket": {
+                  "enum": ["TOM", "SPONT", "AIDED", "EVER_USED", "CURRENT_USER", "CONSIDERATION",
+                           "PREFERRED", "BRAND_IMAGERY", "PORTFOLIO_AWARENESS"]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "code_to_label": {"type": "object"}
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

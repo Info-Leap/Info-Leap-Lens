@@ -1,0 +1,70 @@
+# Environment files with API keys - NEVER commit
+.env
+.env.local
+.env.*
+*.env
+
+# TOML secrets
+secrets.toml
+secrets.*.toml
+
+# Python virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Data files - database downloaded from external source
+data/
+!data/projects/
+!data/projects/**
+*.db
+*.sqlite
+*.sqlite3
+
+# Test caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+*.tmp
+
+# Test results with potential sensitive data
+tests/test_data/*.json
+tests/test_data/*.md
+tests/results/
+
+# Test caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+*.tmp
+
+# JSON test results - may contain internal data
+*.json.worktrees/
+
+# Service account credentials — NEVER commit
+config/*service_account*.json
+config/google_creds.json
+config/*_creds.json
+.claude/
+.brief_cache.txt

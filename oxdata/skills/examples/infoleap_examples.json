@@ -1,0 +1,172 @@
+[
+  {
+    "question": "what is crompton awareness in north zone",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) AS total FROM v_respondents r WHERE LOWER(r.zone_name)='north'), brand_stages AS (SELECT v.brand_name, SUM(CASE WHEN LOWER(v.stage)='tom' THEN 1 ELSE 0 END) AS tom_n, SUM(CASE WHEN LOWER(v.stage) IN ('tom','spont') THEN 1 ELSE 0 END) AS spont_n, COUNT(v.respondent_id) AS aided_n FROM v_brand_awareness v JOIN v_respondents r ON v.respondent_id=r.respondent_id WHERE LOWER(r.zone_name)='north' AND LOWER(v.brand_name)='crompton' GROUP BY v.brand_name) SELECT brand_name, ROUND(tom_n*100.0/(SELECT total FROM base),1) AS tom_pct, ROUND(spont_n*100.0/(SELECT total FROM base),1) AS spont_pct, ROUND(aided_n*100.0/(SELECT total FROM base),1) AS aided_pct, tom_n, spont_n, aided_n, (SELECT total FROM base) AS base_respondents FROM brand_stages",
+    "metadata": {"metric": "awareness", "brand": "Crompton", "zone": "North"}
+  },
+  {
+    "question": "show me awareness funnel for crompton in north zone",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) AS total FROM v_respondents r WHERE LOWER(r.zone_name)='north'), brand_stages AS (SELECT v.brand_name, SUM(CASE WHEN LOWER(v.stage)='tom' THEN 1 ELSE 0 END) AS tom_n, SUM(CASE WHEN LOWER(v.stage) IN ('tom','spont') THEN 1 ELSE 0 END) AS spont_n, COUNT(v.respondent_id) AS aided_n FROM v_brand_awareness v JOIN v_respondents r ON v.respondent_id=r.respondent_id WHERE LOWER(r.zone_name)='north' AND LOWER(v.brand_name)='crompton' GROUP BY v.brand_name) SELECT brand_name, ROUND(tom_n*100.0/(SELECT total FROM base),1) AS tom_pct, ROUND(spont_n*100.0/(SELECT total FROM base),1) AS spont_pct, ROUND(aided_n*100.0/(SELECT total FROM base),1) AS aided_pct FROM brand_stages",
+    "metadata": {"metric": "awareness", "brand": "Crompton", "zone": "North", "chart": "funnel"}
+  },
+  {
+    "question": "awareness conversion for bajaj in south zone",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) AS total FROM v_respondents r WHERE LOWER(r.zone_name)='south'), brand_stages AS (SELECT v.brand_name, SUM(CASE WHEN LOWER(v.stage)='tom' THEN 1 ELSE 0 END) AS tom_n, SUM(CASE WHEN LOWER(v.stage) IN ('tom','spont') THEN 1 ELSE 0 END) AS spont_n, COUNT(v.respondent_id) AS aided_n FROM v_brand_awareness v JOIN v_respondents r ON v.respondent_id=r.respondent_id WHERE LOWER(r.zone_name)='south' AND LOWER(v.brand_name)='bajaj' GROUP BY v.brand_name) SELECT brand_name, ROUND(tom_n*100.0/(SELECT total FROM base),1) AS tom_pct, ROUND(spont_n*100.0/(SELECT total FROM base),1) AS spont_pct, ROUND(aided_n*100.0/(SELECT total FROM base),1) AS aided_pct FROM brand_stages",
+    "metadata": {"metric": "awareness", "brand": "Bajaj", "zone": "South"}
+  },
+  {
+    "question": "top of mind awareness for all brands nationally",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) AS total FROM v_respondents) SELECT brand_name, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT total FROM base),1) AS tom_pct, COUNT(DISTINCT respondent_id) AS tom_count FROM v_brand_awareness WHERE LOWER(stage)='tom' GROUP BY brand_name ORDER BY tom_pct DESC LIMIT 15",
+    "metadata": {"metric": "awareness", "stage": "TOM"}
+  },
+  {
+    "question": "all brands awareness ranking total aided",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) AS total FROM v_respondents), brand_stages AS (SELECT brand_name, SUM(CASE WHEN LOWER(stage)='tom' THEN 1 ELSE 0 END) AS tom_n, SUM(CASE WHEN LOWER(stage) IN ('tom','spont') THEN 1 ELSE 0 END) AS spont_n, COUNT(respondent_id) AS aided_n FROM v_brand_awareness GROUP BY brand_name) SELECT brand_name, ROUND(tom_n*100.0/(SELECT total FROM base),1) AS tom_pct, ROUND(spont_n*100.0/(SELECT total FROM base),1) AS spont_pct, ROUND(aided_n*100.0/(SELECT total FROM base),1) AS aided_pct FROM brand_stages ORDER BY aided_pct DESC LIMIT 20",
+    "metadata": {"metric": "awareness"}
+  },
+  {
+    "question": "crompton awareness by zone breakdown",
+    "sql": "WITH zone_base AS (SELECT r.zone_name, COUNT(DISTINCT r.respondent_id) AS total FROM v_respondents r GROUP BY r.zone_name), brand_stages AS (SELECT r.zone_name, v.brand_name, SUM(CASE WHEN LOWER(v.stage)='tom' THEN 1 ELSE 0 END) AS tom_n, SUM(CASE WHEN LOWER(v.stage) IN ('tom','spont') THEN 1 ELSE 0 END) AS spont_n, COUNT(v.respondent_id) AS aided_n FROM v_brand_awareness v JOIN v_respondents r ON v.respondent_id=r.respondent_id WHERE LOWER(v.brand_name)='crompton' GROUP BY r.zone_name, v.brand_name) SELECT bs.zone_name, bs.brand_name, ROUND(tom_n*100.0/zb.total,1) AS tom_pct, ROUND(spont_n*100.0/zb.total,1) AS spont_pct, ROUND(aided_n*100.0/zb.total,1) AS aided_pct FROM brand_stages bs JOIN zone_base zb ON bs.zone_name=zb.zone_name ORDER BY bs.zone_name",
+    "metadata": {"metric": "awareness", "brand": "Crompton", "chart": "zone_comparison"}
+  },
+  {
+    "question": "what is crompton nps score",
+    "sql": "SELECT ROUND(SUM(CASE WHEN LOWER(nps_category)='promoter' THEN 1 WHEN LOWER(nps_category)='detractor' THEN -1 ELSE 0 END)*100.0/COUNT(*),1) as nps_score, COUNT(*) as total_raters, SUM(CASE WHEN LOWER(nps_category)='promoter' THEN 1 ELSE 0 END) as promoters, SUM(CASE WHEN LOWER(nps_category)='detractor' THEN 1 ELSE 0 END) as detractors, SUM(CASE WHEN LOWER(nps_category)='passive' THEN 1 ELSE 0 END) as passives FROM v_brand_nps WHERE LOWER(brand_name)='crompton'",
+    "metadata": {"metric": "nps", "brand": "Crompton"}
+  },
+  {
+    "question": "bajaj nps in west zone",
+    "sql": "SELECT ROUND(SUM(CASE WHEN LOWER(nps_category)='promoter' THEN 1 WHEN LOWER(nps_category)='detractor' THEN -1 ELSE 0 END)*100.0/COUNT(*),1) as nps_score, COUNT(*) as total_raters FROM v_brand_nps n JOIN v_respondents r ON n.respondent_id=r.respondent_id WHERE LOWER(n.brand_name)='bajaj' AND LOWER(r.zone_name)='west'",
+    "metadata": {"metric": "nps", "brand": "Bajaj", "zone": "West"}
+  },
+  {
+    "question": "nps rankings for all brands",
+    "sql": "SELECT brand_name, ROUND(SUM(CASE WHEN LOWER(nps_category)='promoter' THEN 1 WHEN LOWER(nps_category)='detractor' THEN -1 ELSE 0 END)*100.0/COUNT(*),1) as nps_score, COUNT(*) as raters, SUM(CASE WHEN LOWER(nps_category)='promoter' THEN 1 ELSE 0 END) as promoters, SUM(CASE WHEN LOWER(nps_category)='detractor' THEN 1 ELSE 0 END) as detractors FROM v_brand_nps GROUP BY brand_name HAVING COUNT(*)>=30 ORDER BY nps_score DESC LIMIT 15",
+    "metadata": {"metric": "nps", "chart": "nps_rankings"}
+  },
+  {
+    "question": "crompton nps by zone comparison",
+    "sql": "SELECT r.zone_name, ROUND(SUM(CASE WHEN LOWER(n.nps_category)='promoter' THEN 1 WHEN LOWER(n.nps_category)='detractor' THEN -1 ELSE 0 END)*100.0/COUNT(*),1) as nps_score, COUNT(*) as raters FROM v_brand_nps n JOIN v_respondents r ON n.respondent_id=r.respondent_id WHERE LOWER(n.brand_name)='crompton' GROUP BY r.zone_name ORDER BY nps_score DESC",
+    "metadata": {"metric": "nps", "brand": "Crompton", "chart": "zone_nps"}
+  },
+  {
+    "question": "nps by city for bajaj top cities",
+    "sql": "SELECT r.city_name, ROUND(SUM(CASE WHEN LOWER(n.nps_category)='promoter' THEN 1 WHEN LOWER(n.nps_category)='detractor' THEN -1 ELSE 0 END)*100.0/COUNT(*),1) as nps_score, COUNT(*) as raters FROM v_brand_nps n JOIN v_respondents r ON n.respondent_id=r.respondent_id WHERE LOWER(n.brand_name)='bajaj' GROUP BY r.city_name HAVING COUNT(*)>=15 ORDER BY nps_score DESC LIMIT 12",
+    "metadata": {"metric": "nps", "brand": "Bajaj", "chart": "city_nps"}
+  },
+  {
+    "question": "nps promoter detractor passive breakdown for crompton",
+    "sql": "SELECT nps_category, COUNT(*) as count, ROUND(COUNT(*)*100.0/SUM(COUNT(*)) OVER(),1) as pct FROM v_brand_nps WHERE LOWER(brand_name)='crompton' GROUP BY nps_category",
+    "metadata": {"metric": "nps", "brand": "Crompton", "chart": "nps_waterfall"}
+  },
+  {
+    "question": "how many households own mixer grinder",
+    "sql": "SELECT appliance_name, COUNT(DISTINCT respondent_id) as owners, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT COUNT(DISTINCT respondent_id) FROM v_respondents),1) as penetration_pct FROM v_kitchen_ownership WHERE LOWER(appliance_name) LIKE '%mixer%' GROUP BY appliance_name",
+    "metadata": {"metric": "ownership", "appliance": "mixer grinder"}
+  },
+  {
+    "question": "mixer grinder ownership in north zone",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) as total FROM v_respondents WHERE LOWER(zone_name)='north') SELECT k.appliance_name, COUNT(DISTINCT k.respondent_id) as owners, ROUND(COUNT(DISTINCT k.respondent_id)*100.0/(SELECT total FROM base),1) as penetration_pct FROM v_kitchen_ownership k JOIN v_respondents r ON k.respondent_id=r.respondent_id WHERE LOWER(r.zone_name)='north' AND LOWER(k.appliance_name) LIKE '%mixer%' GROUP BY k.appliance_name",
+    "metadata": {"metric": "ownership", "appliance": "mixer grinder", "zone": "North"}
+  },
+  {
+    "question": "top kitchen appliances by ownership penetration",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) as total FROM v_respondents) SELECT appliance_name, COUNT(DISTINCT respondent_id) as owners, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT total FROM base),1) as penetration_pct FROM v_kitchen_ownership GROUP BY appliance_name ORDER BY penetration_pct DESC LIMIT 10",
+    "metadata": {"metric": "ownership"}
+  },
+  {
+    "question": "kitchen appliance ownership by zone comparison",
+    "sql": "WITH base AS (SELECT zone_name, COUNT(DISTINCT respondent_id) as total FROM v_respondents GROUP BY zone_name) SELECT r.zone_name, k.appliance_name, COUNT(DISTINCT k.respondent_id) as owners, ROUND(COUNT(DISTINCT k.respondent_id)*100.0/b.total,1) as penetration_pct FROM v_kitchen_ownership k JOIN v_respondents r ON k.respondent_id=r.respondent_id JOIN base b ON r.zone_name=b.zone_name GROUP BY r.zone_name, k.appliance_name ORDER BY r.zone_name, penetration_pct DESC",
+    "metadata": {"metric": "ownership", "chart": "grouped_bar"}
+  },
+  {
+    "question": "how many people own ceiling fan in mumbai",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) as total FROM v_respondents WHERE LOWER(city_name)='mumbai') SELECT ra.appliance_name, COUNT(DISTINCT ra.respondent_id) as owners, ROUND(COUNT(DISTINCT ra.respondent_id)*100.0/(SELECT total FROM base),1) as penetration_pct FROM v_room_appliances ra JOIN v_respondents r ON ra.respondent_id=r.respondent_id WHERE LOWER(r.city_name)='mumbai' AND LOWER(ra.appliance_name) LIKE '%fan%' GROUP BY ra.appliance_name",
+    "metadata": {"metric": "room", "appliance": "ceiling fan", "city": "Mumbai"}
+  },
+  {
+    "question": "room appliances ownership penetration nationally",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) as total FROM v_respondents) SELECT appliance_name, COUNT(DISTINCT respondent_id) as owners, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT total FROM base),1) as penetration_pct FROM v_room_appliances GROUP BY appliance_name ORDER BY penetration_pct DESC LIMIT 12",
+    "metadata": {"metric": "room"}
+  },
+  {
+    "question": "what brands were recently purchased for mixer grinder",
+    "sql": "SELECT brand_name, COUNT(DISTINCT respondent_id) as purchasers, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT COUNT(DISTINCT respondent_id) FROM v_recent_purchase WHERE LOWER(appliance_name) LIKE '%mixer%'),1) as purchase_share_pct FROM v_recent_purchase WHERE LOWER(appliance_name) LIKE '%mixer%' GROUP BY brand_name ORDER BY purchasers DESC LIMIT 10",
+    "metadata": {"metric": "purchase", "appliance": "mixer grinder"}
+  },
+  {
+    "question": "recent purchase share by brand for fan category",
+    "sql": "SELECT brand_name, COUNT(DISTINCT respondent_id) as purchasers, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT COUNT(DISTINCT respondent_id) FROM v_recent_purchase WHERE LOWER(appliance_name) LIKE '%fan%'),1) as purchase_share_pct FROM v_recent_purchase WHERE LOWER(appliance_name) LIKE '%fan%' GROUP BY brand_name ORDER BY purchasers DESC LIMIT 10",
+    "metadata": {"metric": "purchase", "appliance": "fan"}
+  },
+  {
+    "question": "how many total respondents in the survey",
+    "sql": "SELECT COUNT(DISTINCT respondent_id) as total_respondents FROM v_respondents",
+    "metadata": {"metric": "demographic"}
+  },
+  {
+    "question": "how many respondents by zone",
+    "sql": "SELECT zone_name, COUNT(DISTINCT respondent_id) as respondents FROM v_respondents GROUP BY zone_name ORDER BY respondents DESC",
+    "metadata": {"metric": "demographic", "chart": "bar"}
+  },
+  {
+    "question": "respondent count by city",
+    "sql": "SELECT city_name, COUNT(DISTINCT respondent_id) as respondents FROM v_respondents GROUP BY city_name ORDER BY respondents DESC",
+    "metadata": {"metric": "demographic", "chart": "bar"}
+  },
+  {
+    "question": "gender split of respondents",
+    "sql": "SELECT gender, COUNT(DISTINCT respondent_id) as respondents, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT COUNT(DISTINCT respondent_id) FROM v_respondents),1) as pct FROM v_respondents GROUP BY gender",
+    "metadata": {"metric": "demographic", "chart": "pie"}
+  },
+  {
+    "question": "respondents by age band",
+    "sql": "SELECT age_band, COUNT(DISTINCT respondent_id) as respondents, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT COUNT(DISTINCT respondent_id) FROM v_respondents),1) as pct FROM v_respondents WHERE age_band IS NOT NULL GROUP BY age_band ORDER BY age_band",
+    "metadata": {"metric": "demographic", "chart": "bar"}
+  },
+  {
+    "question": "how many respondents in north zone",
+    "sql": "SELECT zone_name, COUNT(DISTINCT respondent_id) as respondents FROM v_respondents WHERE LOWER(zone_name)='north' GROUP BY zone_name",
+    "metadata": {"metric": "demographic", "zone": "North"}
+  },
+  {
+    "question": "respondents in mumbai",
+    "sql": "SELECT city_name, COUNT(DISTINCT respondent_id) as respondents FROM v_respondents WHERE LOWER(city_name)='mumbai' GROUP BY city_name",
+    "metadata": {"metric": "demographic", "city": "Mumbai"}
+  },
+  {
+    "question": "crompton aided awareness in south zone among female respondents",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) as total FROM v_respondents WHERE LOWER(zone_name)='south' AND LOWER(gender)='female') SELECT v.brand_name, v.stage, COUNT(DISTINCT v.respondent_id) as aware_count, ROUND(COUNT(DISTINCT v.respondent_id)*100.0/MAX(1,(SELECT total FROM base)),1) as awareness_pct FROM v_brand_awareness v JOIN v_respondents r ON v.respondent_id=r.respondent_id WHERE LOWER(r.zone_name)='south' AND LOWER(r.gender)='female' AND LOWER(v.brand_name)='crompton' GROUP BY v.brand_name, v.stage",
+    "metadata": {"metric": "awareness", "brand": "Crompton", "zone": "South", "gender": "female"}
+  },
+  {
+    "question": "compare crompton vs bajaj nps score",
+    "sql": "SELECT brand_name, ROUND(SUM(CASE WHEN LOWER(nps_category)='promoter' THEN 1 WHEN LOWER(nps_category)='detractor' THEN -1 ELSE 0 END)*100.0/COUNT(*),1) as nps_score, COUNT(*) as raters FROM v_brand_nps WHERE LOWER(brand_name) IN ('crompton','bajaj') GROUP BY brand_name ORDER BY nps_score DESC",
+    "metadata": {"metric": "nps", "brand": "Crompton,Bajaj"}
+  },
+  {
+    "question": "havells awareness vs crompton nationally",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) AS total FROM v_respondents), brand_stages AS (SELECT brand_name, SUM(CASE WHEN LOWER(stage)='tom' THEN 1 ELSE 0 END) AS tom_n, SUM(CASE WHEN LOWER(stage) IN ('tom','spont') THEN 1 ELSE 0 END) AS spont_n, COUNT(respondent_id) AS aided_n FROM v_brand_awareness WHERE LOWER(brand_name) IN ('havells','crompton') GROUP BY brand_name) SELECT brand_name, ROUND(tom_n*100.0/(SELECT total FROM base),1) AS tom_pct, ROUND(spont_n*100.0/(SELECT total FROM base),1) AS spont_pct, ROUND(aided_n*100.0/(SELECT total FROM base),1) AS aided_pct FROM brand_stages ORDER BY aided_pct DESC",
+    "metadata": {"metric": "awareness", "brand": "Havells,Crompton"}
+  },
+  {
+    "question": "which brand has highest spontaneous awareness",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) AS total FROM v_respondents) SELECT brand_name, ROUND(COUNT(DISTINCT respondent_id)*100.0/(SELECT total FROM base),1) AS spont_cumulative_pct, COUNT(DISTINCT respondent_id) AS spont_count FROM v_brand_awareness WHERE LOWER(stage) IN ('tom','spont') GROUP BY brand_name ORDER BY spont_cumulative_pct DESC LIMIT 10",
+    "metadata": {"metric": "awareness", "stage": "SPONT"}
+  },
+  {
+    "question": "mixer grinder ownership in delhi",
+    "sql": "WITH base AS (SELECT COUNT(DISTINCT respondent_id) as total FROM v_respondents WHERE LOWER(city_name)='delhi') SELECT k.appliance_name, COUNT(DISTINCT k.respondent_id) as owners, ROUND(COUNT(DISTINCT k.respondent_id)*100.0/(SELECT total FROM base),1) as penetration_pct FROM v_kitchen_ownership k JOIN v_respondents r ON k.respondent_id=r.respondent_id WHERE LOWER(r.city_name)='delhi' AND LOWER(k.appliance_name) LIKE '%mixer%' GROUP BY k.appliance_name",
+    "metadata": {"metric": "ownership", "appliance": "mixer grinder", "city": "Delhi"}
+  },
+  {
+    "question": "what is the market share of brands in recent fan purchases",
+    "sql": "SELECT p.brand_name, COUNT(DISTINCT p.respondent_id) as purchasers, ROUND(COUNT(DISTINCT p.respondent_id)*100.0/(SELECT COUNT(DISTINCT respondent_id) FROM v_recent_purchase WHERE LOWER(appliance_name) LIKE '%fan%'),1) as market_share_pct FROM v_recent_purchase p WHERE LOWER(p.appliance_name) LIKE '%fan%' GROUP BY p.brand_name ORDER BY market_share_pct DESC LIMIT 10",
+    "metadata": {"metric": "purchase", "appliance": "fan", "chart": "pie"}
+  },
+  {
+    "question": "crompton nps score in east zone",
+    "sql": "SELECT ROUND(SUM(CASE WHEN LOWER(nps_category)='promoter' THEN 1 WHEN LOWER(nps_category)='detractor' THEN -1 ELSE 0 END)*100.0/COUNT(*),1) as nps_score, COUNT(*) as raters FROM v_brand_nps n JOIN v_respondents r ON n.respondent_id=r.respondent_id WHERE LOWER(n.brand_name)='crompton' AND LOWER(r.zone_name)='east'",
+    "metadata": {"metric": "nps", "brand": "Crompton", "zone": "East"}
+  }
+]

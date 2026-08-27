@@ -1,0 +1,70 @@
+# ── Credentials / secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+*.env
+*service_account*.json
+*_creds.json
+google_creds.json
+
+# ── Python ────────────────────────────────────────────────────────────────────
+.venv/
+venv/
+.tmp_venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# ── Data / DB (never commit raw survey data) ──────────────────────────────────
+data/
+oxdata/data/
+lens/lens.db
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Planning / internal docs ──────────────────────────────────────────────────
+.planning/
+.dump/
+.agents/
+.memory/
+.superpowers/
+
+# ── AI agent worktrees / scratch ──────────────────────────────────────────────
+.claude/
+oxdata/.claude/
+.gemini/
+oxdata/.gemini/
+.cursorrules
+.windsurfrules
+.mcp.json
+
+# ── Archive (old code) ────────────────────────────────────────────────────────
+oxdata/archive/
+archive/
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+.kilo/
+.playwright-cli/
+.devcontainer/
+oxdata/.devcontainer/
+
+# ── Logs / temp ───────────────────────────────────────────────────────────────
+*.log
+*.tmp
+.brief_cache.txt
+
+# ── Test fixtures ─────────────────────────────────────────────────────────────
+tests/test_data/*.json
+tests/test_data/*.md
+tests/results/lens/ollama.zip
+lens/*.zip
+*.zip

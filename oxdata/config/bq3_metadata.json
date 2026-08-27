@@ -1,0 +1,671 @@
+{
+    "attributes": {
+        "bq3a_1_1": {
+            "label": "Works well despite wide Voltage fluctuations",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_2": {
+            "label": "Silent (Low noise) operation of the product",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_3": {
+            "label": "Fast motor cooling to prevent body heat after usage",
+            "applicable_categories": [
+                "Mixer Grinder",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_4": {
+            "label": "Energy saver (~50%) Fans/ Consumes Less Electricity",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_5": {
+            "label": "Energy Efficiency Star (BEE label) is high",
+            "applicable_categories": [
+                "Water Heater"
+            ]
+        },
+        "bq3a_1_6": {
+            "label": "Strong air throw in the room",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_7": {
+            "label": "High speed (RPM) of the fan/ MG motor",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_1_8": {
+            "label": "Wide air coverage - reaches in every corners of the room",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Air Cooler"
+            ]
+        },
+        "chk": {
+            "label": "Auto Cutoff post Water heating (WH)/Filling (Pumps)",
+            "applicable_categories": [
+                "Water Heater",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_10": {
+            "label": "Control on Color of Light output  (Natural, White, Yellow)",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_1_11": {
+            "label": "Flicker free light output",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_1_12": {
+            "label": "Spread of the light - reaches in every corner of the room",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_1_13": {
+            "label": "Less strain on Eye due to Glare of Light",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_1_14": {
+            "label": "Time taken for Water Heating",
+            "applicable_categories": [
+                "Water Heater"
+            ]
+        },
+        "bq3a_1_15": {
+            "label": "Water remains Hot for long duration (after heating process is over)",
+            "applicable_categories": [
+                "Water Heater"
+            ]
+        },
+        "bq3a_1_17": {
+            "label": "Easy to clean post usage",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_1_18": {
+            "label": "Has spill proof operation",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_1_19": {
+            "label": "Type of Knob - Touch, Button or Dial",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_1_20": {
+            "label": "Perfect Grinding results",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_1_21": {
+            "label": "Faster Grinding results",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_1_22": {
+            "label": "Less vibration of the cooler body",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_23": {
+            "label": "Faster cooling",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_24": {
+            "label": "Material of the pad (honey comb or wood wool)",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_25": {
+            "label": "Ease of Cleaning the Cooler",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_26": {
+            "label": "Has option to regulate speed as per my choice",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Mixer Grinder",
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_27": {
+            "label": "Ease of Filling Water in the Cooler",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_28": {
+            "label": "Water Intake Capacity of the Cooler",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_29": {
+            "label": "Portability of the Cooler - Can move around",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_30": {
+            "label": "Cooler has ice chamber for faster cooling",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_31": {
+            "label": "Less Usage of Water in the Cooler",
+            "applicable_categories": [
+                "Air Cooler"
+            ]
+        },
+        "bq3a_1_32": {
+            "label": "Pumps water faster and hence take less time to fill tank",
+            "applicable_categories": [
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_33": {
+            "label": "Pumps water higher and hence suitable for more height/multi story building",
+            "applicable_categories": [
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_34": {
+            "label": "High suction capacity (pull the water from ground/external supply lines) of Water Pump",
+            "applicable_categories": [
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_35": {
+            "label": "Long Life of the Product",
+            "applicable_categories": [
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_36": {
+            "label": "Has anti-rust coating on the water tank",
+            "applicable_categories": [
+                "Water Heater"
+            ]
+        },
+        "bq3a_1_37": {
+            "label": "Has anti-rust coating to prevent rusting",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_38": {
+            "label": "Long life of Motor (100% copper winding)",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_39": {
+            "label": "Double ball bearing in the fan",
+            "applicable_categories": [
+                "Ceiling Fans"
+            ]
+        },
+        "bq3a_1_40": {
+            "label": "100% Copper Heating Element/ Coil",
+            "applicable_categories": [
+                "Water Heater"
+            ]
+        },
+        "bq3a_1_41": {
+            "label": "Long life of the Outer Body Paint",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_1_42": {
+            "label": "Protection from failure due to inactivity/dry operation",
+            "applicable_categories": [
+                "Water Pumps"
+            ]
+        },
+        "bq3a_2_43": {
+            "label": "Shape/ design of the blade",
+            "applicable_categories": [
+                "Ceiling Fans"
+            ]
+        },
+        "bq3a_2_44": {
+            "label": "Printing of design on the Fan/Blades",
+            "applicable_categories": [
+                "Ceiling Fans"
+            ]
+        },
+        "bq3a_2_45": {
+            "label": "Type of paint finish in the fan - Matt, Glossy, Metallic",
+            "applicable_categories": [
+                "Ceiling Fans"
+            ]
+        },
+        "bq3a_2_46": {
+            "label": "Has range of colors for variety",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Heater",
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_2_47": {
+            "label": "Sleek look of the LED Tubelight/ Batten",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_2_48": {
+            "label": "Shape of the LED Tubelight/ Batten (circular, square)",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "nq3a_49_5": {
+            "label": "New and Trendy design of Water Heater e.g. color changing trims/ New and Trendy Design (Blends with the room)",
+            "applicable_categories": [
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler"
+            ]
+        },
+        "bq3a_2_50": {
+            "label": "Color of end caps for LED Tubelight/ Batten",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_2_51": {
+            "label": "Fits well with the room décor",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_2_52": {
+            "label": "Material of the Jar (Steel,  Glass)",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_2_53": {
+            "label": "Material of RIM/Motor Body - Metal/Steel/ Plastic",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Air Cooler"
+            ]
+        },
+        "bq3a_2_54": {
+            "label": "Overall look (Asthetics) of the Pump",
+            "applicable_categories": [
+                "Water Pumps"
+            ]
+        },
+        "bq3a_2_56": {
+            "label": "Overall weight of the Pump",
+            "applicable_categories": [
+                "Water Pumps"
+            ]
+        },
+        "bq3a_3_57": {
+            "label": "Does not require regular repair or maintenance",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_3_58": {
+            "label": "Easy availability of spare parts, jars (MG)",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Heater",
+                "Mixer Grinder",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_3_59": {
+            "label": "Fast resolution of service issues",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_3_60": {
+            "label": "Ease of Replacement",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_3_61": {
+            "label": "Long Duration of Warranty Offered",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_3_63": {
+            "label": "Free installation of the product",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Heater",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_4_65": {
+            "label": "Assurance against electric shock/ Assurance againt electric shock due to water leakage/blast in body",
+            "applicable_categories": [
+                "Water Heater",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_4_66": {
+            "label": "Easy to install LED Tubelight/ Batten",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_4_67": {
+            "label": "Has added Health benefits like anti Virus/ mosquito/ bacteria",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Air Cooler"
+            ]
+        },
+        "bq3a_4_68": {
+            "label": "Sensor Control for dimming and automatic on/off",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_4_69": {
+            "label": "Inbuilt inverter for light output during power failure",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_4_70": {
+            "label": "Smart/ Mood Light Fitting controlled through mobile App",
+            "applicable_categories": [
+                "LED Tube Light"
+            ]
+        },
+        "bq3a_4_71": {
+            "label": "Anti dust feature in the Fan",
+            "applicable_categories": [
+                "Ceiling Fans"
+            ]
+        },
+        "bq3a_4_72": {
+            "label": "Fans with Decorative Lights / Chandelier",
+            "applicable_categories": [
+                "Ceiling Fans"
+            ]
+        },
+        "bq3a_4_73": {
+            "label": "Has inbuilt protection against hard water problem/ high TDS water",
+            "applicable_categories": [
+                "Water Heater"
+            ]
+        },
+        "bq3a_4_74": {
+            "label": "Smart Product with app based controls/ Remote Control, Auto Switch on with Timer",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "Water Heater",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_4_75": {
+            "label": "Water temperature indicator on display",
+            "applicable_categories": [
+                "Water Heater"
+            ]
+        },
+        "bq3a_4_76": {
+            "label": "Retains nutritional value of ingredients",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_4_77": {
+            "label": "Pre Set one touch Menu for different activities",
+            "applicable_categories": [
+                "Mixer Grinder"
+            ]
+        },
+        "bq3a_5_78": {
+            "label": "Market Leader brand (Number 1 in the category)",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_79": {
+            "label": "Innovative brand",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_80": {
+            "label": "Modern & Trendy Brand",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_81": {
+            "label": "Brand Recommended by Retailers",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_82": {
+            "label": "Brand Recommended by Electricians/ contractors",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_83": {
+            "label": "Endorsed by a Celebrity/ Actor/ Cricketer",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_84": {
+            "label": "Previous experience with the Brand",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_85": {
+            "label": "Trustworthy brand",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_86": {
+            "label": "Brand has wide range of products",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_87": {
+            "label": "Brand has a long heritage in the category",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_88": {
+            "label": "Sealed/ Tamper Proof packaging for Authentic Product",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_89": {
+            "label": "Attractive Packaging of the Product",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_90": {
+            "label": "Regular advertizement of brand on TV/ Print/ Radio",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_91": {
+            "label": "Brand is rightly priced",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        },
+        "bq3a_5_92": {
+            "label": "Brand has discount offers",
+            "applicable_categories": [
+                "Ceiling Fans",
+                "LED Tube Light",
+                "Water Heater",
+                "Mixer Grinder",
+                "Air Cooler",
+                "Water Pumps"
+            ]
+        }
+    },
+    "categories": {
+        "Ceiling Fans": 1,
+        "Air Cooler": 2,
+        "Mixer Grinder": 3,
+        "LED Tube Light": 4,
+        "Water Heater": 5,
+        "Water Pumps": 6
+    }
+}
