@@ -29,7 +29,7 @@ from infoleap.db_loader import list_available_projects, get_project_meta, _DRIVE
 inject_pulse_styles()
 st.title("🗂️ Manage Projects")
 st.caption(
-    "Every project ingested via Add Project lives at its own `infoleap/data/<project id>/oxdata.db` "
+    "Every project ingested via Add Project lives at its own `infoleap/data/<project id>/master_mapping.xlsx` "
     "— project_1 (this project's own real data) is never deletable from here."
 )
 
@@ -52,7 +52,7 @@ with st.expander("☁️ Drive Setup for Streamlit Cloud & Remote Storage", expa
     auth_uri = "https://accounts.google.com/o/oauth2/auth"
     token_uri = "https://oauth2.googleapis.com/token"
     ```
-    When configured, InfoLeap automatically pulls `oxdata.db` and project files on demand.
+    When configured, InfoLeap automatically pulls `master_mapping.xlsx`, `raw_data.xlsx`, and `project_meta.json` from Google Drive on demand.
     """)
 
 DATA_DIR = Path(oxdata_dir) / "data"
@@ -104,7 +104,7 @@ def _table_counts(db_path: Path) -> dict[str, int]:
 
 projects = list_available_projects()
 if not projects:
-    st.info("No projects found under `oxdata/data/`.")
+    st.info("No projects found under `infoleap/data/`.")
     st.stop()
 
 active_project = st.session_state.get("active_project_id", "project_1")

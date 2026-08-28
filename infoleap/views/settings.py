@@ -24,14 +24,14 @@ page_banner("Settings & System Info",
 section_header("Data Overview")
 
 _data_dir = _BASE / "data"
-_quant_db = _data_dir / "project_1" / "infoleap.db"
+_quant_db = _data_dir / "project_1" / "oxdata.db" if (_data_dir / "project_1" / "oxdata.db").exists() else _data_dir / "project_1" / "infoleap.db"
 _projects_dir = _data_dir / "projects"
 
 col1, col2, col3, col4 = st.columns(4)
 db_size = round(_quant_db.stat().st_size / 1024 / 1024, 1) if _quant_db.exists() else 0
 mixer_matrices = len(list((_data_dir / "qual_matrices").glob("*_matrix.json"))) if (_data_dir / "qual_matrices").exists() else 0
 cdcx_matrices = len(list((_projects_dir / "karat-coindcx" / "matrices").glob("*_matrix.json"))) if (_projects_dir / "karat-coindcx" / "matrices").exists() else 0
-with col1: kpi_card("Survey DB", f"{db_size} MB", "#1a5d4d", subtext="SQLite · data/project_1/")
+with col1: kpi_card("Survey DB", f"{db_size} MB", "#1a5d4d", subtext="Data Store · project_1")
 with col2: kpi_card("Respondents", "6,631", "#0ea5e9", subtext="6 categories · 18 cities")
 with col3: kpi_card("Mixer Matrices", str(mixer_matrices), "#7c3aed", subtext="233 IDI transcripts")
 with col4: kpi_card("CoinDCX Matrices", str(cdcx_matrices), "#f59e0b", subtext="23 concept-test DIs")
