@@ -4312,10 +4312,10 @@ def _get_price_tier_data(zone="all", gender="all", age_band="all", city="all"):
     df = df.dropna(subset=["price_tier"])
     df["price_tier"] = df["price_tier"].astype(int)
     tier_labels = _PRICE_TIER_LABELS if _is_project_1() else {}
-    df["price_tier_label"] = df.apply(
-        lambda r: tier_labels.get(r["category_code"], {}).get(int(r["price_tier"]), f"Tier {r['price_tier']}"),
-        axis=1,
-    )
+    df["price_tier_label"] = [
+        tier_labels.get(int(cat), {}).get(int(pt), f"Tier {int(pt)}")
+        for cat, pt in zip(df["category_code"], df["price_tier"])
+    ]
     return df
 
 
