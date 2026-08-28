@@ -34,9 +34,9 @@ except ImportError:
     _GDRIVE_LIBS_AVAILABLE = False
 
 # ── Folder IDs (from .env) ────────────────────────────────────────────────────
-ROOT_ID  = os.environ.get("GDRIVE_ROOT_FOLDER_ID",  "1KivpF_wTTxc8F2CHMFZBC8lHAD4R2z-E")
-QUANT_ID = os.environ.get("GDRIVE_QUANT_FOLDER_ID", "1ba22lbMa95C32mmAJJXtCqjv0MirK3Hx")  # Quantitative/
-QUAL_ID  = os.environ.get("GDRIVE_QUAL_FOLDER_ID",  "1hTnXwVYAtg_p_8qWs12gO0fPxEV-hwsu")  # Qualitative/
+ROOT_ID  = os.environ.get("GDRIVE_ROOT_FOLDER_ID",  "0AHQcUTK8oFvVUk9PVA")
+QUANT_ID = os.environ.get("GDRIVE_QUANT_FOLDER_ID", "1smKGRHA8XFZGeO4nFJa2EyQOn7MfV4n0")  # Quantitative/
+QUAL_ID  = os.environ.get("GDRIVE_QUAL_FOLDER_ID",  "1gnVu_EXPTNvMGZc9hEggM2gsxmLbZUIU")  # Qualitative/
 
 FOLDER_MIME = "application/vnd.google-apps.folder"
 SCOPES = ["https://www.googleapis.com/auth/drive"]
