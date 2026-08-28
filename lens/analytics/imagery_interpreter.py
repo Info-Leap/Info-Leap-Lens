@@ -18,6 +18,7 @@ Models used (round-robin, i % 7):
 from __future__ import annotations
 
 import os
+import re
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -110,7 +111,19 @@ def _llm_call(prompt: str, model_idx: int, timeout: int = 12) -> str:
                 timeout=timeout,
             )
             resp.raise_for_status()
-            return resp.json()["choices"][0]["message"]["content"].strip()
+            content = resp.json()["choices"][0]["message"]["content"].strip()
+            # Strip <think>...</think> and <thinking>...</thinking> reasoning blocks
+            content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
+            content = re.sub(r"<thinking>.*?</thinking>", "", content, flags=re.DOTALL).strip()
+            
+            # Validate output format
+            if not content.startswith("FINDING:"):
+                idx = content.find("FINDING:")
+                if idx != -1:
+                    content = content[idx:].strip()
+                else:
+                    continue  # Invalid format, try next attempt/model
+            return content
         except Exception:
             continue
     raise RuntimeError("All LLM attempts failed")
