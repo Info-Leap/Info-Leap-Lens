@@ -50,10 +50,8 @@ def show_dashboard():
     head = get_home_headline_stats(project_id=project_id)
 
     # Load project meta for dynamic header
-    import json as _json
-    from pathlib import Path as _Path
-    _meta_path = _Path(f"oxdata/data/{project_id}/project_meta.json")
-    _meta = _json.loads(_meta_path.read_text()) if _meta_path.exists() else {}
+    from infoleap.db_loader import get_project_meta
+    _meta = get_project_meta(project_id)
     _proj_label = _meta.get("description") or _meta.get("display_name") or project_id
 
     # ── Hero header ──────────────────────────────────────────────────────────
