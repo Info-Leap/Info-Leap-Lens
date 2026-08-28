@@ -79,7 +79,6 @@ pg = st.navigation(
     {
         "Workspace": [
             st.Page("views/dashboard.py",      title="Home",            icon="🏠", default=True),
-            st.Page("views/chat.py",            title="Ask Pulse",       icon="💬"),
             st.Page("views/brand_health.py",    title="Brand Health",    icon="📈"),
             st.Page("views/quote_explorer.py",  title="Quote Explorer",  icon="🗣️"),
         ],
