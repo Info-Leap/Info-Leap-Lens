@@ -31,14 +31,25 @@ except ImportError:
 
 # ── Config ───────────────────────────────────────────────────────────────────
 
-FIREBASE_CONFIG = {
-    "apiKey":            "AIzaSyDWjHV3peM095iPDMa2t4IgUJeLyodUhc4",
-    "authDomain":        "infoleap-pulse.firebaseapp.com",
-    "projectId":         "infoleap-pulse",
-    "storageBucket":     "infoleap-pulse.firebasestorage.app",
-    "messagingSenderId": "653086919147",
-    "appId":             "1:653086919147:web:56198412d180882e6f31ae",
-}
+def _firebase_config() -> dict:
+    """Load Firebase config from env / st.secrets — never hardcoded."""
+    try:
+        import streamlit as st
+        cfg = st.secrets.get("firebase", {})
+        if cfg:
+            return dict(cfg)
+    except Exception:
+        pass
+    return {
+        "apiKey":            os.environ.get("FIREBASE_API_KEY", ""),
+        "authDomain":        os.environ.get("FIREBASE_AUTH_DOMAIN", ""),
+        "projectId":         os.environ.get("FIREBASE_PROJECT_ID", ""),
+        "storageBucket":     os.environ.get("FIREBASE_STORAGE_BUCKET", ""),
+        "messagingSenderId": os.environ.get("FIREBASE_MESSAGING_SENDER_ID", ""),
+        "appId":             os.environ.get("FIREBASE_APP_ID", ""),
+    }
+
+FIREBASE_CONFIG = _firebase_config()
 
 # Only these Google domains allowed for Google sign-in
 ALLOWED_GOOGLE_DOMAINS = {"info-leap.com"}
