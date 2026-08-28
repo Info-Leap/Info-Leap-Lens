@@ -69,6 +69,8 @@ class DriveClient:
             results = self._svc.files().list(
                 q=f"'{parent_id}' in parents and trashed=false",
                 fields="files(id,name,mimeType,modifiedTime,size)",
+                includeItemsFromAllDrives=True,
+                supportsAllDrives=True,
                 pageSize=200,
             ).execute()
             return results.get("files", [])
@@ -91,6 +93,7 @@ class DriveClient:
             f = self._svc.files().create(
                 body={"name": name, "mimeType": FOLDER_MIME, "parents": [parent_id]},
                 fields="id",
+                supportsAllDrives=True,
             ).execute()
             return f["id"]
         except Exception:
@@ -179,12 +182,14 @@ class DriveClient:
                     fileId=existing["id"],
                     media_body=media,
                     fields="id",
+                    supportsAllDrives=True,
                 ).execute()
             else:
                 f = self._svc.files().create(
                     body={"name": fname, "parents": [folder_id]},
                     media_body=media,
                     fields="id",
+                    supportsAllDrives=True,
                 ).execute()
             return f.get("id")
         except Exception:
