@@ -1,5 +1,5 @@
-﻿"""
-r_bridge.py â€” Python â†’ Rscript subprocess bridge for statistical analysis.
+"""
+r_bridge.py — Python → Rscript subprocess bridge for statistical analysis.
 
 Usage:
     from infoleap.skills.r_bridge import run_r_stat, r_available
@@ -8,8 +8,8 @@ Usage:
         result = run_r_stat("cronbach_alpha", df)  # df is a pandas DataFrame
 
 Architecture:
-    Python writes CSV to temp file â†’ Rscript.exe runs script â†’ reads JSON output.
-    No rpy2 dependency â€” works reliably on Windows via subprocess.
+    Python writes CSV to temp file → Rscript.exe runs script → reads JSON output.
+    No rpy2 dependency — works reliably on Windows via subprocess.
 """
 
 import json

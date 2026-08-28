@@ -1,14 +1,14 @@
-﻿"""
+"""
 Google Drive backend for InfoLeap Pulse.
 
 Folder structure in Drive:
   Info-Leap Lens/
-  â”œâ”€â”€ quant/
-  â”‚   â”œâ”€â”€ project_1__elec_appliances/   â† oxdata.db, master_mapping.xlsx, raw data
-  â”‚   â””â”€â”€ akshayakalpa__dairy/
-  â””â”€â”€ qual/
-      â”œâ”€â”€ coindcx__concept_test/         â† transcripts, pageindex_trees/, registry.json
-      â””â”€â”€ mixer__ethnographic/
+  ├── quant/
+  │   ├── project_1__elec_appliances/   ← oxdata.db, master_mapping.xlsx, raw data
+  │   └── akshayakalpa__dairy/
+  └── qual/
+      ├── coindcx__concept_test/         ← transcripts, pageindex_trees/, registry.json
+      └── mixer__ethnographic/
 
 Usage:
   from infoleap.gdrive.client import DriveClient
@@ -33,7 +33,7 @@ try:
 except ImportError:
     _GDRIVE_LIBS_AVAILABLE = False
 
-# â”€â”€ Folder IDs (from .env) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Folder IDs (from .env) ────────────────────────────────────────────────────
 ROOT_ID  = os.environ.get("GDRIVE_ROOT_FOLDER_ID",  "0AHQcUTK8oFvVUk9PVA")
 QUANT_ID = os.environ.get("GDRIVE_QUANT_FOLDER_ID", "1smKGRHA8XFZGeO4nFJa2EyQOn7MfV4n0")  # Quantitative/
 QUAL_ID  = os.environ.get("GDRIVE_QUAL_FOLDER_ID",  "1gnVu_EXPTNvMGZc9hEggM2gsxmLbZUIU")  # Qualitative/
@@ -80,7 +80,7 @@ class DriveClient:
             return service_account.Credentials.from_service_account_file(cred_path, scopes=SCOPES)
         return None
 
-    # â”€â”€ Internal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Internal helpers ───────────────────────────────────────────────────────
 
     def _list_children(self, parent_id: str) -> list[dict]:
         if self._svc is None:
@@ -124,7 +124,7 @@ class DriveClient:
         parent = QUANT_ID if kind == "quant" else QUAL_ID
         return self._mkdir(project_name, parent)
 
-    # â”€â”€ Project registry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Project registry ───────────────────────────────────────────────────────
 
     def list_quant_projects(self) -> list[str]:
         """Return list of quant project folder names."""
@@ -144,7 +144,7 @@ class DriveClient:
             "qual":  self.list_qual_projects(),
         }
 
-    # â”€â”€ Download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Download ───────────────────────────────────────────────────────────────
 
     def download_file(self, project_name: str, filename: str, dest_path: str, kind: str = "quant") -> bool:
         """Download a file from a project folder. Returns True on success."""
@@ -170,7 +170,7 @@ class DriveClient:
 
     def download_db(self, project_name: str, dest_path: str) -> bool:
         """Download oxdata.db for a quant project."""
-        return self.download_file(project_name, "oxdata.db", dest_path, kind="quant")
+        return self.download_file(project_name, "infoleap.db", dest_path, kind="quant")
 
     def download_master_mapping(self, project_name: str, dest_path: str, kind: str = "quant") -> bool:
         """Download master_mapping.xlsx for a project."""
@@ -180,7 +180,7 @@ class DriveClient:
         """Download mapping_workbook.xlsx for a quant project."""
         return self.download_file(project_name, "mapping_workbook.xlsx", dest_path, kind="quant")
 
-    # â”€â”€ Upload â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Upload ─────────────────────────────────────────────────────────────────
 
     def upload_file(self, project_name: str, local_path: str, filename: Optional[str] = None, kind: str = "quant") -> Optional[str]:
         """Upload a file to a project folder. Returns file ID."""
@@ -217,7 +217,7 @@ class DriveClient:
 
     def upload_db(self, project_name: str, local_path: str) -> Optional[str]:
         """Upload oxdata.db for a quant project. Returns Drive file ID."""
-        return self.upload_file(project_name, local_path, "oxdata.db", kind="quant")
+        return self.upload_file(project_name, local_path, "infoleap.db", kind="quant")
 
     def upload_master_mapping(self, project_name: str, local_path: str, kind: str = "quant") -> Optional[str]:
         """Upload master_mapping.xlsx for a project."""
@@ -230,7 +230,7 @@ class DriveClient:
         """Upload any raw file (codebook, data xlsx, etc.)."""
         return self.upload_file(project_name, local_path, filename or Path(local_path).name, kind=kind)
 
-    # â”€â”€ Qual-specific â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Qual-specific ──────────────────────────────────────────────────────────
 
     def upload_qual_file(self, project_name: str, local_path: str, filename: Optional[str] = None) -> Optional[str]:
         """Upload a qual project file (transcript, registry.json, etc.)."""
@@ -239,7 +239,7 @@ class DriveClient:
     def download_qual_file(self, project_name: str, filename: str, dest_path: str) -> bool:
         return self.download_file(project_name, filename, dest_path, kind="qual")
 
-    # â”€â”€ List project files â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── List project files ─────────────────────────────────────────────────────
 
     def list_project_files(self, project_name: str, kind: str = "quant") -> list[dict]:
         """List files inside a project folder."""
@@ -254,7 +254,7 @@ class DriveClient:
             if f.get("mimeType") != FOLDER_MIME
         ]
 
-    # â”€â”€ Full project synchronization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Full project synchronization ───────────────────────────────────────────
 
     def sync_project_to_drive(self, project_name: str, local_data_dir: str, kind: str = "quant") -> dict[str, str]:
         """
@@ -328,7 +328,7 @@ class DriveClient:
 
         return results
 
-    # â”€â”€ Create new project folder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Create new project folder ──────────────────────────────────────────────
 
     def create_project_folder(self, project_name: str, kind: str = "quant") -> Optional[str]:
         """Create a new project folder. Returns folder ID."""

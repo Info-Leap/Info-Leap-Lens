@@ -1,5 +1,5 @@
-﻿"""
-BrandHealthSkill â€” pure (non-Streamlit) wrapper around BrandImageryEngine.
+"""
+BrandHealthSkill — pure (non-Streamlit) wrapper around BrandImageryEngine.
 Safe to call from researcher_agent.py async tools.
 
 Returns JSON-serialisable dicts only. No st.* calls anywhere in this file.
@@ -142,7 +142,7 @@ def summarise_for_agent(brand_name: str, zone: str = "all", city: str = "all",
                         gender: str = "all", age_band: str = "all") -> str:
     """
     Returns a compact text summary (~200 words) for injection into agent context.
-    Safe for use in LLM prompts â€” no DataFrames, no figures.
+    Safe for use in LLM prompts — no DataFrames, no figures.
     """
     d = get_brand_health_data(brand_name, zone=zone, gender=gender,
                                age_band=age_band, city=city)
@@ -166,7 +166,7 @@ def summarise_for_agent(brand_name: str, zone: str = "all", city: str = "all",
     ) or "No city data"
 
     return (
-        f"BRAND HEALTH â€” {d['brand_name']}{filter_str} | Base N={d['base_n']:,}\n"
+        f"BRAND HEALTH — {d['brand_name']}{filter_str} | Base N={d['base_n']:,}\n"
         f"Awareness: TOM {d['tom_pct']}% | Spontaneous {d['spont_pct']}% | Aided {d['aided_pct']}%\n"
         f"NPS: {d['nps']} (base={d['nps_base']})\n"
         f"Strategic Score: {d['strat_score']}\n"

@@ -1,4 +1,4 @@
-﻿import json
+import json
 import pathlib
 import jsonschema
 import pytest
@@ -60,7 +60,7 @@ def test_multivalent_with_null_delimiter_fails():
 
 
 def test_brand_bucket_missing_code_to_label_warns_not_raises():
-    """2026-08-03: schema relaxed â€” code_to_label is now advisory (not schema-enforced) for
+    """2026-08-03: schema relaxed — code_to_label is now advisory (not schema-enforced) for
     brand-identity buckets, because all 4 fallback models returned brand questions with missing
     code_to_label and the strict minProperties:1 rule hard-failed the whole batch.
     The defensive repair in _classify_with_single_model now injects {} and adds a warning
@@ -270,7 +270,7 @@ def test_classify_all_questions_raises_valueerror_before_network_call_when_overs
 
 
 def test_classify_all_questions_valueerror_reflects_tokenizer_inflation_correction():
-    """The raw chars/4 estimate for this packet is UNDER the 100K budget on its own â€”
+    """The raw chars/4 estimate for this packet is UNDER the 100K budget on its own —
     only the corrected (x2.35) estimate exceeds it. This proves the guard is applying
     the inflation correction, not just the old uncorrected chars/4 check.
     """
@@ -336,7 +336,7 @@ def test_classify_all_questions_raises_runtimeerror_when_response_badly_incomple
 
 def test_classify_all_questions_small_fixture_does_not_trip_completeness_check():
     """A genuinely tiny test fixture (well under the completeness-check floor of 5 distinct
-    stems) must NOT trigger the completeness guard even though it only returns 1 question â€”
+    stems) must NOT trigger the completeness guard even though it only returns 1 question —
     this is the existing happy-path shape, kept working."""
     fake_response_body = json.dumps({
         "project_id": "akshayakalpa",
@@ -479,7 +479,7 @@ def test_classify_all_questions_injects_project_id_when_llm_omits_it():
 
 
 def test_classify_all_questions_overwrites_llm_supplied_project_id():
-    """Even if the LLM DOES echo a project_id back, the caller's own parameter must win â€” never
+    """Even if the LLM DOES echo a project_id back, the caller's own parameter must win — never
     trust the LLM's echo over the authoritative value already known to the caller."""
     fake_response_body = json.dumps({
         "project_id": "some_wrong_value_the_llm_made_up",
@@ -585,7 +585,7 @@ def test_classify_all_questions_auto_unwraps_schema_echo_response():
 def test_classify_all_questions_defaults_missing_question_text_to_question_code():
     """Regression for the live Akshayakalpa gap: one question in an otherwise-good response
     omitted question_text entirely. question_text is display-only (never read by
-    assignment_from_schema/load_confirmed_assignment) so it's now optional in the schema â€”
+    assignment_from_schema/load_confirmed_assignment) so it's now optional in the schema —
     classify_all_questions should still validate successfully and default_fill it from
     question_code so the review table never shows a blank.
     """
@@ -696,7 +696,7 @@ def test_classify_all_questions_all_models_fail_raises_aggregated_error():
 
 def test_classify_all_questions_size_guard_does_not_trigger_fallback():
     """The size-guard ValueError (context packet too large) is model-independent and must raise
-    IMMEDIATELY without trying any models in the fallback list â€” a bigger prompt problem won't be
+    IMMEDIATELY without trying any models in the fallback list — a bigger prompt problem won't be
     fixed by switching models."""
     huge_packet = {
         "ap_text": "x",
@@ -791,7 +791,7 @@ def test_assignment_from_schema_maps_multivalent_source_correctly():
     assert result["value_labels_by_code"]["q17"] == {"1": "Amul", "2": "Nandini"}
     assert result["delimiter_by_code"]["q17"] == " "
     # confirmed via grep of generic_loader.py: shape_by_code values are 'single' /
-    # 'multi_select' / 'delimited_multi_select' / 'battery_member' â€” NOT the schema's own
+    # 'multi_select' / 'delimited_multi_select' / 'battery_member' — NOT the schema's own
     # enum names. multivalent_source (delimiter-based) maps to 'delimited_multi_select'.
     assert result["shape_by_code"]["q17"] == "delimited_multi_select"
 
@@ -812,7 +812,7 @@ def test_assignment_from_schema_maps_multi_select_dummies_to_dummy_columns():
     result = assignment_from_schema(schema_doc)
     q = result["assignment"]["ATTITUDE"][0]
     assert q["question_code"] == "q67"
-    # data_columns must be the dummy_columns list, NOT [source_column] â€” the real data lives
+    # data_columns must be the dummy_columns list, NOT [source_column] — the real data lives
     # across the independent one-hot columns, source_column ("q67") is nominal-only.
     assert q["data_columns"] == [f"q67_{i}" for i in range(1, 14)]
     assert result["shape_by_code"]["q67"] == "multi_select"

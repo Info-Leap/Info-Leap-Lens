@@ -1,4 +1,4 @@
-﻿"""
+"""
 Qualitative Retrieval Engine for OxData.
 Optimized for OpenRouter Reliability.
 """
@@ -32,7 +32,7 @@ _FREE_MODELS_QR = [
 _ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
 def _get_key() -> str:
-    """Lazy key loader â€” tries env first, then re-reads .env with override."""
+    """Lazy key loader — tries env first, then re-reads .env with override."""
     key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not key:
         try:
@@ -126,7 +126,7 @@ async def search_qual_trees(query: str, filters: Dict[str, str] = None, progress
 
                     # Base score: passage from an indexed (brand/city filtered) doc = always relevant
                     # Additional boosts for keyword/phrase matches
-                    score = 5  # base â€” doc was already pre-filtered at index level
+                    score = 5  # base — doc was already pre-filtered at index level
                     if q_low and q_low in content_low: score += 50
                     if brand and brand.lower() in content_low: score += 15
                     if city and city.lower() in content_low: score += 10
@@ -155,9 +155,9 @@ def synthesize_qual_insights(query: str, passages: List[Dict]) -> Dict:
     if not passages:
         return {"summary": "No qualitative context found.", "themes": []}
     if not _get_key():
-        return {"summary": "OpenRouter API key not found â€” check oxdata/.env", "themes": []}
+        return {"summary": "OpenRouter API key not found — check oxdata/.env", "themes": []}
 
-    # Build a rich evidence block â€” include brand, city, and content for each passage
+    # Build a rich evidence block — include brand, city, and content for each passage
     evidence_lines = []
     for i, p in enumerate(passages[:6], 1):
         brand = p.get("brand", "Unknown")
@@ -170,7 +170,7 @@ def synthesize_qual_insights(query: str, passages: List[Dict]) -> Dict:
         "You are a qualitative research analyst interpreting in-depth consumer interviews (IDIs) "
         "from an Indian electrical appliances study (FMCD category: fans, mixer-grinders, water heaters, room coolers). "
         "Respondents are middle-class Indian household decision-makers across 18 cities. "
-        "Your job is to surface what consumers ACTUALLY THINK â€” not to summarise neutrally, "
+        "Your job is to surface what consumers ACTUALLY THINK — not to summarise neutrally, "
         "but to identify the underlying belief, emotion, or concern that drives behaviour. "
         "Be specific: name brands, name cities, quote actual words from the evidence. "
         "Never write generic statements that could apply to any category."
@@ -183,13 +183,13 @@ INTERVIEW EVIDENCE ({len(passages)} passages retrieved, top 6 shown):
 
 Write a structured qualitative synthesis in EXACTLY this format:
 
-CORE FINDING: [One bold, decisive sentence â€” what is the dominant consumer belief or behaviour pattern revealed by these interviews? Cite at least one brand or city name.]
+CORE FINDING: [One bold, decisive sentence — what is the dominant consumer belief or behaviour pattern revealed by these interviews? Cite at least one brand or city name.]
 
-EVIDENCE THEMES: [2â€“3 sentences identifying the 2â€“3 recurring themes across passages. For each theme, quote or paraphrase a specific passage. Format: 'Theme 1: consumers in [city] associate [brand] with [attribute], as seen in passage [N]...']
+EVIDENCE THEMES: [2–3 sentences identifying the 2–3 recurring themes across passages. For each theme, quote or paraphrase a specific passage. Format: 'Theme 1: consumers in [city] associate [brand] with [attribute], as seen in passage [N]...']
 
-DIVERGENT SIGNAL: [1 sentence on any CONTRADICTORY or SURPRISING finding in the evidence â€” a quote that cuts against the dominant pattern. If none, state the strongest point of consensus instead.]
+DIVERGENT SIGNAL: [1 sentence on any CONTRADICTORY or SURPRISING finding in the evidence — a quote that cuts against the dominant pattern. If none, state the strongest point of consensus instead.]
 
-STRATEGIC IMPLICATION: [1â€“2 sentences on what this qualitative evidence implies for brand strategy. Be actionable â€” what should the brand team do differently based on what consumers are actually saying in interviews?]
+STRATEGIC IMPLICATION: [1–2 sentences on what this qualitative evidence implies for brand strategy. Be actionable — what should the brand team do differently based on what consumers are actually saying in interviews?]
 
 Rules: Bold (**) key terms. Reference specific passage numbers [N] when citing evidence. No hedging."""
 
@@ -214,7 +214,7 @@ Rules: Bold (**) key terms. Reference specific passage numbers [N] when citing e
             continue
 
     if not raw:
-        return {"summary": "Synthesis unavailable â€” all free models failed.", "themes": []}
+        return {"summary": "Synthesis unavailable — all free models failed.", "themes": []}
 
     themes = []
     for line in raw.split("\n"):

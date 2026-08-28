@@ -1,6 +1,6 @@
-﻿"""
-OxData â€” Schema Explorer (Power BI style data model view)
-No API calls on this page â€” 100% local, reads directly from SQLite DB.
+"""
+OxData — Schema Explorer (Power BI style data model view)
+No API calls on this page — 100% local, reads directly from SQLite DB.
 Shows: Interactive ER diagram, table cards with live row counts, column details, context explanation.
 """
 
@@ -33,18 +33,18 @@ from infoleap.db_loader import get_db_path
 DB_PATH = get_db_path()
 
 if not DB_PATH or not DB_PATH.exists():
-    empty_state(f"Database not available â€” {DB_PATH}", icon="âœ—",
+    empty_state(f"Database not available — {DB_PATH}", icon="✗",
                 action_hint="Check oxdata/data/project_1/oxdata.db exists.")
     st.stop()
 
-# â”€â”€ live row counts from DB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── live row counts from DB ────────────────────────────────────────────────────
 @st.cache_data(ttl=300)
 def get_row_counts(db_path: str) -> dict:
-    """Row counts for EVERY real table/view in the active DB, discovered from sqlite_master â€”
+    """Row counts for EVERY real table/view in the active DB, discovered from sqlite_master —
     not a hardcoded list. A project ingested via Add Project (generic_loader.create_minimal_schema)
     has a DIFFERENT table set than project_1's original schema (no fact_kitchen_ownership/
     fact_room_appliances/dim_kitchen_appliance, but DOES have fact_satisfaction/
-    fact_need_importance/fact_attitudes/etc) â€” a fixed list would show false 'â€”' for tables a
+    fact_need_importance/fact_attitudes/etc) — a fixed list would show false '—' for tables a
     new project was never meant to have, while silently hiding the ones it actually does have
     real data in. db_path is a cache-key param (not read from the DB_PATH global) so switching
     the Active Project selector busts this cache correctly instead of showing a stale project's
@@ -62,7 +62,7 @@ def get_row_counts(db_path: str) -> dict:
             cur.execute(f"SELECT COUNT(*) FROM {t}")
             counts[t] = cur.fetchone()[0]
         except Exception:
-            counts[t] = "â€”"
+            counts[t] = "—"
     con.close()
     return counts
 
@@ -92,7 +92,7 @@ inject_pulse_styles()
 
 
 def _fmt_count(value, fallback: int) -> str:
-    """counts[t] is 'â€”' (a string) when the table/view query failed inside get_row_counts â€”
+    """counts[t] is '—' (a string) when the table/view query failed inside get_row_counts —
     .get()'s default never fires for that case since the key IS present, just with a
     placeholder value. Guard the ',' format spec here instead of assuming an int."""
     v = value if isinstance(value, (int, float)) else fallback
@@ -100,7 +100,7 @@ def _fmt_count(value, fallback: int) -> str:
 
 
 def _as_int(value) -> int:
-    """counts[t] can be 'â€”' (string) when a table exists but its COUNT query failed â€” never
+    """counts[t] can be '—' (string) when a table exists but its COUNT query failed — never
     trust it's already an int before arithmetic."""
     return value if isinstance(value, (int, float)) else 0
 
@@ -166,19 +166,19 @@ with col_health:
         )
     st.markdown("""
         <div style="font-size:0.72rem;color:#9ca3af;margin-top:8px;">
-        BQ3 imagery data not yet ingested â€” radar/quadrant charts pending.
+        BQ3 imagery data not yet ingested — radar/quadrant charts pending.
         </div>
     """, unsafe_allow_html=True)
 
 
-# â”€â”€ Interactive ER diagram (Cytoscape.js) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Interactive ER diagram (Cytoscape.js) ─────────────────────────────────────
 # Each entry: (technical_id, human_label, color, description, x_px, y_px)
 # Positions designed as star schema: core fact at centre, outer facts mid-ring,
 # dimensions on the periphery.
 
 _ER_NODES = [
     ("fact_respondents",       "Respondents",       "#2563EB", "Core respondent demographics & geography",         420, 185),
-    ("dim_date",               "Date",              "#16A34A", "39 unique interview dates (Aprâ€“Jun 2021)",          215,  55),
+    ("dim_date",               "Date",              "#16A34A", "39 unique interview dates (Apr–Jun 2021)",          215,  55),
     ("dim_city",               "City",              "#16A34A", "18 Indian cities across 4 zones",                  645,  70),
     ("dim_zone",               "Zone",              "#16A34A", "North / South / West / East",                      130, 115),
     ("fact_brand_awareness",   "Brand Awareness",   "#7C3AED", "TOM / SPONT / AIDED brand recall events",          110, 285),
@@ -226,7 +226,7 @@ def render_er_diagram(counts: dict) -> None:
             "desc":  desc,
             "x":     x,
             "y":     y,
-            "rows":  f"{counts[nid]:,}" if isinstance(counts.get(nid), int) else "â€”",
+            "rows":  f"{counts[nid]:,}" if isinstance(counts.get(nid), int) else "—",
         }
         for nid, human, color, desc, x, y in _ER_NODES
     ])
@@ -416,7 +416,7 @@ const cy = cytoscape({{
   wheelSensitivity:    0.25,
 }});
 
-// â”€â”€ Tooltip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tooltip ───────────────────────────────────────────────────────────────────
 const tooltip = document.getElementById('tooltip');
 
 cy.on('mouseover', 'node', function(e) {{
@@ -454,47 +454,47 @@ document.getElementById('cy').addEventListener('mouseleave', function() {{
     components.html(html, height=580, scrolling=False)
 
 
-# â”€â”€ view cards data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── view cards data ────────────────────────────────────────────────────────────
 VIEW_CARDS = [
     {
         "name": "v_respondents",
-        "icon": "ðŸ‘¤",
+        "icon": "👤",
         "purpose": "One row per respondent with all demographics & geography resolved.",
         "key_cols": "respondent_id, gender, age, age_band, city_name, zone_name, interview_date",
         "use_for": "Filter by city, zone, gender, date. Base for all percentages.",
     },
     {
         "name": "v_brand_awareness",
-        "icon": "ðŸ“¢",
-        "purpose": "One row per respondent Ã— brand Ã— awareness stage.",
+        "icon": "📢",
+        "purpose": "One row per respondent × brand × awareness stage.",
         "key_cols": "respondent_id, stage (TOM/SPONT/AIDED), rank, brand_name",
-        "use_for": "Brand funnel analysis â€” TOM%, spontaneous%, total awareness%.",
+        "use_for": "Brand funnel analysis — TOM%, spontaneous%, total awareness%.",
     },
     {
         "name": "v_brand_nps",
-        "icon": "â­",
-        "purpose": "One row per respondent Ã— brand NPS rating.",
+        "icon": "⭐",
+        "purpose": "One row per respondent × brand NPS rating.",
         "key_cols": "respondent_id, brand_name, nps_score (0-10), nps_category",
         "use_for": "NPS scores, promoter/detractor breakdowns, brand loyalty.",
     },
     {
         "name": "v_kitchen_ownership",
-        "icon": "ðŸ³",
-        "purpose": "One row per respondent Ã— kitchen appliance owned.",
+        "icon": "🍳",
+        "purpose": "One row per respondent × kitchen appliance owned.",
         "key_cols": "respondent_id, appliance_name",
         "use_for": "Appliance penetration rates, ownership by demographic.",
     },
     {
         "name": "v_recent_purchase",
-        "icon": "ðŸ›’",
-        "purpose": "One row per respondent Ã— recently purchased appliance (ranked).",
-        "key_cols": "respondent_id, purchase_rank (1â€“3), appliance_name",
+        "icon": "🛒",
+        "purpose": "One row per respondent × recently purchased appliance (ranked).",
+        "key_cols": "respondent_id, purchase_rank (1–3), appliance_name",
         "use_for": "Which appliances were bought most recently. Rank 1 = most recent.",
     },
     {
         "name": "v_room_appliances",
-        "icon": "ðŸ ",
-        "purpose": "One row per respondent Ã— room appliance owned.",
+        "icon": "🏠",
+        "purpose": "One row per respondent × room appliance owned.",
         "key_cols": "respondent_id, appliance_name",
         "use_for": "Fan/AC/bulb/geyser ownership rates by city or zone.",
     },
@@ -506,7 +506,7 @@ TABLE_CARDS = {
         "tables": [
             {"name": "fact_respondents",       "desc": "Core respondent row. All 6,631 interviews."},
             {"name": "fact_brand_awareness",   "desc": "TOM / SPONT / AIDED recall events."},
-            {"name": "fact_brand_nps",         "desc": "Per-brand NPS ratings (sparse â€” only rated brands)."},
+            {"name": "fact_brand_nps",         "desc": "Per-brand NPS ratings (sparse — only rated brands)."},
             {"name": "fact_kitchen_ownership", "desc": "Kitchen appliance binary flags expanded to rows."},
             {"name": "fact_recent_purchase",   "desc": "Recent purchase selections with rank order."},
             {"name": "fact_room_appliances",   "desc": "Room appliance binary flags expanded to rows."},
@@ -516,8 +516,8 @@ TABLE_CARDS = {
     "Dimension Tables": {
         "color": "#16A34A",
         "tables": [
-            {"name": "dim_brand",             "desc": "56 brand codes â†’ names"},
-            {"name": "dim_city",              "desc": "18 cities â†’ zone mapping"},
+            {"name": "dim_brand",             "desc": "56 brand codes → names"},
+            {"name": "dim_city",              "desc": "18 cities → zone mapping"},
             {"name": "dim_zone",              "desc": "4 zones (North/South/West/East)"},
             {"name": "dim_kitchen_appliance", "desc": "14 kitchen appliance types"},
             {"name": "dim_room_appliance",    "desc": "17 room appliance types"},
@@ -527,13 +527,13 @@ TABLE_CARDS = {
 }
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # PAGE LAYOUT
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
-section_header("Schema Explorer", "Data model for Project 1 â€” OX Wave 1. No API calls on this page.")
+section_header("Schema Explorer", "Data model for Project 1 — OX Wave 1. No API calls on this page.")
 
-# â”€â”€ top stats bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── top stats bar ──────────────────────────────────────────────────────────────
 c1, c2, c3, c4, c5 = st.columns(5)
 from infoleap.utils.ui_styles import kpi_card as _repo_kpi
 with c1: _repo_kpi("Respondents", _fmt_count(COUNTS.get('fact_respondents'), 0), "#1a5d4d")
@@ -548,13 +548,13 @@ st.divider()
 
 import os
 
-# â”€â”€ tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── tabs ───────────────────────────────────────────────────────────────────────
 if os.environ.get("ST_PROD_MODE") == "true":
     tab_er, tab_views, tab_tables, tab_live = st.tabs([
         "ER Diagram",
         "Views (query these)",
         "Raw Tables",
-        "ðŸ” This Project's Data (live)",
+        "🔍 This Project's Data (live)",
     ])
     tab_context = None
 else:
@@ -562,13 +562,13 @@ else:
         "ER Diagram",
         "Views (query these)",
         "Raw Tables",
-        "ðŸ” This Project's Data (live)",
+        "🔍 This Project's Data (live)",
         "How Context Works",
     ])
 
-# â”€â”€ TAB 1: ER DIAGRAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 1: ER DIAGRAM ─────────────────────────────────────────────────────────
 with tab_er:
-    section_header("Entity Relationship Diagram â€” Star Schema")
+    section_header("Entity Relationship Diagram — Star Schema")
     st.caption(
         "Drag any node to reposition it. Scroll to zoom. Drag the background to pan. "
         "Hover over a node for details and row count."
@@ -595,26 +595,26 @@ with tab_er:
         | **dim_date** | Table | Fieldwork timeline (Apr-Jun 21) | date_id |
         
         **Reading the diagram:**
-        - **Blue (centre):** `fact_respondents` â€” the hub every other fact joins to.
-        - **Purple:** Fact tables â€” one row per event (a brand mention, an NPS rating, an appliance owned).
-        - **Green:** Dimension tables â€” lookup tables for codes â†’ labels (brand names, city names, etc.)
+        - **Blue (centre):** `fact_respondents` — the hub every other fact joins to.
+        - **Purple:** Fact tables — one row per event (a brand mention, an NPS rating, an appliance owned).
+        - **Green:** Dimension tables — lookup tables for codes → labels (brand names, city names, etc.)
         - **Arrows:** Foreign key direction. All views pre-join these so the LLM never needs to write JOINs.
         """
     )
 
-# â”€â”€ TAB 2: VIEWS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 2: VIEWS ──────────────────────────────────────────────────────────────
 with tab_views:
-    section_header("6 Pre-joined Views â€” Always query these in the chat")
+    section_header("6 Pre-joined Views — Always query these in the chat")
     st.info(
         "Views join all dimension labels into the fact data. When you chat, the LLM is told "
-        "to query views only â€” this means it writes simpler SQL and is less likely to hallucinate column names.",
-        icon="â„¹ï¸",
+        "to query views only — this means it writes simpler SQL and is less likely to hallucinate column names.",
+        icon="ℹ️",
     )
 
     for card in VIEW_CARDS:
-        cnt = COUNTS.get(card["name"], "â€”")
+        cnt = COUNTS.get(card["name"], "—")
         badge = f"{cnt:,} rows" if isinstance(cnt, int) else cnt
-        with st.expander(f"{card['icon']}  **{card['name']}** â€” {badge}", expanded=False):
+        with st.expander(f"{card['icon']}  **{card['name']}** — {badge}", expanded=False):
             col_l, col_r = st.columns([2, 1])
             with col_l:
                 st.markdown(f"**Purpose:** {card['purpose']}")
@@ -635,15 +635,15 @@ with tab_views:
             except Exception:
                 st.caption("(No data yet)")
 
-# â”€â”€ TAB 3: RAW TABLES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 3: RAW TABLES ─────────────────────────────────────────────────────────
 with tab_tables:
-    section_header("Raw Tables â€” For reference only (chat queries the views)")
+    section_header("Raw Tables — For reference only (chat queries the views)")
 
     for category, info in TABLE_CARDS.items():
         st.markdown(f"##### {category}")
         col_groups = st.columns(3)
         for i, table in enumerate(info["tables"]):
-            cnt = COUNTS.get(table["name"], "â€”")
+            cnt = COUNTS.get(table["name"], "—")
             badge = f"{cnt:,}" if isinstance(cnt, int) else cnt
             with col_groups[i % 3]:
                 with st.container(border=True):
@@ -661,17 +661,17 @@ with tab_tables:
                                 use_container_width=True, hide_index=True, height=180,
                             )
                         except Exception:
-                            st.caption("â€”")
+                            st.caption("—")
         st.markdown("")
 
-# â”€â”€ TAB: THIS PROJECT'S DATA (live, schema-agnostic) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB: THIS PROJECT'S DATA (live, schema-agnostic) ──────────────────────────
 # 2026-07-30: the ER diagram + VIEW_CARDS/TABLE_CARDS above are hand-curated for project_1's
-# ORIGINAL schema (fact_kitchen_ownership, dim_kitchen_appliance, etc) â€” a project ingested
+# ORIGINAL schema (fact_kitchen_ownership, dim_kitchen_appliance, etc) — a project ingested
 # through Add Project (generic_loader.create_minimal_schema) has a DIFFERENT table set (no
 # kitchen/room-appliance tables, but real data in fact_satisfaction/fact_need_importance/
 # fact_attitudes/fact_portfolio_awareness/fact_price_paid/fact_purchase_journey instead). Switching
-# Active Project to one of those would make the tabs above show mostly "â€”"/empty for tables that
-# were never expected to exist, while silently never showing the tables that DO have real data â€”
+# Active Project to one of those would make the tabs above show mostly "—"/empty for tables that
+# were never expected to exist, while silently never showing the tables that DO have real data —
 # no way to verify the backend actually got written correctly. This tab is schema-agnostic: it
 # lists EVERY real table in whatever DB is currently active (via get_row_counts' sqlite_master
 # introspection), so it's correct for project_1 AND for any newly ingested project alike.
@@ -680,7 +680,7 @@ with tab_live:
                     f"Active project DB: {DB_PATH}")
     st.caption(
         "Unlike the tabs above (hand-curated for project_1's original schema), this list is "
-        "generated live from the actual database file â€” correct for any project, including one "
+        "generated live from the actual database file — correct for any project, including one "
         "just ingested through Add Project with a different table set."
     )
     _live_names = sorted(COUNTS.keys())
@@ -689,7 +689,7 @@ with tab_live:
     else:
         _cols = st.columns(3)
         for i, name in enumerate(_live_names):
-            cnt = COUNTS.get(name, "â€”")
+            cnt = COUNTS.get(name, "—")
             badge = f"{cnt:,} rows" if isinstance(cnt, (int, float)) else str(cnt)
             with _cols[i % 3]:
                 with st.container(border=True):
@@ -712,7 +712,7 @@ with tab_live:
                         except Exception as e:
                             st.caption(f"Sample unavailable: {e}")
 
-# â”€â”€ TAB 4: HOW CONTEXT WORKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 4: HOW CONTEXT WORKS ──────────────────────────────────────────────────
 with tab_context:
     section_header("How the LLM Understands the Database")
 
@@ -723,7 +723,7 @@ with tab_context:
     c_left, c_right = st.columns(2)
 
     with c_left:
-        st.markdown("##### 1. System Prompt (skill-specific, 350â€“900 tokens)")
+        st.markdown("##### 1. System Prompt (skill-specific, 350–900 tokens)")
         st.code(
             """[system]
 You are a SQL analyst for a SQLite survey database.
@@ -779,11 +779,11 @@ ORDER BY nps DESC;
         st.markdown("##### Token budget per call (with Skill Foundry)")
         st.dataframe(
             pd.DataFrame([
-                ["Skill system prompt",           "350â€“900",   "Varies by skill routed to"],
+                ["Skill system prompt",           "350–900",   "Varies by skill routed to"],
                 ["Prior turns (Q+SQL, 4 turns)",  "~400 max",  "Grows with conversation"],
                 ["Your question",                 "~15",       "Variable"],
-                ["Total input",                   "~800â€“1,300","Was 6,500 before BUG-008"],
-                ["SQL output",                    "~80",       "Short â€” SQL is concise"],
+                ["Total input",                   "~800–1,300","Was 6,500 before BUG-008"],
+                ["SQL output",                    "~80",       "Short — SQL is concise"],
             ], columns=["Component", "Tokens (est.)", "Notes"]),
             hide_index=True, use_container_width=True,
         )

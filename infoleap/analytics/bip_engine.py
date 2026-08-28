@@ -1,19 +1,19 @@
-﻿"""
-BIPNormalizationEngine â€” Brand Image Profiling Normalization Engine
+"""
+BIPNormalizationEngine — Brand Image Profiling Normalization Engine
 ====================================================================
 Replicates the Normalisation.xlsx (sheet "65%") methodology used for
 2-wheeler BIP studies, adapted for electrical appliance brands.
 
 Data sources:
-  fact_brand_imagery  â€” respondent Ã— attribute Ã— brand association rows
-  dim_bq3_attribute   â€” attribute metadata (label, broad_feature, applies_* cols)
-  dim_brand           â€” brand id / name
-  v_brand_imagery     â€” view joining all of the above + demographics
+  fact_brand_imagery  — respondent × attribute × brand association rows
+  dim_bq3_attribute   — attribute metadata (label, broad_feature, applies_* cols)
+  dim_brand           — brand id / name
+  v_brand_imagery     — view joining all of the above + demographics
 
 14-table pipeline mirrors the Excel model exactly:
-  TABLE 1   raw % association score (brand Ã— attribute)
+  TABLE 1   raw % association score (brand × attribute)
   TABLE 2   absolute deviation from column (attribute) mean
-  TABLE 3   % normalized deviation  (diff / mean Ã— 100)
+  TABLE 3   % normalized deviation  (diff / mean × 100)
   TABLE 4   threshold-filtered normalized deviation (zeroed if not significant)
   TABLE 5   positive-only filtered
   TABLE 6   negative-only filtered
@@ -24,7 +24,7 @@ Data sources:
   TABLE 14  YES / NO significance flags
 
 Percentile thresholds (calibrated from Excel row 36-38):
-  p75 â‰ˆ 15.48   p65 â‰ˆ 12.40 (default gate)   p25 â‰ˆ 5.98
+  p75 ≈ 15.48   p65 ≈ 12.40 (default gate)   p25 ≈ 5.98
 These are recomputed from live data; the defaults above are fallback references.
 """
 
@@ -43,7 +43,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-# â”€â”€ path bootstrap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── path bootstrap ─────────────────────────────────────────────────────────────
 _LENS_DIR   = Path(__file__).resolve().parent.parent          # lens/
 _PROJ_ROOT  = _LENS_DIR.parent                                # project root
 if str(_PROJ_ROOT) not in sys.path:
@@ -56,10 +56,10 @@ except ImportError:
     _HAS_DB_LOADER = False
 
 # Canonical DB location (fallback if db_loader unavailable)
-_DEFAULT_DB = _PROJ_ROOT / "oxdata" / "data" / "project_1" / "oxdata.db"
+_DEFAULT_DB = _PROJ_ROOT / "oxdata" / "data" / "project_1" / "infoleap.db"
 
 
-# â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── helpers ────────────────────────────────────────────────────────────────────
 
 def _resolve_db(db_path: Optional[str | Path], project_id: Optional[str] = None) -> str:
     """Return a usable string path to the SQLite database.
@@ -94,7 +94,7 @@ def _rank_series(s: pd.Series, non_sig_rank: int) -> pd.Series:
     return ranked.astype(int)
 
 
-# â”€â”€ main engine â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── main engine ───────────────────────────────────────────────────────────────
 
 class BIPNormalizationEngine:
     """
@@ -105,13 +105,13 @@ class BIPNormalizationEngine:
     db_path : str | Path | None
         Path to oxdata.db.  If None, resolved via db_loader / defaults.
     category_codes : list[int] | None
-        Filter to specific category codes (1â€“12 in OX schema).
+        Filter to specific category codes (1–12 in OX schema).
         None = all categories.
     percentile_threshold : float
-        Primary significance gate (default 65 â†’ p65 of all normalized deviations).
+        Primary significance gate (default 65 → p65 of all normalized deviations).
     """
 
-    # Mapping broad_feature code â†’ display label for radar / bar sections
+    # Mapping broad_feature code → display label for radar / bar sections
     SECTION_LABELS: dict[str, str] = {
         "product":  "Product",
         "design":   "Design",
@@ -148,12 +148,12 @@ class BIPNormalizationEngine:
         self._tables:   Optional[dict]         = None
         self._attrs_meta: Optional[pd.DataFrame] = None
 
-    # â”€â”€ connection helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── connection helper ──────────────────────────────────────────────────────
 
     def _conn(self) -> sqlite3.Connection:
         return sqlite3.connect(os.path.abspath(self.db_path))
 
-    # â”€â”€ schema probe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── schema probe ──────────────────────────────────────────────────────────
 
     def _tables_exist(self, conn: sqlite3.Connection, *names: str) -> bool:
         existing = {
@@ -162,7 +162,7 @@ class BIPNormalizationEngine:
         }
         return all(n in existing for n in names)
 
-    # â”€â”€ attribute metadata â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── attribute metadata ────────────────────────────────────────────────────
 
     def get_attribute_meta(self) -> pd.DataFrame:
         """
@@ -177,7 +177,7 @@ class BIPNormalizationEngine:
         if not self._tables_exist(conn, "dim_bq3_attribute"):
             conn.close()
             warnings.warn(
-                "dim_bq3_attribute not found in DB â€” BIP data not yet ingested.",
+                "dim_bq3_attribute not found in DB — BIP data not yet ingested.",
                 RuntimeWarning, stacklevel=2
             )
             self._attrs_meta = pd.DataFrame(
@@ -191,7 +191,7 @@ class BIPNormalizationEngine:
         conn.close()
         return self._attrs_meta
 
-    # â”€â”€ TABLE 1: raw % association matrix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── TABLE 1: raw % association matrix ─────────────────────────────────────
 
     def get_brand_attr_matrix(
         self,
@@ -201,10 +201,10 @@ class BIPNormalizationEngine:
         attr_ids:       Optional[list[int]] = None,
     ) -> pd.DataFrame:
         """
-        Build brand Ã— attribute raw-% association matrix (TABLE 1).
+        Build brand × attribute raw-% association matrix (TABLE 1).
 
         Value = respondents who chose brand B for attribute A
-                â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Ã— 100
+                ─────────────────────────────────────────────── × 100
                 total respondents who evaluated attribute A
 
         Parameters
@@ -218,7 +218,7 @@ class BIPNormalizationEngine:
 
         Returns
         -------
-        DataFrame  â€” index = brand_name, columns = attr_label, values = float (0â€“100).
+        DataFrame  — index = brand_name, columns = attr_label, values = float (0–100).
         Empty DataFrame if imagery tables absent.
         """
         codes = category_codes if category_codes is not None else self.category_codes
@@ -265,7 +265,7 @@ class BIPNormalizationEngine:
 
         conn  = self._conn()
 
-        # 2026-07-30: see can_map_engine.py's get_brand_attr_matrix for the full rationale â€”
+        # 2026-07-30: see can_map_engine.py's get_brand_attr_matrix for the full rationale —
         # projects onboarded via the generic ingestion pipeline never populate category_code
         # (most brand-health clients survey ONE category), so applying project_1's hardcoded
         # category filter would zero out every row for them even though real data exists.
@@ -282,7 +282,7 @@ class BIPNormalizationEngine:
         if not self._tables_exist(conn, *needs):
             conn.close()
             warnings.warn(
-                "fact_brand_imagery / dim_bq3_attribute not found â€” returning empty matrix.",
+                "fact_brand_imagery / dim_bq3_attribute not found — returning empty matrix.",
                 RuntimeWarning, stacklevel=2
             )
             return pd.DataFrame()
@@ -301,7 +301,7 @@ class BIPNormalizationEngine:
         )
 
         # Build WHERE clauses.
-        # denom_where_parts excludes brand_ids â€” denominator is total respondents
+        # denom_where_parts excludes brand_ids — denominator is total respondents
         # per attribute regardless of which brand they chose, so brand filtering
         # must NOT apply (it would reference b.brand_id which has no join in denom).
         where_parts: list[str] = []
@@ -320,7 +320,7 @@ class BIPNormalizationEngine:
             placeholders = ",".join("?" * len(brand_ids))
             where_parts.append(f"b.brand_id IN ({placeholders})")
             params.extend(brand_ids)
-            # NOT added to denom_where_parts â€” denom has no dim_brand join
+            # NOT added to denom_where_parts — denom has no dim_brand join
 
         if attr_section:
             where_parts.append("LOWER(a.broad_feature) = LOWER(?)")
@@ -346,7 +346,7 @@ class BIPNormalizationEngine:
         denom_where_sql = ("WHERE " + " AND ".join(denom_where_parts)) if denom_where_parts else ""
 
         # Per-attribute total respondents (denominator)
-        # Uses denom_where_sql / denom_params â€” no brand_ids filter.
+        # Uses denom_where_sql / denom_params — no brand_ids filter.
         denom_sql = f"""
             SELECT fi.attr_id, COUNT(DISTINCT fi.respondent_id) AS total_resp
             FROM fact_brand_imagery fi
@@ -361,7 +361,7 @@ class BIPNormalizationEngine:
             conn.close()
             return pd.DataFrame()
 
-        # Per brand Ã— attribute respondent count (numerator)
+        # Per brand × attribute respondent count (numerator)
         if where_parts:
             numer_where = "WHERE " + " AND ".join(where_parts) + " AND fi.value = 1"
         else:
@@ -436,7 +436,7 @@ class BIPNormalizationEngine:
         self._matrix = matrix
         return matrix
 
-    # â”€â”€ full normalization pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── full normalization pipeline ───────────────────────────────────────────
 
     def compute_cell_p_values(self, t1: pd.DataFrame, expected: np.ndarray, n_resp: pd.Series) -> pd.DataFrame:
         """
@@ -464,7 +464,7 @@ class BIPNormalizationEngine:
         matrix: Optional[pd.DataFrame] = None,
     ) -> dict:
         """
-        Run all 14 (now 15) normalization tables on the brand Ã— attribute raw-% matrix.
+        Run all 14 (now 15) normalization tables on the brand × attribute raw-% matrix.
 
         Parameters
         ----------
@@ -486,7 +486,7 @@ class BIPNormalizationEngine:
 
         if matrix.empty:
             warnings.warn(
-                "BIP matrix is empty â€” normalization cannot proceed.",
+                "BIP matrix is empty — normalization cannot proceed.",
                 RuntimeWarning, stacklevel=2
             )
             empty = pd.DataFrame()
@@ -507,21 +507,21 @@ class BIPNormalizationEngine:
                 "column_averages":  pd.Series(dtype=float),
             }
 
-        # â”€â”€ TABLE 1: raw % â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 1: raw % ────────────────────────────────────────────────────
         t1 = matrix.copy().astype(float)
         col_avgs = t1.mean(axis=0)    # attribute-level mean across brands
         row_avgs = t1.mean(axis=1)    # brand-level mean across attributes
         grand_mean = t1.values.mean() # category-level grand mean
 
-        # â”€â”€ TABLE 2: absolute deviation from column mean (internal only) â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 2: absolute deviation from column mean (internal only) ────────
         # NOTE: Excel Normalisation.xlsx does not have this as a named table.
         # It is an intermediate step not shown in the Excel workbook.
         t2 = t1.subtract(col_avgs, axis=1)
 
-        # â”€â”€ TABLE 3: doubly-normalized deviation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 3: doubly-normalized deviation ──────────────────────────────
         # EXCEL MAPPING: this is Excel's "TABLE 2" (Normalisation.xlsx sheet "65%").
         # Code numbering is offset by 1 vs Excel because TABLE 2 above is internal.
-        # Formula: (raw Ã— grand_mean) / (brand_avg Ã— col_avg) - 1) Ã— 100
+        # Formula: (raw × grand_mean) / (brand_avg × col_avg) - 1) × 100
         # Replicates Excel: =(C8*$J$36)*100/($J8*C$36)-100
         # where $J$36 = grand mean, $J8 = col avg (brand row average), C$36 = attribute col avg.
         col_avgs_safe = col_avgs.clip(lower=0.1)
@@ -534,16 +534,16 @@ class BIPNormalizationEngine:
             index=t1.index, columns=t1.columns
         ).fillna(0.0).clip(-500, 500)
 
-        # â”€â”€ Brand-normalized score (Excel T3): (raw/brand_avg - 1) Ã— 100 â”€â”€â”€â”€â”€
+        # ── Brand-normalized score (Excel T3): (raw/brand_avg - 1) × 100 ─────
         # Used as secondary gate: brand must over-perform vs its OWN average.
         t_brand = (t1.divide(row_avgs_safe, axis=0) - 1) * 100.0
 
-        # â”€â”€ TABLE 15: p-values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 15: p-values ────────────────────────────────────────────────
         n_resp = matrix.attrs.get("n_resp", pd.Series(dtype=int))
         expected_for_pval = np.tile(col_avgs_safe.values, (len(t1), 1))
         t15 = self.compute_cell_p_values(t1, expected_for_pval, n_resp)
 
-        # â”€â”€ Percentile thresholds: signed p65 of doubly-normalized T3 â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Percentile thresholds: signed p65 of doubly-normalized T3 ────────
         # Matches Excel $O$37 = PERCENTILE(all T2 values, 0.65)
         all_t3_vals = t3.values.flatten()
         if len(all_t3_vals) > 0:
@@ -555,7 +555,7 @@ class BIPNormalizationEngine:
             p25, p65_true, p75, p_thresh = 0.0, 4.0, 8.0, 4.0
         p65 = p_thresh
 
-        # â”€â”€ TABLE 4: threshold-filtered â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 4: threshold-filtered ───────────────────────────────────────
         # Significance rule (XLSTAT-correct):
         #   YES = brand-normalized T3 > 0 AND cell-level Z-test p < 0.05 (T15)
         # T15 already computed above via compute_cell_p_values(); wire it in here.
@@ -566,13 +566,13 @@ class BIPNormalizationEngine:
             sig_mask = (t3.values > p65) & (t_brand.values > 0)
         t4 = t3.where(sig_mask, other=0.0)
 
-        # â”€â”€ TABLE 5: positive significant deviations only â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 5: positive significant deviations only ─────────────────────
         t5 = t4.where(t4 > 0, other=0.0)
 
-        # â”€â”€ TABLE 6: negative significant deviations only â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 6: negative significant deviations only ─────────────────────
         t6 = t4.where(t4 < 0, other=0.0)
 
-        # â”€â”€ TABLE 7: ranks â€” all significant (1 = largest absolute deviation) â”€
+        # ── TABLE 7: ranks — all significant (1 = largest absolute deviation) ─
         n_brands = len(t4)
         non_sig_rank = n_brands + 1
 
@@ -581,23 +581,23 @@ class BIPNormalizationEngine:
             series = t4[col].abs()   # rank by magnitude
             t7[col] = _rank_series(series, non_sig_rank)
 
-        # â”€â”€ TABLE 8: ranks â€” positive only â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 8: ranks — positive only ────────────────────────────────────
         t8 = t5.copy().astype(float)
         for col in t5.columns:
             t8[col] = _rank_series(t5[col], non_sig_rank)
 
-        # â”€â”€ TABLE 9: ranks â€” negative only (rank by most negative) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 9: ranks — negative only (rank by most negative) ───────────
         t9 = t6.copy().astype(float)
         for col in t6.columns:
             neg_abs = t6[col].abs()
             t9[col] = _rank_series(neg_abs, non_sig_rank)
 
-        # â”€â”€ TABLE 13: combined rank summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 13: combined rank summary ───────────────────────────────────
         # Merge rank info: for each cell, show overall rank (t7) alongside sign
         # Presented as "Rank (sign)" or just the rank integer.
         t13 = t7.copy()
 
-        # â”€â”€ TABLE 14: YES / NO significance flags â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 14: YES / NO significance flags ─────────────────────────────
         t14 = pd.DataFrame(sig_mask, index=t1.index, columns=t1.columns).map(lambda x: "YES" if x else "NO")
 
         # Cache and return
@@ -629,7 +629,7 @@ class BIPNormalizationEngine:
     # Alias for compute_normalization to match specific requirements
     normalize_imagery_matrix = compute_normalization
 
-    # â”€â”€ significance summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── significance summary ──────────────────────────────────────────────────
 
     def get_significance_summary(self) -> pd.DataFrame:
         """
@@ -660,7 +660,7 @@ class BIPNormalizationEngine:
             .reset_index(drop=True)
         )
 
-    # â”€â”€ brand strength map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── brand strength map ────────────────────────────────────────────────────
 
     def get_brand_strength_map(self) -> dict:
         """
@@ -699,7 +699,7 @@ class BIPNormalizationEngine:
 
         return strength_map
 
-    # â”€â”€ section (broad_feature) aggregation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── section (broad_feature) aggregation ──────────────────────────────────
 
     def _section_scores(self, tables: dict) -> pd.DataFrame:
         """
@@ -737,7 +737,7 @@ class BIPNormalizationEngine:
         )
         return grouped
 
-    # â”€â”€ chart specs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── chart specs ───────────────────────────────────────────────────────────
 
     def get_chart_specs(self) -> list:
         """
@@ -749,12 +749,12 @@ class BIPNormalizationEngine:
             { "chart_id": str, "title": str, "figure": dict (Plotly JSON) }
 
         Charts produced:
-          1. bip_heatmap          â€” brands Ã— attributes heatmap
-          2. brand_strength_bar   â€” count of YES attributes by section per brand
-          3. attr_competitiveness â€” deviation range per attribute with brand labels
-          4. top_bottom_table     â€” top/bottom performers table
-          5. section_radar        â€” normalized deviation radar by section
-          6. significance_hist    â€” distribution of all normalized deviations
+          1. bip_heatmap          — brands × attributes heatmap
+          2. brand_strength_bar   — count of YES attributes by section per brand
+          3. attr_competitiveness — deviation range per attribute with brand labels
+          4. top_bottom_table     — top/bottom performers table
+          5. section_radar        — normalized deviation radar by section
+          6. significance_hist    — distribution of all normalized deviations
         """
         tables = self._tables or self.compute_normalization()
         specs  = []
@@ -783,13 +783,13 @@ class BIPNormalizationEngine:
         t2   = tables["table2_abs_diff"]
         pcts = tables["percentiles"]
 
-        # â”€â”€ 1. BIP Heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 1. BIP Heatmap ─────────────────────────────────────────────────────
         # Diverging heatmap: green = over-indexed, red = under-indexed.
         # Significance is shown as a subtle dot ONLY on significant cells (not
-        # YES/NO on every cell) so the colour signal reads cleanly â€” the full
+        # YES/NO on every cell) so the colour signal reads cleanly — the full
         # YES/NO flag stays in the hover tooltip. Executive-readable.
         _sig_raw = t14.values.tolist()
-        dot_text = [["â€¢" if str(v).upper() == "YES" else "" for v in row]
+        dot_text = [["•" if str(v).upper() == "YES" else "" for v in row]
                     for row in _sig_raw]
         fig_hm = go.Figure(
             data=go.Heatmap(
@@ -816,9 +816,9 @@ class BIPNormalizationEngine:
         )
         fig_hm.update_layout(
             title=dict(
-                text=("<b>Brand Image Profiling â€” Normalized Deviation</b>"
-                      "<br><sup>Green = brand over-indexes on the attribute Â· Red = under-indexes"
-                      " Â· â€¢ marks statistically significant cells (hover for detail)</sup>"),
+                text=("<b>Brand Image Profiling — Normalized Deviation</b>"
+                      "<br><sup>Green = brand over-indexes on the attribute · Red = under-indexes"
+                      " · • marks statistically significant cells (hover for detail)</sup>"),
                 font=dict(size=15, color="#0f172a"), x=0.01, xanchor="left",
             ),
             paper_bgcolor="white", plot_bgcolor="white",
@@ -835,7 +835,7 @@ class BIPNormalizationEngine:
             "figure":   fig_hm.to_dict(),
         })
 
-        # â”€â”€ 2. Brand Strength Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 2. Brand Strength Bar ──────────────────────────────────────────────
         # Count of YES attributes per brand, stacked by section
         section_df = self._section_scores(tables)
         strength_map = self.get_brand_strength_map()
@@ -898,7 +898,7 @@ class BIPNormalizationEngine:
         total_by_brand = {b: sum(yes_counts[b].values()) for b in brands_ordered}
         fig_bar.update_layout(
             barmode="stack",
-            title="Brand Strength â€” Count of Positively-Significant Attributes by Section<br><sup>Only YES flags where brand is over-indexed (t3 &gt; 0)</sup>",
+            title="Brand Strength — Count of Positively-Significant Attributes by Section<br><sup>Only YES flags where brand is over-indexed (t3 &gt; 0)</sup>",
             xaxis=dict(title="Brand", tickangle=-35),
             yaxis=dict(title="# Attributes Owned"),
             legend=dict(title="Section"),
@@ -911,7 +911,7 @@ class BIPNormalizationEngine:
             "figure":   fig_bar.to_dict(),
         })
 
-        # â”€â”€ 3. Attribute Competitiveness Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 3. Attribute Competitiveness Chart ─────────────────────────────────
         # Per attribute: range bar showing min/max normalized deviation,
         # with brand labels at each end.
         attrs = t3.columns.tolist()
@@ -962,7 +962,7 @@ class BIPNormalizationEngine:
         ))
         fig_comp.add_vline(x=0, line_dash="dash", line_color="gray", opacity=0.5)
         fig_comp.update_layout(
-            title="Attribute Competitiveness â€” Deviation Range across Brands",
+            title="Attribute Competitiveness — Deviation Range across Brands",
             xaxis=dict(title="Normalized Deviation (%)"),
             yaxis=dict(title="Attribute"),
             height=max(500, len(attrs) * 22 + 150),
@@ -974,8 +974,8 @@ class BIPNormalizationEngine:
             "figure":   fig_comp.to_dict(),
         })
 
-        # â”€â”€ 4. Top/Bottom Performers Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        # Long-form table: attribute Ã— brand, with raw%, diff, norm_dev, significance
+        # ── 4. Top/Bottom Performers Table ─────────────────────────────────────
+        # Long-form table: attribute × brand, with raw%, diff, norm_dev, significance
         rows = []
         for attr in t1.columns:
             for brand in t1.index:
@@ -1020,7 +1020,7 @@ class BIPNormalizationEngine:
             )
         )
         fig_tbl.update_layout(
-            title="Top/Bottom Performers â€” Full BIP Detail Table",
+            title="Top/Bottom Performers — Full BIP Detail Table",
             height=600,
         )
         specs.append({
@@ -1029,7 +1029,7 @@ class BIPNormalizationEngine:
             "figure":   fig_tbl.to_dict(),
         })
 
-        # â”€â”€ 5. Section-wise Radar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 5. Section-wise Radar ──────────────────────────────────────────────
         # Radar chart: for each brand, mean normalized deviation per broad_feature section
         if section_df.empty:
             fig_radar = go.Figure()
@@ -1049,7 +1049,7 @@ class BIPNormalizationEngine:
                     opacity=0.8,
                 ))
             fig_radar.update_layout(
-                title="Section-wise Radar â€” Normalized Deviation by Broad Feature",
+                title="Section-wise Radar — Normalized Deviation by Broad Feature",
                 polar=dict(
                     radialaxis=dict(
                         visible=True,
@@ -1066,7 +1066,7 @@ class BIPNormalizationEngine:
             "figure":   fig_radar.to_dict(),
         })
 
-        # â”€â”€ 6. Significance Distribution Histogram â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 6. Significance Distribution Histogram ────────────────────────────
         all_devs = t3.values.flatten()
 
         fig_hist = go.Figure()
@@ -1093,7 +1093,7 @@ class BIPNormalizationEngine:
                 annotation_position="top right" if pval >= 0 else "top left",
             )
         fig_hist.update_layout(
-            title="Significance Distribution â€” Normalized Deviations with Percentile Thresholds",
+            title="Significance Distribution — Normalized Deviations with Percentile Thresholds",
             xaxis=dict(title="Normalized Deviation (%)"),
             yaxis=dict(title="# Cells"),
             height=420,
@@ -1106,7 +1106,7 @@ class BIPNormalizationEngine:
 
         return specs
 
-    # â”€â”€ convenience: full run â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── convenience: full run ─────────────────────────────────────────────────
 
     def run(
         self,
@@ -1124,7 +1124,7 @@ class BIPNormalizationEngine:
         Parameters
         ----------
         matrix : pd.DataFrame | None
-            If provided, skip DB load and use this brands Ã— attributes matrix directly.
+            If provided, skip DB load and use this brands × attributes matrix directly.
             Useful for validation against external reference data (e.g. Excel files).
 
         Returns
@@ -1173,7 +1173,7 @@ class BIPNormalizationEngine:
         }
 
 
-# â”€â”€ module self-test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── module self-test ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import json
@@ -1181,17 +1181,17 @@ if __name__ == "__main__":
     engine = BIPNormalizationEngine()
     print(f"DB path resolved: {engine.db_path}")
 
-    print("Loading brand-attribute matrixâ€¦")
+    print("Loading brand-attribute matrix…")
     matrix = engine.get_brand_attr_matrix()
 
     if matrix.empty:
-        print("Matrix empty â€” fact_brand_imagery data not yet ingested.")
+        print("Matrix empty — fact_brand_imagery data not yet ingested.")
         print("Engine initialised correctly; will produce results once BQ3 data is loaded.")
     else:
-        print(f"Matrix shape: {matrix.shape}  ({len(matrix)} brands Ã— {len(matrix.columns)} attributes)")
+        print(f"Matrix shape: {matrix.shape}  ({len(matrix)} brands × {len(matrix.columns)} attributes)")
         tables = engine.compute_normalization(matrix)
         pcts = tables["percentiles"]
-        print(f"Percentile thresholds â€” p25: {pcts['p25']:.2f}  p65: {pcts['p65']:.2f}  p75: {pcts['p75']:.2f}")
+        print(f"Percentile thresholds — p25: {pcts['p25']:.2f}  p65: {pcts['p65']:.2f}  p75: {pcts['p75']:.2f}")
 
         sig = engine.get_significance_summary()
         print("\nSignificance summary (top 5 brands):")

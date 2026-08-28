@@ -1,4 +1,4 @@
-﻿"""
+"""
 Brand Driver Analysis Engine
 =============================
 Runs BIP normalization + Correspondence Analysis on a user-selected subset
@@ -42,10 +42,10 @@ if str(_ROOT) not in sys.path:
 from infoleap.analytics.bip_engine import BIPNormalizationEngine
 from infoleap.analytics.can_map_engine import run_ca_pipeline, PRODUCT_CODES
 
-_DEFAULT_DB = _ROOT / "oxdata" / "data" / "project_1" / "oxdata.db"
+_DEFAULT_DB = _ROOT / "oxdata" / "data" / "project_1" / "infoleap.db"
 
 
-# â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── helpers ───────────────────────────────────────────────────────────────────
 
 def _resolve_db(db_path=None, project_id: Optional[str] = None) -> str:
     if db_path:
@@ -83,7 +83,7 @@ def _get_all_attrs(db_path: str) -> pd.DataFrame:
     return df
 
 
-# â”€â”€ AI narrative â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── AI narrative ──────────────────────────────────────────────────────────────
 
 INSIGHT_SYSTEM_PROMPT = """You are a senior market research analyst specialising in brand equity and consumer perception.
 Interpret the Brand Driver Analysis output and generate concise, actionable insights.
@@ -95,7 +95,7 @@ Respond in structured markdown with these exact sections:
 ## Recommended Actions
 Be specific: name brands, name drivers, give numbers. No vague generalisations."""
 
-INSIGHT_USER_TEMPLATE = """Brand Driver Analysis Results â€” {product} | Drivers: {n_drivers} | Method: {compare_by}
+INSIGHT_USER_TEMPLATE = """Brand Driver Analysis Results — {product} | Drivers: {n_drivers} | Method: {compare_by}
 
 ### Drivers selected
 {driver_list}
@@ -108,7 +108,7 @@ F1 explains {f1_pct:.1f}% variance, F2 {f2_pct:.1f}%.
 Brand positions on F1/F2 (principal coordinates):
 {brand_positions}
 
-### Raw association % (top brands Ã— selected drivers)
+### Raw association % (top brands × selected drivers)
 {raw_table}
 
 ### Column averages (market norm per driver)
@@ -201,7 +201,7 @@ def _call_llm(user_message: str) -> str:
         return f"_AI insight error: {e}_"
 
 
-# â”€â”€ comparison split helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── comparison split helpers ───────────────────────────────────────────────────
 
 ZONE_CODES = {
     "North": [1, 2, 3, 4],       # Delhi, Lucknow, Bikaner, Patiala
@@ -248,7 +248,7 @@ def _run_bip_for_attrs(
             "chart_specs": charts, "matrix": matrix}
 
 
-# â”€â”€ main engine â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── main engine ───────────────────────────────────────────────────────────────
 
 class DriverAnalysisEngine:
     """
@@ -304,7 +304,7 @@ class DriverAnalysisEngine:
         
         conn = sqlite3.connect(self.db_path)
 
-        # 2026-07-30: see can_map_engine.py's get_brand_attr_matrix for the full rationale â€”
+        # 2026-07-30: see can_map_engine.py's get_brand_attr_matrix for the full rationale —
         # projects onboarded via the generic ingestion pipeline never populate category_code
         # (most brand-health clients survey ONE category), so an unconditional category filter
         # would zero out every row for them even though real imagery data exists.
@@ -313,7 +313,7 @@ class DriverAnalysisEngine:
         ).fetchone()
         effective_category_codes = category_codes if _has_category_dim else []
 
-        # 1. Get associations (long format â€” respondent Ã— brand rows)
+        # 1. Get associations (long format — respondent × brand rows)
         attr_placeholders = ",".join("?" * len(driver_ids))
 
         # Demographic filters for regression data
@@ -335,10 +335,10 @@ class DriverAnalysisEngine:
             cat_sql = f"AND fi.category_code IN ({cat_placeholders})"
 
         if pooled:
-            # Pooled: base = all AIDED-aware respondentÃ—brand pairs (XLSTAT approach).
+            # Pooled: base = all AIDED-aware respondent×brand pairs (XLSTAT approach).
             # CROSS JOIN selected attrs so every aware pair gets a row per attr.
-            # LEFT JOIN imagery: non-associated attrs â†’ 0 (not missing).
-            # This matches XLSTAT's n exactly â€” every aware pair included even if all IVs=0.
+            # LEFT JOIN imagery: non-associated attrs → 0 (not missing).
+            # This matches XLSTAT's n exactly — every aware pair included even if all IVs=0.
             params = driver_ids + demo_vals
             query = f"""
                 SELECT aw.respondent_id, b.brand_name, a.attr_label,
@@ -388,7 +388,7 @@ class DriverAnalysisEngine:
 
         if pooled and use_funnel_dv:
             # DV = 1 if respondent hit funnel stage for that brand, 0 otherwise.
-            # Base for 0s comes from df_assoc (all AIDED pairs) â€” merge fills missing = 0.
+            # Base for 0s comes from df_assoc (all AIDED pairs) — merge fills missing = 0.
             if nps_demo_clauses:
                 dv_where = "WHERE fa.stage = ? AND " + " AND ".join(nps_demo_clauses)
             else:
@@ -423,7 +423,7 @@ class DriverAnalysisEngine:
             df_nps = pd.read_sql(nps_query, conn, params=nps_params)
         conn.close()
 
-        # â”€â”€ Data layer override: rebuild df_assoc + df_nps from raw Excel when available â”€â”€
+        # ── Data layer override: rebuild df_assoc + df_nps from raw Excel when available ──
         # SQLite fact_brand_imagery may be sparse/buggy for raw-layer projects; raw data is authoritative.
         if self.project_id:
             try:
@@ -431,7 +431,7 @@ class DriverAnalysisEngine:
                 if project_has_raw_layer(self.project_id):
                     _layer = get_project_layer(self.project_id)
                     if _layer is not None:
-                        # Resolve driver_ids â†’ attr_labels from SQLite dim_bq3_attribute
+                        # Resolve driver_ids → attr_labels from SQLite dim_bq3_attribute
                         _c = sqlite3.connect(self.db_path)
                         _id_to_label = dict(_c.execute(
                             "SELECT attr_id, attr_label FROM dim_bq3_attribute"
@@ -465,7 +465,7 @@ class DriverAnalysisEngine:
                             df_nps   = _nps[["respondent_id", "brand_name", "nps_score"]]
             except Exception:
                 pass
-        # â”€â”€ End data layer override â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── End data layer override ────────────────────────────────────────────────────
 
         if df_assoc.empty or df_nps.empty:
             return pd.Series(dtype=float), {}
@@ -485,19 +485,19 @@ class DriverAnalysisEngine:
         if len(df_final) < 20:
             return pd.Series(0.0, index=df_wide.columns), {}
 
-        # 5. Regression â€” use R OLS bridge (XLSTAT-correct std-beta importance)
+        # 5. Regression — use R OLS bridge (XLSTAT-correct std-beta importance)
         X = df_final[df_wide.columns].fillna(0)
         y_series = df_final['nps_score']
         if _use_r:
             try:
-                # Imagery attrs are binary association flags â€” a respondent not asked about
+                # Imagery attrs are binary association flags — a respondent not asked about
                 # (or not endorsing) an attribute is "not associated" = 0, not missing data.
                 # R's na.omit() would otherwise listwise-delete any row with an unfilled cell,
-                # collapsing n and producing a degenerate model (see .regression_reference/AUDIT.md Â§3).
+                # collapsing n and producing a degenerate model (see .regression_reference/AUDIT.md §3).
                 rdf = df_final[list(df_wide.columns) + ['nps_score']].reset_index(drop=True)
                 rdf[list(df_wide.columns)] = rdf[list(df_wide.columns)].fillna(0)
                 rdf.columns = [c.replace(".", "_").replace(" ", "_") for c in rdf.columns]
-                # Auto-detect binary DV â†’ logistic regression (fixes GAP 4: was always OLS)
+                # Auto-detect binary DV → logistic regression (fixes GAP 4: was always OLS)
                 _dv_vals = rdf["nps_score"].dropna()
                 _dv_is_binary = _dv_vals.isin([0, 1]).all() and _dv_vals.nunique() <= 2
                 _r_script = "logistic_regression" if _dv_is_binary else "driver_regression"
@@ -565,16 +565,16 @@ class DriverAnalysisEngine:
             bip_overall     : BIP result dict
             ca_overall      : CA result dict
             bip_by_split    : dict[split_label -> BIP result] (only for zone/category)
-            driver_labels   : list[str] â€” attribute labels for selected IDs
-            ai_insight      : str markdown â€” LLM narrative
-            summary_table   : pd.DataFrame â€” per-brand YES count + top drivers
-            nps_impacts     : pd.Series â€” derived importance scores
-            nps_impact_stats: dict â€” model fit stats for the nps_impacts regression
+            driver_labels   : list[str] — attribute labels for selected IDs
+            ai_insight      : str markdown — LLM narrative
+            summary_table   : pd.DataFrame — per-brand YES count + top drivers
+            nps_impacts     : pd.Series — derived importance scores
+            nps_impact_stats: dict — model fit stats for the nps_impacts regression
                               (r_squared, adj_r_squared, f_statistic, f_p_value, aic, bic,
                               n, n_attrs, n_before_na_omit, pct_dropped_na, shapiro_wilk, vif).
                               {} when the R path wasn't used.
             nps_impact_drivers: dict[attr_label -> {p_value, significant, std_error, t_stat,
-                              ci_low, ci_high}] â€” per-driver detail for nps_impacts. {} when
+                              ci_low, ci_high}] — per-driver detail for nps_impacts. {} when
                               the R path wasn't used.
         """
         if not driver_ids:
@@ -584,7 +584,7 @@ class DriverAnalysisEngine:
         label_map = _get_attr_labels(self.db_path, driver_ids)
         driver_labels = [label_map.get(i, f"Attr {i}") for i in driver_ids]
 
-        # â”€â”€ Overall BIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Overall BIP ──────────────────────────────────────────────────────
         bip_overall = _run_bip_for_attrs(
             attr_ids=driver_ids,
             category_codes=self.category_codes,
@@ -604,7 +604,7 @@ class DriverAnalysisEngine:
         # Actual brands included in analysis
         final_brands = list(bip_overall["matrix"].index) if "matrix" in bip_overall else (brands or [])
 
-        # â”€â”€ Overall CA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Overall CA ──────────────────────────────────────────────────────
         brand_ids = None
         if final_brands:
             conn = sqlite3.connect(self.db_path)
@@ -625,13 +625,13 @@ class DriverAnalysisEngine:
             city=self.city,
         )
 
-        # â”€â”€ NPS Impact Analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── NPS Impact Analysis ──────────────────────────────────────────────
         _dv_stage = "EVER_USED" if pooled else "NPS"
         nps_impacts, nps_impact_meta = self._compute_nps_impacts(driver_ids, self.category_codes, final_brands, pooled=pooled, dv_stage=_dv_stage)
         nps_impact_stats   = nps_impact_meta.get("fit", {})
         nps_impact_drivers = nps_impact_meta.get("drivers", {})
 
-        # â”€â”€ Split comparison â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Split comparison ─────────────────────────────────────────────────
         bip_by_split: dict = {}
         if compare_by == "zone":
             for zone_name in ZONE_CODES.keys():
@@ -666,7 +666,7 @@ class DriverAnalysisEngine:
                 if r.get("status") == "ok":
                     bip_by_split[cat_name] = r
 
-        # â”€â”€ Summary table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Summary table ────────────────────────────────────────────────────
         summary_table = pd.DataFrame()
         if bip_overall.get("status") == "ok":
             t14 = bip_overall["tables"].get("table14_significance", pd.DataFrame())
@@ -685,7 +685,7 @@ class DriverAnalysisEngine:
                     })
                 summary_table = pd.DataFrame(rows).sort_values("YES count", ascending=False)
 
-        # â”€â”€ AI insight â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── AI insight ───────────────────────────────────────────────────────
         ai_insight = ""
         if generate_ai_insight and bip_overall.get("status") == "ok":
             user_msg = _build_ai_context(
@@ -786,7 +786,7 @@ class DriverAnalysisEngine:
         }
 
 
-# â”€â”€ CLI test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── CLI test ──────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     print("Testing DriverAnalysisEngine...")

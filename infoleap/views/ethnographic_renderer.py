@@ -1,22 +1,22 @@
-﻿"""
-ethnographic_renderer.py â€” Generic renderer for ethnographic / U&A study dashboards.
+"""
+ethnographic_renderer.py — Generic renderer for ethnographic / U&A study dashboards.
 
 Entry point:
     render_ethnographic(proj, base_path, call_openrouter_fn)
 
 Works with any project whose registry entry has study_type = "ethnographic".
-All insights computed from matrices â€” zero hardcoded narrative.
+All insights computed from matrices — zero hardcoded narrative.
 
-Current project: Crompton FMCD â€” Mixer & Food Processor Study (mixer)
+Current project: Crompton FMCD — Mixer & Food Processor Study (mixer)
 Matrix schema: ethnographic_appliance (233 IDIs, 8 brands, 18 cities)
 
 6 tabs:
-    1  Consumer Profiles    â€” segments by brand_owned, cook identity, journey stage
-    2  Brand Landscape      â€” relationship health, loyalty, advocacy, blame attribution
-    3  Pain Points          â€” severity matrix, workarounds, competitor threat signals
-    4  Aspiration & Need    â€” aspiration gaps, JTBD, unspoken needs, peak moments
-    5  Purchase Journey     â€” decision drivers, social dynamics, cultural context
-    6  Study Report         â€” AI-generated downloadable report
+    1  Consumer Profiles    — segments by brand_owned, cook identity, journey stage
+    2  Brand Landscape      — relationship health, loyalty, advocacy, blame attribution
+    3  Pain Points          — severity matrix, workarounds, competitor threat signals
+    4  Aspiration & Need    — aspiration gaps, JTBD, unspoken needs, peak moments
+    5  Purchase Journey     — decision drivers, social dynamics, cultural context
+    6  Study Report         — AI-generated downloadable report
 """
 
 from __future__ import annotations
@@ -57,9 +57,9 @@ _SEV_COLOR = {
 _PALETTE = px.colors.qualitative.Set2
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # Helpers
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _get(obj, path: str, default=None):
     for key in path.split("."):
@@ -202,9 +202,9 @@ def _blame_counts(matrices) -> tuple[dict, dict]:
     return self_b, prod_b
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # UI components
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _insight_banner(headline: str, subtext: str = "") -> None:
     sub_html = f'<p style="margin:4px 0 0;font-size:0.82rem;color:#9ca3af;line-height:1.5;">{subtext}</p>' if subtext else ""
@@ -231,7 +231,7 @@ def _full_verbatim_wall(passages: list[dict], key_prefix: str,
         f_sent = c1.multiselect("Sentiment", sentiments, default=[], key=f"{key_prefix}_sent")
         f_brand = c2.multiselect("Brand", brands, default=[], key=f"{key_prefix}_brand")
         f_pain = c3.checkbox("Pain only", key=f"{key_prefix}_pain")
-        f_kw = c4.text_input("Keyword", placeholder="filter textâ€¦", key=f"{key_prefix}_kw")
+        f_kw = c4.text_input("Keyword", placeholder="filter text…", key=f"{key_prefix}_kw")
 
         filtered = [
             p for p in passages
@@ -247,9 +247,9 @@ def _full_verbatim_wall(passages: list[dict], key_prefix: str,
         st.markdown(
             f'<p style="font-size:0.82rem;color:#9ca3af;margin:8px 0 12px;">'
             f'<b style="color:#f1f5f9;">{len(filtered)}</b> verbatims '
-            f'Â· <span style="color:#22c55e;">â–² {pos_n} positive</span>'
-            f' Â· <span style="color:#ef4444;">â–¼ {neg_n} negative</span>'
-            f' Â· <span style="color:#9ca3af;">â— {neu_n} neutral/other</span></p>',
+            f'· <span style="color:#22c55e;">▲ {pos_n} positive</span>'
+            f' · <span style="color:#ef4444;">▼ {neg_n} negative</span>'
+            f' · <span style="color:#9ca3af;">● {neu_n} neutral/other</span></p>',
             unsafe_allow_html=True,
         )
 
@@ -264,7 +264,7 @@ def _full_verbatim_wall(passages: list[dict], key_prefix: str,
         for p in filtered[page * page_size: (page + 1) * page_size]:
             sent = p.get("sentiment", "neutral")
             color = _SENT_COLOR.get(sent, _P.get("neutral", "#9ca3af"))
-            meta = " Â· ".join(filter(None, [
+            meta = " · ".join(filter(None, [
                 p.get("_brand") or "", p.get("_city") or "",
                 p.get("topic") or "", sent,
             ]))
@@ -282,13 +282,13 @@ def _full_verbatim_wall(passages: list[dict], key_prefix: str,
 
         if total_pages > 1:
             pc1, pc2, pc3 = st.columns([1, 3, 1])
-            if pc1.button("â—€ Prev", key=f"{key_prefix}_prev", disabled=page == 0):
+            if pc1.button("◀ Prev", key=f"{key_prefix}_prev", disabled=page == 0):
                 st.session_state[page_key] = page - 1
                 st.rerun()
             pc2.markdown(
                 f'<p style="text-align:center;color:#9ca3af;font-size:0.82rem;">'
                 f'Page {page+1} / {total_pages}</p>', unsafe_allow_html=True)
-            if pc3.button("Next â–¶", key=f"{key_prefix}_next", disabled=page >= total_pages - 1):
+            if pc3.button("Next ▶", key=f"{key_prefix}_next", disabled=page >= total_pages - 1):
                 st.session_state[page_key] = page + 1
                 st.rerun()
 
@@ -309,8 +309,8 @@ def _finding_block(finding: dict, call_or: Callable, regen_prompt: str, regen_ke
         if rk not in st.session_state:
             st.session_state[rk] = None
 
-        if col2.button("âœ¦ Regenerate", key=f"btn_{regen_key}"):
-            with st.spinner("Generatingâ€¦"):
+        if col2.button("✦ Regenerate", key=f"btn_{regen_key}"):
+            with st.spinner("Generating…"):
                 st.session_state[rk] = call_or(regen_prompt) or "_No response._"
 
         if st.session_state.get(rk):
@@ -318,9 +318,9 @@ def _finding_block(finding: dict, call_or: Callable, regen_prompt: str, regen_ke
             st.markdown(st.session_state[rk])
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # Data loading
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 
 @st.cache_data(ttl=900, show_spinner=False)
 def _load_matrices(matrices_dir: str) -> list[dict]:
@@ -344,9 +344,9 @@ def _load_finding(findings_dir: str, section_id: str) -> dict:
     return {}
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # Tab renderers
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callable) -> None:
     n = len(matrices)
@@ -354,20 +354,20 @@ def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callab
         empty_state("No data for current filters.")
         return
 
-    # â”€â”€ Insight banner (computed) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Insight banner (computed) ──────────────────────────────────────────────
     journey_dist = _count_field(matrices, "respondent.journey_stage")
     nps_dist = _count_field(matrices, "nps_signal")
-    top_journey = max(journey_dist, key=journey_dist.get) if journey_dist else "â€”"
+    top_journey = max(journey_dist, key=journey_dist.get) if journey_dist else "—"
     promoters = nps_dist.get("promoter", 0)
     detractors = nps_dist.get("detractor", 0)
     _insight_banner(
-        f"{n} respondents Â· {promoters} promoters Â· {detractors} detractors "
-        f"Â· dominant journey stage: {top_journey.replace('_',' ')}",
+        f"{n} respondents · {promoters} promoters · {detractors} detractors "
+        f"· dominant journey stage: {top_journey.replace('_',' ')}",
         "All counts from live matrix data. No hardcoded values.",
     )
 
-    # â”€â”€ Brand-segment profile cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    section_header("Segment Profile Cards", "One card per brand owned â€” all metrics computed from matrices")
+    # ── Brand-segment profile cards ────────────────────────────────────────────
+    section_header("Segment Profile Cards", "One card per brand owned — all metrics computed from matrices")
     brands_raw = _count_field(matrices, "respondent.brand_owned")
     segs = sorted(brands_raw, key=brands_raw.get, reverse=True)[:8]
     if not segs:
@@ -386,11 +386,11 @@ def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callab
             detr = sum(1 for m in seg_ms if (m.get("nps_signal") or "").lower() == "detractor")
             nps_score = round(promo / sn * 100 - detr / sn * 100, 1) if sn else 0
             rel_dist = _count_field(seg_ms, "brand_relationship.relationship_stage")
-            top_rel = max(rel_dist, key=rel_dist.get, default="â€”").replace("_", " ") if rel_dist else "â€”"
+            top_rel = max(rel_dist, key=rel_dist.get, default="—").replace("_", " ") if rel_dist else "—"
             loyal_n = sum(1 for m in seg_ms if
                           (_get(m, "brand_relationship.relationship_stage") or "").lower() in ("settled_satisfied", "loyal", "honeymoon"))
             j_dist = _count_field(seg_ms, "respondent.journey_stage")
-            top_j = max(j_dist, key=j_dist.get, default="â€”").replace("_", " ") if j_dist else "â€”"
+            top_j = max(j_dist, key=j_dist.get, default="—").replace("_", " ") if j_dist else "—"
             color = palette[segs.index(seg) % len(palette)]
 
             with col:
@@ -402,14 +402,14 @@ def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callab
                     f'<p style="margin:0 0 8px;font-size:1.5rem;font-weight:700;color:#f1f5f9;">{sn}</p>'
                     f'<p style="margin:0;font-size:0.8rem;color:#9ca3af;line-height:1.6;">'
                     f'NPS score: <b style="color:#f1f5f9;">{nps_score:+.0f}</b><br>'
-                    f'Promoters: <b style="color:#22c55e;">{promo}</b> Â· Detractors: <b style="color:#ef4444;">{detr}</b><br>'
+                    f'Promoters: <b style="color:#22c55e;">{promo}</b> · Detractors: <b style="color:#ef4444;">{detr}</b><br>'
                     f'Relationship: <b style="color:#f1f5f9;">{top_rel}</b><br>'
                     f'Loyal/satisfied: <b style="color:#f1f5f9;">{loyal_n}</b><br>'
                     f'Journey: <b style="color:#f1f5f9;">{top_j}</b>'
                     f'</p></div>',
                     unsafe_allow_html=True,
                 )
-                if st.button(f"âœ¦ Generate {seg} Narrative", key=f"prof_narr_{seg}"):
+                if st.button(f"✦ Generate {seg} Narrative", key=f"prof_narr_{seg}"):
                     prompt = (
                         f"Write a concise consumer segment profile for '{seg}' brand owners "
                         f"in an in-home ethnographic study. Data: n={sn}, NPS score={nps_score:+.0f}, "
@@ -421,7 +421,7 @@ def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callab
                 if st.session_state.get(f"prof_narr_text_{seg}"):
                     st.markdown(st.session_state[f"prof_narr_text_{seg}"])
 
-    # â”€â”€ Journey stage Ã— brand distribution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Journey stage × brand distribution ────────────────────────────────────
     section_header("Journey Stage by Brand", "Recent buyer vs loyal user vs intender split")
     rows = []
     for seg in segs:
@@ -437,7 +437,7 @@ def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callab
                                "title": "Journey Stage Distribution by Brand"})
         st.plotly_chart(fig_j, use_container_width=True)
 
-    # â”€â”€ NPS signal league table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── NPS signal league table ────────────────────────────────────────────────
     section_header("NPS Signal League Table", "Promoter / Passive / Detractor per brand")
     nps_rows = []
     for seg in segs:
@@ -468,11 +468,11 @@ def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callab
                 source="nps_signal field per respondent, grouped by respondent.brand_owned",
             ))
 
-    # â”€â”€ Verbatim wall: identity passages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Verbatim wall: identity passages ──────────────────────────────────────
     id_passages = _all_passages(matrices, topics=["identity", "cook", "self-image", "pride", "role"])
     _full_verbatim_wall(id_passages, "prof_wall", "Consumer Identity Verbatims")
 
-    # â”€â”€ Finding block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Finding block ──────────────────────────────────────────────────────────
     f1 = _load_finding(findings_dir, "respondent_profile")
     _finding_block(f1, call_or,
         regen_prompt=(
@@ -492,7 +492,7 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
     brands_raw = _count_field(matrices, "respondent.brand_owned")
     segs = sorted(brands_raw, key=brands_raw.get, reverse=True)[:8]
 
-    # â”€â”€ Relationship stage per brand â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Relationship stage per brand ───────────────────────────────────────────
     rel_stages = ["settled_satisfied", "honeymoon", "strained", "at_risk", "resigned_acceptance"]
     stage_colors = {"settled_satisfied": "#22c55e", "honeymoon": "#86efac",
                     "strained": "#f97316", "at_risk": "#ef4444",
@@ -503,7 +503,7 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
     at_risk_n = rel_dist.get("at_risk", 0)
     strained_n = rel_dist.get("strained", 0)
     _insight_banner(
-        f"{top_healthy}/{n} in healthy relationship Â· {strained_n} strained Â· {at_risk_n} at risk",
+        f"{top_healthy}/{n} in healthy relationship · {strained_n} strained · {at_risk_n} at risk",
         "Relationship stage from brand_relationship.relationship_stage field.",
     )
 
@@ -521,11 +521,11 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
                                "title": "Brand Relationship Stage by Brand Owned"})
         st.plotly_chart(fig_r, use_container_width=True)
 
-    # â”€â”€ Loyalty depth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Loyalty depth ──────────────────────────────────────────────────────────
     # NOTE: these two pies route through chart_renderer's shared registry (unlike
     # every other chart in this file, which builds its own px/go figure using this
     # file's _PALETTE and per-chart heights). chart_renderer._render_pie uses its
-    # own COLORS palette and a fixed height=460, not _PALETTE/height=320 â€” a visible
+    # own COLORS palette and a fixed height=460, not _PALETTE/height=320 — a visible
     # styling divergence from neighboring charts on this same tab, accepted as a
     # known tradeoff for this pilot rather than forcing chart_renderer to match one
     # page's local palette. Revisit if/when more of this file migrates to the
@@ -543,7 +543,7 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
         if adv:
             render_counts(adv, label="Advocacy Likelihood", chart_type="donut", question="advocacy likelihood distribution")
 
-    # â”€â”€ Blame attribution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Blame attribution ──────────────────────────────────────────────────────
     section_header("Blame Attribution", "Self-blame vs product-blame per brand")
     self_b, prod_b = _blame_counts(matrices)
     blame_brands = sorted(set(self_b) | set(prod_b),
@@ -557,7 +557,7 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
                                 y=[prod_b.get(b, 0) for b in blame_brands],
                                 marker_color="#ef4444"))
         fig_bl.update_layout(**{**CHART_LAYOUT, "barmode": "group", "height": 340,
-                                "title": "Blame Attribution â€” Self vs Product"})
+                                "title": "Blame Attribution — Self vs Product"})
         st.plotly_chart(fig_bl, use_container_width=True)
         st.caption("Product-blame = respondent attributes failure to brand/product. Self-blame = respondent takes responsibility.")
 
@@ -569,7 +569,7 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
                 source="self_blame_instances / product_blame_instances list fields per respondent matrix",
             ))
 
-    # â”€â”€ Brand mentions sentiment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand mentions sentiment ───────────────────────────────────────────────
     section_header("Brand Mentions Sentiment", "Across all transcript brand_mentions")
     bm_data: dict[str, Counter] = {}
     for m in matrices:
@@ -594,11 +594,11 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
                                 "title": "Brand Mentions Sentiment"})
         st.plotly_chart(fig_bm, use_container_width=True)
 
-    # â”€â”€ Verbatim wall: relationship passages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Verbatim wall: relationship passages ───────────────────────────────────
     rel_passages = _all_passages(matrices, topics=["relationship", "loyalty", "brand", "trust", "service"])
     _full_verbatim_wall(rel_passages, "brand_wall", "Brand Relationship Verbatims")
 
-    # â”€â”€ Finding block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Finding block ──────────────────────────────────────────────────────────
     f = _load_finding(findings_dir, "brand_relationship")
     _finding_block(f, call_or,
         regen_prompt=(
@@ -615,7 +615,7 @@ def _render_brand_landscape(matrices: list, findings_dir: str, call_or: Callable
 def _render_pain_points(matrices: list, findings_dir: str, call_or: Callable) -> None:
     n = len(matrices)
 
-    # â”€â”€ Pain matrix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Pain matrix ────────────────────────────────────────────────────────────
     all_pains: list[dict] = []
     for m in matrices:
         brand = _get(m, "respondent.brand_owned", "")
@@ -626,15 +626,15 @@ def _render_pain_points(matrices: list, findings_dir: str, call_or: Callable) ->
     total_mentions = len(all_pains)
     high_sev = sum(1 for p in all_pains if p.get("severity") in ("critical", "high"))
     top_area_dist = Counter(p.get("product_area", "unknown") for p in all_pains)
-    top_area = top_area_dist.most_common(1)[0][0] if top_area_dist else "â€”"
+    top_area = top_area_dist.most_common(1)[0][0] if top_area_dist else "—"
 
     _insight_banner(
-        f"{total_mentions} total pain mentions Â· {high_sev} high/critical severity "
-        f"Â· top problem area: {top_area}",
+        f"{total_mentions} total pain mentions · {high_sev} high/critical severity "
+        f"· top problem area: {top_area}",
         "All counts aggregated from pain_points arrays across {n} respondent matrices.",
     )
 
-    section_header("Pain Severity Matrix", "Product area Ã— severity bubble chart")
+    section_header("Pain Severity Matrix", "Product area × severity bubble chart")
     sev_matrix = _pain_severity_matrix(matrices)
     if sev_matrix:
         bubble_rows = []
@@ -648,11 +648,11 @@ def _render_pain_points(matrices: list, findings_dir: str, call_or: Callable) ->
         fig_bub = px.scatter(df_b, x="Severity", y="Area", size="Count",
                              color="Severity",
                              color_discrete_map={k: v for k, v in _SEV_COLOR.items()},
-                             size_max=60, title="Pain Area Ã— Severity Bubble Chart")
+                             size_max=60, title="Pain Area × Severity Bubble Chart")
         fig_bub.update_layout(**{**CHART_LAYOUT, "height": max(400, len(sev_matrix) * 50 + 120)})
         st.plotly_chart(fig_bub, use_container_width=True)
 
-    # â”€â”€ Top pain issues â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Top pain issues ────────────────────────────────────────────────────────
     section_header("Top Pain Issues", "By total mentions across all severity levels")
     area_sev_rows = []
     for area, sev_dict in sev_matrix.items():
@@ -670,7 +670,7 @@ def _render_pain_points(matrices: list, findings_dir: str, call_or: Callable) ->
                                   "title": "Pain Issues by Product Area"})
         st.plotly_chart(fig_area, use_container_width=True)
 
-    # â”€â”€ Brand Ã— pain area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand × pain area ─────────────────────────────────────────────────────
     section_header("Brand Pain Profile", "Which brands carry most complaints in which areas")
     bp_data: dict[str, dict] = {}
     for p in all_pains:
@@ -685,17 +685,17 @@ def _render_pain_points(matrices: list, findings_dir: str, call_or: Callable) ->
         fig_hm = go.Figure(go.Heatmap(
             z=hm_z, x=top_areas_list, y=top_bp_brands,
             colorscale="Reds", hoverongaps=False,
-            hovertemplate="<b>%{y}</b> â€” %{x}<br>%{z} mentions<extra></extra>",
+            hovertemplate="<b>%{y}</b> — %{x}<br>%{z} mentions<extra></extra>",
         ))
         fig_hm.update_layout(**{**CHART_LAYOUT, "height": max(350, len(top_bp_brands) * 45 + 120),
-                                "title": "Pain Mentions by Brand Ã— Product Area"})
+                                "title": "Pain Mentions by Brand × Product Area"})
         st.plotly_chart(fig_hm, use_container_width=True)
 
-    # â”€â”€ Verbatim wall: pain passages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Verbatim wall: pain passages ───────────────────────────────────────────
     pain_passages = _all_passages(matrices, pain_only=True)
     _full_verbatim_wall(pain_passages, "pain_wall", "Pain Point Verbatims (All)")
 
-    # â”€â”€ Finding block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Finding block ──────────────────────────────────────────────────────────
     f = _load_finding(findings_dir, "pain_points_workarounds")
     _finding_block(f, call_or,
         regen_prompt=(
@@ -710,7 +710,7 @@ def _render_pain_points(matrices: list, findings_dir: str, call_or: Callable) ->
 
 def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> None:
     n = len(matrices)
-    section_header("Aspiration-Reality Gaps", "Commercial opportunity Ã— emotional charge matrix")
+    section_header("Aspiration-Reality Gaps", "Commercial opportunity × emotional charge matrix")
 
     gaps = _aspiration_gaps(matrices)
     opp_dist = Counter(g["commercial_opportunity"] for g in gaps)
@@ -719,12 +719,12 @@ def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> 
     high_em = em_dist.get("high", 0)
 
     _insight_banner(
-        f"{len(gaps)} aspiration gaps identified Â· {high_opp} high commercial opportunity "
-        f"Â· {high_em} high emotional charge",
+        f"{len(gaps)} aspiration gaps identified · {high_opp} high commercial opportunity "
+        f"· {high_em} high emotional charge",
         "From aspiration_reality_gaps arrays across all matrices.",
     )
 
-    # â”€â”€ Opportunity matrix scatter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Opportunity matrix scatter ─────────────────────────────────────────────
     if gaps:
         opp_order = {"high": 3, "medium": 2, "low": 1}
         em_order  = {"high": 3, "medium": 2, "low": 1}
@@ -747,7 +747,7 @@ def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> 
         high_gaps = [g for g in gaps if str(g.get("commercial_opportunity","")).lower() == "high"
                      and str(g.get("emotional_charge","")).lower() == "high"]
         if high_gaps:
-            st.markdown(f"**High-priority gaps** (high commercial Ã— high emotional) â€” {len(high_gaps)}:")
+            st.markdown(f"**High-priority gaps** (high commercial × high emotional) — {len(high_gaps)}:")
             for g in high_gaps[:8]:
                 q = g.get("verbatim_quote", "")
                 b = g.get("brand", "")
@@ -755,7 +755,7 @@ def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> 
                     f'<div style="border-left:3px solid #ef4444;padding:8px 14px;'
                     f'margin:6px 0;background:rgba(239,68,68,0.06);border-radius:4px;">'
                     f'<p style="margin:0 0 2px;font-size:0.82rem;color:#9ca3af;">'
-                    f'<b>{b}</b> Â· {g.get("commercial_opportunity","").upper()}</p>'
+                    f'<b>{b}</b> · {g.get("commercial_opportunity","").upper()}</p>'
                     f'<p style="margin:0 0 4px;font-size:0.88rem;font-weight:600;color:#f1f5f9;">'
                     f'{g.get("aspiration","")}</p>'
                     + (f'<p style="margin:0;font-size:0.82rem;color:#9ca3af;">&ldquo;{q}&rdquo;</p>' if q else "")
@@ -763,7 +763,7 @@ def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> 
                     unsafe_allow_html=True,
                 )
 
-    # â”€â”€ Jobs To Be Done â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Jobs To Be Done ────────────────────────────────────────────────────────
     section_header("Jobs To Be Done", "Frequency of JTBD across respondents")
     jtbd_all = _jtbd_list(matrices)
     if jtbd_all:
@@ -775,7 +775,7 @@ def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> 
         fig_jt.update_layout(**{**CHART_LAYOUT, "height": max(300, len(df_jt) * 28 + 80)})
         st.plotly_chart(fig_jt, use_container_width=True)
 
-    # â”€â”€ Unspoken needs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Unspoken needs ─────────────────────────────────────────────────────────
     section_header("Unspoken Needs", "Inferred from workarounds and frustrations")
     needs = _unspoken_needs_list(matrices)
     if needs:
@@ -791,7 +791,7 @@ def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> 
                 unsafe_allow_html=True,
             )
 
-    # â”€â”€ Peak emotional moments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Peak emotional moments ─────────────────────────────────────────────────
     section_header("Peak Emotional Moments")
     pem_rows = []
     for m in matrices:
@@ -819,17 +819,17 @@ def _render_aspiration(matrices: list, findings_dir: str, call_or: Callable) -> 
                 st.markdown(
                     f'<div style="border-left:3px solid #fbbf24;padding:8px 14px;margin:6px 0;">'
                     f'<p style="margin:0;font-size:0.8rem;color:#9ca3af;">'
-                    f'{p["brand"]} Â· {p["emotion"]} Â· {p["trigger"]}</p>'
+                    f'{p["brand"]} · {p["emotion"]} · {p["trigger"]}</p>'
                     f'<p style="margin:4px 0 0;font-size:0.88rem;color:#e2e8f0;">&ldquo;{p["quote"][:180]}&rdquo;</p>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
 
-    # â”€â”€ Verbatim wall: aspiration passages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Verbatim wall: aspiration passages ────────────────────────────────────
     asp_passages = _all_passages(matrices, topics=["aspiration", "need", "wish", "want", "gap", "desire"])
     _full_verbatim_wall(asp_passages, "asp_wall", "Aspiration & Need Verbatims")
 
-    # â”€â”€ Finding block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Finding block ──────────────────────────────────────────────────────────
     for sec in ["aspiration_gaps", "category_need_buckets"]:
         f = _load_finding(findings_dir, sec)
         if f:
@@ -853,13 +853,13 @@ def _render_purchase_journey(matrices: list, findings_dir: str, call_or: Callabl
     price_dist = _count_field(matrices, "price_sensitivity")
 
     _insight_banner(
-        f"Top decision driver: {max(dd_dist, key=dd_dist.get, default='â€”')} Â· "
-        f"Top info source: {max(src_dist, key=src_dist.get, default='â€”')} Â· "
-        f"Top decision maker: {max(pd_dist, key=pd_dist.get, default='â€”').replace('_',' ')}",
+        f"Top decision driver: {max(dd_dist, key=dd_dist.get, default='—')} · "
+        f"Top info source: {max(src_dist, key=src_dist.get, default='—')} · "
+        f"Top decision maker: {max(pd_dist, key=pd_dist.get, default='—').replace('_',' ')}",
         "From decision_drivers, social_dynamics, price_sensitivity fields.",
     )
 
-    # â”€â”€ Decision drivers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Decision drivers ───────────────────────────────────────────────────────
     section_header("Decision Drivers", "What drives purchase decisions")
     c1, c2 = st.columns(2)
     with c1:
@@ -878,7 +878,7 @@ def _render_purchase_journey(matrices: list, findings_dir: str, call_or: Callabl
             fig_src.update_layout(**{**CHART_LAYOUT, "height": 360})
             st.plotly_chart(fig_src, use_container_width=True)
 
-    # â”€â”€ Feature priorities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Feature priorities ─────────────────────────────────────────────────────
     section_header("Feature Priorities", "High vs medium vs low importance features")
     fp_data: dict[str, Counter] = {}
     for m in matrices:
@@ -903,7 +903,7 @@ def _render_purchase_journey(matrices: list, findings_dir: str, call_or: Callabl
         fig_fp.update_layout(**{**CHART_LAYOUT, "height": max(360, len(top_features) * 35 + 100)})
         st.plotly_chart(fig_fp, use_container_width=True)
 
-    # â”€â”€ Social dynamics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Social dynamics ────────────────────────────────────────────────────────
     section_header("Social & Kitchen Dynamics")
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -926,7 +926,7 @@ def _render_purchase_journey(matrices: list, findings_dir: str, call_or: Callabl
             fig_pr.update_layout(**{**CHART_LAYOUT, "height": 300})
             st.plotly_chart(fig_pr, use_container_width=True)
 
-    # â”€â”€ Cultural context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Cultural context ───────────────────────────────────────────────────────
     section_header("Cultural & Kitchen Context")
     rfc_dist = _count_field(matrices, "cultural_context.regional_food_culture")
     tvm_dist = _count_field(matrices, "cultural_context.traditional_vs_modern")
@@ -948,19 +948,19 @@ def _render_purchase_journey(matrices: list, findings_dir: str, call_or: Callabl
             fig_tvm.update_layout(**{**CHART_LAYOUT, "height": 320})
             st.plotly_chart(fig_tvm, use_container_width=True)
 
-    # â”€â”€ Verbatim wall: decision passages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Verbatim wall: decision passages ──────────────────────────────────────
     dec_passages = _all_passages(matrices, decision_only=True)
     _full_verbatim_wall(dec_passages, "dec_wall", "Purchase Decision Verbatims")
 
-    # â”€â”€ Finding blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Finding blocks ─────────────────────────────────────────────────────────
     for sec in ["purchase_journey", "kitchen_context"]:
         f = _load_finding(findings_dir, sec)
         if f:
             _finding_block(f, call_or,
                 regen_prompt=(
                     f"Synthesise purchase journey insights from FMCD ethnographic study. "
-                    f"n={n}. Top driver: {max(dd_dist, key=dd_dist.get, default='â€”') if dd_dist else 'â€”'}. "
-                    f"Top source: {max(src_dist, key=src_dist.get, default='â€”') if src_dist else 'â€”'}. "
+                    f"n={n}. Top driver: {max(dd_dist, key=dd_dist.get, default='—') if dd_dist else '—'}. "
+                    f"Top source: {max(src_dist, key=src_dist.get, default='—') if src_dist else '—'}. "
                     f"Decision maker: {dict(list(pd_dist.items())[:3])}. "
                     f"4-5 bullet insights. Channel and messaging implications."
                 ),
@@ -984,7 +984,7 @@ def _render_study_report(matrices: list, findings_dir: str,
     if report_key not in st.session_state:
         st.session_state[report_key] = None
 
-    if st.button("âœ¦ Generate Report", key="eth_gen_report_btn"):
+    if st.button("✦ Generate Report", key="eth_gen_report_btn"):
         all_findings_text = []
         sec_ids = ["respondent_profile", "brand_relationship", "category_need_buckets",
                    "kitchen_context", "pain_points_workarounds", "purchase_journey",
@@ -1039,7 +1039,7 @@ Research findings:
 
 Write in clear, professional market research language. No filler. Cite statistics where available."""
 
-        with st.spinner("Generating reportâ€¦"):
+        with st.spinner("Generating report…"):
             result = call_or(prompt)
         st.session_state[report_key] = result or "_No response from AI._"
 
@@ -1049,21 +1049,21 @@ Write in clear, professional market research language. No filler. Cite statistic
         st.markdown("---")
         c1, c2 = st.columns(2)
         c1.download_button(
-            "â†“ Download Report (.md)",
+            "↓ Download Report (.md)",
             data=report.encode("utf-8"),
             file_name=f"{study_name.lower().replace(' ','_')}_report.md",
             mime="text/markdown",
             key="eth_dl_md",
         )
         c2.download_button(
-            "â†“ Download Report (.txt)",
+            "↓ Download Report (.txt)",
             data=report.encode("utf-8"),
             file_name=f"{study_name.lower().replace(' ','_')}_report.txt",
             mime="text/plain",
             key="eth_dl_txt",
         )
 
-    # â”€â”€ Section-by-section regen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Section-by-section regen ───────────────────────────────────────────────
     st.markdown("---")
     section_header("Section-by-Section Findings")
     sec_configs = [
@@ -1084,15 +1084,15 @@ Write in clear, professional market research language. No filler. Cite statistic
                 regen_key=f"report_{sec_id}",
             )
 
-    # â”€â”€ Complete verbatim archive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Complete verbatim archive ──────────────────────────────────────────────
     st.markdown("---")
     all_p = _all_passages(matrices)
     _full_verbatim_wall(all_p, "report_archive", f"Complete Verbatim Archive ({len(all_p)} passages)")
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # Entry point
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _render_options_menu(proj_id: str, call_llm_fn: Callable) -> list[str]:
     """Show 2-4 LLM-recommended analysis focus areas for this study, with rationale,
@@ -1113,14 +1113,14 @@ def _render_options_menu(proj_id: str, call_llm_fn: Callable) -> list[str]:
         # in practice: the 5 signal keys are distinctive multi-word identifiers,
         # none a substring of another. The one realistic false-positive is the
         # LLM's rationale prose for one item incidentally name-dropping another
-        # signal key without formally recommending it â€” acceptable given the
+        # signal key without formally recommending it — acceptable given the
         # prompt already constrains the reply to a numbered 2-4 item list.
         recommended = [key for key in _ETH_SIGNAL_MAP if key in raw]
         st.session_state[cache_key] = {"raw": raw, "recommended": recommended}
 
     cached = st.session_state[cache_key]
     if cached["raw"]:
-        with st.expander("ðŸ’¡ Recommended focus areas for this data", expanded=False):
+        with st.expander("💡 Recommended focus areas for this data", expanded=False):
             st.markdown(cached["raw"])
     return cached["recommended"]
 
@@ -1129,9 +1129,9 @@ def _reorder_tab_labels_by_recommendation(labels: list[str], recommended_keys: l
     """Put LLM-recommended tabs first (marked with a star), keep all others in
     original relative order after them. Never drops a tab."""
     recommended_names = {_ETH_SIGNAL_MAP[k] for k in recommended_keys if k in _ETH_SIGNAL_MAP}
-    marked = [f"â­ {lbl}" if lbl in recommended_names else lbl for lbl in labels]
-    recommended_first = [lbl for lbl in marked if lbl.startswith("â­ ")]
-    rest = [lbl for lbl in marked if not lbl.startswith("â­ ")]
+    marked = [f"⭐ {lbl}" if lbl in recommended_names else lbl for lbl in labels]
+    recommended_first = [lbl for lbl in marked if lbl.startswith("⭐ ")]
+    rest = [lbl for lbl in marked if not lbl.startswith("⭐ ")]
     return recommended_first + rest
 
 
@@ -1140,9 +1140,9 @@ def render_ethnographic(proj: dict, base_path: Path,
     """
     Main entry point for ethnographic study dashboard.
 
-    proj             â€” registry entry (id, display_name, data_paths, etc.)
-    base_path        â€” resolved Path to oxdata/ directory
-    call_openrouter_fn â€” fn(prompt: str) -> str | None
+    proj             — registry entry (id, display_name, data_paths, etc.)
+    base_path        — resolved Path to oxdata/ directory
+    call_openrouter_fn — fn(prompt: str) -> str | None
     """
     proj_id = proj.get("id", "")
     proj_paths = proj.get("data_paths") or {}
@@ -1156,24 +1156,24 @@ def render_ethnographic(proj: dict, base_path: Path,
         return
 
     # Quality gate: "critical"-quality extractions (verbatim fidelity check failed badly) are
-    # excluded from every chart's aggregate data, not just flagged â€” previously advisory only.
+    # excluded from every chart's aggregate data, not just flagged — previously advisory only.
     from infoleap.skills.project_extractor import gate_matrices_by_quality
     matrices_all, _excluded_matrices = gate_matrices_by_quality(matrices_all)
     if _excluded_matrices:
         st.warning(
-            f"âš  {len(_excluded_matrices)} respondent(s) excluded from every chart below â€” "
+            f"⚠ {len(_excluded_matrices)} respondent(s) excluded from every chart below — "
             f"critical-quality extraction (verbatim fidelity check failed badly): "
             + ", ".join(m.get("doc_id", "?") for m in _excluded_matrices)
             + ". Re-run extraction for these files in Extraction Studio."
         )
     if not matrices_all:
-        empty_state("All matrices for this project are critical-quality â€” nothing to render. "
+        empty_state("All matrices for this project are critical-quality — nothing to render. "
                     "Re-run extraction in Extraction Studio.")
         return
 
     call_or = call_openrouter_fn
 
-    # â”€â”€ Global filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Global filters ─────────────────────────────────────────────────────────
     with st.expander("**Filters**", expanded=False):
         all_brands = sorted({_get(m, "respondent.brand_owned") for m in matrices_all
                              if _get(m, "respondent.brand_owned")})
@@ -1199,27 +1199,27 @@ def render_ethnographic(proj: dict, base_path: Path,
     st.caption(
         f"**{n}** respondents"
         + (f" (filtered from {n_all})" if n < n_all else "")
-        + f" Â· {proj.get('display_name','')}"
+        + f" · {proj.get('display_name','')}"
     )
 
     if n == 0:
         empty_state("No data matches current filters. Clear filters to see all respondents.")
         return
 
-    # â”€â”€ Options menu: LLM proposes which content areas are worth attention â”€â”€â”€â”€â”€â”€
+    # ── Options menu: LLM proposes which content areas are worth attention ──────
     recommended_signals = _render_options_menu(proj_id, call_or)
 
-    # â”€â”€ 6 tabs (recommended ones surfaced first, nothing dropped) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── 6 tabs (recommended ones surfaced first, nothing dropped) ───────────────
     _tab_labels = list(_ETH_SIGNAL_MAP.values()) + ["Study Report"]
     _ordered_labels = _reorder_tab_labels_by_recommendation(_tab_labels, recommended_signals)
     _tabs = dict(zip(_ordered_labels, st.tabs(_ordered_labels)))
 
     def _tab(base_label: str):
-        # Look up by base label, tolerating the "â­ " recommended-marker prefix.
+        # Look up by base label, tolerating the "⭐ " recommended-marker prefix.
         # Correctness relies on no _ETH_SIGNAL_MAP value ever starting with the
-        # literal "â­ " itself â€” safe given it's a small hardcoded dict of plain
+        # literal "⭐ " itself — safe given it's a small hardcoded dict of plain
         # tab names, but worth knowing if that dict ever changes.
-        return _tabs.get(base_label) or _tabs.get(f"â­ {base_label}")
+        return _tabs.get(base_label) or _tabs.get(f"⭐ {base_label}")
 
     with _tab("Consumer Profiles"):
         _render_consumer_profiles(matrices, str(findings_dir), call_or)

@@ -1,4 +1,4 @@
-﻿import sqlite3
+import sqlite3
 import pandas as pd
 import os
 import sys
@@ -70,4 +70,4 @@ class DataIngestionEngine:
 if __name__ == "__main__":
     engine = DataIngestionEngine()
     engine.bootstrap_external_sources()
-    print("âœ… External sources bootstrapped.")
+    print("✅ External sources bootstrapped.")

@@ -1,5 +1,5 @@
-﻿"""
-data_layer.py â€” compute survey metrics from raw Excel + schema_doc (llm_mapping_raw.json).
+"""
+data_layer.py — compute survey metrics from raw Excel + schema_doc (llm_mapping_raw.json).
 
 Replaces ad-hoc SQL queries in brand_health.py for new projects. Each compute_*() function
 takes (raw_df, schema_doc) and returns a clean DataFrame matching what the analytics engines
@@ -8,16 +8,16 @@ and brand_health.py sections expect.
 SQLite path still used for project_1 (existing data, no raw Excel stored).
 This path activates when oxdata/data/{project_id}/raw_data.xlsx exists.
 
-IMPORTANT â€” AIDED semantics (cumulative vs exclusive):
-  data_layer computes AIDED as CUMULATIVE â€” a respondent who mentioned a brand spontaneously
+IMPORTANT — AIDED semantics (cumulative vs exclusive):
+  data_layer computes AIDED as CUMULATIVE — a respondent who mentioned a brand spontaneously
   (TOM/SPONT) is ALSO counted in AIDED, because aided awareness means "knows the brand".
-  This means TOM% â‰¤ SPONT% â‰¤ AIDED% always holds.
+  This means TOM% ≤ SPONT% ≤ AIDED% always holds.
 
-  SQLite ingestion (generic_loader.py) uses EXCLUSIVE stages â€” each respondentÃ—brand pair
+  SQLite ingestion (generic_loader.py) uses EXCLUSIVE stages — each respondent×brand pair
   is stored in only ONE stage (the deepest reached). So SQLite AIDED = only incremental
-  recognizers who did NOT already appear in SPONT/TOM. Same raw data â†’ lower AIDED% in SQLite.
+  recognizers who did NOT already appear in SPONT/TOM. Same raw data → lower AIDED% in SQLite.
 
-  This divergence is by design. Do not try to reconcile the numbers â€” they answer different
+  This divergence is by design. Do not try to reconcile the numbers — they answer different
   questions. data_layer AIDED = "total brand awareness"; SQLite AIDED = "incremental lift".
 """
 from __future__ import annotations
@@ -129,7 +129,7 @@ _raw_cache: dict[str, pd.DataFrame] = {}
 _schema_cache: dict[str, dict] = {}
 _schema_mtime: dict[str, float] = {}  # tracks file mtime for cache invalidation
 
-# Streamlit cache wrapper â€” import conditionally so data_layer works outside Streamlit too
+# Streamlit cache wrapper — import conditionally so data_layer works outside Streamlit too
 try:
     import streamlit as st
     _st_available = True
@@ -228,7 +228,7 @@ def extract_brand_index_map(schema_doc: dict) -> dict[int, str]:
                         parsed[int(float(k))] = brand
                 except (ValueError, TypeError):
                     pass
-            # Compare only clean (non-junk) entries â€” a question with 15 entries
+            # Compare only clean (non-junk) entries — a question with 15 entries
             # where 6 are junk should not beat one with 12 real brands
             if len(parsed) > len(best):
                 best = parsed
@@ -237,8 +237,8 @@ def extract_brand_index_map(schema_doc: dict) -> dict[int, str]:
 
 def _stem_and_brand(source_column: str) -> tuple[str, int]:
     """
-    Parse 'q34_1_3' â†’ stem='q34_1', brand_idx=3.
-    Parse 'q65_2'   â†’ stem='q65',   brand_idx=2.
+    Parse 'q34_1_3' → stem='q34_1', brand_idx=3.
+    Parse 'q65_2'   → stem='q65',   brand_idx=2.
     Returns ('', 0) if no trailing integer suffix found.
     """
     m = re.match(r"^(.+?)_(\d+)$", source_column)
@@ -310,7 +310,7 @@ def compute_respondents(raw_df: pd.DataFrame, schema_doc: dict) -> pd.DataFrame:
             if not ctl_used:
                 numeric_ages = pd.to_numeric(raw_vals, errors="coerce")
                 if numeric_ages.notna().sum() > 0 and numeric_ages.dropna().between(10, 99).mean() > 0.5:
-                    # Raw numeric ages â€” auto-bin into standard market research bands
+                    # Raw numeric ages — auto-bin into standard market research bands
                     out["age"] = numeric_ages
                     bins = [0, 17, 24, 34, 44, 54, 64, 99]
                     labels = ["<18", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"]
@@ -367,7 +367,7 @@ def _normalize_brand_names(df: pd.DataFrame, col: str = "brand_name") -> pd.Data
     if len(brands) <= 1:
         return df
 
-    # Build merge map: minor â†’ canonical
+    # Build merge map: minor → canonical
     canonical_map: dict[str, str] = {}
     freq = df[col].value_counts().to_dict()
 
@@ -399,7 +399,7 @@ def _normalize_brand_names(df: pd.DataFrame, col: str = "brand_name") -> pd.Data
 def compute_brand_awareness(raw_df: pd.DataFrame, schema_doc: dict) -> pd.DataFrame:
     """
     Returns long DataFrame: respondent_id, brand_name, stage.
-    One row per respondentÃ—brandÃ—stage combination (only rows where awareness = True).
+    One row per respondent×brand×stage combination (only rows where awareness = True).
     """
     AWARENESS_BUCKETS = [
         "TOM", "SPONT", "AIDED", "EVER_USED", "CURRENT_USER",
@@ -426,7 +426,7 @@ def compute_brand_awareness(raw_df: pd.DataFrame, schema_doc: dict) -> pd.DataFr
 
             if shape in ("single_value", "multivalent_source", "multi_select", ""):
                 dummy_cols_q = q.get("dummy_columns") or []
-                # If dummy_columns exist for a multivalent_source, prefer them â€” they're binary and
+                # If dummy_columns exist for a multivalent_source, prefer them — they're binary and
                 # unambiguous. Source_column space-coded values use a different numbering that can
                 # include NoneOfThese/other codes that misalign with dummy column positions.
                 #
@@ -545,11 +545,11 @@ def compute_brand_awareness(raw_df: pd.DataFrame, schema_doc: dict) -> pd.DataFr
 def compute_brand_imagery(raw_df: pd.DataFrame, schema_doc: dict) -> pd.DataFrame:
     """
     Returns long DataFrame: respondent_id, brand_name, attr_label.
-    One row per respondentÃ—brandÃ—attribute where association = 1.
+    One row per respondent×brand×attribute where association = 1.
 
     BRAND_IMAGERY schema: one question per attribute, source_column = q34_attr_1 (first brand).
     Other brand columns are q34_attr_2, q34_attr_3, etc.
-    brand_idx_map {1: 'AK', 2: 'CD', ...} gives brand_idx â†’ brand_name.
+    brand_idx_map {1: 'AK', 2: 'CD', ...} gives brand_idx → brand_name.
     """
     raw_cols = set(raw_df.columns)
     resp_col = _get_respondent_id_col(raw_df)
@@ -586,7 +586,7 @@ def compute_brand_imagery(raw_df: pd.DataFrame, schema_doc: dict) -> pd.DataFram
                     rows.append({"respondent_id": resp_id, "brand_name": brand_name, "attr_label": attr_label})
             continue
 
-        # Default: source_column encodes attrÃ—brand index; infer sibling brand columns.
+        # Default: source_column encodes attr×brand index; infer sibling brand columns.
         stem, first_brand_idx = _stem_and_brand(col)
         if not stem:
             continue
@@ -634,7 +634,7 @@ def compute_nps(raw_df: pd.DataFrame, schema_doc: dict) -> pd.DataFrame:
         # Check if there are sibling brand columns
         brand_cols = _infer_brand_columns(stem, brand_idx_map, raw_cols)
         if not brand_cols:
-            # Single-brand NPS â€” brand name from question_text or code_to_label
+            # Single-brand NPS — brand name from question_text or code_to_label
             brand_name = _brand_from_question(q, first_brand_idx, brand_idx_map)
             brand_cols = {first_brand_idx: col}
 
@@ -883,7 +883,7 @@ def compute_portfolio_awareness(raw_df: pd.DataFrame, schema_doc: dict) -> pd.Da
 def get_funnel_pct(awareness_df: pd.DataFrame, brand_name: str,
                    base_n: Optional[int] = None) -> pd.DataFrame:
     """
-    Returns: stage, count, pct â€” funnel % for one brand.
+    Returns: stage, count, pct — funnel % for one brand.
     STAGE_ORDER sets display order.
     """
     STAGE_ORDER = ["TOM", "SPONT", "AIDED", "EVER_USED", "CURRENT_USER",
@@ -906,7 +906,7 @@ def get_funnel_pct(awareness_df: pd.DataFrame, brand_name: str,
 def get_imagery_pct(imagery_df: pd.DataFrame, brand_name: str,
                     base_n: Optional[int] = None, top_n: int = 15) -> pd.DataFrame:
     """
-    Returns: attr_label, count, pct â€” top-N attribute associations for one brand.
+    Returns: attr_label, count, pct — top-N attribute associations for one brand.
     association% = COUNT(DISTINCT respondent_id) / base_n.
     """
     if imagery_df.empty:
@@ -962,7 +962,7 @@ def get_csat_score(csat_df: pd.DataFrame, brand_name: str) -> dict:
         return {}
     raw_mean = df.mean()
     col_max = df.max()
-    # Use actual max to detect scale: max > 5.5 means 0-10 scale â†’ display on /5
+    # Use actual max to detect scale: max > 5.5 means 0-10 scale → display on /5
     displayed = round(raw_mean / 2 if col_max > 5.5 else raw_mean, 2)
     return {"csat_score": displayed, "base_n": len(df)}
 
@@ -986,7 +986,7 @@ def _get_respondent_id_col(raw_df: pd.DataFrame) -> Optional[str]:
 
 
 def _parse_ctl(ctl: dict) -> dict[str, str]:
-    """Normalize code_to_label keys: '1.0' â†’ '1'."""
+    """Normalize code_to_label keys: '1.0' → '1'."""
     out = {}
     for k, v in ctl.items():
         out[str(k).strip()] = str(v).strip()
@@ -998,7 +998,7 @@ def _parse_ctl(ctl: dict) -> dict[str, str]:
 
 
 def _normalize_code(val: str) -> str:
-    """'1.0' â†’ '1', '2.0' â†’ '2'."""
+    """'1.0' → '1', '2.0' → '2'."""
     try:
         return str(int(float(val)))
     except (ValueError, TypeError):
@@ -1016,7 +1016,7 @@ def _is_numeric(val: str) -> bool:
 def _normalize_brand_str(s: str) -> str:
     """Normalize brand name for fuzzy matching: lowercase, strip punctuation/possessives."""
     s = s.lower().strip()
-    s = re.sub(r"'s\b", "", s)   # remove possessives ("sid's" â†’ "sid")
+    s = re.sub(r"'s\b", "", s)   # remove possessives ("sid's" → "sid")
     s = re.sub(r"[^\w\s]", "", s)  # strip remaining punctuation
     s = re.sub(r"\s+", " ", s).strip()
     return s
@@ -1025,7 +1025,7 @@ def _normalize_brand_str(s: str) -> str:
 def _match_brand_name(raw_val: str, brand_idx_map: dict[int, str]) -> Optional[str]:
     """
     When raw value is already a brand name string (not a code), find the canonical brand_name.
-    Tries: exact match â†’ case-insensitive â†’ normalized substring â†’ word-overlap.
+    Tries: exact match → case-insensitive → normalized substring → word-overlap.
     """
     raw_lower = raw_val.strip().lower()
     raw_norm = _normalize_brand_str(raw_val)
@@ -1037,7 +1037,7 @@ def _match_brand_name(raw_val: str, brand_idx_map: dict[int, str]) -> Optional[s
 
     # Pass 2: substring (raw inside brand or brand inside raw)
     # Require minimum length to avoid false matches ("Milk" matching "Milky Mist" and "Milk Brand")
-    # If multiple brands match via substring, skip all â€” ambiguous match is worse than no match.
+    # If multiple brands match via substring, skip all — ambiguous match is worse than no match.
     _sub_matches = []
     for brand_name in brand_idx_map.values():
         b_lower = brand_name.lower()
@@ -1054,7 +1054,7 @@ def _match_brand_name(raw_val: str, brand_idx_map: dict[int, str]) -> Optional[s
         if raw_norm and b_norm and (raw_norm in b_norm or b_norm in raw_norm):
             return brand_name
 
-    # Pass 4: first-word match (e.g. "Sid Farm" â†’ "Sid's Farm" via first word "sid")
+    # Pass 4: first-word match (e.g. "Sid Farm" → "Sid's Farm" via first word "sid")
     raw_words = raw_norm.split()
     if raw_words:
         first_word = raw_words[0]
@@ -1080,7 +1080,7 @@ def _brand_from_question(q: dict, brand_idx: int, brand_idx_map: dict[int, str])
 
 
 # ---------------------------------------------------------------------------
-# Project-level facade â€” cached, ready for brand_health.py to call
+# Project-level facade — cached, ready for brand_health.py to call
 # ---------------------------------------------------------------------------
 
 class ProjectDataLayer:

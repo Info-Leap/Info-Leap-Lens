@@ -1,20 +1,20 @@
-﻿"""
+"""
 CorrespondenceAnalysis (CA) engine for InfoLeap Pulse brand health dashboard.
 
 Replicates full XLSTAT CA output from 'Data for CAN MAP_BLUSH Project.xlsm':
-  - Contingency table (brand Ã— attribute % matrix)
+  - Contingency table (brand × attribute % matrix)
   - Chi-square test of independence
   - Eigenvalues / inertia decomposition
   - Row results (brands): weights, distances, profiles, chi-sq distances,
     principal coords, standard coords, contributions, squared cosines
   - Column results (attributes): same set as rows
-  - Symmetric perceptual map (F1 Ã— F2)
+  - Symmetric perceptual map (F1 × F2)
   - Asymmetric perceptual map (brands principal + attributes standard)
-  - Scree plot, contribution bars, cosÂ² heatmap, chi-sq distance heatmap,
+  - Scree plot, contribution bars, cos² heatmap, chi-sq distance heatmap,
     row profiles radar, brand trajectory plot
 
-CA algorithm (from scratch â€” no sklearn):
-  1. Input N: brands Ã— attrs, values = % associations
+CA algorithm (from scratch — no sklearn):
+  1. Input N: brands × attrs, values = % associations
   2. P = N / N.sum()           correspondence matrix
   3. r = P.sum(axis=1)         row masses
   4. c = P.sum(axis=0)         column masses
@@ -24,8 +24,8 @@ CA algorithm (from scratch â€” no sklearn):
   8. Principal col coords:    G = Dc^{-1/2} Vt' diag(d)
   9. Standard row coords:     A = Dr^{-1/2} U
   10. Standard col coords:    B = Dc^{-1/2} Vt'
-  11. Eigenvalues = dÂ²
-  12. Total inertia = sum(dÂ²)
+  11. Eigenvalues = d²
+  12. Total inertia = sum(d²)
 
 Dependencies: numpy, scipy, pandas, plotly
 """
@@ -42,19 +42,19 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-# â”€â”€ project path bootstrap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── project path bootstrap ────────────────────────────────────────────────────
 _LENS_DIR = Path(__file__).resolve().parent.parent
 _PROJ_ROOT = _LENS_DIR.parent
 if str(_PROJ_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJ_ROOT))
 
 # Default DB path (same pattern as BrandImageryEngine)
-_DEFAULT_DB = _PROJ_ROOT / "oxdata" / "data" / "project_1" / "oxdata.db"
+_DEFAULT_DB = _PROJ_ROOT / "oxdata" / "data" / "project_1" / "infoleap.db"
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# Plotly import (optional â€” engine degrades gracefully if unavailable)
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
+# Plotly import (optional — engine degrades gracefully if unavailable)
+# ─────────────────────────────────────────────────────────────────────────────
 try:
     import plotly.graph_objects as go
     import plotly.colors as pc
@@ -64,9 +64,9 @@ except ImportError:  # pragma: no cover
     _PLOTLY_OK = False
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # Colour palette (consistent with InfoLeap Pulse design)
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 _BRAND_COLOURS = [
     "#4F81BD", "#C0504D", "#9BBB59", "#8064A2",
     "#4BACC6", "#F79646", "#2C4770", "#E05C5C",
@@ -86,15 +86,15 @@ _PLOTLY_LAYOUT_BASE = dict(
 )
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # Helper: safe division
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 def _safe_div(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     with np.errstate(divide="ignore", invalid="ignore"):
         return np.where(b == 0, 0.0, a / b)
 
 
-# â”€â”€ Category Mapping (mq6: 1-6=recent owners, 7-12=intending buyers) â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Category Mapping (mq6: 1-6=recent owners, 7-12=intending buyers) ─────────
 PRODUCT_CODES = {
     "All":           list(range(1, 13)),
     "Ceiling Fans":  [1, 7],
@@ -162,15 +162,15 @@ class CorrespondenceAnalysis:
         self._matrix: Optional[pd.DataFrame] = None
         self._results: Optional[dict]        = None
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # DB helpers
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     def _conn(self) -> sqlite3.Connection:
         return sqlite3.connect(os.path.abspath(self.db_path))
 
     def _get_brand_attr_matrix_from_layer(self) -> pd.DataFrame:
-        """Build brandÃ—attr % matrix from raw data layer (for projects with raw_data.xlsx)."""
+        """Build brand×attr % matrix from raw data layer (for projects with raw_data.xlsx)."""
         try:
             from infoleap.data_layer import get_project_layer
             layer = get_project_layer(self.project_id)
@@ -216,9 +216,9 @@ class CorrespondenceAnalysis:
         except Exception:
             return pd.DataFrame()
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # Public: data retrieval
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     def get_brand_attr_matrix(
         self,
@@ -229,11 +229,11 @@ class CorrespondenceAnalysis:
         awareness_stages: Optional[list] = None,
     ) -> pd.DataFrame:
         """
-        Build brand Ã— attribute % association matrix from fact_brand_imagery.
+        Build brand × attribute % association matrix from fact_brand_imagery.
 
         Each cell = (respondents associating brand B with attribute A) /
                     (total respondents who answered that attribute question)
-                    Ã— 100.
+                    × 100.
 
         The denominator is per-attribute, not global, which is the correct
         survey convention when not all attributes are shown to all respondents.
@@ -268,7 +268,7 @@ class CorrespondenceAnalysis:
         conn = self._conn()
 
         # 2026-07-30: project_1 has a real category_code dimension (6 appliance categories x2
-        # awareness/aided rows = 12 codes) â€” but projects onboarded via the generic ingestion
+        # awareness/aided rows = 12 codes) — but projects onboarded via the generic ingestion
         # pipeline (lens/ingestion/generic_loader.py) never populate category_code at all (most
         # brand-health clients survey ONE category, not project_1's multi-category structure).
         # Applying project_1's hardcoded category filter to such a project's fact_brand_imagery
@@ -295,7 +295,7 @@ class CorrespondenceAnalysis:
             if _has_demo else ""
         )
 
-        # â”€â”€ base query: join imagery + dim tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── base query: join imagery + dim tables ─────────────────────────
         parts  = ["WHERE fbi.value = 1"]
         params: list = []
 
@@ -350,9 +350,9 @@ class CorrespondenceAnalysis:
         """
 
         # Total respondents who answered each attribute question
-        # (value can be 0 or 1 â€” both rows count as "answered")
+        # (value can be 0 or 1 — both rows count as "answered")
         # Denominator: total unique respondents who SAW each attribute
-        # (independent of brand choice) â€” group by attr_id ONLY.
+        # (independent of brand choice) — group by attr_id ONLY.
         denom_parts  = ["WHERE 1=1"]
         denom_params: list = []
         if cats:
@@ -431,7 +431,7 @@ class CorrespondenceAnalysis:
 
         self._total_respondents = int(denom_df["total_n"].max()) if not denom_df.empty else None
 
-        # Merge on attr_id ONLY (denom is per-attribute, not per brandÃ—attr)
+        # Merge on attr_id ONLY (denom is per-attribute, not per brand×attr)
         merged = assoc_df.merge(
             denom_df, on="attr_id", how="left"
         )
@@ -440,19 +440,19 @@ class CorrespondenceAnalysis:
             merged["total_n"].values.astype(float),
         ) * 100.0
 
-        # Pivot to brand Ã— attr
+        # Pivot to brand × attr
         matrix = merged.pivot_table(
             index="brand_name", columns="attr_label",
             values="pct", aggfunc="mean", fill_value=0.0
         )
 
-        # â”€â”€ apply top_brands / top_attrs filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── apply top_brands / top_attrs filters ──────────────────────────
         # Sort brands by total association weight, keep top_brands
         brand_totals = matrix.sum(axis=1).sort_values(ascending=False)
 
         # Also enforce min_respondents: use brand_denom_df
         brand_resp = brand_denom_df.set_index("brand_id")["total_brand_n"]
-        # Map brand_id â†’ brand_name
+        # Map brand_id → brand_name
         brand_id_map = merged[["brand_name", "brand_id"]].drop_duplicates()
         id_to_name   = dict(zip(brand_id_map["brand_id"], brand_id_map["brand_name"]))
         brand_resp.index = brand_resp.index.map(id_to_name)
@@ -470,7 +470,7 @@ class CorrespondenceAnalysis:
             [a for a in top_attr_names  if a in matrix.columns],
         ]
 
-        # Drop zero-variance attributes (all brands identical â†’ no info)
+        # Drop zero-variance attributes (all brands identical → no info)
         matrix = matrix.loc[:, matrix.std(axis=0) > 0]
 
         # Drop brands with ALL-zero associations in the selected attribute set.
@@ -481,13 +481,13 @@ class CorrespondenceAnalysis:
 
         return matrix
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # Public: CA decomposition
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     def fit(self, matrix: pd.DataFrame) -> dict:
         """
-        Run Correspondence Analysis on a brand Ã— attribute % matrix.
+        Run Correspondence Analysis on a brand × attribute % matrix.
 
         Stores results internally and returns the full results dict
         matching XLSTAT output structure.
@@ -495,43 +495,43 @@ class CorrespondenceAnalysis:
         Parameters
         ----------
         matrix : pd.DataFrame
-            Brand Ã— attribute % matrix (from get_brand_attr_matrix or custom).
-            All values must be â‰¥ 0.
+            Brand × attribute % matrix (from get_brand_attr_matrix or custom).
+            All values must be ≥ 0.
 
         Returns
         -------
         dict with keys:
-            contingency_table   pd.DataFrame  â€” input % matrix
-            chi2_test           dict          â€” chi2, df, p_value, critical, alpha
+            contingency_table   pd.DataFrame  — input % matrix
+            chi2_test           dict          — chi2, df, p_value, critical, alpha
             total_inertia       float
-            eigenvalues         pd.DataFrame  â€” F1..Fk: eigenvalue, %inertia, cum%
-            row_results         dict          â€” all brand CA statistics
-            col_results         dict          â€” all attribute CA statistics
+            eigenvalues         pd.DataFrame  — F1..Fk: eigenvalue, %inertia, cum%
+            row_results         dict          — all brand CA statistics
+            col_results         dict          — all attribute CA statistics
         """
         if matrix.empty:
-            raise ValueError("Input matrix is empty â€” no data to analyse.")
+            raise ValueError("Input matrix is empty — no data to analyse.")
 
         N = matrix.values.astype(float)
         brand_names = list(matrix.index)
         attr_names  = list(matrix.columns)
         n_rows, n_cols = N.shape
 
-        # â”€â”€ 1. Correspondence matrix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 1. Correspondence matrix ──────────────────────────────────────
         total = N.sum()
         if total == 0:
-            raise ValueError("Matrix sums to zero â€” check data extraction.")
+            raise ValueError("Matrix sums to zero — check data extraction.")
         P = N / total
 
         r = P.sum(axis=1)   # row masses  (n_rows,)
         c = P.sum(axis=0)   # col masses  (n_cols,)
 
-        # â”€â”€ 3. Standardised residuals matrix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 3. Standardised residuals matrix ─────────────────────────────
         Dr_sqrt_inv = np.diag(1.0 / np.sqrt(np.where(r > 0, r, 1e-12)))
         Dc_sqrt_inv = np.diag(1.0 / np.sqrt(np.where(c > 0, c, 1e-12)))
 
         S = Dr_sqrt_inv @ (P - np.outer(r, c)) @ Dc_sqrt_inv
 
-        # â”€â”€ 4. SVD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 4. SVD ────────────────────────────────────────────────────────
         # Full SVD; drop last trivial singular value (rank = min-1)
         U, d, Vt = np.linalg.svd(S, full_matrices=False)
 
@@ -541,7 +541,7 @@ class CorrespondenceAnalysis:
         d  = d[:k]
         Vt = Vt[:k, :]
 
-        # Sign normalisation â€” match XLSTAT convention:
+        # Sign normalisation — match XLSTAT convention:
         # for each factor, flip so the element with largest absolute value
         # in that column of U is POSITIVE (deterministic, reproducible).
         for j in range(k):
@@ -553,7 +553,7 @@ class CorrespondenceAnalysis:
         eigenvalues   = d ** 2
         total_inertia = float(eigenvalues.sum())
 
-        # â”€â”€ 2. Chi-square test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 2. Chi-square test ───────────────────────────────────────────
         total_resp = getattr(self, "_total_respondents", None)
         if total_resp is None:
             import warnings
@@ -581,7 +581,7 @@ class CorrespondenceAnalysis:
             "significant": bool(p_val < alpha),
         }
 
-        # â”€â”€ 4. Continuation (inertia percentages) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 4. Continuation (inertia percentages) ───────────────────────
         pct_inertia   = eigenvalues / total_inertia * 100 if total_inertia > 0 else eigenvalues * 0
         cum_pct       = np.cumsum(pct_inertia)
 
@@ -592,7 +592,7 @@ class CorrespondenceAnalysis:
             "Cum_Inertia_%": np.round(cum_pct, 4),
         }).set_index("Factor")
 
-        # â”€â”€ 5. Row (brand) coordinates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 5. Row (brand) coordinates ────────────────────────────────────
         Dr_sqrt_inv_vec = 1.0 / np.sqrt(np.where(r > 0, r, 1e-12))
         Dc_sqrt_inv_vec = 1.0 / np.sqrt(np.where(c > 0, c, 1e-12))
 
@@ -601,7 +601,7 @@ class CorrespondenceAnalysis:
         # Standard coords:   A = Dr^{-1/2} U
         A_rows = Dr_sqrt_inv_vec[:, None] * U
 
-        # â”€â”€ 6. Column (attribute) coordinates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 6. Column (attribute) coordinates ────────────────────────────
         # Principal coords:  G = Dc^{-1/2} Vt' diag(d)
         F_cols = (Dc_sqrt_inv_vec[:, None] * Vt.T) * d[None, :]
         # Standard coords:   B = Dc^{-1/2} Vt'
@@ -609,19 +609,19 @@ class CorrespondenceAnalysis:
 
         factor_labels = [f"F{i+1}" for i in range(k)]
 
-        # â”€â”€ 7. Row profiles (P / r) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 7. Row profiles (P / r) ───────────────────────────────────────
         row_profiles = _safe_div(P, r[:, None])   # shape (n_rows, n_cols)
 
-        # â”€â”€ 8. Column profiles (P / c) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 8. Column profiles (P / c) ────────────────────────────────────
         col_profiles = _safe_div(P, c[None, :])   # shape (n_rows, n_cols)
         # col profiles: each column of P divided by its mass
         col_profiles_T = _safe_div(P.T, c[:, None])  # shape (n_cols, n_rows)
 
-        # â”€â”€ 9. Chi-square distances between rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 9. Chi-square distances between rows ─────────────────────────
         row_chisq = self._chisq_distances(row_profiles, c)
         col_chisq = self._chisq_distances(col_profiles_T, r)
 
-        # â”€â”€ 10. Distances from centroid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 10. Distances from centroid ───────────────────────────────────
         row_sq_dist = np.array([
             np.sum(_safe_div((row_profiles[i] - c) ** 2, np.where(c > 0, c, 1e-12)))
             for i in range(n_rows)
@@ -634,14 +634,14 @@ class CorrespondenceAnalysis:
         row_dist = np.sqrt(np.clip(row_sq_dist, 0, None))
         col_dist = np.sqrt(np.clip(col_sq_dist, 0, None))
 
-        # â”€â”€ 11. Inertia per point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 11. Inertia per point ─────────────────────────────────────────
         row_inertia = r * row_sq_dist
         col_inertia = c * col_sq_dist
 
         row_rel_inertia = _safe_div(row_inertia, total_inertia) if total_inertia else row_inertia
         col_rel_inertia = _safe_div(col_inertia, total_inertia) if total_inertia else col_inertia
 
-        # â”€â”€ 12. Contributions (absolute) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 12. Contributions (absolute) ─────────────────────────────────
         # CTR_i_k = r_i * F_ik^2 / lambda_k
         row_ctrs = np.zeros((n_rows, k))
         col_ctrs = np.zeros((n_cols, k))
@@ -650,7 +650,7 @@ class CorrespondenceAnalysis:
             row_ctrs[:, ki] = r * F_rows[:, ki] ** 2 / lam
             col_ctrs[:, ki] = c * F_cols[:, ki] ** 2 / lam
 
-        # â”€â”€ 13. Squared cosines (quality of representation) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 13. Squared cosines (quality of representation) ───────────────
         # COS2_ik = F_ik^2 / sq_dist_i
         row_cos2 = np.zeros((n_rows, k))
         col_cos2 = np.zeros((n_cols, k))
@@ -661,7 +661,7 @@ class CorrespondenceAnalysis:
             denom = col_sq_dist[j] if col_sq_dist[j] > 0 else 1e-12
             col_cos2[j] = F_cols[j] ** 2 / denom
 
-        # â”€â”€ 14. Package results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 14. Package results ───────────────────────────────────────────
         def _df_coords(arr, names, index_name):
             df = pd.DataFrame(
                 np.round(arr, 6),
@@ -732,9 +732,9 @@ class CorrespondenceAnalysis:
         self._results = results
         return results
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # Public: convenience accessors
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     def get_perceptual_map_data(self, n_dims: int = 2) -> dict:
         """
@@ -748,9 +748,9 @@ class CorrespondenceAnalysis:
         Returns
         -------
         dict with keys:
-            brands : list[dict]  â€” [{name, F1, F2, ..., weight, rel_inertia}]
-            attrs  : list[dict]  â€” [{name, F1, F2, ..., weight, rel_inertia}]
-            explained_variance : list[float]  â€” % inertia per factor
+            brands : list[dict]  — [{name, F1, F2, ..., weight, rel_inertia}]
+            attrs  : list[dict]  — [{name, F1, F2, ..., weight, rel_inertia}]
+            explained_variance : list[float]  — % inertia per factor
             total_inertia : float
         """
         self._require_fit()
@@ -826,22 +826,22 @@ class CorrespondenceAnalysis:
             "row_chisq":         _df_to_dict(res["row_results"]["chisq_distances"]),
         }
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # Public: chart specs
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     def get_chart_specs(self) -> list:
         """
         Generate all Plotly chart specs as JSON-serialisable dicts.
 
         Charts produced:
-          1. Symmetric perceptual map  (F1 Ã— F2, brands squares + attrs circles)
+          1. Symmetric perceptual map  (F1 × F2, brands squares + attrs circles)
           2. Asymmetric perceptual map (brands principal + attrs standard coords)
           3. Scree plot                (% inertia bar + cumulative line)
           4. Brand contributions F1   (horizontal bar)
           5. Brand contributions F2   (horizontal bar)
-          6. Squared cosines heatmap  (brand Ã— factor)
-          7. Chi-sq distance heatmap  (brand Ã— brand)
+          6. Squared cosines heatmap  (brand × factor)
+          7. Chi-sq distance heatmap  (brand × brand)
           8. Row profiles radar       (each brand vs mean)
           9. Brand trajectory plot    (F1 coords across categories if multi-cat)
          10. Biplot with confidence ellipses (brands principal + 95% CI)
@@ -869,25 +869,25 @@ class CorrespondenceAnalysis:
         specs.append(self._chart_biplot_ellipses())
         return specs
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # Private: chi-square distance computation
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     @staticmethod
     def _chisq_distances(profiles: np.ndarray, masses: np.ndarray) -> np.ndarray:
         """
         Compute chi-square distance matrix between rows of `profiles`.
 
-        dÂ²(i,i') = Î£_j  (p_ij - p_i'j)Â² / c_j
+        d²(i,i') = Σ_j  (p_ij - p_i'j)² / c_j
 
         Parameters
         ----------
         profiles : np.ndarray  shape (n, m)
-        masses   : np.ndarray  shape (m,)  â€” column masses (denominator)
+        masses   : np.ndarray  shape (m,)  — column masses (denominator)
 
         Returns
         -------
-        np.ndarray shape (n, n) â€” symmetric distance matrix
+        np.ndarray shape (n, n) — symmetric distance matrix
         """
         n = profiles.shape[0]
         D = np.zeros((n, n))
@@ -897,20 +897,20 @@ class CorrespondenceAnalysis:
             D[i] = np.sum(diff ** 2 * inv_masses[None, :], axis=1)
         return np.sqrt(np.clip(D, 0, None))
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # Private: guard
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     def _require_fit(self):
         if self._results is None:
             raise RuntimeError("Call fit() before accessing results or charts.")
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
     # Private: chart builders
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ─────────────────────────────────────────────────────────────────────
 
     def _axis_poles(self, factor_idx: int, n: int = 2):
-        """Return (neg_attrs, pos_attrs) â€” the attribute names defining each pole of
+        """Return (neg_attrs, pos_attrs) — the attribute names defining each pole of
         a CA factor. These translate an abstract F1/F2 axis into plain meaning for
         an executive reader (left side = X, right side = Y)."""
         try:
@@ -922,7 +922,7 @@ class CorrespondenceAnalysis:
             coords.sort(key=lambda x: x[1])
             def _short(s, m=18):
                 s = str(s)
-                return s[:m] + "â€¦" if len(s) > m else s
+                return s[:m] + "…" if len(s) > m else s
             neg = [_short(c[0]) for c in coords[:n] if c[1] < 0]
             pos = [_short(c[0]) for c in reversed(coords[-n:]) if c[1] > 0]
             return neg, pos
@@ -931,15 +931,15 @@ class CorrespondenceAnalysis:
 
     def _axis_label(self, factor_idx: int) -> str:
         """Executive-readable axis label, e.g.
-        'F1 Â· 42.3% inertia   â—€ Affordable, Basic   |   Premium, Durable â–¶'"""
+        'F1 · 42.3% inertia   ◀ Affordable, Basic   |   Premium, Durable ▶'"""
         pct = self._results["_pct_inertia"]
         lbl = self._results["_factor_labels"][factor_idx]
-        base = f"{lbl} Â· {pct[factor_idx]:.1f}% inertia"
+        base = f"{lbl} · {pct[factor_idx]:.1f}% inertia"
         neg, pos = self._axis_poles(factor_idx)
         if neg or pos:
-            neg_s = ", ".join(neg) if neg else "â€”"
-            pos_s = ", ".join(pos) if pos else "â€”"
-            return f"{base}    â—€ {neg_s}   |   {pos_s} â–¶"
+            neg_s = ", ".join(neg) if neg else "—"
+            pos_s = ", ".join(pos) if pos else "—"
+            return f"{base}    ◀ {neg_s}   |   {pos_s} ▶"
         return base
 
     @staticmethod
@@ -958,7 +958,7 @@ class CorrespondenceAnalysis:
 
     def _chart_symmetric_map(self) -> dict:
         """
-        Symmetric biplot: brands (squares) + attributes (circles) on F1 Ã— F2.
+        Symmetric biplot: brands (squares) + attributes (circles) on F1 × F2.
         Top-8 attributes labeled with arrows connecting label to point.
         All attribute dots hoverable. Brand labels with colored badges.
         """
@@ -977,11 +977,11 @@ class CorrespondenceAnalysis:
         top_attr_idx = set(np.argsort(col_ri)[::-1][:N_LABELED].tolist())
 
         def _trunc(s, n=22):
-            return s[:n] + "â€¦" if len(s) > n else s
+            return s[:n] + "…" if len(s) > n else s
 
         traces = []
 
-        # â”€â”€ All attribute dots: single trace, coloured by top/non-top â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── All attribute dots: single trace, coloured by top/non-top ─────────
         all_attr_cd = [[attr_names[j], float(F_cols[j, 0]), float(F_cols[j, 1]),
                         float(col_ri[j]) * 100]
                        for j in range(len(attr_names))]
@@ -1007,7 +1007,7 @@ class CorrespondenceAnalysis:
             showlegend=True,
         ))
 
-        # â”€â”€ Brand traces: coloured squares, marker-only (labels via annotations) â”€â”€
+        # ── Brand traces: coloured squares, marker-only (labels via annotations) ──
         for i, name in enumerate(brand_names):
             colour  = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
             f1, f2  = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -1050,7 +1050,7 @@ class CorrespondenceAnalysis:
 
         fig = go.Figure(data=traces)
 
-        # â”€â”€ Faint 4-quadrant tints â€” partition the perceptual space for the eye â”€â”€
+        # ── Faint 4-quadrant tints — partition the perceptual space for the eye ──
         _q_tints = [
             (0, x_range[1], 0, y_range[1], "rgba(16,185,129,0.045)"),   # top-right
             (x_range[0], 0, 0, y_range[1], "rgba(56,189,248,0.045)"),   # top-left
@@ -1061,7 +1061,7 @@ class CorrespondenceAnalysis:
             fig.add_shape(type="rect", x0=_x0, x1=_x1, y0=_y0, y1=_y1,
                           fillcolor=_fill, line=dict(width=0), layer="below")
 
-        # â”€â”€ Brand labels: colored pill with white bg, no arrow (brands are big squares) â”€â”€
+        # ── Brand labels: colored pill with white bg, no arrow (brands are big squares) ──
         for i, name in enumerate(brand_names):
             colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
             f1, f2 = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -1080,7 +1080,7 @@ class CorrespondenceAnalysis:
                 borderpad=3,
             )
 
-        # â”€â”€ Top-N attribute labels with small arrows pointing to dots â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Top-N attribute labels with small arrows pointing to dots ─────────
         for j in sorted(top_attr_idx):
             af1, af2 = float(F_cols[j, 0]), float(F_cols[j, 1])
             # Place label text away from the point
@@ -1112,7 +1112,7 @@ class CorrespondenceAnalysis:
             title=dict(
                 text=(
                     f"<b>Symmetric Perceptual Map</b>"
-                    f"<br><sup>Principal coordinates Â· Top {N_LABELED} attributes labeled Â· hover all dots</sup>"
+                    f"<br><sup>Principal coordinates · Top {N_LABELED} attributes labeled · hover all dots</sup>"
                 ),
                 font=dict(size=14, color="#0f172a"),
                 x=0.5, xanchor="center",
@@ -1166,7 +1166,7 @@ class CorrespondenceAnalysis:
         top_attr_idx = set(np.argsort(col_ri)[::-1][:N_LABELED].tolist())
 
         def _trunc(s, n=22):
-            return s[:n] + "â€¦" if len(s) > n else s
+            return s[:n] + "…" if len(s) > n else s
 
         # Scale A_cols to match display range of F_rows
         f_scale = float(np.abs(F_rows).max()) if np.abs(F_rows).max() > 0 else 1.0
@@ -1176,7 +1176,7 @@ class CorrespondenceAnalysis:
 
         traces = []
 
-        # â”€â”€ Attribute dots: two groups (top/other) for legend clarity â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Attribute dots: two groups (top/other) for legend clarity ─────────
         all_attr_cd = [[attr_names[j],
                         float(A_cols[j, 0]), float(A_cols[j, 1]),
                         float(col_ri[j]) * 100]
@@ -1204,7 +1204,7 @@ class CorrespondenceAnalysis:
             showlegend=True,
         ))
 
-        # â”€â”€ Brand traces: principal coords, coloured squares â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Brand traces: principal coords, coloured squares ──────────────────
         for i, name in enumerate(brand_names):
             colour  = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
             f1, f2  = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -1245,7 +1245,7 @@ class CorrespondenceAnalysis:
 
         fig = go.Figure(data=traces)
 
-        # â”€â”€ Brand labels: colored pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Brand labels: colored pills ────────────────────────────────────────
         for i, name in enumerate(brand_names):
             colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
             f1, f2 = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -1263,7 +1263,7 @@ class CorrespondenceAnalysis:
                 borderpad=3,
             )
 
-        # â”€â”€ Top-N attribute labels with arrows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Top-N attribute labels with arrows ────────────────────────────────
         for j in sorted(top_attr_idx):
             av1, av2 = float(A_vis[j, 0]), float(A_vis[j, 1])
             sign_x = 1 if av1 >= 0 else -1
@@ -1294,7 +1294,7 @@ class CorrespondenceAnalysis:
             title=dict(
                 text=(
                     f"<b>Asymmetric Perceptual Map</b>"
-                    f"<br><sup>Brands on principal coords Â· Attributes on scaled std coords Â· Top {N_LABELED} labeled</sup>"
+                    f"<br><sup>Brands on principal coords · Attributes on scaled std coords · Top {N_LABELED} labeled</sup>"
                 ),
                 font=dict(size=14, color="#0f172a"),
                 x=0.5, xanchor="center",
@@ -1354,7 +1354,7 @@ class CorrespondenceAnalysis:
         ))
         fig.update_layout(
             **_PLOTLY_LAYOUT_BASE,
-            title=dict(text="Scree Plot â€” Inertia by Factor", font=dict(size=16)),
+            title=dict(text="Scree Plot — Inertia by Factor", font=dict(size=16)),
             xaxis=dict(title="Factor"),
             yaxis=dict(title="% Inertia", range=[0, max(pct) * 1.3], gridcolor=_GRID_COLOUR),
             yaxis2=dict(
@@ -1439,7 +1439,7 @@ class CorrespondenceAnalysis:
                 "figure": fig.to_dict()}
 
     def _chart_cos2_heatmap(self) -> dict:
-        """Heatmap of squared cosines: brand Ã— factor quality of representation."""
+        """Heatmap of squared cosines: brand × factor quality of representation."""
         res     = self._results
         names   = res["_brand_names"]
         labels  = res["_factor_labels"]
@@ -1452,13 +1452,13 @@ class CorrespondenceAnalysis:
             colorscale="Blues",
             text=[[f"{v:.3f}" for v in row] for row in cos2],
             texttemplate="%{text}",
-            hovertemplate="Brand: %{y}<br>Factor: %{x}<br>cosÂ²: %{z:.4f}<extra></extra>",
-            colorbar=dict(title="cosÂ²"),
+            hovertemplate="Brand: %{y}<br>Factor: %{x}<br>cos²: %{z:.4f}<extra></extra>",
+            colorbar=dict(title="cos²"),
             zmin=0, zmax=1,
         ))
         fig.update_layout(
             **_PLOTLY_LAYOUT_BASE,
-            title=dict(text="Squared Cosines â€” Brand Representation Quality", font=dict(size=16)),
+            title=dict(text="Squared Cosines — Brand Representation Quality", font=dict(size=16)),
             xaxis=dict(title="Factor"),
             yaxis=dict(title="Brand"),
             height=max(300, 35 * len(names)),
@@ -1479,8 +1479,8 @@ class CorrespondenceAnalysis:
             colorscale="RdYlGn_r",
             text=[[f"{v:.2f}" for v in row] for row in dists],
             texttemplate="%{text}",
-            hovertemplate="%{y} â†” %{x}: %{z:.3f}<extra></extra>",
-            colorbar=dict(title="Ï‡Â² dist"),
+            hovertemplate="%{y} ↔ %{x}: %{z:.3f}<extra></extra>",
+            colorbar=dict(title="χ² dist"),
         ))
         fig.update_layout(
             **_PLOTLY_LAYOUT_BASE,
@@ -1505,7 +1505,7 @@ class CorrespondenceAnalysis:
         profiles    = res["row_results"]["profiles"].values   # (n_brands, n_attrs)
         mean_prof   = profiles.mean(axis=0)
 
-        # Keep ALL attributes â€” no filtering (enhance visuals only)
+        # Keep ALL attributes — no filtering (enhance visuals only)
         theta = attr_names + [attr_names[0]]   # close the polygon
         r_max = float(profiles.max()) * 1.1
 
@@ -1540,7 +1540,7 @@ class CorrespondenceAnalysis:
         fig.update_layout(
             **_PLOTLY_LAYOUT_BASE,
             height=650,
-            title=dict(text="Row Profiles â€” Brand Attribute Radar", font=dict(size=16)),
+            title=dict(text="Row Profiles — Brand Attribute Radar", font=dict(size=16)),
             polar=dict(
                 radialaxis=dict(
                     visible=True,
@@ -1566,7 +1566,7 @@ class CorrespondenceAnalysis:
     def _chart_brand_trajectory(self) -> dict:
         """
         Brand trajectory on F1 axis across categories (if multi-category data).
-        Falls back to a F1 Ã— brand bar chart when single category.
+        Falls back to a F1 × brand bar chart when single category.
         """
         res         = self._results
         brand_names = res["_brand_names"]
@@ -1601,7 +1601,7 @@ class CorrespondenceAnalysis:
         """
         Symmetric biplot with approx. 95% confidence ellipses (filled semi-transparent).
         Brands labeled via annotations. Top-8 attributes labeled with arrows.
-        Ellipse size âˆ sampling uncertainty (larger mass â†’ smaller ellipse).
+        Ellipse size ∝ sampling uncertainty (larger mass → smaller ellipse).
         """
         res         = self._results
         brand_names = res["_brand_names"]
@@ -1620,7 +1620,7 @@ class CorrespondenceAnalysis:
         ci_scale    = 1.96
 
         def _trunc(s, n=22):
-            return s[:n] + "â€¦" if len(s) > n else s
+            return s[:n] + "…" if len(s) > n else s
 
         def _hex_to_rgba(hex_col: str, alpha: float) -> str:
             h = hex_col.lstrip("#")
@@ -1629,7 +1629,7 @@ class CorrespondenceAnalysis:
 
         traces = []
 
-        # â”€â”€ Filled confidence ellipses (drawn first â†’ behind points) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Filled confidence ellipses (drawn first → behind points) ──────────
         for i, name in enumerate(brand_names):
             colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
             cx = float(F_rows[i, 0])
@@ -1660,7 +1660,7 @@ class CorrespondenceAnalysis:
                 hoverinfo="skip",
             ))
 
-        # â”€â”€ Attribute dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Attribute dots ──────────────────────────────────────────────────────
         attr_sizes  = [max(7, min(14, 5 + 9 * float(col_ri[j]) / max_col_ri))
                        if j in top_attr_idx else 6
                        for j in range(len(attr_names))]
@@ -1686,7 +1686,7 @@ class CorrespondenceAnalysis:
             showlegend=True,
         ))
 
-        # â”€â”€ Brand centre-points â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Brand centre-points ────────────────────────────────────────────────
         for i, name in enumerate(brand_names):
             colour  = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
             f1, f2  = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -1726,7 +1726,7 @@ class CorrespondenceAnalysis:
 
         fig = go.Figure(data=traces)
 
-        # â”€â”€ Brand labels with colored borders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Brand labels with colored borders ─────────────────────────────────
         for i, name in enumerate(brand_names):
             colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
             f1, f2 = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -1744,7 +1744,7 @@ class CorrespondenceAnalysis:
                 borderpad=3,
             )
 
-        # â”€â”€ Top-N attribute labels with arrows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Top-N attribute labels with arrows ────────────────────────────────
         for j in sorted(top_attr_idx):
             af1, af2 = float(F_cols[j, 0]), float(F_cols[j, 1])
             sign_x = 1 if af1 >= 0 else -1
@@ -1775,7 +1775,7 @@ class CorrespondenceAnalysis:
             title=dict(
                 text=(
                     "<b>Biplot with Approx. 95% Confidence Ellipses</b>"
-                    f"<br><sup>Shaded zone = sampling uncertainty Â· Top {N_LABELED} attributes labeled Â· larger ellipse = less stable position</sup>"
+                    f"<br><sup>Shaded zone = sampling uncertainty · Top {N_LABELED} attributes labeled · larger ellipse = less stable position</sup>"
                 ),
                 font=dict(size=14, color="#0f172a"),
                 x=0.5, xanchor="center",
@@ -1808,12 +1808,12 @@ class CorrespondenceAnalysis:
                 "figure": fig.to_dict()}
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # Module-level: build a perceptual map from a pre-computed CA results dict
 # with custom attribute label selection and anti-overlap label placement.
 # Called directly from the UI layer (no caching) so the user can interactively
 # choose which attributes to label without rerunning the whole CA pipeline.
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _push_apart_labels(
     positions: list,          # list of [x, y] label-box centres
@@ -1842,7 +1842,7 @@ def _push_apart_labels(
                     pts[j][0] += nx * push
                     pts[j][1] += ny * push
                     moved = True
-                elif dist < 1e-9:   # exact same position â€” nudge randomly
+                elif dist < 1e-9:   # exact same position — nudge randomly
                     pts[j][0] += min_dist * 0.5
                     pts[j][1] += min_dist * 0.3
                     moved = True
@@ -1869,11 +1869,11 @@ def build_perceptual_map(
         Output of CorrespondenceAnalysis.fit() (i.e. ca_res["ca_results"]).
     map_type : "symmetric" | "asymmetric"
     label_attrs : list[str] | None
-        Attribute names to label.  None â†’ top-8 by column relative inertia.
+        Attribute names to label.  None → top-8 by column relative inertia.
     show_all_dots : bool
         If False, only show dots for labeled attributes (hides the clutter).
     axis_labels : (str, str) | None
-        (x_label, y_label).  None â†’ derived from eigenvalue percentages.
+        (x_label, y_label).  None → derived from eigenvalue percentages.
 
     Returns
     -------
@@ -1904,7 +1904,7 @@ def build_perceptual_map(
     max_row_ri = float(row_ri.max()) if row_ri.max() > 0 else 1.0
     max_col_ri = float(col_ri.max()) if col_ri.max() > 0 else 1.0
 
-    # â”€â”€ Determine which attributes to label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Determine which attributes to label ─────────────────────────────────
     if label_attrs is not None and len(label_attrs) > 0:
         label_idx = [i for i, n in enumerate(attr_names) if n in set(label_attrs)]
     else:
@@ -1914,9 +1914,9 @@ def build_perceptual_map(
     label_idx_set = set(label_idx)
 
     def _trunc(s, n=22):
-        return s[:n] + "â€¦" if len(s) > n else s
+        return s[:n] + "…" if len(s) > n else s
 
-    # â”€â”€ Axis range â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Axis range ──────────────────────────────────────────────────────────
     all_x = np.concatenate([F_rows[:, 0], vis_cols[:, 0]])
     all_y = np.concatenate([F_rows[:, 1], vis_cols[:, 1]])
     xspan = float(all_x.max() - all_x.min()) or 1.0
@@ -1944,7 +1944,7 @@ def build_perceptual_map(
 
     traces = []
 
-    # â”€â”€ Attribute dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Attribute dots ───────────────────────────────────────────────────────
     if show_all_dots:
         dot_x = [float(vis_cols[j, 0]) for j in range(len(attr_names))]
         dot_y = [float(vis_cols[j, 1]) for j in range(len(attr_names))]
@@ -1990,7 +1990,7 @@ def build_perceptual_map(
             showlegend=True,
         ))
 
-    # â”€â”€ Brand traces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand traces ─────────────────────────────────────────────────────────
     for i, name in enumerate(brand_names):
         colour  = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
         f1, f2  = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -2017,7 +2017,7 @@ def build_perceptual_map(
 
     fig = go.Figure(data=traces)
 
-    # â”€â”€ Brand labels (colored pills) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand labels (colored pills) ─────────────────────────────────────────
     for i, name in enumerate(brand_names):
         colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
         f1, f2 = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -2035,7 +2035,7 @@ def build_perceptual_map(
             borderpad=3,
         )
 
-    # â”€â”€ Attribute labels with anti-overlap placement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Attribute labels with anti-overlap placement ──────────────────────────
     # Step 1: compute desired arrow-tip positions (label box centres) radiating
     # outward from each attribute point.  Arrow tip is placed at a fixed radial
     # distance scaled by the axis span.
@@ -2046,7 +2046,7 @@ def build_perceptual_map(
     raw_points = []
     for j in label_idx:
         px, py = float(vis_cols[j, 0]), float(vis_cols[j, 1])
-        # Angle from origin â†’ push label in that direction
+        # Angle from origin → push label in that direction
         angle   = math.atan2(py, px)
         tip_x   = px + tip_dist_x * math.cos(angle)
         tip_y   = py + tip_dist_y * math.sin(angle)
@@ -2057,13 +2057,13 @@ def build_perceptual_map(
     min_sep = 0.14 * max(xr[1] - xr[0], yr[1] - yr[0])
     relaxed = _push_apart_labels(raw_tips, min_dist=min_sep, max_iter=200)
 
-    # Step 3: add annotations with arrows from relaxed tip â†’ actual attr point
+    # Step 3: add annotations with arrows from relaxed tip → actual attr point
     for k, j in enumerate(label_idx):
         px, py   = raw_points[k]
         tip_x, tip_y = relaxed[k]
         fig.add_annotation(
-            x=px, y=py,           # arrowhead â†’ actual attribute dot
-            ax=tip_x, ay=tip_y,   # arrow tail â†’ label box
+            x=px, y=py,           # arrowhead → actual attribute dot
+            ax=tip_x, ay=tip_y,   # arrow tail → label box
             text=f"<i>{_trunc(attr_names[j])}</i>",
             xanchor="center", yanchor="middle",
             axref="x", ayref="y",
@@ -2077,7 +2077,7 @@ def build_perceptual_map(
         )
 
     map_label = "Asymmetric" if is_asym else "Symmetric"
-    coord_note = ("Brands: principal Â· Attributes: scaled std coords"
+    coord_note = ("Brands: principal · Attributes: scaled std coords"
                   if is_asym else "Principal coordinates")
     n_labeled  = len(label_idx)
 
@@ -2090,7 +2090,7 @@ def build_perceptual_map(
         title=dict(
             text=(
                 f"<b>{map_label} Perceptual Map</b>"
-                f"<br><sup>{coord_note} Â· {n_labeled} attribute(s) labeled Â· hover dots for all</sup>"
+                f"<br><sup>{coord_note} · {n_labeled} attribute(s) labeled · hover dots for all</sup>"
             ),
             font=dict(size=14, color="#0f172a"),
             x=0.5, xanchor="center",
@@ -2137,11 +2137,11 @@ def build_biplot_map(
     ca_results : dict
         Output of CorrespondenceAnalysis.fit() (i.e. ca_res["ca_results"]).
     label_attrs : list[str] | None
-        Attribute names to label.  None â†’ top-8 by column relative inertia.
+        Attribute names to label.  None → top-8 by column relative inertia.
     show_all_dots : bool
         If False, only labeled attribute dots are drawn.
     axis_labels : (str, str) | None
-        (x_label, y_label).  None â†’ derived from eigenvalue percentages.
+        (x_label, y_label).  None → derived from eigenvalue percentages.
     """
     import math
 
@@ -2167,7 +2167,7 @@ def build_biplot_map(
         label_idx = [i for i, n in enumerate(attr_names) if n in set(label_attrs)]
 
     def _trunc(s, n=22):
-        return s[:n] + "â€¦" if len(s) > n else s
+        return s[:n] + "…" if len(s) > n else s
 
     def _hex_to_rgba(hex_col: str, alpha: float) -> str:
         h = hex_col.lstrip("#")
@@ -2176,7 +2176,7 @@ def build_biplot_map(
 
     traces = []
 
-    # â”€â”€ Confidence ellipses â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Confidence ellipses ──────────────────────────────────────────────────
     ci_scale = 1.96
     for i, name in enumerate(brand_names):
         colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
@@ -2198,7 +2198,7 @@ def build_biplot_map(
             showlegend=False, hoverinfo="skip",
         ))
 
-    # â”€â”€ Attribute dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Attribute dots ───────────────────────────────────────────────────────
     labeled_set = set(label_idx)
     if show_all_dots:
         visible_idx = list(range(len(attr_names)))
@@ -2225,7 +2225,7 @@ def build_biplot_map(
         showlegend=True,
     ))
 
-    # â”€â”€ Brand centre-points â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand centre-points ──────────────────────────────────────────────────
     for i, name in enumerate(brand_names):
         colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
         f1, f2 = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -2261,7 +2261,7 @@ def build_biplot_map(
 
     fig = go.Figure(data=traces)
 
-    # â”€â”€ Brand labels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand labels ──────────────────────────────────────────────────────────
     for i, name in enumerate(brand_names):
         colour = _BRAND_COLOURS[i % len(_BRAND_COLOURS)]
         f1, f2 = float(F_rows[i, 0]), float(F_rows[i, 1])
@@ -2277,7 +2277,7 @@ def build_biplot_map(
             bordercolor=colour, borderwidth=1.5, borderpad=3,
         )
 
-    # â”€â”€ Attribute labels with anti-overlap arrows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Attribute labels with anti-overlap arrows ─────────────────────────────
     if label_idx:
         tip_dist_x = 0.13 * (xr[1] - xr[0])
         tip_dist_y = 0.13 * (yr[1] - yr[0])
@@ -2322,7 +2322,7 @@ def build_biplot_map(
         title=dict(
             text=(
                 "<b>Biplot with Approx. 95% Confidence Ellipses</b>"
-                f"<br><sup>Shaded zone = sampling uncertainty Â· {len(label_idx)} attributes labeled Â· larger ellipse = less stable</sup>"
+                f"<br><sup>Shaded zone = sampling uncertainty · {len(label_idx)} attributes labeled · larger ellipse = less stable</sup>"
             ),
             font=dict(size=14, color="#0f172a"),
             x=0.5, xanchor="center",
@@ -2350,9 +2350,9 @@ def build_biplot_map(
     return fig
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# Convenience top-level function â€” run full CA pipeline from DB
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
+# Convenience top-level function — run full CA pipeline from DB
+# ─────────────────────────────────────────────────────────────────────────────
 
 def run_ca_pipeline(
     category_codes: Optional[list] = None,
@@ -2371,7 +2371,7 @@ def run_ca_pipeline(
     awareness_stages: Optional[list] = None,
 ) -> dict:
     """
-    End-to-end CA pipeline: fetch data â†’ fit CA â†’ return full results + charts.
+    End-to-end CA pipeline: fetch data → fit CA → return full results + charts.
 
     Parameters
     ----------
@@ -2384,13 +2384,13 @@ def run_ca_pipeline(
     Returns
     -------
     dict with keys:
-        matrix        pd.DataFrame      â€” brand Ã— attr % matrix
-        ca_results    dict              â€” full CA output from fit()
-        tables        dict              â€” JSON-serialisable tables
-        map_data      dict              â€” {brands, attrs, explained_variance}
-        chart_specs   list[dict]        â€” Plotly fig dicts
-        status        str               â€” 'ok' | 'insufficient_data' | 'error'
-        message       str               â€” human-readable status
+        matrix        pd.DataFrame      — brand × attr % matrix
+        ca_results    dict              — full CA output from fit()
+        tables        dict              — JSON-serialisable tables
+        map_data      dict              — {brands, attrs, explained_variance}
+        chart_specs   list[dict]        — Plotly fig dicts
+        status        str               — 'ok' | 'insufficient_data' | 'error'
+        message       str               — human-readable status
     """
     try:
         engine = CorrespondenceAnalysis(
@@ -2421,7 +2421,7 @@ def run_ca_pipeline(
         if matrix.shape[0] < 2 or matrix.shape[1] < 2:
             return {
                 "status":  "insufficient_data",
-                "message": f"CA requires â‰¥2 brands and â‰¥2 attributes (got {matrix.shape}).",
+                "message": f"CA requires ≥2 brands and ≥2 attributes (got {matrix.shape}).",
                 "matrix":  matrix,
                 "ca_results": {}, "tables": {}, "map_data": {}, "chart_specs": [],
             }
@@ -2434,7 +2434,7 @@ def run_ca_pipeline(
         return {
             "status":      "ok",
             "message":     (
-                f"CA complete â€” {matrix.shape[0]} brands Ã— {matrix.shape[1]} attributes. "
+                f"CA complete — {matrix.shape[0]} brands × {matrix.shape[1]} attributes. "
                 f"F1+F2 explain "
                 f"{ca_results['_pct_inertia'][0]+ca_results['_pct_inertia'][1]:.1f}% inertia."
             ),
@@ -2454,14 +2454,14 @@ def run_ca_pipeline(
         }
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # CLI smoke-test
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import json
 
-    print("Running CA pipeline smoke-test â€¦")
+    print("Running CA pipeline smoke-test …")
     result = run_ca_pipeline(top_brands=10, top_attrs=15)
     print(f"Status : {result['status']}")
     print(f"Message: {result['message']}")
@@ -2484,4 +2484,4 @@ if __name__ == "__main__":
         tables_json = json.dumps(result["tables"], default=str)
         print(f"\nJSON serialisation: OK ({len(tables_json):,} chars)")
     else:
-        print("No imagery data in DB or error â€” pipeline exited cleanly.")
+        print("No imagery data in DB or error — pipeline exited cleanly.")

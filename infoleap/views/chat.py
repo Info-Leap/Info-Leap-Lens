@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import asyncio
 import time
@@ -40,7 +40,7 @@ def render_glide_loader(thoughts):
         st.markdown('<div class="pulse-card" style="padding: 15px; border-left: 4px solid #30a76a;">', unsafe_allow_html=True)
         st.caption("GLIDE: Processing Intelligence")
         for step in display_steps:
-            st.markdown(f'<div class="glide-step"><span class="glide-step-check">âœ“</span> {step}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="glide-step"><span class="glide-step-check">✓</span> {step}</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
 def render_pulse_response(data, df, sql=None, latency=None, verbatims=None, brand_health_fig=None, engine=None, msg_idx=0):
@@ -66,7 +66,7 @@ def render_pulse_response(data, df, sql=None, latency=None, verbatims=None, bran
         # Data Visualization
         section_header("Evidence Visualization")
         if brand_health_fig is not None:
-            # Pre-built brand health chart â€” render directly
+            # Pre-built brand health chart — render directly
             import plotly.graph_objects as go
             brand_health_fig.update_layout(
                 paper_bgcolor="rgba(0,0,0,0)",
@@ -86,7 +86,7 @@ def render_pulse_response(data, df, sql=None, latency=None, verbatims=None, bran
             st.markdown('**SOURCES**')
             v_cols = st.columns(min(len(verbatims[:3]), 3))
             for i, v in enumerate(verbatims[:3]):
-                label = f"ðŸ—£ï¸ {v['source']}: {v.get('brand','N/A')}"
+                label = f"🗣️ {v['source']}: {v.get('brand','N/A')}"
                 if v_cols[i].button(label, use_container_width=True, key=f"v_chip_{msg_idx}_{i}"):
                     st.session_state.active_evidence = v
                     st.rerun()
@@ -100,7 +100,7 @@ def render_pulse_response(data, df, sql=None, latency=None, verbatims=None, bran
             city_label  = active_v.get('city', 'National')
             brand_label = active_v.get('brand', '')
             parts = [p for p in [brand_label, city_label, "Wave 1"] if p]
-            st.caption(" Â· ".join(parts))
+            st.caption(" · ".join(parts))
             st.divider()
             st.markdown(f"""
                 <div style="font-size: 1rem; line-height: 1.6; font-style: italic; color: #166534;">
@@ -113,7 +113,7 @@ def render_pulse_response(data, df, sql=None, latency=None, verbatims=None, bran
             st.markdown('</div>', unsafe_allow_html=True)
     
     # 4. Technical Audit (Collapsed)
-    with st.expander("ðŸ› ï¸ System Trace", expanded=False):
+    with st.expander("🛠️ System Trace", expanded=False):
         if sql: st.code(sql, language="sql")
         engine_label = engine or "LENS 3.2"
         trace = getattr(data, "diagnostic_trace", "") or ""
@@ -129,8 +129,8 @@ def get_events_sync(prompt, history, session_id):
     active_cat   = st.session_state.get("active_category", "All")
     active_brand = st.session_state.get("active_brand", "All Brands")
 
-    # â”€â”€ ROUTING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    # Always use the full agent â€” it handles both quant and qual, maintains
+    # ── ROUTING ────────────────────────────────────────────────────────────
+    # Always use the full agent — it handles both quant and qual, maintains
     # session context, compares entities, and produces rich narrative responses.
     # The deterministic path is kept only as a fallback (never primary).
     use_deterministic = False
@@ -161,10 +161,10 @@ def get_events_sync(prompt, history, session_id):
                     error_msg = ev.get("content", "")
 
             if had_result:
-                # Deterministic path succeeded â€” emit all events
+                # Deterministic path succeeded — emit all events
                 yield from events
             else:
-                # Deterministic failed â†’ fall back to pydantic_ai agent silently
+                # Deterministic failed → fall back to pydantic_ai agent silently
                 yield {"type": "thought", "content": f"Switching to full agent (deterministic path: {error_msg[:80]})"}
                 gen = run_autonomous_research_async(
                     prompt,

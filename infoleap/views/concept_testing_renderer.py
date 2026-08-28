@@ -1,8 +1,8 @@
-﻿"""
-concept_testing_renderer.py â€” InfoLeap Pulse
+"""
+concept_testing_renderer.py — InfoLeap Pulse
 =============================================
 Data-driven concept testing study dashboard.
-Zero hardcoded PPT content â€” all computed from matrices.
+Zero hardcoded PPT content — all computed from matrices.
 
 Generic: works for any concept_testing study_type project.
 CoinDCX-specific field paths are accessed with _get() fallback safety.
@@ -19,7 +19,7 @@ Field structure (karat-coindcx matrices):
   key_claim_reactions[].{claim, reaction, understood, verbatim}
   coindcx_trust (top-level enum: high/medium/low), crypto_association_effect (top-level enum:
     positive/negative/neutral/conditional), trust_builders (top-level array), platform_association
-    (top-level string) â€” none of these are nested under coindcx_trust despite the field's name
+    (top-level string) — none of these are nested under coindcx_trust despite the field's name
   adoption.{intent_score, drivers, barriers, barrier_verbatim}
   benchmark_comparisons[].{benchmark, comparison_type, verdict}
   nps_signal, emotional_resolution, pain_points[].*, all_passages[]*
@@ -38,16 +38,16 @@ from typing import Any, Callable, Optional
 import plotly.graph_objects as go
 import streamlit as st
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # DESIGN CONSTANTS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 _C = {
-    "r1":      "#6366f1",   # indigo â€” Route 1
-    "r2":      "#0ea5e9",   # sky    â€” Route 2
-    "seg_dg":  "#f59e0b",   # amber  â€” Digital Gold
-    "seg_st":  "#0d9488",   # teal   â€” Stock Investor
-    "seg_fd":  "#8b5cf6",   # purple â€” FDMF
+    "r1":      "#6366f1",   # indigo — Route 1
+    "r2":      "#0ea5e9",   # sky    — Route 2
+    "seg_dg":  "#f59e0b",   # amber  — Digital Gold
+    "seg_st":  "#0d9488",   # teal   — Stock Investor
+    "seg_fd":  "#8b5cf6",   # purple — FDMF
     "pos":     "#10b981",
     "neg":     "#ef4444",
     "neu":     "#6b7280",
@@ -75,7 +75,7 @@ _FONT = "Inter, system-ui, Arial, sans-serif"
 
 _CHART_BASE = dict(
     font=dict(family=_FONT, size=11, color=_C["text"]),
-    paper_bgcolor="rgba(0,0,0,0)",   # transparent â€” works light + dark Streamlit themes
+    paper_bgcolor="rgba(0,0,0,0)",   # transparent — works light + dark Streamlit themes
     plot_bgcolor="rgba(0,0,0,0)",
     margin=dict(l=20, r=20, t=44, b=20),
     showlegend=False,
@@ -90,9 +90,9 @@ _GRID_STYLE = dict(showgrid=True, gridcolor="#f0f4f8", gridwidth=0.5, zeroline=F
 _NO_GRID    = dict(showgrid=False, zeroline=False)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # PURE HELPERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _get(obj: Any, path: str) -> Any:
     try:
@@ -115,10 +115,10 @@ def _esc(t: Any) -> str:
 def _fmt_val(v: Any) -> str:
     """Format snake_case / lowercase field values for human display."""
     if v is None:
-        return "â€”"
+        return "—"
     s = str(v).strip()
-    if not s or s.lower() in ("none", "not_mentioned", "unknown", "â€”"):
-        return "â€”"
+    if not s or s.lower() in ("none", "not_mentioned", "unknown", "—"):
+        return "—"
     return s.replace("_", " ").title()
 
 
@@ -128,7 +128,7 @@ def _avg(vals: list) -> Optional[float]:
 
 
 def _pct_str(part: int, total: int) -> str:
-    return f"{round(100 * part / total)}%" if total else "â€”"
+    return f"{round(100 * part / total)}%" if total else "—"
 
 
 def _count_field(matrices: list[dict], path: str) -> dict[str, int]:
@@ -179,15 +179,15 @@ def _group_list_field(matrices: list[dict], path: str) -> dict[str, list[dict]]:
     return dict(sorted(groups.items(), key=lambda x: -len(x[1])))
 
 
-# â”€â”€ CoinDCX trust field normalizers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── CoinDCX trust field normalizers ────────────────────────────────────────────
 # This project went through a schema shape change mid-extraction: legacy matrices (found live:
 # 16/23) store trust detail as a nested object under the top-level "coindcx_trust" key
-# (coindcx_trust.crypto_trust_gap, .trust_builders_cited, .spontaneous_coindcx_association â€”
+# (coindcx_trust.crypto_trust_gap, .trust_builders_cited, .spontaneous_coindcx_association —
 # a real GAP field, high=bad). A later schema revision flattened "coindcx_trust" itself into a
 # plain enum TRUST LEVEL (high=good) for newer extractions (4/23), demoting the old sub-fields
 # to separate top-level fields (crypto_association_effect, trust_builders, platform_association)
 # that were never actually populated for those records either. Reading only one shape silently
-# drops the other â€” these normalizers merge both so no respondent's data is invisible to the
+# drops the other — these normalizers merge both so no respondent's data is invisible to the
 # dashboard regardless of which schema generation extracted them.
 
 def _trust_gap_value(m: dict) -> str | None:
@@ -198,13 +198,13 @@ def _trust_gap_value(m: dict) -> str | None:
         v = ct.get("crypto_trust_gap")
         return str(v).strip().lower() if v else None
     if isinstance(ct, str) and ct.strip():
-        # New shape stores a TRUST LEVEL (high=good) â€” invert to gap semantics (high=bad).
+        # New shape stores a TRUST LEVEL (high=good) — invert to gap semantics (high=bad).
         return {"high": "low", "medium": "medium", "low": "high"}.get(ct.strip().lower())
     return None
 
 
 def _trust_builders_list(m: dict) -> list:
-    """Always returns a list, never a bare string â€” found live: 3/23 matrices have
+    """Always returns a list, never a bare string — found live: 3/23 matrices have
     top-level trust_builders as a scalar string instead of an array (an extraction
     inconsistency, not something this normalizer should propagate as char-by-char
     iteration to callers)."""
@@ -222,7 +222,7 @@ def _trust_builders_list(m: dict) -> list:
 
 def _platform_association_value(m: dict) -> str:
     """Returns a plain readable string regardless of whether the source is a bare string or a
-    list â€” found live: some matrices store this as a single-item list, and a raw str() cast on
+    list — found live: some matrices store this as a single-item list, and a raw str() cast on
     a list produces its literal Python repr (e.g. "['Crypto scams create skepticism']") shown
     verbatim in the UI instead of the actual sentence."""
     ct = m.get("coindcx_trust")
@@ -280,19 +280,19 @@ def _resp_tooltip_html(resp_list: list[dict], label: str = "", max_rows: int = _
     """Compact HTML respondent table for Plotly hover tooltip."""
     n = len(resp_list)
     if n == 0:
-        return f"<b>{_esc(label)}</b> â€” 0 respondents"
+        return f"<b>{_esc(label)}</b> — 0 respondents"
     rows = ""
     for i, m in enumerate(resp_list[:max_rows]):
         rid  = str(_get(m, "doc_id") or _get(m, "respondent.id") or f"R{i+1:02d}").strip()[:10]
-        city = str(_get(m, "respondent.city") or "â€”").strip()[:12]
-        seg  = str(_get(m, "respondent.segment") or "â€”").strip()[:10]
-        age  = str(_get(m, "respondent.age_band") or "â€”").strip()[:8]
-        gen  = str(_get(m, "respondent.gender") or "").strip()[:1].upper() or "â€”"
-        rows += f"{_esc(rid)} Â· {_esc(city)} Â· {_esc(seg)} Â· {_esc(age)} Â· {_esc(gen)}<br>"
+        city = str(_get(m, "respondent.city") or "—").strip()[:12]
+        seg  = str(_get(m, "respondent.segment") or "—").strip()[:10]
+        age  = str(_get(m, "respondent.age_band") or "—").strip()[:8]
+        gen  = str(_get(m, "respondent.gender") or "").strip()[:1].upper() or "—"
+        rows += f"{_esc(rid)} · {_esc(city)} · {_esc(seg)} · {_esc(age)} · {_esc(gen)}<br>"
     if n > max_rows:
         rows += f"<i>+{n - max_rows} more</i>"
-    sep = "â”€" * 26
-    return f"<b>{_esc(label) or 'Group'}</b> â€” {n} resp<br>{sep}<br>{rows}"
+    sep = "─" * 26
+    return f"<b>{_esc(label) or 'Group'}</b> — {n} resp<br>{sep}<br>{rows}"
 
 
 def _seg_matrices(matrices: list[dict], segment: str) -> list[dict]:
@@ -341,17 +341,17 @@ def _fmt_ctx_for_prompt(ctx: dict) -> str:
     """Format computed_ctx dict as readable lines for AI prompt."""
     lines = []
     for k, v in ctx.items():
-        if v is not None and str(v) not in ("â€”", "", "None"):
-            lines.append(f"  â€¢ {k}: {v}")
+        if v is not None and str(v) not in ("—", "", "None"):
+            lines.append(f"  • {k}: {v}")
     return "\n".join(lines) if lines else "  (no computed data)"
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # CHART BUILDERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _color_gradient(base_hex: str, n: int, min_opacity: float = 0.45) -> list[str]:
-    """Rank-ordered opacity gradient from base_hex â€” highest rank darkest."""
+    """Rank-ordered opacity gradient from base_hex — highest rank darkest."""
     r = int(base_hex[1:3], 16)
     g = int(base_hex[3:5], 16)
     b = int(base_hex[5:7], 16)
@@ -364,7 +364,7 @@ def _color_gradient(base_hex: str, n: int, min_opacity: float = 0.45) -> list[st
 def _leader_gap_info(values: list) -> "tuple[int, float, float] | None":
     """Finds the standout category among 2+ values: (index, value, gap-to-runner-up). Returns
     None when there are fewer than 2 values or the top two are tied (no real "difference" to
-    highlight â€” highlighting a coin-flip as a winner would be misleading, not informative)."""
+    highlight — highlighting a coin-flip as a winner would be misleading, not informative)."""
     if len(values) < 2:
         return None
     nums = [float(v) for v in values]
@@ -379,8 +379,8 @@ def _leader_gap_info(values: list) -> "tuple[int, float, float] | None":
 def _h_bar(labels: list, values: list, title: str = "", color: str = _C["accent"],
            h: int = 340, gradient: bool = True,
            resp_groups: "list[list[dict]] | None" = None) -> go.Figure:
-    """Horizontal ranked bar â€” gradient opacity (darkest = highest rank). The standout bar (if
-    any real gap exists over the runner-up) gets a bold outline and its gap called out inline â€”
+    """Horizontal ranked bar — gradient opacity (darkest = highest rank). The standout bar (if
+    any real gap exists over the runner-up) gets a bold outline and its gap called out inline —
     "which one matters" should be visible at a glance, not left for the viewer to eyeball bar
     lengths."""
     n = len(labels)
@@ -390,7 +390,7 @@ def _h_bar(labels: list, values: list, title: str = "", color: str = _C["accent"
     _line_w = [3 if _leader and i == _leader[0] else 0 for i in range(n)]
     _line_c = [_C["text"] if _leader and i == _leader[0] else "rgba(0,0,0,0)" for i in range(n)]
     _bar_text = [
-        (f"{v}  â–² +{_leader[2]:.0f} vs next" if _leader and i == _leader[0] else str(v))
+        (f"{v}  ▲ +{_leader[2]:.0f} vs next" if _leader and i == _leader[0] else str(v))
         for i, v in enumerate(values)
     ]
     fig = go.Figure(go.Bar(
@@ -424,7 +424,7 @@ def _h_bar(labels: list, values: list, title: str = "", color: str = _C["accent"
 def _v_bar(labels: list, values: list, title: str = "", color: str = _C["accent"],
            h: int = 320, colors: list | None = None,
            resp_groups: "list[list[dict]] | None" = None) -> go.Figure:
-    """Vertical bar â€” optional per-bar color list. Standout bar (real gap over runner-up) gets
+    """Vertical bar — optional per-bar color list. Standout bar (real gap over runner-up) gets
     a bold outline and its lead margin called out inline."""
     n = len(labels)
     bar_colors = colors if colors and len(colors) == n else [color] * n
@@ -435,7 +435,7 @@ def _v_bar(labels: list, values: list, title: str = "", color: str = _C["accent"
     for i, v in enumerate(values):
         base = f"{v:.1f}" if isinstance(v, float) else str(v)
         if _leader and i == _leader[0]:
-            base += f"  â–²+{_leader[2]:.0f}" if not isinstance(v, float) else f"  â–²+{_leader[2]:.1f}"
+            base += f"  ▲+{_leader[2]:.0f}" if not isinstance(v, float) else f"  ▲+{_leader[2]:.1f}"
         txt.append(base)
     _has_resp = resp_groups and len(resp_groups) == n
     fig = go.Figure(go.Bar(
@@ -465,7 +465,7 @@ def _donut(labels: list, values: list, title: str = "", colors: list | None = No
            h: int = 340,
            resp_groups: "list[list[dict]] | None" = None) -> go.Figure:
     """Donut with the standout slice (real gap over runner-up) pulled out further and bold-
-    outlined, and the center label swapped from a plain total to the leader's margin â€” a viewer
+    outlined, and the center label swapped from a plain total to the leader's margin — a viewer
     should see who's winning without reading the legend."""
     n = len(labels)
     palette = colors or [_C["r1"], _C["r2"], _C["seg_dg"], _C["seg_st"], _C["seg_fd"],
@@ -516,7 +516,7 @@ def _chart_click_filter(fig, key: str, lbls_raw: list, field: str, enabled: bool
     """
     Render a plotly chart. When enabled, clicking a bar/slice sets a cross-filter on `field`
     in st.session_state['ct_chart_filters'] (merged into active_filters by _render_header) and
-    reruns â€” every other chart on the page, driven off the same filtered matrices list, updates
+    reruns — every other chart on the page, driven off the same filtered matrices list, updates
     automatically. Clicking the same slice again clears just that filter.
     """
     if not enabled:
@@ -552,10 +552,10 @@ def _grouped_bar(groups: list, series: dict[str, list], title: str = "",
             text=[f"{v:.1f}" if isinstance(v, float) else str(v) for v in vals],
             textposition="outside",
             textfont=dict(size=9, color=_C["muted"]),
-            customdata=[_resp_tooltip_html(_srg[j], f"{name} Â· {groups[j]}") for j in range(ng)]
+            customdata=[_resp_tooltip_html(_srg[j], f"{name} · {groups[j]}") for j in range(ng)]
                 if _has_resp else None,
             hovertemplate="%{customdata}<extra></extra>"
-                if _has_resp else f"{name} â€” %{{x}}: <b>%{{y}}</b><extra></extra>",
+                if _has_resp else f"{name} — %{{x}}: <b>%{{y}}</b><extra></extra>",
         ))
     fig.update_layout(
         **{**_CHART_BASE,
@@ -585,7 +585,7 @@ def _stacked_100(categories: list, series: dict[str, list], title: str = "",
             text=[f"{v:.0f}%" if v else "" for v in vals],
             textposition="inside",
             textfont=dict(size=9),
-            hovertemplate=f"{name} â€” %{{x}}: <b>%{{y:.0f}}%</b><extra></extra>",
+            hovertemplate=f"{name} — %{{x}}: <b>%{{y:.0f}}%</b><extra></extra>",
         ))
     fig.update_layout(
         **{**_CHART_BASE,
@@ -612,7 +612,7 @@ def _heatmap(rows: list, cols: list, z: list[list], title: str = "", h: int = 30
         textfont=dict(size=10),
         showscale=False,
         xgap=2, ygap=2,
-        hovertemplate="%{y} Ã— %{x}: <b>%{z}</b><extra></extra>",
+        hovertemplate="%{y} × %{x}: <b>%{z}</b><extra></extra>",
     ))
     fig.update_layout(
         **{**_CHART_BASE,
@@ -626,7 +626,7 @@ def _heatmap(rows: list, cols: list, z: list[list], title: str = "", h: int = 30
     return fig
 
 
-# â”€â”€ NEW CHART TYPES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── NEW CHART TYPES ─────────────────────────────────────────────────────────
 
 def _gauge(value: float, max_val: float, title: str,
            target: float | None = None, color: str = _C["accent"],
@@ -724,10 +724,10 @@ def _diverging_bar(labels: list, pos_vals: list, neg_vals: list,
         text=[str(v) if v else "" for v in pos_vals],
         textposition="outside",
         textfont=dict(size=9, color=_C["pos"]),
-        customdata=[_resp_tooltip_html(pos_resp_groups[i], f"{pos_label} Â· {labels[i]}") for i in range(nl)]
+        customdata=[_resp_tooltip_html(pos_resp_groups[i], f"{pos_label} · {labels[i]}") for i in range(nl)]
             if _has_pos else None,
         hovertemplate="%{customdata}<extra></extra>"
-            if _has_pos else f"{pos_label} â€” %{{y}}: <b>%{{x}}</b><extra></extra>",
+            if _has_pos else f"{pos_label} — %{{y}}: <b>%{{x}}</b><extra></extra>",
     ))
     fig.add_trace(go.Bar(
         y=labels,
@@ -738,10 +738,10 @@ def _diverging_bar(labels: list, pos_vals: list, neg_vals: list,
         text=[f"-{v}" if v else "" for v in neg_vals],
         textposition="outside",
         textfont=dict(size=9, color=_C["neg"]),
-        customdata=[_resp_tooltip_html(neg_resp_groups[i], f"{neg_label} Â· {labels[i]}") for i in range(nl)]
+        customdata=[_resp_tooltip_html(neg_resp_groups[i], f"{neg_label} · {labels[i]}") for i in range(nl)]
             if _has_neg else [str(v) for v in neg_vals],
         hovertemplate="%{customdata}<extra></extra>"
-            if _has_neg else f"{neg_label} â€” %{{y}}: <b>%{{customdata}}</b><extra></extra>",
+            if _has_neg else f"{neg_label} — %{{y}}: <b>%{{customdata}}</b><extra></extra>",
     ))
     fig.add_vline(x=0, line_width=1, line_color=_C["border"])
     max_x = max(max(pos_vals or [1]), max(neg_vals or [1]))
@@ -809,7 +809,7 @@ def _bubble_scatter(x_vals: list, y_vals: list, sizes: list, labels: list,
     return fig
 
 
-# â”€â”€ SCHEMA DETECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── SCHEMA DETECTION ─────────────────────────────────────────────────────────
 
 def _detect_fields(matrices: list[dict]) -> set[str]:
     """Return set of top-level + one-level-deep field paths that are populated."""
@@ -825,16 +825,16 @@ def _detect_fields(matrices: list[dict]) -> set[str]:
     return fields
 
 
-# â”€â”€ AUTO CHARTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── AUTO CHARTS ──────────────────────────────────────────────────────────────
 # Every schema field that isn't hand-wired into a bespoke chart anywhere in this file
-# still has real per-respondent data sitting in the matrices â€” invisible in the dashboard
+# still has real per-respondent data sitting in the matrices — invisible in the dashboard
 # unless someone manually adds a chart for it. This scans for any populated, categorical,
 # not-already-charted field and renders it automatically, so a new schema field (e.g. from
 # a Discovery re-run, or one of the "+ Add stub" fields in Extraction Studio) gets a chart
 # on the next page load with zero code changes.
 #
 # Fields are partitioned across tabs by topic prefix, so each tab surfaces its own dynamic
-# charts instead of one dumping ground â€” e.g. route1_evaluation.* surfaces on Route Comparison,
+# charts instead of one dumping ground — e.g. route1_evaluation.* surfaces on Route Comparison,
 # not Respondent Profiles. Any field matching no tab's prefix list falls through to Respondent
 # Profiles (the catch-all). A field is never shown twice: each prefixed tab call only sees its
 # own prefixes, and the catch-all call explicitly excludes anything any prefix list claims.
@@ -851,7 +851,7 @@ CATEGORY_PREFIXES: dict[str, list[str]] = {
 
 
 def _prefix_claimed(path: str) -> bool:
-    """True if `path` falls under any tab's CATEGORY_PREFIXES â€” used to keep the catch-all
+    """True if `path` falls under any tab's CATEGORY_PREFIXES — used to keep the catch-all
     (Respondent Profiles) from duplicating a field a topical tab already claims."""
     for prefixes in CATEGORY_PREFIXES.values():
         for p in prefixes:
@@ -861,7 +861,7 @@ def _prefix_claimed(path: str) -> bool:
 
 
 def _humanize_path(path: str) -> str:
-    return " â€” ".join(p.replace("_", " ").title() for p in path.split("."))
+    return " — ".join(p.replace("_", " ").title() for p in path.split("."))
 
 
 def _auto_chart_candidates(
@@ -871,8 +871,8 @@ def _auto_chart_candidates(
     """Scan populated fields not in `exclude` and return chartable (path, value_counts) pairs,
     sorted by respondent coverage descending. 'Chartable' = closed categorical: 2-8 distinct
     values, not free text, not a bare number (scores/percentages need histogram/gauge treatment,
-    not a category bar â€” out of scope here). If `include_prefixes` given, only paths starting
-    with (or exactly matching) one of them are considered â€” used to scope this tab's slice of
+    not a category bar — out of scope here). If `include_prefixes` given, only paths starting
+    with (or exactly matching) one of them are considered — used to scope this tab's slice of
     the field space (see CATEGORY_PREFIXES)."""
     candidates: list[tuple[str, dict[str, int]]] = []
     for path in _detect_fields(matrices):
@@ -889,12 +889,12 @@ def _auto_chart_candidates(
         if n_resp < min_respondents or not (min_values <= len(counts) <= max_values):
             continue
         values = list(counts.keys())
-        # Free-text / verbatim fields â€” same >6-word heuristic reconcile_project() uses
+        # Free-text / verbatim fields — same >6-word heuristic reconcile_project() uses
         # (project_extractor.py) to decide a field is prose, not a closed category.
         if any(len(v.split()) > 6 for v in values):
             continue
         # Stringified Python list/dict reprs (legacy type-coercion drift, e.g.
-        # "['trust', 'comprehension']") â€” not real scalar categories, would render as garbage
+        # "['trust', 'comprehension']") — not real scalar categories, would render as garbage
         # chart labels.
         if any(any(ch in v for ch in "[]{}") for v in values):
             continue
@@ -924,7 +924,7 @@ def _render_auto_charts(
         return
     st.markdown("#### Additional Signals (auto-detected)")
     st.caption(
-        "Every populated field not already charted above, surfaced automatically â€” no manual "
+        "Every populated field not already charted above, surfaced automatically — no manual "
         "setup. New schema fields appear here on the next run with no code change."
     )
     for row_start in range(0, len(candidates), 3):
@@ -946,7 +946,7 @@ def _render_auto_charts(
                 _chart_caption(f"{sum(values)} respondent(s). Click to filter every chart on this page.")
 
 
-# â”€â”€ QUALITATIVE OLS REGRESSION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── QUALITATIVE OLS REGRESSION ───────────────────────────────────────────────
 
 def _ols_regression(
     matrices: list[dict],
@@ -957,7 +957,7 @@ def _ols_regression(
     Categorical fields (trust_gap, sgb_awareness, financial_anxiety_level) are
     ordinal-encoded. Returns results dict: coefficients, R2, adj-R2, importance.
     """
-    # "Trust Gap" predictor uses _trust_gap_value(m), not a plain dot-path â€” this project's
+    # "Trust Gap" predictor uses _trust_gap_value(m), not a plain dot-path — this project's
     # matrices span two schema generations (see the normalizer functions defined near
     # _group_list_field) and the real trust-gap signal only resolves correctly when both
     # shapes are merged. Encoding stays gap-semantic: low gap (good) = 3, high gap (bad) = 1.
@@ -1029,7 +1029,7 @@ def _ols_regression(
 
     inv = _inv_mat(XtX)
     if inv is None:
-        return {"error": "Singular matrix â€” perfect multicollinearity detected."}
+        return {"error": "Singular matrix — perfect multicollinearity detected."}
 
     beta = [sum(inv[i][j] * Xty[j] for j in range(k)) for i in range(k)]
     y_pred = [sum(beta[j] * X[i][j] for j in range(k)) for i in range(n)]
@@ -1060,9 +1060,9 @@ def _ols_regression(
     }
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # UI COMPONENTS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _section_header(title: str, description: str = "", n: int = 0,
                     color: str = _C["accent"]) -> None:
@@ -1102,7 +1102,7 @@ def _insight_banner(headline: str, subtext: str = "", color: str = _C["accent"])
 
 
 def _chart_caption(text: str) -> None:
-    """Styled caption below chart â€” interpretation note + data note."""
+    """Styled caption below chart — interpretation note + data note."""
     st.markdown(
         f'<div style="font-size:0.78rem;color:#4b5563;padding:6px 10px 12px 10px;'
         f'border-top:2px solid #f1f5f9;margin-top:4px;line-height:1.5;">'
@@ -1139,9 +1139,9 @@ def _chart_header(title: str, subtitle: str = "", how_to_read: str = "",
 
 def _legend_row(items: list, compact: bool = False) -> None:
     """Coloured pill legend. items = [(label, hex_color, description)].
-    compact=True = no background box, smaller pills â€” for use inside columns."""
+    compact=True = no background box, smaller pills — for use inside columns."""
     def _legend_desc_html(desc):
-        return f'<span style="color:#6b7280;"> â€” {_esc(desc)}</span>' if desc and not compact else ""
+        return f'<span style="color:#6b7280;"> — {_esc(desc)}</span>' if desc and not compact else ""
 
     pills = "".join(
         f'<span style="display:inline-flex;align-items:center;gap:4px;margin:0 10px 5px 0;">'
@@ -1190,7 +1190,7 @@ def _seg_card(seg: str, color: str, n: int, stats: dict) -> None:
         f'<span style="font-size:0.72rem;color:{_C["muted"]};">{_esc(k)}</span>'
         f'<span style="font-size:0.72rem;font-weight:700;color:{_C["text"]};">{_esc(str(v))}</span>'
         f'</div>'
-        for k, v in stats.items() if v and str(v) not in ("None", "â€”", "")
+        for k, v in stats.items() if v and str(v) not in ("None", "—", "")
     )
     st.markdown(
         f'<div style="border:1px solid {_C["border"]};border-top:4px solid {color};'
@@ -1222,7 +1222,7 @@ def _attr_row(label: str, counts: dict[str, int], total: int, r1_color: str = _C
             f'<div title="{_esc(k)}: {v}" style="width:{pct}%;min-width:4px;background:{col};'
             f'height:18px;border-radius:2px;margin-right:1px;display:inline-block;"></div>'
         )
-    top = sorted_keys[0] if sorted_keys else "â€”"
+    top = sorted_keys[0] if sorted_keys else "—"
     top_n = counts.get(top, 0)
     top_pct = _pct_str(top_n, total)
     st.markdown(
@@ -1277,7 +1277,7 @@ def _verbatim_wall(passages: list[dict], key_prefix: str, title: str = "Verbatim
     sent_f = cols[0].selectbox("Sentiment", ["All"] + sents, key=f"{key_prefix}_sf")
     seg_f  = cols[1].selectbox("Segment",   ["All"] + segs,  key=f"{key_prefix}_sgf")
     pain_f = cols[2].selectbox("Type", ["All", "Pain Points", "Decision Signals"], key=f"{key_prefix}_tf")
-    search = cols[3].text_input("Search", key=f"{key_prefix}_srch", placeholder="keywordâ€¦")
+    search = cols[3].text_input("Search", key=f"{key_prefix}_srch", placeholder="keyword…")
 
     extra_selections: dict[str, str] = {}
     for i, (lbl, field) in enumerate(extra_filter_fields or []):
@@ -1308,10 +1308,10 @@ def _verbatim_wall(passages: list[dict], key_prefix: str, title: str = "Verbatim
     with stat_col:
         st.markdown(
             f'<span style="font-size:0.78rem;color:{_C["muted"]};">'
-            f'<b>{len(shown)}</b> passages â€” '
-            f'<span style="color:{_C["pos"]}">â–² {pos} positive</span> Â· '
-            f'<span style="color:{_C["neg"]}">â–¼ {neg} negative</span> Â· '
-            f'<span style="color:{_C["neu"]}">â— {neu} neutral</span></span>',
+            f'<b>{len(shown)}</b> passages — '
+            f'<span style="color:{_C["pos"]}">▲ {pos} positive</span> · '
+            f'<span style="color:{_C["neg"]}">▼ {neg} negative</span> · '
+            f'<span style="color:{_C["neu"]}">● {neu} neutral</span></span>',
             unsafe_allow_html=True,
         )
     with dl_col:
@@ -1332,7 +1332,7 @@ def _verbatim_wall(passages: list[dict], key_prefix: str, title: str = "Verbatim
                     for p in shown
                 ]).to_csv(index=False).encode("utf-8")
                 st.download_button(
-                    "â¬‡ Export CSV",
+                    "⬇ Export CSV",
                     data=csv_data,
                     file_name=f"{key_prefix}_verbatims.csv",
                     mime="text/csv",
@@ -1353,13 +1353,13 @@ def _verbatim_wall(passages: list[dict], key_prefix: str, title: str = "Verbatim
         sent  = (p.get("sentiment") or "neutral").lower()
         color = _SENT_C.get(sent, _C["neu"])
         txt   = (p.get("content") or "").strip()
-        meta  = " Â· ".join(x for x in [
+        meta  = " · ".join(x for x in [
             str(p.get("segment", "")), str(p.get("city", "")), str(p.get("doc_id", ""))
         ] if x)
         flags = []
-        if p.get("pain_point"):      flags.append("âš  pain")
-        if p.get("decision_signal"): flags.append("â†’ decision")
-        extra_meta = " Â· ".join(
+        if p.get("pain_point"):      flags.append("⚠ pain")
+        if p.get("decision_signal"): flags.append("→ decision")
+        extra_meta = " · ".join(
             f"{lbl}={p.get(field, '')}"
             for lbl, field in (extra_filter_fields or [])
             if p.get(field)
@@ -1377,8 +1377,8 @@ def _verbatim_wall(passages: list[dict], key_prefix: str, title: str = "Verbatim
             f'border-radius:0 6px 6px 0;background:{color}06;">'
             f'{badge} <span style="font-size:0.63rem;color:{_C["muted"]};">'
             f'{_esc(meta)}'
-            f'{"  Â· " + extra_meta if extra_meta else ""}'
-            f'{"  Â· " + "  Â· ".join(flags) if flags else ""}'
+            f'{"  · " + extra_meta if extra_meta else ""}'
+            f'{"  · " + "  · ".join(flags) if flags else ""}'
             f'</span>'
             f'{tag_chips_block}'
             f'</div>',
@@ -1387,10 +1387,10 @@ def _verbatim_wall(passages: list[dict], key_prefix: str, title: str = "Verbatim
         st.markdown(txt)
 
     c1, c2, c3 = st.columns([1, 4, 1])
-    if c1.button("â† Prev", key=f"{key_prefix}_prev", disabled=page == 0):
+    if c1.button("← Prev", key=f"{key_prefix}_prev", disabled=page == 0):
         st.session_state[pg_key] = max(0, page - 1); st.rerun()
-    c2.caption(f"Page {page + 1} / {total_pages} Â· {len(shown)} passages")
-    if c3.button("Next â†’", key=f"{key_prefix}_next", disabled=page >= total_pages - 1):
+    c2.caption(f"Page {page + 1} / {total_pages} · {len(shown)} passages")
+    if c3.button("Next →", key=f"{key_prefix}_next", disabled=page >= total_pages - 1):
         st.session_state[pg_key] = page + 1; st.rerun()
 
 
@@ -1405,7 +1405,7 @@ def _ai_finding_robust(
     proj_name: str = "this concept test study",
 ) -> None:
     """
-    AI research finding block â€” data-grounded, filter-aware.
+    AI research finding block — data-grounded, filter-aware.
 
     computed_ctx: dict of computed stats from section (passed in by section renderer).
     active_filters: global filter dict {path: value}.
@@ -1425,7 +1425,7 @@ def _ai_finding_robust(
         # Staleness note if filters are active (pre-generated may not match)
         if active_filters:
             st.caption(
-                f"âš  Pre-generated finding may not reflect active filter: {filter_ctx}. "
+                f"⚠ Pre-generated finding may not reflect active filter: {filter_ctx}. "
                 f"Use Regenerate to get a filter-aware finding."
             )
     else:
@@ -1439,12 +1439,12 @@ def _ai_finding_robust(
 
     st.markdown("")
 
-    with st.expander("â†º Regenerate AI Finding", expanded=not bool(text)):
+    with st.expander("↺ Regenerate AI Finding", expanded=not bool(text)):
         st.caption(f"Will generate for: **{filter_ctx}**")
         custom_focus = st.text_area(
             "Optional: focus question or angle for the AI",
             key=f"{regen_key}_focus",
-            placeholder="e.g. 'Focus on why Route 2 fails with FDMF segment' â€¦",
+            placeholder="e.g. 'Focus on why Route 2 fails with FDMF segment' …",
             height=68,
         )
 
@@ -1455,7 +1455,7 @@ def _ai_finding_robust(
         if st.button("Generate Finding", key=regen_key, type="primary"):
             focus_line = f"\n\nAdditional focus: {custom_focus.strip()}" if custom_focus.strip() else ""
             prompt = f"""You are a senior market research analyst. The client can already see every number
-in this data on the dashboard â€” your job is NOT to describe the data back to them, it's to tell them
+in this data on the dashboard — your job is NOT to describe the data back to them, it's to tell them
 something the raw numbers don't say on their own. A finding that just restates "N of M respondents did X"
 is worthless; they already have that tile in front of them. Write something that would make them stop
 scrolling.
@@ -1472,35 +1472,35 @@ INSTRUCTIONS:
 
 Before writing, reason through these silently (do not print your reasoning, only the final output):
 - Cross-reference dimensions ONLY where the data above gives you an actual joint count (a line that
-  already shows the intersection, e.g. "high anxiety (6 total) â†’ safety_seeker: 4/6"). Two separate
+  already shows the intersection, e.g. "high anxiety (6 total) → safety_seeker: 4/6"). Two separate
   marginal totals (e.g. "6 respondents are high-anxiety" and "10 are safety_seeker") do NOT tell you
-  how many are both â€” do not compute, estimate, or imply an intersection number that isn't already
+  how many are both — do not compute, estimate, or imply an intersection number that isn't already
   given to you as a joint count. If no real cross-tab is provided for the dimensions you want to
   connect, reason about them qualitatively instead of inventing a fraction.
 - Look specifically for a tension: something counter-intuitive, a segment that breaks the overall
   pattern, or a number that contradicts what you'd expect given another number in the same data. If
   the data is genuinely uniform with no tension, say that explicitly instead of manufacturing one.
-- Ask "so what would I actually tell the product/marketing team to DO differently" â€” a real
+- Ask "so what would I actually tell the product/marketing team to DO differently" — a real
   implication names a specific segment, message, proof-point, or decision, not a generic direction
   like "build trust" or "emphasize safety."
 
 Write a structured finding with EXACTLY this format:
 
-HEADLINE: [The one sentence a busy exec needs â€” states the tension or the non-obvious pattern, not a summary statistic]
+HEADLINE: [The one sentence a busy exec needs — states the tension or the non-obvious pattern, not a summary statistic]
 
 KEY FINDINGS:
-â€¢ [The cross-referenced pattern, with the specific numbers that support it]
-â€¢ [The counter-intuitive or segment-breaking detail, with numbers]
-â€¢ [A third finding only if it adds something the first two didn't already cover]
+• [The cross-referenced pattern, with the specific numbers that support it]
+• [The counter-intuitive or segment-breaking detail, with numbers]
+• [A third finding only if it adds something the first two didn't already cover]
 
-IMPLICATION: [A specific, actionable recommendation â€” name the segment, the message, or the decision. Not "improve trust messaging" but e.g. "lead with FIU registration specifically for FDMF investors in Tier-2 cities, where trust gap is highest and route preference is most split"]
+IMPLICATION: [A specific, actionable recommendation — name the segment, the message, or the decision. Not "improve trust messaging" but e.g. "lead with FIU registration specifically for FDMF investors in Tier-2 cities, where trust gap is highest and route preference is most split"]
 {focus_line}
 
 Use only the data provided. Do not invent numbers. If the data doesn't support a strong finding,
-say so plainly rather than padding â€” a correctly-flagged "nothing notable here" is more useful than
+say so plainly rather than padding — a correctly-flagged "nothing notable here" is more useful than
 a manufactured insight."""
 
-            with st.spinner("Generating finding from live dataâ€¦"):
+            with st.spinner("Generating finding from live data…"):
                 r = call_or(prompt)
                 if r:
                     st.success("Generated:")
@@ -1521,9 +1521,9 @@ a manufactured insight."""
                     st.warning("No response from OpenRouter.")
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # DATA LOADERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 @st.cache_data(ttl=900, show_spinner=False)
 def _load_matrices(matrices_dir: str) -> list[dict]:
@@ -1567,7 +1567,7 @@ def _get_passages(matrices: list[dict], topics: list[str] | None = None,
             "doc_id":       m.get("doc_id", ""),
             "pref_route":   pref_route,
             "route_shown":  route_shown,
-            # This respondent's declared+emergent themes (narrative_tags) â€” shown as chips per
+            # This respondent's declared+emergent themes (narrative_tags) — shown as chips per
             # quote so a reader sees which themes a passage's speaker was tagged with, including
             # any theme the model surfaced that wasn't in the study's predeclared vocabulary.
             "narrative_tags": [str(t).strip() for t in (m.get("narrative_tags") or []) if str(t).strip()],
@@ -1584,12 +1584,12 @@ def _get_passages(matrices: list[dict], topics: list[str] | None = None,
     return out
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SECTION 1 â€” INVESTOR PROFILES
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 1 — INVESTOR PROFILES
+# ═══════════════════════════════════════════════════════════════════════════════
 
 # Field paths already hand-built into a bespoke chart somewhere in this file (grep-verified
-# against every _count_field/_count_list_field call site) â€” kept out of the auto-chart pass so
+# against every _count_field/_count_list_field call site) — kept out of the auto-chart pass so
 # a field never renders twice. Best-effort, not derived automatically: a stale entry here just
 # means a field gets charted twice, not dropped, so it's safe to under-maintain.
 EXCLUDE_AUTO_CHART: set[str] = {
@@ -1615,13 +1615,13 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
     top_arch  = _count_field(matrices, "investor_archetype")
     top_stage = _count_field(matrices, "life_stage")
     top_anx_d = _count_field(matrices, "financial_anxiety_level")
-    top_arch_str = max(top_arch, key=top_arch.get) if top_arch else "â€”"
+    top_arch_str = max(top_arch, key=top_arch.get) if top_arch else "—"
 
-    # Real joint cross-tab, not just marginal totals â€” without this, a prompt that asks the AI to
+    # Real joint cross-tab, not just marginal totals — without this, a prompt that asks the AI to
     # "cross-reference dimensions" has no actual intersection data to work from, and a model asked
     # to produce a specific cross-tab number it wasn't given will fabricate a plausible-sounding one
     # instead of refusing. Found live: the AI Finding prompt asked for exactly this and the model
-    # invented "high-anxiety respondents skew toward safety_seeker (4/6)" â€” a real, checkable number
+    # invented "high-anxiety respondents skew toward safety_seeker (4/6)" — a real, checkable number
     # that was never in the marginal-only data it had. Giving it the true joint counts here removes
     # the need to guess.
     from collections import Counter
@@ -1635,20 +1635,20 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
     for a, counts in sorted(anx_arch_crosstab.items()):
         total_a = sum(counts.values())
         parts = ", ".join(f"{arch}: {c}/{total_a}" for arch, c in counts.most_common())
-        crosstab_lines.append(f"{a} anxiety ({total_a} total) â†’ {parts}")
+        crosstab_lines.append(f"{a} anxiety ({total_a} total) → {parts}")
 
     ctx = {
         "n": n,
-        "segments": ", ".join(segs) if segs else "â€”",
+        "segments": ", ".join(segs) if segs else "—",
         "high_anxiety": f"{high_anx}/{n} ({_pct_str(high_anx, n)})",
         "positive_resolution": f"{pos_res}/{n} ({_pct_str(pos_res, n)})",
         "nps_promoters": f"{promo}/{n} ({_pct_str(promo, n)})",
-        "avg_adoption_intent": f"{avg_int:.1f}/10" if avg_int else "â€”",
+        "avg_adoption_intent": f"{avg_int:.1f}/10" if avg_int else "—",
         "dominant_archetype": _fmt_val(top_arch_str),
-        "top_life_stage": _fmt_val(max(top_stage, key=top_stage.get)) if top_stage else "â€”",
-        "anxiety_distribution": str(dict(list(top_anx_d.items())[:3])) if top_anx_d else "â€”",
-        "archetype_distribution": str(dict(list(top_arch.items())[:3])) if top_arch else "â€”",
-        "anxiety_x_archetype_crosstab": "; ".join(crosstab_lines) if crosstab_lines else "â€”",
+        "top_life_stage": _fmt_val(max(top_stage, key=top_stage.get)) if top_stage else "—",
+        "anxiety_distribution": str(dict(list(top_anx_d.items())[:3])) if top_anx_d else "—",
+        "archetype_distribution": str(dict(list(top_arch.items())[:3])) if top_arch else "—",
+        "anxiety_x_archetype_crosstab": "; ".join(crosstab_lines) if crosstab_lines else "—",
     }
 
     _section_header(
@@ -1661,9 +1661,9 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
     _res_pct  = round(100 * pos_res / n) if n else 0
     _prom_pct = round(100 * promo / n) if n else 0
     _insight_banner(
-        f"{_anx_pct}% show high financial anxiety, yet {_res_pct}% resolve to positive intent â€” "
+        f"{_anx_pct}% show high financial anxiety, yet {_res_pct}% resolve to positive intent — "
         f"{_fmt_val(top_arch_str)} archetype dominates",
-        f"NPS: {promo}/{n} promoters ({_prom_pct}%) Â· {len(segs)} segments Â· safety-first positioning indicated",
+        f"NPS: {promo}/{n} promoters ({_prom_pct}%) · {len(segs)} segments · safety-first positioning indicated",
     )
 
     c1, c2, c3, c4, c5 = st.columns(5)
@@ -1671,7 +1671,7 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
     _kpi(c2, "NPS Promoters", f"{promo}/{n}", _C["pos"])
     _kpi(c3, "High Anxiety", f"{high_anx}/{n}", _C["neg"], "financial anxiety level")
     _kpi(c4, "Positive Resolution", f"{pos_res}/{n}", _C["pos"])
-    _kpi(c5, "Avg Adoption Intent", f"{avg_int:.1f}/10" if avg_int else "â€”", _C["r1"])
+    _kpi(c5, "Avg Adoption Intent", f"{avg_int:.1f}/10" if avg_int else "—", _C["r1"])
 
     st.markdown("---")
 
@@ -1687,28 +1687,28 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
         avg_r2     = _avg([_get(m, "route2_evaluation.overall_appeal_score") for m in seg_ms])
         promo_s    = sum(1 for m in seg_ms if (m.get("nps_signal") or "").lower() == "promoter")
         top_arch_s = _count_field(seg_ms, "investor_archetype")
-        arch_str   = max(top_arch_s, key=top_arch_s.get) if top_arch_s else "â€”"
+        arch_str   = max(top_arch_s, key=top_arch_s.get) if top_arch_s else "—"
         top_stage_s = _count_field(seg_ms, "life_stage")
-        stage_str  = max(top_stage_s, key=top_stage_s.get) if top_stage_s else "â€”"
+        stage_str  = max(top_stage_s, key=top_stage_s.get) if top_stage_s else "—"
         top_anx_s  = _count_field(seg_ms, "financial_anxiety_level")
-        anx_str    = max(top_anx_s, key=top_anx_s.get) if top_anx_s else "â€”"
+        anx_str    = max(top_anx_s, key=top_anx_s.get) if top_anx_s else "—"
         top_route  = _count_field(seg_ms, "preferred_route")
-        route_str  = max(top_route, key=top_route.get) if top_route else "â€”"
+        route_str  = max(top_route, key=top_route.get) if top_route else "—"
         top_trust  = _count_trust_gap(seg_ms)
-        trust_str  = max(top_trust, key=top_trust.get) if top_trust else "â€”"
+        trust_str  = max(top_trust, key=top_trust.get) if top_trust else "—"
         seg_card_stats = {
             "Archetype":       _fmt_val(arch_str),
             "Life stage":      _fmt_val(stage_str),
             "Anxiety level":   _fmt_val(anx_str),
             "Preferred route": _fmt_val(route_str),
         }
-        if trust_str != "â€”":
+        if trust_str != "—":
             seg_card_stats["Crypto trust gap"] = _fmt_val(trust_str)
         seg_card_stats.update({
-            "Avg intent":        f"{avg_int_s:.1f}/10" if avg_int_s else "â€”",
-            "Avg comprehension": f"{avg_comp_s:.1f}/10" if avg_comp_s else "â€”",
-            "R1 appeal":         f"{avg_r1:.1f}/10" if avg_r1 else "â€”",
-            "R2 appeal":         f"{avg_r2:.1f}/10" if avg_r2 else "â€”",
+            "Avg intent":        f"{avg_int_s:.1f}/10" if avg_int_s else "—",
+            "Avg comprehension": f"{avg_comp_s:.1f}/10" if avg_comp_s else "—",
+            "R1 appeal":         f"{avg_r1:.1f}/10" if avg_r1 else "—",
+            "R2 appeal":         f"{avg_r2:.1f}/10" if avg_r2 else "—",
             "NPS promoters":     f"{promo_s}/{sn}",
         })
         with col:
@@ -1731,10 +1731,10 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
                 "Financial Anxiety Level",
                 subtitle="How stressed respondents feel about their finances right now.",
                 how_to_read="High anxiety = needs safety-proof messaging. Low anxiety = can lead with returns.",
-                calc_note="Calculated: AI-classified from interview transcript. The extraction prompt reads respondent's narrative about financial concerns and stress, then classifies as high/medium/low. Not a questionnaire â€” inferred from language and tone.",
+                calc_note="Calculated: AI-classified from interview transcript. The extraction prompt reads respondent's narrative about financial concerns and stress, then classifies as high/medium/low. Not a questionnaire — inferred from language and tone.",
             )
             _legend_row([
-                ("High",   _C["neg"], "worried about loss â€” needs reassurance"),
+                ("High",   _C["neg"], "worried about loss — needs reassurance"),
                 ("Medium", _C["amb"], "cautious but open"),
                 ("Low",    _C["pos"], "confident investor"),
             ])
@@ -1754,13 +1754,13 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
             _chart_header(
                 "Life Stage Distribution",
                 subtitle="Where each respondent is in their financial life journey.",
-                how_to_read="Stage determines financial priorities â€” early career = growth, settled = preservation.",
+                how_to_read="Stage determines financial priorities — early career = growth, settled = preservation.",
             )
             _legend_row([
                 ("Early career", _C["r1"],     "building wealth, high growth appetite"),
                 ("Growing",      _C["r1"],     "accumulating assets, family milestone phase"),
                 ("Established",  _C["seg_dg"], "preserving wealth, stability-focused"),
-                ("Transitional", _C["amb"],    "life event change â€” volatile priorities"),
+                ("Transitional", _C["amb"],    "life event change — volatile priorities"),
             ])
             _stage_raw = list(stage_counts.keys())
             _stage_fmt = {_fmt_val(k): v for k, v in stage_counts.items()}
@@ -1777,7 +1777,7 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
             _chart_header(
                 "Investor Archetype",
                 subtitle="How each respondent mentally frames investment decisions.",
-                how_to_read="Archetype determines which product angle lands â€” safety vs returns vs convenience.",
+                how_to_read="Archetype determines which product angle lands — safety vs returns vs convenience.",
                 calc_note="Calculated: AI-classified from interview. The extraction prompt reads how the respondent talks about investment priorities, risk tolerance, and decision-making, then assigns one archetype. Options: Safety Seeker, Growth Oriented, Opportunity Hunter, Yield Optimizer.",
             )
             _legend_row([
@@ -1795,14 +1795,14 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
                 key="ctcf_investor_archetype", lbls_raw=_arch_raw,
                 field="investor_archetype", enabled=True,
             )
-            _chart_caption("Dominant archetype in sample signals which product narrative to lead with â€” safety proof vs yield story. Click a bar to filter every chart on this page.")
+            _chart_caption("Dominant archetype in sample signals which product narrative to lead with — safety proof vs yield story. Click a bar to filter every chart on this page.")
 
     st.markdown("---")
     _profile_exclude = EXCLUDE_AUTO_CHART | {p for p in _detect_fields(matrices) if _prefix_claimed(p)}
     _render_auto_charts(matrices, _profile_exclude, key_prefix="profiles")
 
     st.markdown("---")
-    st.markdown("#### Verbatim Evidence â€” Respondent Mindsets")
+    st.markdown("#### Verbatim Evidence — Respondent Mindsets")
     _verbatim_wall(
         _get_passages(matrices, topics=[
             "portfolio_behaviour", "gold_behaviour",
@@ -1822,9 +1822,9 @@ def _render_profiles(matrices: list[dict], findings_dir: str, call_or: Callable,
     )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SECTION 2 â€” GOLD CATEGORY KNOWLEDGE
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 2 — GOLD CATEGORY KNOWLEDGE
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Callable,
                           active_filters: dict, proj_name: str) -> None:
@@ -1849,21 +1849,21 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
     info_groups      = _group_list_field(matrices, "portfolio_behavior.info_sources")
     trigger_groups   = _group_field(matrices, "gold_behavior.purchase_trigger")
 
-    top_role     = max(role_counts, key=role_counts.get) if role_counts else "â€”"
-    top_platform = max(platform_counts, key=platform_counts.get) if platform_counts else "â€”"
-    top_info_src = max(info_counts, key=info_counts.get) if info_counts else "â€”"
+    top_role     = max(role_counts, key=role_counts.get) if role_counts else "—"
+    top_platform = max(platform_counts, key=platform_counts.get) if platform_counts else "—"
+    top_info_src = max(info_counts, key=info_counts.get) if info_counts else "—"
 
     ctx = {
         "n": n,
         "digital_gold_owners": f"{digital_owners}/{n} ({_pct_str(digital_owners, n)})",
         "sgb_aware_medium_high": f"{sgb_aware}/{n} ({_pct_str(sgb_aware, n)})",
-        "avg_gold_portfolio_pct": f"{round(avg_gold_pct)}%" if avg_gold_pct else "â€”",
+        "avg_gold_portfolio_pct": f"{round(avg_gold_pct)}%" if avg_gold_pct else "—",
         "top_gold_role": top_role,
-        "total_format_mentions": str(sum(format_counts.values())) if format_counts else "â€”",
-        "top_formats": str(dict(list(format_counts.items())[:3])) if format_counts else "â€”",
+        "total_format_mentions": str(sum(format_counts.values())) if format_counts else "—",
+        "top_formats": str(dict(list(format_counts.items())[:3])) if format_counts else "—",
         "top_investment_platform": top_platform,
         "top_info_source": top_info_src,
-        "top_purchase_trigger": max(trigger_counts, key=trigger_counts.get) if trigger_counts else "â€”",
+        "top_purchase_trigger": max(trigger_counts, key=trigger_counts.get) if trigger_counts else "—",
     }
 
     _section_header(
@@ -1873,8 +1873,8 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
     )
 
     _insight_banner(
-        f"{digital_owners}/{n} respondents own digital gold Â· "
-        f"{sgb_aware}/{n} show medium/high SGB awareness Â· "
+        f"{digital_owners}/{n} respondents own digital gold · "
+        f"{sgb_aware}/{n} show medium/high SGB awareness · "
         f"{'Avg gold allocation: ' + str(round(avg_gold_pct)) + '%' if avg_gold_pct else 'Gold allocation not reported'}",
         "Category familiarity shapes receptivity to a gold-with-yield proposition.",
         color=_C["seg_dg"],
@@ -1883,8 +1883,8 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
     c1, c2, c3, c4 = st.columns(4)
     _kpi(c1, "Digital Gold Owners", f"{digital_owners}/{n}", _C["seg_dg"])
     _kpi(c2, "SGB Aware (med/high)", f"{sgb_aware}/{n}", _C["pos"])
-    _kpi(c3, "Gold Format Mentions", str(sum(format_counts.values())) if format_counts else "â€”", _C["r1"])
-    _kpi(c4, "Avg Gold Portfolio %", f"{round(avg_gold_pct)}%" if avg_gold_pct else "â€”", _C["seg_dg"])
+    _kpi(c3, "Gold Format Mentions", str(sum(format_counts.values())) if format_counts else "—", _C["r1"])
+    _kpi(c4, "Avg Gold Portfolio %", f"{round(avg_gold_pct)}%" if avg_gold_pct else "—", _C["seg_dg"])
 
     st.markdown("---")
 
@@ -1893,7 +1893,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
         with col1:
             _chart_header(
                 "Gold Formats Currently Owned",
-                subtitle="Physical jewellery, digital gold, ETFs, SGB, coins/bars â€” respondents could select multiple.",
+                subtitle="Physical jewellery, digital gold, ETFs, SGB, coins/bars — respondents could select multiple.",
                 how_to_read="Longer bar = more respondents own that format. Shows how familiar audience is with digital vs physical gold.",
             )
             st.plotly_chart(
@@ -1906,13 +1906,13 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
         with col2:
             _chart_header(
                 "Gold's Role in Their Portfolio",
-                subtitle="How each respondent frames why they hold gold â€” shapes which product angle will resonate.",
+                subtitle="How each respondent frames why they hold gold — shapes which product angle will resonate.",
                 how_to_read="Dominant role = primary messaging hook. Safety-store majority needs capital-protection narrative first.",
             )
             _legend_row([
-                ("Safety store",   _C["pos"],     "gold as protection â€” hedge against inflation/crisis"),
-                ("Return vehicle", _C["seg_dg"],  "gold as profit â€” buy low sell high"),
-                ("Tradition",      _C["amb"],      "gold as cultural obligation â€” not purely financial"),
+                ("Safety store",   _C["pos"],     "gold as protection — hedge against inflation/crisis"),
+                ("Return vehicle", _C["seg_dg"],  "gold as profit — buy low sell high"),
+                ("Tradition",      _C["amb"],      "gold as cultural obligation — not purely financial"),
             ])
             _role_raw = list(role_counts.keys())
             _chart_click_filter(
@@ -1931,7 +1931,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
         with col3:
             _chart_header(
                 "Investment Platforms Currently Used",
-                subtitle="Apps and platforms where respondents actively invest â€” indicates digital finance comfort level.",
+                subtitle="Apps and platforms where respondents actively invest — indicates digital finance comfort level.",
                 how_to_read="Longer bar = more users on that platform. CoinDCX visibility vs fintech competitors visible here.",
             )
             st.plotly_chart(
@@ -1946,7 +1946,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
         with col4:
             _chart_header(
                 "Where Respondents Get Investment Information",
-                subtitle="Media, social, advisor channels â€” determines where CoinDCX Karat should reach this audience.",
+                subtitle="Media, social, advisor channels — determines where CoinDCX Karat should reach this audience.",
                 how_to_read="Top sources = where product education and trust-building must happen. Longer bar = more respondents use it.",
             )
             st.plotly_chart(
@@ -1960,13 +1960,13 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
         _chart_header(
             "SGB (Sovereign Gold Bond) Awareness",
             subtitle="Sovereign Gold Bonds are the government's yield-bearing gold instrument. Awareness sets yield expectation benchmarks.",
-            how_to_read="High SGB awareness = respondents already know yield on gold is possible â€” lowers 'too good to be true' barrier.",
-            calc_note="Calculated: extracted from gold_behavior.sgb_awareness. Prompt asks the model to classify respondent's familiarity with SGB (Sovereign Gold Bonds â€” government-issued bonds offering 2.5% annual yield on gold value) as high/medium/low based on how they discussed it.",
+            how_to_read="High SGB awareness = respondents already know yield on gold is possible — lowers 'too good to be true' barrier.",
+            calc_note="Calculated: extracted from gold_behavior.sgb_awareness. Prompt asks the model to classify respondent's familiarity with SGB (Sovereign Gold Bonds — government-issued bonds offering 2.5% annual yield on gold value) as high/medium/low based on how they discussed it.",
         )
         _legend_row([
-            ("High",   _C["pos"], "knows SGB well â€” benchmarks any yield claim against 2.5% RBI coupon"),
-            ("Medium", _C["amb"], "heard of it â€” partial understanding"),
-            ("Low",    _C["neg"], "unaware â€” yield concept needs more education"),
+            ("High",   _C["pos"], "knows SGB well — benchmarks any yield claim against 2.5% RBI coupon"),
+            ("Medium", _C["amb"], "heard of it — partial understanding"),
+            ("Low",    _C["neg"], "unaware — yield concept needs more education"),
         ])
         _sgb_cmap = {"high": _C["pos"], "medium": _C["amb"], "low": _C["neg"]}
         sgb_keys = list(sgb_counts.keys())
@@ -1977,7 +1977,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
             key="ctcf_sgb_awareness", lbls_raw=sgb_keys,
             field="gold_behavior.sgb_awareness", enabled=True,
         )
-        _chart_caption("Bar height = respondent count. High SGB awareness makes the yield claim credible â€” they have a reference point. Click a bar to filter every chart on this page.")
+        _chart_caption("Bar height = respondent count. High SGB awareness makes the yield claim credible — they have a reference point. Click a bar to filter every chart on this page.")
 
     if trigger_counts:
         _chart_header(
@@ -1995,7 +1995,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
         )
         _chart_caption("Longer bar = more respondents driven by that trigger. Dominant trigger shapes seasonal/event-based marketing strategy. Click a bar to filter every chart on this page.")
 
-    # â”€â”€ LOOPHOLE A: Portfolio Asset Allocation Wallet Share â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── LOOPHOLE A: Portfolio Asset Allocation Wallet Share ───────────────────
     _ASSET_FIELDS = [
         ("gold_pct",    "Gold",           _C["seg_dg"]),
         ("equity_pct",  "Equities",       _C["r1"]),
@@ -2016,7 +2016,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
             _asset_labels.append(label)
             _asset_colors.append(col)
 
-    # â”€â”€ LOOPHOLE B: Digital Gold View perception card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── LOOPHOLE B: Digital Gold View perception card ─────────────────────────
     _dg_view_counts: dict = {}
     for m in matrices:
         v = _get(m, "gold_behavior.digital_gold_view") or _get(m, "digital_gold_view")
@@ -2033,7 +2033,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
                 _chart_header(
                     "Portfolio Wallet Share by Asset",
                     subtitle="Average % of investment portfolio allocated to each asset class, self-reported by respondents.",
-                    how_to_read="Bar height = average allocation %. Gold vs others shows wallet-share competition â€” higher gold = easier to retain with a gold product.",
+                    how_to_read="Bar height = average allocation %. Gold vs others shows wallet-share competition — higher gold = easier to retain with a gold product.",
                 )
                 _aa_fig = _v_bar(
                     _asset_labels, _asset_avgs,
@@ -2093,7 +2093,7 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
                         key_prefix="goldcat")
 
     st.markdown("---")
-    st.markdown("#### Verbatim Evidence â€” Gold & Portfolio Behaviour")
+    st.markdown("#### Verbatim Evidence — Gold & Portfolio Behaviour")
     _verbatim_wall(
         _get_passages(matrices, topics=[
             "gold_behaviour", "portfolio_behaviour", "info_sources",
@@ -2111,9 +2111,9 @@ def _render_gold_category(matrices: list[dict], findings_dir: str, call_or: Call
     )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SECTION 3 â€” CONCEPT TESTING
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 3 — CONCEPT TESTING
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Callable,
                             active_filters: dict, proj_name: str) -> None:
@@ -2125,7 +2125,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
     full_comp  = sum(1 for m in matrices if (_get(m, "concept_understanding.comprehension_score") or 0) >= 8)
     low_comp   = sum(1 for m in matrices if (_get(m, "concept_understanding.comprehension_score") or 10) <= 5)
 
-    # Claim reaction summary â€” same defensive guard as benchmark_comparisons above: this field's
+    # Claim reaction summary — same defensive guard as benchmark_comparisons above: this field's
     # shape isn't schema-enforced, so skip anything that isn't the expected dict shape.
     claim_data: dict[str, Counter] = defaultdict(Counter)
     for m in matrices:
@@ -2147,9 +2147,9 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
 
     tagline_counts = _count_field(matrices, "tagline_reaction.preferred_tagline")
     tagline_groups = _group_field(matrices, "tagline_reaction.preferred_tagline")
-    top_tagline = max(tagline_counts, key=tagline_counts.get) if tagline_counts else "â€”"
+    top_tagline = max(tagline_counts, key=tagline_counts.get) if tagline_counts else "—"
 
-    # Route-level attribute summary (safe â€” these may not exist for all studies)
+    # Route-level attribute summary (safe — these may not exist for all studies)
     r1_safety_strong = sum(
         1 for m in matrices
         if str(_get(m, "route1_evaluation.safety_proof_resonance") or "").lower() in ("strong", "yes")
@@ -2161,16 +2161,16 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
 
     ctx = {
         "n": n,
-        "avg_comprehension_score": f"{avg_comp:.1f}/10" if avg_comp else "â€”",
+        "avg_comprehension_score": f"{avg_comp:.1f}/10" if avg_comp else "—",
         "high_comprehension_ge8": f"{full_comp}/{n} ({_pct_str(full_comp, n)})",
         "low_comprehension_le5": f"{low_comp}/{n} ({_pct_str(low_comp, n)})",
-        "route1_avg_appeal": f"{avg_r1_app:.1f}/10" if avg_r1_app else "â€”",
-        "route2_avg_appeal": f"{avg_r2_app:.1f}/10" if avg_r2_app else "â€”",
-        "top_positive_claim_reaction": top_positive_claim if top_positive_claim else "â€”",
+        "route1_avg_appeal": f"{avg_r1_app:.1f}/10" if avg_r1_app else "—",
+        "route2_avg_appeal": f"{avg_r2_app:.1f}/10" if avg_r2_app else "—",
+        "top_positive_claim_reaction": top_positive_claim if top_positive_claim else "—",
         "preferred_tagline": top_tagline,
-        "r1_safety_proof_strong": f"{r1_safety_strong}/{n}" if r1_safety_strong else "â€”",
-        "r2_yield_too_good_to_be_true": f"{r2_yield_skeptic}/{n}" if r2_yield_skeptic else "â€”",
-        "total_claims_tested": str(len(claim_data)) if claim_data else "â€”",
+        "r1_safety_proof_strong": f"{r1_safety_strong}/{n}" if r1_safety_strong else "—",
+        "r2_yield_too_good_to_be_true": f"{r2_yield_skeptic}/{n}" if r2_yield_skeptic else "—",
+        "total_claims_tested": str(len(claim_data)) if claim_data else "—",
     }
 
     _section_header(
@@ -2186,19 +2186,19 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
         _r_winner = "Route 2 (Returns)" if (avg_r2_app or 0) >= (avg_r1_app or 0) else "Route 1 (Safety)"
         _route_line = f"{_r_winner} leads on appeal by {_r_diff} pts" if _r_diff and _r_diff > 0 else "Routes nearly tied on appeal"
         _insight_banner(
-            f"Comprehension below target â€” only {_hc_pct}% (â‰¥8/10) fully grasp the concept Â· "
+            f"Comprehension below target — only {_hc_pct}% (≥8/10) fully grasp the concept · "
             f"{_route_line}",
-            f"{low_comp}/{n} ({_lc_pct}%) score â‰¤5 â€” simplify messaging priority Â· "
-            f"R1: {avg_r1_app:.1f}/10 Â· R2: {avg_r2_app:.1f}/10",
+            f"{low_comp}/{n} ({_lc_pct}%) score ≤5 — simplify messaging priority · "
+            f"R1: {avg_r1_app:.1f}/10 · R2: {avg_r2_app:.1f}/10",
             color=_C["r1"],
         )
 
     c1, c2, c3, c4, c5 = st.columns(5)
     _kpi(c1, "Respondents", str(n), _C["accent"])
-    _kpi(c2, "Avg Comprehension", f"{avg_comp:.1f}/10" if avg_comp else "â€”", _C["r1"])
-    _kpi(c3, "R1 Avg Appeal", f"{avg_r1_app:.1f}/10" if avg_r1_app else "â€”", _C["r1"], "safety/ownership")
-    _kpi(c4, "R2 Avg Appeal", f"{avg_r2_app:.1f}/10" if avg_r2_app else "â€”", _C["r2"], "returns/value")
-    _kpi(c5, "High Comp (â‰¥8)", f"{full_comp}/{n}", _C["pos"])
+    _kpi(c2, "Avg Comprehension", f"{avg_comp:.1f}/10" if avg_comp else "—", _C["r1"])
+    _kpi(c3, "R1 Avg Appeal", f"{avg_r1_app:.1f}/10" if avg_r1_app else "—", _C["r1"], "safety/ownership")
+    _kpi(c4, "R2 Avg Appeal", f"{avg_r2_app:.1f}/10" if avg_r2_app else "—", _C["r2"], "returns/value")
+    _kpi(c5, "High Comp (≥8)", f"{full_comp}/{n}", _C["pos"])
 
     st.markdown("---")
 
@@ -2212,9 +2212,9 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
         with gg_col:
             _chart_header(
                 "Concept Comprehension Score",
-                subtitle=f"AI-rated 1â€“10: did the respondent truly understand the Digital Gold + Yield proposition? n={n}.",
-                how_to_read="Needle position = average across all interviews. Green zone (â‰¥7.5) = good. Red zone (â‰¤5) = messaging too complex.",
-                calc_note="Calculated: AI extraction from transcript â€” the model was prompted to rate 1-10 how accurately the respondent could re-articulate the core proposition (digital gold + yield + safety proof) after it was explained. Not self-reported â€” based on what respondent actually said.",
+                subtitle=f"AI-rated 1–10: did the respondent truly understand the Digital Gold + Yield proposition? n={n}.",
+                how_to_read="Needle position = average across all interviews. Green zone (≥7.5) = good. Red zone (≤5) = messaging too complex.",
+                calc_note="Calculated: AI extraction from transcript — the model was prompted to rate 1-10 how accurately the respondent could re-articulate the core proposition (digital gold + yield + safety proof) after it was explained. Not self-reported — based on what respondent actually said.",
             )
             st.plotly_chart(
                 _gauge(avg_comp, 10, "Avg Comprehension Score", target=7,
@@ -2226,14 +2226,14 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
                 "Comprehension Quality Distribution",
                 subtitle="How many respondents fell into each understanding band based on their comprehension score.",
                 how_to_read="High band = ready for full product pitch. Low band = needs simpler language or analogies.",
-                calc_note="Bands derived from comprehension_score: High = score â‰¥8, Medium = 5â€“7, Low = â‰¤4. Same AI-extracted score as the gauge â€” grouped for easy segmentation.",
+                calc_note="Bands derived from comprehension_score: High = score ≥8, Medium = 5–7, Low = ≤4. Same AI-extracted score as the gauge — grouped for easy segmentation.",
             )
             _legend_row([
-                ("High â‰¥8",    _C["pos"], "fully understood â€” can articulate the proposition back"),
-                ("Medium 5â€“7", _C["amb"], "partial understanding â€” grasped headline, missed details"),
-                ("Low â‰¤4",     _C["neg"], "confused â€” likely to reject or misuse the product"),
+                ("High ≥8",    _C["pos"], "fully understood — can articulate the proposition back"),
+                ("Medium 5–7", _C["amb"], "partial understanding — grasped headline, missed details"),
+                ("Low ≤4",     _C["neg"], "confused — likely to reject or misuse the product"),
             ])
-            _band_labels = ["High (â‰¥8)", "Medium (5â€“7)", "Low (â‰¤4)"]
+            _band_labels = ["High (≥8)", "Medium (5–7)", "Low (≤4)"]
             _band_vals   = [full_comp, mid_comp, low_comp]
             _band_colors = [_C["pos"], _C["amb"], _C["neg"]]
             _comp_band_groups = [
@@ -2249,7 +2249,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
             _chart_caption("Bar height = number of respondents in that band. High band respondents are your early adopters.")
         st.markdown("")
 
-    # â”€â”€ Route 1 attributes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Route 1 attributes ────────────────────────────────────────────────────
     r1_attrs = [
         ("route1_evaluation.safety_proof_resonance",          "Safety proof resonance"),
         ("route1_evaluation.fiu_understood",                  "FIU registration understood"),
@@ -2264,7 +2264,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
         st.markdown(
             f'<div style="font-size:0.72rem;font-weight:900;color:{_C["r1"]};'
             f'text-transform:uppercase;letter-spacing:0.1em;margin:8px 0 4px;">'
-            f'Route 1 â€” Safety & Ownership</div>',
+            f'Route 1 — Safety & Ownership</div>',
             unsafe_allow_html=True,
         )
         for _, label, counts in r1_data:
@@ -2272,7 +2272,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
                 _attr_row(label, counts, n, _C["r1"])
         st.markdown("")
 
-    # â”€â”€ Route 2 attributes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Route 2 attributes ────────────────────────────────────────────────────
     r2_attrs = [
         ("route2_evaluation.compounding_in_gold_units_understood", "Compounding in gold units understood"),
         ("route2_evaluation.tax_advantage_noticed",                "Tax advantage noticed"),
@@ -2286,7 +2286,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
         st.markdown(
             f'<div style="font-size:0.72rem;font-weight:900;color:{_C["r2"]};'
             f'text-transform:uppercase;letter-spacing:0.1em;margin:8px 0 4px;">'
-            f'Route 2 â€” Returns & Value</div>',
+            f'Route 2 — Returns & Value</div>',
             unsafe_allow_html=True,
         )
         for _, label, counts in r2_data:
@@ -2304,16 +2304,16 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
         )
         st.markdown("---")
 
-    # â”€â”€ Key claim reactions heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Key claim reactions heatmap ───────────────────────────────────────────
     if claim_data:
         _chart_header(
             "Key Claim Reaction Heatmap",
-            subtitle="How respondents reacted to each specific product claim â€” tested across all IDI transcripts.",
+            subtitle="How respondents reacted to each specific product claim — tested across all IDI transcripts.",
             how_to_read="Rows = claims. Columns = reaction types. Darker/brighter cell = more respondents with that reaction. Scan rows to find strongest claim.",
         )
         _legend_row([
-            ("strong / yes / full", _C["pos"], "clear acceptance â€” claim landed"),
-            ("partial / conditional", _C["amb"], "partially accepted â€” needs supporting proof"),
+            ("strong / yes / full", _C["pos"], "clear acceptance — claim landed"),
+            ("partial / conditional", _C["amb"], "partially accepted — needs supporting proof"),
             ("skeptical / no / unclear", _C["neg"], "rejected or not understood"),
         ])
         all_reactions = sorted({r for c in claim_data.values() for r in c.keys()})
@@ -2321,7 +2321,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
         z_mat = [[claim_data[cl].get(r, 0) for r in all_reactions] for cl in claim_rows]
         st.plotly_chart(
             _heatmap(claim_rows, all_reactions, z_mat,
-                     "Claim Ã— Reaction (respondent count)",
+                     "Claim × Reaction (respondent count)",
                      h=max(260, len(claim_rows) * 38)),
             use_container_width=True,
         )
@@ -2336,7 +2336,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
         _chart_header(
             "Preferred Tagline",
             subtitle="Which tagline each respondent found most memorable and accurate after seeing the concept.",
-            how_to_read="Dominant slice = winning tagline. Large slice = clear winner â€” use that line as headline. Even split = test further.",
+            how_to_read="Dominant slice = winning tagline. Large slice = clear winner — use that line as headline. Even split = test further.",
             calc_note="Calculated: extracted from tagline_reaction.preferred_tagline. The extraction prompt asks the model which tagline the respondent explicitly chose or responded most positively to during the concept show card session.",
         )
         _tagline_raw = list(tagline_counts.keys())
@@ -2359,7 +2359,7 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
                         key_prefix="concept")
 
     st.markdown("---")
-    st.markdown("#### Verbatim Evidence â€” Concept Reactions")
+    st.markdown("#### Verbatim Evidence — Concept Reactions")
     _verbatim_wall(
         _get_passages(matrices, topics=[
             "concept_reaction", "claims",
@@ -2379,9 +2379,9 @@ def _render_concept_testing(matrices: list[dict], findings_dir: str, call_or: Ca
     )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SECTION 4 â€” ROUTE COMPARISON
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 4 — ROUTE COMPARISON
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: Callable,
                               active_filters: dict, proj_name: str) -> None:
@@ -2402,7 +2402,7 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
     # z-test on those who chose a single clear route
     n_pref = r1_n + r2_n
     z, pval = _prop_ztest(n_pref, r1_n / n_pref, n_pref, r2_n / n_pref) if n_pref > 0 else (0, 1.0)
-    sig_str = f"p={pval:.3f} {'â˜… significant' if pval < 0.05 else '(not significant)'}"
+    sig_str = f"p={pval:.3f} {'★ significant' if pval < 0.05 else '(not significant)'}"
 
     avg_r1_overall = _avg([_get(m, "route1_evaluation.overall_appeal_score") for m in matrices])
     avg_r2_overall = _avg([_get(m, "route2_evaluation.overall_appeal_score") for m in matrices])
@@ -2432,10 +2432,10 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
                     "Positive %": _pct_str(pos_n, n),
                     "z-stat": round(zs, 3),
                     "p-value": round(ps, 4),
-                    "Sig": "â˜…" if ps < 0.05 else "",
+                    "Sig": "★" if ps < 0.05 else "",
                 })
 
-    # Real segment Ã— route-preference joint counts â€” without this, asking the AI to compare routes
+    # Real segment × route-preference joint counts — without this, asking the AI to compare routes
     # "across segments" (the section's own instruction) gives it a segment NAME LIST and OVERALL
     # totals but no way to know which segment actually prefers which route, so it either invents a
     # number or (correctly, after the fabrication fix) refuses and stays generic. This gives it the
@@ -2454,7 +2454,7 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
     for seg, counts in sorted(seg_route_crosstab.items()):
         total_s = sum(counts.values())
         parts = ", ".join(f"{lbl}: {c}/{total_s}" for lbl, c in counts.most_common())
-        seg_route_lines.append(f"{seg} ({total_s} total) â†’ {parts}")
+        seg_route_lines.append(f"{seg} ({total_s} total) → {parts}")
 
     ctx = {
         "n": n,
@@ -2463,11 +2463,11 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
         "blended_both_routes": f"{blended_n}/{n} ({_pct_str(blended_n, n)})",
         "no_clear_preference": f"{neither_n}/{n}",
         "preference_significance": sig_str,
-        "r1_avg_overall_appeal": f"{avg_r1_overall:.1f}/10" if avg_r1_overall else "â€”",
-        "r2_avg_overall_appeal": f"{avg_r2_overall:.1f}/10" if avg_r2_overall else "â€”",
-        "segments_compared": ", ".join(segs) if segs else "â€”",
-        "segment_x_route_preference_crosstab": "; ".join(seg_route_lines) if seg_route_lines else "â€”",
-        "significant_attribute_advantages": str([r["Attribute"] for r in route_attr_sig if r["Sig"] == "â˜…"]) if route_attr_sig else "â€”",
+        "r1_avg_overall_appeal": f"{avg_r1_overall:.1f}/10" if avg_r1_overall else "—",
+        "r2_avg_overall_appeal": f"{avg_r2_overall:.1f}/10" if avg_r2_overall else "—",
+        "segments_compared": ", ".join(segs) if segs else "—",
+        "segment_x_route_preference_crosstab": "; ".join(seg_route_lines) if seg_route_lines else "—",
+        "significant_attribute_advantages": str([r["Attribute"] for r in route_attr_sig if r["Sig"] == "★"]) if route_attr_sig else "—",
     }
 
     _section_header(
@@ -2481,14 +2481,14 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
     _r2_pct = round(100 * r2_n / n) if n else 0
     _pref_route = "Route 2 (Returns)" if r2_n > r1_n else "Route 1 (Safety)"
     _appeal_line = (
-        f"appeal gap: {abs(avg_r1_overall - avg_r2_overall):.1f} pts â€” routes close in perceived value"
+        f"appeal gap: {abs(avg_r1_overall - avg_r2_overall):.1f} pts — routes close in perceived value"
         if avg_r1_overall and avg_r2_overall and abs(avg_r1_overall - avg_r2_overall) < 0.5
         else f"R1 appeal {avg_r1_overall:.1f} vs R2 {avg_r2_overall:.1f}"
         if avg_r1_overall and avg_r2_overall else ""
     )
-    _blended_note = f" Â· {blended_n} blended" if blended_n > 0 else ""
+    _blended_note = f" · {blended_n} blended" if blended_n > 0 else ""
     _insight_banner(
-        f"{_pref_route} edges ahead ({_r2_pct if r2_n > r1_n else _r1_pct}% preference){_blended_note} Â· {sig_str}",
+        f"{_pref_route} edges ahead ({_r2_pct if r2_n > r1_n else _r1_pct}% preference){_blended_note} · {sig_str}",
         _appeal_line,
         color=_C["r1"] if r1_n >= r2_n else _C["r2"],
     )
@@ -2498,8 +2498,8 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
     _kpi(c2, "R2 Preferred", f"{r2_n}/{n}", _C["r2"], "returns/value")
     _kpi(c3, "Blended Both", f"{blended_n}/{n}", _C["amb"], "valued elements of both")
     _kpi(c4, "No Clear Pref", str(neither_n), _C["neu"])
-    _kpi(c5, "R1 Avg Appeal", f"{avg_r1_overall:.1f}/10" if avg_r1_overall else "â€”", _C["r1"])
-    _kpi(c6, "R2 Avg Appeal", f"{avg_r2_overall:.1f}/10" if avg_r2_overall else "â€”", _C["r2"])
+    _kpi(c5, "R1 Avg Appeal", f"{avg_r1_overall:.1f}/10" if avg_r1_overall else "—", _C["r1"])
+    _kpi(c6, "R2 Avg Appeal", f"{avg_r2_overall:.1f}/10" if avg_r2_overall else "—", _C["r2"])
 
     st.markdown("---")
 
@@ -2510,11 +2510,11 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
                 "Overall Route Preference",
                 subtitle="Which communication route each respondent chose as more compelling after seeing both.",
                 how_to_read="Larger slice = more respondents preferred that route. 'Blended' = valued elements of both equally.",
-                calc_note="Calculated: extracted from preferred_route field. The extraction prompt asks the model which route the respondent explicitly stated they preferred, or â€” if not explicit â€” infers from language about what they found more convincing. Values: Route1, Route2, Blended, Unclear.",
+                calc_note="Calculated: extracted from preferred_route field. The extraction prompt asks the model which route the respondent explicitly stated they preferred, or — if not explicit — infers from language about what they found more convincing. Values: Route1, Route2, Blended, Unclear.",
             )
             _legend_row([
-                ("Route 1", _C["r1"],  "Safety/Ownership-led â€” leads with capital protection and allocated vault"),
-                ("Route 2", _C["r2"],  "Returns/Value-led â€” leads with yield, SGB comparison, compounding"),
+                ("Route 1", _C["r1"],  "Safety/Ownership-led — leads with capital protection and allocated vault"),
+                ("Route 2", _C["r2"],  "Returns/Value-led — leads with yield, SGB comparison, compounding"),
                 ("Blended", _C["amb"], "respondent found both routes equally compelling"),
             ])
             _pref_raw = list(pref_counts.keys())
@@ -2526,7 +2526,7 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
                 key="ctcf_preferred_route", lbls_raw=_pref_raw,
                 field="preferred_route", enabled=True,
             )
-            _chart_caption("Click a slice to isolate respondents across every chart on this page. Hover for exact count. High 'blended' = both narratives are needed â€” neither standalone wins.")
+            _chart_caption("Click a slice to isolate respondents across every chart on this page. Hover for exact count. High 'blended' = both narratives are needed — neither standalone wins.")
 
     if segs:
         r1_by_seg = [round(_avg([_get(m, "route1_evaluation.overall_appeal_score")
@@ -2540,7 +2540,7 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
             with col2:
                 _chart_header(
                     "Route Appeal Score by Investor Segment",
-                    subtitle="Average appeal rating (1â€“10) for each route, broken out by investor segment.",
+                    subtitle="Average appeal rating (1–10) for each route, broken out by investor segment.",
                     how_to_read="Taller bar = higher appeal. Segment with biggest R1 vs R2 gap = strongest route preference signal for targeting.",
                 )
                 st.plotly_chart(
@@ -2583,7 +2583,7 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
                 "No pref":      str(s_other) if s_other else "0",
                 "z (R1 vs R2)": round(sz, 3),
                 "p-value":      round(sp, 4),
-                "Sig":          "â˜…" if sp < 0.05 else "",
+                "Sig":          "★" if sp < 0.05 else "",
             })
         if rows:
             import pandas as pd
@@ -2592,23 +2592,23 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
                 "R1 + R2 + Blended + No pref = n (total). "
                 "Blended = respondent valued elements of both routes. "
                 "z-test compares R1 vs R2 among those expressing a single clear preference. "
-                "â˜… = p < 0.05."
+                "★ = p < 0.05."
             )
 
-    # Benchmark comparisons â€” this field's shape isn't schema-enforced (no declared sub_fields),
+    # Benchmark comparisons — this field's shape isn't schema-enforced (no declared sub_fields),
     # so different interviews can legitimately store it as a list of dicts, a list of strings, or
-    # even a bare string â€” skip anything that isn't the expected {benchmark, verdict} dict shape
+    # even a bare string — skip anything that isn't the expected {benchmark, verdict} dict shape
     # instead of crashing the whole tab on one inconsistently-shaped matrix.
     bench_data: dict[str, Counter] = defaultdict(Counter)
     for m in matrices:
         raw_bc = m.get("benchmark_comparisons") or []
         if isinstance(raw_bc, str):
-            continue  # free-text summary, not structured comparisons â€” nothing to chart
+            continue  # free-text summary, not structured comparisons — nothing to chart
         if not isinstance(raw_bc, list):
             continue
         for bc in raw_bc:
             if not isinstance(bc, dict):
-                continue  # e.g. a list of plain strings â€” no benchmark/verdict to extract
+                continue  # e.g. a list of plain strings — no benchmark/verdict to extract
             bench = str(bc.get("benchmark") or "")
             verdict = str(bc.get("verdict") or "unclear")
             if bench:
@@ -2628,7 +2628,7 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
         benchmarks = sorted(bench_data.keys())
         z_mat = [[bench_data[b].get(v, 0) for v in verdicts] for b in benchmarks]
         st.plotly_chart(
-            _heatmap(benchmarks, verdicts, z_mat, "Benchmark Ã— Verdict (count)",
+            _heatmap(benchmarks, verdicts, z_mat, "Benchmark × Verdict (count)",
                      h=max(200, len(benchmarks) * 45)),
             use_container_width=True)
         _chart_caption(
@@ -2642,7 +2642,7 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
                         key_prefix="route")
 
     st.markdown("---")
-    st.markdown("#### Verbatim Evidence â€” Route Reactions")
+    st.markdown("#### Verbatim Evidence — Route Reactions")
     _verbatim_wall(
         _get_passages(matrices, topics=[
             "concept_reaction", "claims",
@@ -2667,16 +2667,16 @@ def _render_route_comparison(matrices: list[dict], findings_dir: str, call_or: C
     )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SECTION 5 â€” BRAND IMAGERY & TRUST
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 5 — BRAND IMAGERY & TRUST
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callable,
                         active_filters: dict, proj_name: str) -> None:
     n = len(matrices)
 
     # This project's matrices span two schema generations (see the normalizer functions above
-    # _render_brand_trust) â€” legacy matrices nest trust detail under coindcx_trust as an object,
+    # _render_brand_trust) — legacy matrices nest trust detail under coindcx_trust as an object,
     # newer ones flatten coindcx_trust into a plain trust-level enum. _trust_gap_value/
     # _trust_builders_list/_platform_association_value merge both shapes so every respondent's
     # real data is visible regardless of which schema generation extracted them.
@@ -2689,15 +2689,15 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
     intent_ge7    = sum(1 for m in matrices if (_get(m, "adoption.intent_score") or 0) >= 7)
     top_barrier   = _count_list_field(matrices, "adoption.barriers")
     top_driver    = _count_list_field(matrices, "adoption.drivers")
-    top_bar_str   = max(top_barrier, key=top_barrier.get) if top_barrier else "â€”"
-    top_driver_str = max(top_driver, key=top_driver.get) if top_driver else "â€”"
+    top_bar_str   = max(top_barrier, key=top_barrier.get) if top_barrier else "—"
+    top_driver_str = max(top_driver, key=top_driver.get) if top_driver else "—"
     top_builder   = _count_trust_builders(matrices)
-    top_bld_str   = max(top_builder, key=top_builder.get) if top_builder else "â€”"
+    top_bld_str   = max(top_builder, key=top_builder.get) if top_builder else "—"
     builder_groups   = _group_trust_builders(matrices)
     driver_grp_map   = _group_list_field(matrices, "adoption.drivers")
     barrier_grp_map  = _group_list_field(matrices, "adoption.barriers")
 
-    # Real segment Ã— trust-gap and trust-gap Ã— high-intent joint counts â€” same reasoning as Route
+    # Real segment × trust-gap and trust-gap × high-intent joint counts — same reasoning as Route
     # Comparison: without these, the AI can only see marginal totals for segment, trust gap, and
     # intent separately, so asking "which segment has the worst trust gap" or "does trust gap
     # actually suppress intent" has no real numbers to answer from.
@@ -2711,28 +2711,28 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
     for seg, counts in sorted(seg_trust_crosstab.items()):
         total_s = sum(counts.values())
         parts = ", ".join(f"{g}: {c}/{total_s}" for g, c in counts.most_common())
-        seg_trust_lines.append(f"{seg} ({total_s} total) â†’ {parts}")
+        seg_trust_lines.append(f"{seg} ({total_s} total) → {parts}")
 
     trust_intent_crosstab: dict[str, int] = {}
     for gap_label in ("low", "medium", "high"):
         ms_in_gap = [m for m in matrices if _trust_gap_value(m) == gap_label]
         if ms_in_gap:
             hi = sum(1 for m in ms_in_gap if (_get(m, "adoption.intent_score") or 0) >= 7)
-            trust_intent_crosstab[gap_label] = f"{hi}/{len(ms_in_gap)} high-intent (â‰¥7)"
+            trust_intent_crosstab[gap_label] = f"{hi}/{len(ms_in_gap)} high-intent (≥7)"
 
     ctx = {
         "n": n,
-        "low_trust_gap": f"{low_trust_gap}/{n} ({_pct_str(low_trust_gap, n)})" if low_trust_gap or high_trust_gap else "â€”",
-        "high_trust_gap": f"{high_trust_gap}/{n} ({_pct_str(high_trust_gap, n)})" if high_trust_gap else "â€”",
-        "avg_adoption_intent": f"{avg_intent:.1f}/10" if avg_intent else "â€”",
+        "low_trust_gap": f"{low_trust_gap}/{n} ({_pct_str(low_trust_gap, n)})" if low_trust_gap or high_trust_gap else "—",
+        "high_trust_gap": f"{high_trust_gap}/{n} ({_pct_str(high_trust_gap, n)})" if high_trust_gap else "—",
+        "avg_adoption_intent": f"{avg_intent:.1f}/10" if avg_intent else "—",
         "high_intent_ge7": f"{intent_ge7}/{n} ({_pct_str(intent_ge7, n)})",
         "top_trust_builder": top_bld_str,
         "top_adoption_driver": top_driver_str,
         "top_adoption_barrier": top_bar_str,
-        "total_trust_builders_mentioned": str(sum(top_builder.values())) if top_builder else "â€”",
-        "total_barriers_mentioned": str(sum(top_barrier.values())) if top_barrier else "â€”",
-        "segment_x_trust_gap_crosstab": "; ".join(seg_trust_lines) if seg_trust_lines else "â€”",
-        "trust_gap_x_high_intent_crosstab": str(trust_intent_crosstab) if trust_intent_crosstab else "â€”",
+        "total_trust_builders_mentioned": str(sum(top_builder.values())) if top_builder else "—",
+        "total_barriers_mentioned": str(sum(top_barrier.values())) if top_barrier else "—",
+        "segment_x_trust_gap_crosstab": "; ".join(seg_trust_lines) if seg_trust_lines else "—",
+        "trust_gap_x_high_intent_crosstab": str(trust_intent_crosstab) if trust_intent_crosstab else "—",
     }
 
     _section_header(
@@ -2744,16 +2744,16 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
     _gap_pct  = round(100 * high_trust_gap / n) if n else 0
     _int_pct  = round(100 * intent_ge7 / n) if n else 0
     _insight_banner(
-        f"{_gap_pct}% carry HIGH trust gap â€” {_fmt_val(top_bar_str)} is the adoption blocker, "
+        f"{_gap_pct}% carry HIGH trust gap — {_fmt_val(top_bar_str)} is the adoption blocker, "
         f"{_fmt_val(top_bld_str)} is the credibility lever",
-        f"Despite trust gap, {_int_pct}% ({intent_ge7}/{n}) score intent â‰¥7/10 â€” "
+        f"Despite trust gap, {_int_pct}% ({intent_ge7}/{n}) score intent ≥7/10 — "
         f"proof-point messaging can close the gap",
         color=_C["neg"] if high_trust_gap > low_trust_gap else _C["seg_st"],
     )
 
     c1, c2, c3, c4 = st.columns(4)
     _kpi(c1, "High Trust Gap", f"{high_trust_gap}/{n}", _C["neg"], "adoption risk")
-    _kpi(c2, "Avg Adoption Intent", f"{avg_intent:.1f}/10" if avg_intent else "â€”", _C["r1"])
+    _kpi(c2, "Avg Adoption Intent", f"{avg_intent:.1f}/10" if avg_intent else "—", _C["r1"])
     _kpi(c3, "Top Trust Builder", _fmt_val(top_bld_str)[:30], _C["pos"])
     _kpi(c4, "Top Adoption Barrier", _fmt_val(top_bar_str)[:30], _C["neg"])
 
@@ -2765,12 +2765,12 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
             _chart_header(
                 "CoinDCX Trust Gap Level",
                 subtitle="How much each respondent's trust in CoinDCX is undermined by crypto/fintech distrust associations.",
-                how_to_read="Low gap = brand trust overcomes crypto stigma, adoption-ready. High gap = crypto association undermines trust â€” a real adoption blocker.",
-                calc_note="Calculated: AI-extracted trust gap, merged across two schema generations this project used â€” legacy matrices store it nested under coindcx_trust.crypto_trust_gap, newer ones flatten coindcx_trust into a trust-level enum (inverted to gap semantics here so both are comparable). Classified low/medium/high (high = bad).",
+                how_to_read="Low gap = brand trust overcomes crypto stigma, adoption-ready. High gap = crypto association undermines trust — a real adoption blocker.",
+                calc_note="Calculated: AI-extracted trust gap, merged across two schema generations this project used — legacy matrices store it nested under coindcx_trust.crypto_trust_gap, newer ones flatten coindcx_trust into a trust-level enum (inverted to gap semantics here so both are comparable). Classified low/medium/high (high = bad).",
             )
             _legend_row([
-                ("Low",    _C["pos"], "brand trust outweighs crypto concern â€” adoption-ready"),
-                ("Medium", _C["amb"], "partial confidence â€” needs proof points"),
+                ("Low",    _C["pos"], "brand trust outweighs crypto concern — adoption-ready"),
+                ("Medium", _C["amb"], "partial confidence — needs proof points"),
                 ("High",   _C["neg"], "strong distrust of crypto brand = adoption blocker"),
             ])
             _tg_order = {"low": _C["pos"], "medium": _C["amb"], "high": _C["neg"]}
@@ -2780,7 +2780,7 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
             # No cross-filter wrapper here: the value is a merged/normalized computation across
             # two schema shapes (_trust_gap_value), not a single dot-path field, so it can't be
             # expressed as a {path: value} entry in active_filters the way every other chart's
-            # click-filter is (see _render_header's filter application â€” it does _get(m, path),
+            # click-filter is (see _render_header's filter application — it does _get(m, path),
             # which has no way to re-run this merge logic). Every other chart on this page is
             # click-filterable; this one is view-only until active_filters supports a value-fn.
             st.plotly_chart(
@@ -2798,9 +2798,9 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
         with col2:
             _chart_header(
                 "What Builds Trust in CoinDCX Karat",
-                subtitle="Specific factors respondents cited as trust-building signals â€” the proof points that close the trust gap.",
+                subtitle="Specific factors respondents cited as trust-building signals — the proof points that close the trust gap.",
                 how_to_read="Longer bar = more respondents cited that factor. Top factors = leading messaging and feature priorities.",
-                calc_note="Calculated: extracted trust-builder mentions, merged across both schema generations (coindcx_trust.trust_builders_cited in legacy matrices, top-level trust_builders in newer ones). The prompt asks the model to extract specific things the respondent said would make them trust the product more â€” e.g. 'SEBI regulation', 'audited reserves', 'brand reputation'. Multiple items per respondent possible.",
+                calc_note="Calculated: extracted trust-builder mentions, merged across both schema generations (coindcx_trust.trust_builders_cited in legacy matrices, top-level trust_builders in newer ones). The prompt asks the model to extract specific things the respondent said would make them trust the product more — e.g. 'SEBI regulation', 'audited reserves', 'brand reputation'. Multiple items per respondent possible.",
             )
             _tb_fmt = {_fmt_val(k): v for k, v in top_10_builders.items()}
             st.plotly_chart(
@@ -2816,9 +2816,9 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
     if driver_counts or barrier_counts:
         _chart_header(
             "Adoption Drivers vs Barriers",
-            subtitle="What pulls respondents toward adoption (drivers) vs what holds them back (barriers) â€” extracted from IDI responses.",
+            subtitle="What pulls respondents toward adoption (drivers) vs what holds them back (barriers) — extracted from IDI responses.",
             how_to_read="Green bars extend right = drivers. Red bars extend left = barriers. Items on both sides = ambivalent factors.",
-            calc_note="Calculated: extracted from adoption.drivers (list) and adoption.barriers (list) in each matrix. The prompt instructs the model to extract specific factors the respondent mentioned as reasons they would adopt or not adopt â€” verbatim themes, not inferred. Each mention counted once per respondent.",
+            calc_note="Calculated: extracted from adoption.drivers (list) and adoption.barriers (list) in each matrix. The prompt instructs the model to extract specific factors the respondent mentioned as reasons they would adopt or not adopt — verbatim themes, not inferred. Each mention counted once per respondent.",
         )
         _legend_row([
             ("Drivers", _C["pos"], "factors that pull respondents toward adopting Karat"),
@@ -2853,8 +2853,8 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
                 ),
                 use_container_width=True)
             _chart_caption(
-                "Green (right) = adoption drivers â€” what pulls respondents toward adoption. "
-                "Red (left) = barriers â€” what blocks them. "
+                "Green (right) = adoption drivers — what pulls respondents toward adoption. "
+                "Red (left) = barriers — what blocks them. "
                 "Wider bars = more mentions. "
                 "Items that appear on both sides = ambivalent factors."
             )
@@ -2892,14 +2892,14 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
         ]
         _chart_header(
             "Adoption Intent Score Distribution",
-            subtitle=f"Self-reported likelihood to adopt CoinDCX Karat, rated 1â€“10 by each respondent. n={n}.",
-            how_to_read="Green (7â€“10) = high intent â€” likely early adopters. Amber (5â€“6) = conditional. Red (1â€“4) = resistant.",
-            calc_note="Calculated: AI extraction from adoption.intent_score field in each matrix. The extraction prompt asked the model to rate how likely the respondent is to adopt within 6 months (1=would not, 10=would definitely). NPS signal is derived from this: promoter=8â€“10, passive=7, detractorâ‰¤6.",
+            subtitle=f"Self-reported likelihood to adopt CoinDCX Karat, rated 1–10 by each respondent. n={n}.",
+            how_to_read="Green (7–10) = high intent — likely early adopters. Amber (5–6) = conditional. Red (1–4) = resistant.",
+            calc_note="Calculated: AI extraction from adoption.intent_score field in each matrix. The extraction prompt asked the model to rate how likely the respondent is to adopt within 6 months (1=would not, 10=would definitely). NPS signal is derived from this: promoter=8–10, passive=7, detractor≤6.",
         )
         _legend_row([
-            ("7â€“10 High Intent",   _C["pos"], "ready to adopt â€” activation-focused messaging"),
-            ("5â€“6 Conditional",    _C["amb"], "on the fence â€” needs a trigger or proof point"),
-            ("1â€“4 Low Intent",     _C["neg"], "resistant â€” unlikely without major trust shift"),
+            ("7–10 High Intent",   _C["pos"], "ready to adopt — activation-focused messaging"),
+            ("5–6 Conditional",    _C["amb"], "on the fence — needs a trigger or proof point"),
+            ("1–4 Low Intent",     _C["neg"], "resistant — unlikely without major trust shift"),
         ])
         fig_intent = go.Figure()
         fig_intent.add_trace(go.Bar(
@@ -2935,13 +2935,13 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
         )
         st.plotly_chart(fig_intent, use_container_width=True)
         _chart_caption(
-            f"Intent to adopt (1â€“10). "
-            f"Green (7â€“10) = {intent_ge7} respondents ({_pct_str(intent_ge7, n)}). "
-            f"Red (1â€“4) = {intent_le4} respondents ({_pct_str(intent_le4, n)}). "
-            "Amber (5â€“6) = conditional adopters."
+            f"Intent to adopt (1–10). "
+            f"Green (7–10) = {intent_ge7} respondents ({_pct_str(intent_ge7, n)}). "
+            f"Red (1–4) = {intent_le4} respondents ({_pct_str(intent_le4, n)}). "
+            "Amber (5–6) = conditional adopters."
         )
 
-    # Spontaneous brand associations â€” merged across both schema generations (see
+    # Spontaneous brand associations — merged across both schema generations (see
     # _platform_association_value near _group_list_field).
     assoc_quotes = [
         {
@@ -2962,7 +2962,7 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
                 f'<div style="border-left:3px solid {seg_c};padding:8px 14px;margin:5px 0;'
                 f'background:{seg_c}08;border-radius:0 6px 6px 0;">'
                 f'<span style="font-size:0.63rem;color:{_C["muted"]};">'
-                f'{_esc(q["segment"])} Â· {_esc(q["city"])} Â· {_esc(q["doc_id"])}'
+                f'{_esc(q["segment"])} · {_esc(q["city"])} · {_esc(q["doc_id"])}'
                 f'</span></div>',
                 unsafe_allow_html=True)
             st.markdown(q["content"])
@@ -2972,7 +2972,7 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
                         key_prefix="trust")
 
     st.markdown("---")
-    st.markdown("#### Verbatim Evidence â€” Trust & Adoption")
+    st.markdown("#### Verbatim Evidence — Trust & Adoption")
     _verbatim_wall(
         _get_passages(matrices, topics=[
             "trust", "brand_trust", "CoinDCX crypto association",
@@ -2992,33 +2992,33 @@ def _render_brand_trust(matrices: list[dict], findings_dir: str, call_or: Callab
     )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # PER-RESPONDENT ANALYSIS TAB
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_respondent_card(m: dict, idx: int) -> None:
     """Render full detail card for a single respondent inside an expander."""
     rid   = str(_get(m, "doc_id") or _get(m, "respondent.id") or f"R{idx+1:02d}")
-    seg   = _fmt_val(_get(m, "respondent.segment") or "â€”")
-    city  = _fmt_val(_get(m, "respondent.city") or "â€”")
-    age   = _fmt_val(_get(m, "respondent.age_band") or "â€”")
-    gen   = _fmt_val(_get(m, "respondent.gender") or "â€”")
-    occ   = _fmt_val(_get(m, "respondent.occupation") or "â€”")
+    seg   = _fmt_val(_get(m, "respondent.segment") or "—")
+    city  = _fmt_val(_get(m, "respondent.city") or "—")
+    age   = _fmt_val(_get(m, "respondent.age_band") or "—")
+    gen   = _fmt_val(_get(m, "respondent.gender") or "—")
+    occ   = _fmt_val(_get(m, "respondent.occupation") or "—")
 
     comp_s  = _get(m, "concept_understanding.comprehension_score")
     intent  = _get(m, "adoption.intent_score")
-    nps     = _fmt_val(m.get("nps_signal") or "â€”")
-    pref_r  = _fmt_val(_get(m, "preferred_route") or "â€”")
-    anxiety = _fmt_val(_get(m, "financial_anxiety_level") or "â€”")
-    arch    = _fmt_val(_get(m, "investor_archetype") or "â€”")
-    stage   = _fmt_val(_get(m, "life_stage") or "â€”")
-    emo_res = _fmt_val(m.get("emotional_resolution") or "â€”")
-    route_shown = _fmt_val(_get(m, "concept_understanding.route_shown") or "â€”")
+    nps     = _fmt_val(m.get("nps_signal") or "—")
+    pref_r  = _fmt_val(_get(m, "preferred_route") or "—")
+    anxiety = _fmt_val(_get(m, "financial_anxiety_level") or "—")
+    arch    = _fmt_val(_get(m, "investor_archetype") or "—")
+    stage   = _fmt_val(_get(m, "life_stage") or "—")
+    emo_res = _fmt_val(m.get("emotional_resolution") or "—")
+    route_shown = _fmt_val(_get(m, "concept_understanding.route_shown") or "—")
 
     # Header KPIs
     kc = st.columns(6)
-    _kpi(kc[0], "Comprehension", f"{comp_s}/10" if comp_s is not None else "â€”", _C["r1"])
-    _kpi(kc[1], "Intent Score",  f"{intent}/10" if intent is not None else "â€”",  _C["pos"])
+    _kpi(kc[0], "Comprehension", f"{comp_s}/10" if comp_s is not None else "—", _C["r1"])
+    _kpi(kc[1], "Intent Score",  f"{intent}/10" if intent is not None else "—",  _C["pos"])
     _kpi(kc[2], "NPS Signal",    nps,   _C["pos"] if nps.lower() == "promoter" else _C["neg"] if nps.lower() == "detractor" else _C["neu"])
     _kpi(kc[3], "Pref Route",    pref_r, _C["r1"])
     _kpi(kc[4], "Fin Anxiety",   anxiety, _C["neg"] if anxiety.lower() == "high" else _C["amb"] if anxiety.lower() == "medium" else _C["pos"])
@@ -3072,10 +3072,10 @@ def _render_respondent_card(m: dict, idx: int) -> None:
         for cr in claims:
             if isinstance(cr, dict):
                 _claim_rows.append({
-                    "Claim":      str(cr.get("claim") or "â€”")[:80],
-                    "Reaction":   _fmt_val(cr.get("reaction") or "â€”"),
-                    "Understood": "âœ“" if cr.get("understood") else "âœ—",
-                    "Verbatim":   str(cr.get("verbatim") or "â€”")[:120],
+                    "Claim":      str(cr.get("claim") or "—")[:80],
+                    "Reaction":   _fmt_val(cr.get("reaction") or "—"),
+                    "Understood": "✓" if cr.get("understood") else "✗",
+                    "Verbatim":   str(cr.get("verbatim") or "—")[:120],
                 })
         if _claim_rows:
             st.dataframe(pd.DataFrame(_claim_rows), use_container_width=True, hide_index=True)
@@ -3137,7 +3137,7 @@ def _render_respondent_card(m: dict, idx: int) -> None:
                         st.markdown(f"- **{label}**: {_esc(_fmt_val(fv))}", unsafe_allow_html=True)
         st.markdown("---")
 
-    # Passages / verbatims â€” use _get_passages([m]) so metadata (segment, city, doc_id)
+    # Passages / verbatims — use _get_passages([m]) so metadata (segment, city, doc_id)
     # is merged in, matching the format _verbatim_wall expects
     passages = _get_passages([m])
     if passages:
@@ -3158,7 +3158,7 @@ def _render_respondent_card(m: dict, idx: int) -> None:
                 area, desc, quote, sev = "", str(pp), "", ""
             sev_col = _C["neg"] if sev == "high" else _C["amb"] if sev == "medium" else _C["neu"]
             badge = f'<span style="font-size:0.6rem;color:{sev_col};font-weight:700;">{_esc(sev.upper()) if sev else ""}</span> '
-            label = f"<b>{_esc(area)}</b> â€” " if area else ""
+            label = f"<b>{_esc(area)}</b> — " if area else ""
             quote_html = (f'<div style="font-size:0.78rem;color:#666;font-style:italic;'
                           f'margin-top:4px;padding-left:8px;border-left:2px solid {sev_col}88;">'
                           f'"{_esc(quote)}"</div>') if quote else ""
@@ -3175,11 +3175,11 @@ def _render_per_respondent(matrices: list[dict], all_matrices: list[dict]) -> No
     """Per-respondent deep-dive tab with broad filters + transcript search."""
     _section_header(
         "Per-Respondent Analysis",
-        "Drill down into each individual interview â€” all extracted matrices + verbatims.",
+        "Drill down into each individual interview — all extracted matrices + verbatims.",
         len(matrices), _C["accent"],
     )
 
-    # â”€â”€ Broad filter row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Broad filter row ────────────────────────────────────────────────────────
     segs   = sorted({str(_get(m, "respondent.segment") or "") for m in all_matrices if _get(m, "respondent.segment")})
     cities = sorted({str(_get(m, "respondent.city") or "") for m in all_matrices if _get(m, "respondent.city")})
     npss   = sorted({str(m.get("nps_signal") or "") for m in all_matrices if m.get("nps_signal")})
@@ -3190,9 +3190,9 @@ def _render_per_respondent(matrices: list[dict], all_matrices: list[dict]) -> No
     f_city   = fc2.multiselect("City", cities, key="pr_city", placeholder="All cities")
     f_nps    = fc3.selectbox("NPS", ["All"] + npss, key="pr_nps")
     f_search = fc4.text_input("Search transcript name (doc_id)", key="pr_search",
-                               placeholder="Type to filterâ€¦").strip().lower()
+                               placeholder="Type to filter…").strip().lower()
 
-    # â”€â”€ Apply filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Apply filters ───────────────────────────────────────────────────────────
     filtered = matrices  # start from already-filtered (global) set
     if f_seg:
         filtered = [m for m in filtered if str(_get(m, "respondent.segment") or "") in f_seg]
@@ -3211,47 +3211,47 @@ def _render_per_respondent(matrices: list[dict], all_matrices: list[dict]) -> No
         st.info("No respondents match current filters.")
         return
 
-    # â”€â”€ Summary quick table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Summary quick table ─────────────────────────────────────────────────────
     import pandas as pd
     summary_rows = []
     for i, m in enumerate(filtered):
         rid   = str(m.get("doc_id") or _get(m, "respondent.id") or f"R{i+1:02d}")
         summary_rows.append({
             "Transcript": rid,
-            "Segment":    str(_get(m, "respondent.segment") or "â€”"),
-            "City":       str(_get(m, "respondent.city") or "â€”"),
-            "Age":        str(_get(m, "respondent.age_band") or "â€”"),
-            "Gender":     str(_get(m, "respondent.gender") or "â€”"),
+            "Segment":    str(_get(m, "respondent.segment") or "—"),
+            "City":       str(_get(m, "respondent.city") or "—"),
+            "Age":        str(_get(m, "respondent.age_band") or "—"),
+            "Gender":     str(_get(m, "respondent.gender") or "—"),
             "Comp":       _get(m, "concept_understanding.comprehension_score"),
             "Intent":     _get(m, "adoption.intent_score"),
-            "NPS":        str(m.get("nps_signal") or "â€”"),
-            "Pref Route": _fmt_val(_get(m, "preferred_route") or "â€”"),
-            "Anxiety":    _fmt_val(_get(m, "financial_anxiety_level") or "â€”"),
+            "NPS":        str(m.get("nps_signal") or "—"),
+            "Pref Route": _fmt_val(_get(m, "preferred_route") or "—"),
+            "Anxiety":    _fmt_val(_get(m, "financial_anxiety_level") or "—"),
         })
     st.dataframe(pd.DataFrame(summary_rows), use_container_width=True, hide_index=True)
     st.markdown("---")
 
-    # â”€â”€ Per-respondent expanders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Per-respondent expanders ─────────────────────────────────────────────────
     for i, m in enumerate(filtered):
         rid  = str(m.get("doc_id") or _get(m, "respondent.id") or f"R{i+1:02d}")
-        seg  = str(_get(m, "respondent.segment") or "â€”")
-        city = str(_get(m, "respondent.city") or "â€”")
+        seg  = str(_get(m, "respondent.segment") or "—")
+        city = str(_get(m, "respondent.city") or "—")
         comp_s = _get(m, "concept_understanding.comprehension_score")
         intent = _get(m, "adoption.intent_score")
-        nps    = str(m.get("nps_signal") or "â€”")
-        nps_icon = "ðŸŸ¢" if nps.lower() == "promoter" else "ðŸ”´" if nps.lower() == "detractor" else "ðŸŸ¡"
+        nps    = str(m.get("nps_signal") or "—")
+        nps_icon = "🟢" if nps.lower() == "promoter" else "🔴" if nps.lower() == "detractor" else "🟡"
         label = (
-            f"{nps_icon} **{rid}** &nbsp;Â·&nbsp; {seg} &nbsp;Â·&nbsp; {city}"
-            f" &nbsp;Â·&nbsp; Comp: {comp_s}/10" if comp_s is not None else
-            f"{nps_icon} **{rid}** &nbsp;Â·&nbsp; {seg} &nbsp;Â·&nbsp; {city}"
+            f"{nps_icon} **{rid}** &nbsp;·&nbsp; {seg} &nbsp;·&nbsp; {city}"
+            f" &nbsp;·&nbsp; Comp: {comp_s}/10" if comp_s is not None else
+            f"{nps_icon} **{rid}** &nbsp;·&nbsp; {seg} &nbsp;·&nbsp; {city}"
         )
-        with st.expander(f"{nps_icon} {rid}  Â·  {seg}  Â·  {city}  Â·  intent {intent}/10" if intent is not None else f"{nps_icon} {rid}  Â·  {seg}  Â·  {city}", expanded=False):
+        with st.expander(f"{nps_icon} {rid}  ·  {seg}  ·  {city}  ·  intent {intent}/10" if intent is not None else f"{nps_icon} {rid}  ·  {seg}  ·  {city}", expanded=False):
             _render_respondent_card(m, i)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # STUDY REPORT TAB
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_study_report(matrices: list[dict], findings_dir: str, call_or: Callable,
                          active_filters: dict, proj_name: str) -> None:
@@ -3269,9 +3269,9 @@ def _render_study_report(matrices: list[dict], findings_dir: str, call_or: Calla
                      if "1" in str(_get(m, "preferred_route") or "").lower()
                      or "safety" in str(_get(m, "preferred_route") or "").lower())
     top_barrier = _count_list_field(matrices, "adoption.barriers")
-    top_bar_str = max(top_barrier, key=top_barrier.get) if top_barrier else "â€”"
+    top_bar_str = max(top_barrier, key=top_barrier.get) if top_barrier else "—"
     top_builder = _count_trust_builders(matrices)
-    top_bld_str = max(top_builder, key=top_builder.get) if top_builder else "â€”"
+    top_bld_str = max(top_builder, key=top_builder.get) if top_builder else "—"
 
     filter_note = _fmt_filter_ctx(active_filters, n)
 
@@ -3282,22 +3282,22 @@ def _render_study_report(matrices: list[dict], findings_dir: str, call_or: Calla
     with col1:
         st.markdown(f"""
 **Study:** {proj_name}
-**Scope:** {n} depth interviews Â· {len(segs)} segments Â· {len(cities)} cities
-**Segments:** {', '.join(segs) if segs else 'â€”'}
-**Cities:** {', '.join(cities) if cities else 'â€”'}
+**Scope:** {n} depth interviews · {len(segs)} segments · {len(cities)} cities
+**Segments:** {', '.join(segs) if segs else '—'}
+**Cities:** {', '.join(cities) if cities else '—'}
 **Active filter:** {filter_note}
 """)
     with col2:
         kpi_stats = {
-            "Avg Comprehension": f"{avg_comp:.1f}/10" if avg_comp else "â€”",
-            "Avg Intent": f"{avg_intent:.1f}/10" if avg_intent else "â€”",
+            "Avg Comprehension": f"{avg_comp:.1f}/10" if avg_comp else "—",
+            "Avg Intent": f"{avg_intent:.1f}/10" if avg_intent else "—",
             "NPS Promoters": f"{promo}/{n}",
             "R1 Preferred": _pct_str(r1_pref, n),
-            "Top Barrier": _fmt_val(top_bar_str)[:25] if top_bar_str != "â€”" else "â€”",
-            "Top Trust Builder": _fmt_val(top_bld_str)[:25] if top_bld_str != "â€”" else "â€”",
+            "Top Barrier": _fmt_val(top_bar_str)[:25] if top_bar_str != "—" else "—",
+            "Top Trust Builder": _fmt_val(top_bld_str)[:25] if top_bld_str != "—" else "—",
         }
         for k, v in kpi_stats.items():
-            if v and v != "â€”":
+            if v and v != "—":
                 st.markdown(f"**{k}:** {v}")
 
     st.markdown("---")
@@ -3308,8 +3308,8 @@ def _render_study_report(matrices: list[dict], findings_dir: str, call_or: Calla
     else:
         st.info("Full executive report not yet generated. Use the button below.")
 
-    if st.button("â†º Generate Executive Report", key="report_regen", type="primary"):
-        with st.spinner("Generating comprehensive reportâ€¦"):
+    if st.button("↺ Generate Executive Report", key="report_regen", type="primary"):
+        with st.spinner("Generating comprehensive report…"):
             prompt = (
                 f"You are a senior market researcher writing an executive study report.\n\n"
                 f"STUDY: {proj_name}\n"
@@ -3318,17 +3318,17 @@ def _render_study_report(matrices: list[dict], findings_dir: str, call_or: Calla
                 f"CITIES: {', '.join(cities)}\n"
                 f"ACTIVE FILTER: {filter_note}\n\n"
                 f"KEY STUDY DATA:\n"
-                f"  â€¢ Avg comprehension score: {f'{avg_comp:.1f}/10' if avg_comp else 'not reported'}\n"
-                f"  â€¢ Avg adoption intent: {f'{avg_intent:.1f}/10' if avg_intent else 'not reported'}\n"
-                f"  â€¢ NPS promoters: {promo}/{n}\n"
-                f"  â€¢ Route 1 preferred: {_pct_str(r1_pref, n)}\n"
-                f"  â€¢ Top adoption barrier: {top_bar_str}\n"
-                f"  â€¢ Top trust builder: {top_bld_str}\n\n"
+                f"  • Avg comprehension score: {f'{avg_comp:.1f}/10' if avg_comp else 'not reported'}\n"
+                f"  • Avg adoption intent: {f'{avg_intent:.1f}/10' if avg_intent else 'not reported'}\n"
+                f"  • NPS promoters: {promo}/{n}\n"
+                f"  • Route 1 preferred: {_pct_str(r1_pref, n)}\n"
+                f"  • Top adoption barrier: {top_bar_str}\n"
+                f"  • Top trust builder: {top_bld_str}\n\n"
                 f"Write a professional executive research report (600-900 words) with sections:\n"
                 f"1. EXECUTIVE SUMMARY (3-4 sentences)\n"
-                f"2. KEY FINDINGS â€” Comprehension & Concept Clarity\n"
-                f"3. KEY FINDINGS â€” Route Preference & Emotional Response\n"
-                f"4. KEY FINDINGS â€” Trust Dynamics & Adoption Barriers\n"
+                f"2. KEY FINDINGS — Comprehension & Concept Clarity\n"
+                f"3. KEY FINDINGS — Route Preference & Emotional Response\n"
+                f"4. KEY FINDINGS — Trust Dynamics & Adoption Barriers\n"
                 f"5. STRATEGIC RECOMMENDATIONS (3-5 actionable bullets)\n\n"
                 f"Ground all claims in the data above. Be specific. Do not invent numbers."
             )
@@ -3352,16 +3352,16 @@ def _render_study_report(matrices: list[dict], findings_dir: str, call_or: Calla
     _verbatim_wall(_get_passages(matrices), "report_vb", "All Passages (Full Study)")
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # CONFIG-DRIVEN SECTION RENDERERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _compute_kpi_value(kpi_spec: dict, matrices: list[dict]) -> str:
     n = len(matrices)
     vtype = kpi_spec.get("value_type", "avg_score")
     field = kpi_spec.get("field", "")
     suffix = kpi_spec.get("suffix", "")
-    # `_get(m, field) or ""` (used below) silently turns a legitimate False/0 value into "" â€”
+    # `_get(m, field) or ""` (used below) silently turns a legitimate False/0 value into "" —
     # found live: route2_evaluation.yield_too_good_to_be_true is a real boolean field, and
     # `eq_val: "False"` could never match because `False or ""` evaluates to "". Use this instead
     # wherever the raw value (not just truthy values) needs to be stringified for comparison.
@@ -3372,7 +3372,7 @@ def _compute_kpi_value(kpi_spec: dict, matrices: list[dict]) -> str:
         return str(n)
     if vtype == "avg_score":
         avg = _avg([_get(m, field) for m in matrices])
-        return f"{avg:.1f}{suffix}" if avg is not None else "â€”"
+        return f"{avg:.1f}{suffix}" if avg is not None else "—"
     elif vtype == "count_eq":
         eq_val = str(kpi_spec.get("eq_val", ""))
         cnt = sum(1 for m in matrices if _str_val(m).lower() == eq_val.lower())
@@ -3386,7 +3386,7 @@ def _compute_kpi_value(kpi_spec: dict, matrices: list[dict]) -> str:
         return f"{cnt}/{n} ({_pct_str(cnt, n)})"
     elif vtype == "count_any":
         cnt = sum(1 for m in matrices
-                  if _get(m, field) not in (None, "", [], "null", "none", "â€”"))
+                  if _get(m, field) not in (None, "", [], "null", "none", "—"))
         return f"{cnt}/{n} ({_pct_str(cnt, n)})"
     elif vtype == "r1_r2_split":
         r1 = sum(1 for m in matrices
@@ -3396,7 +3396,7 @@ def _compute_kpi_value(kpi_spec: dict, matrices: list[dict]) -> str:
                  if "2" in str(_get(m, field) or "").lower()
                  or "return" in str(_get(m, field) or "").lower())
         return f"R1:{r1} / R2:{r2}"
-    return "â€”"
+    return "—"
 
 
 def _resolve_color(c: str) -> str:
@@ -3446,7 +3446,7 @@ def _sec_distribution(sec, matrices, findings_dir, call_or, active_filters, all_
     counts = _count_list_field(matrices, field) if is_list else _count_field(matrices, field)
     groups = _group_list_field(matrices, field) if is_list else _group_field(matrices, field)
     with st.container(border=True):
-        # â”€â”€ 1. Title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 1. Title ─────────────────────────────────────────────────────────
         st.markdown(
             f'<div style="font-size:1.05rem;font-weight:800;color:#111827;'
             f'margin:2px 0 3px 0;letter-spacing:-0.01em;">{_esc(title)}</div>',
@@ -3454,18 +3454,18 @@ def _sec_distribution(sec, matrices, findings_dir, call_or, active_filters, all_
         )
         if not counts:
             st.caption(f"No data for {title}"); return
-        # â”€â”€ 2. Critical one-liner, always visible â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 2. Critical one-liner, always visible ──────────────────────────────
         if caption:
             st.markdown(
                 f'<div style="font-size:0.82rem;color:#111827;line-height:1.5;'
                 f'margin-bottom:8px;">{_esc(caption)}</div>',
                 unsafe_allow_html=True,
             )
-        # â”€â”€ 3. Dropdown: definitions + how to read â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 3. Dropdown: definitions + how to read ─────────────────────────────
         has_context = subtitle or how_to or calc or legend
         if has_context:
             exp_key = f"about_dist_{field.replace('.', '_')}"
-            exp_label = "ðŸ”Ž Who counts as what â€” definitions & how to read" if legend else "ðŸ”Ž How to read this chart"
+            exp_label = "🔎 Who counts as what — definitions & how to read" if legend else "🔎 How to read this chart"
             with st.expander(exp_label, expanded=False, key=exp_key):
                 if subtitle:
                     st.markdown(f"**What it shows:** {subtitle}")
@@ -3474,7 +3474,7 @@ def _sec_distribution(sec, matrices, findings_dir, call_or, active_filters, all_
                 if calc:
                     st.markdown(f"**How AI calculates this:** {calc}")
                 if legend:
-                    st.markdown("**Category guide â€” what each value means:**")
+                    st.markdown("**Category guide — what each value means:**")
                     for item in legend:
                         name, col_raw, desc = _legend_item_parts(item)
                         col_hex = _resolve_color(col_raw)
@@ -3488,7 +3488,7 @@ def _sec_distribution(sec, matrices, findings_dir, call_or, active_filters, all_
                             f'{_esc(desc)}</div></div>',
                             unsafe_allow_html=True,
                         )
-        # â”€â”€ 4. Chart â€” internal title left blank, header above already shows it â”€â”€
+        # ── 4. Chart — internal title left blank, header above already shows it ──
         lbls_raw = list(counts.keys())[:limit]
         vals     = [counts[l] for l in lbls_raw]
         rgs      = [groups.get(l, []) for l in lbls_raw]
@@ -3505,7 +3505,7 @@ def _sec_distribution(sec, matrices, findings_dir, call_or, active_filters, all_
 def _legend_item_parts(item) -> tuple[str, str, str]:
     """Legend items come in two shapes depending on source: legacy hand-authored configs use a
     positional [label, color, description] list; the schema-driven generator's Pydantic
-    LegendItem serializes as a {"label", "color", "description"} dict â€” found live, this crashed
+    LegendItem serializes as a {"label", "color", "description"} dict — found live, this crashed
     the whole section (`item[0]` on a dict raises KeyError) the first time a generated config
     with a legend actually rendered. Handle both without requiring either side to change shape."""
     if isinstance(item, dict):
@@ -3517,7 +3517,7 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
     fields = sec.get("fields", [])
     if not fields: return
 
-    # Optional in-tab theme filter â€” schema_generator assigns each field a short "group" (sub-
+    # Optional in-tab theme filter — schema_generator assigns each field a short "group" (sub-
     # theme within this tab, e.g. "Demographics" vs "Investment Behavior & Risk" inside
     # Respondent Profiles) so a crowded tab can be narrowed instead of showing every field flat.
     # Fields with no group (e.g. deterministically backstop-appended ones) bucket into "Other"
@@ -3544,7 +3544,7 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
     cols = st.columns(n_cols)
     for i, fdef in enumerate(fields):
         field    = fdef.get("field", "")
-        # "label" is what this renderer displays; config authors more naturally write "title" â€”
+        # "label" is what this renderer displays; config authors more naturally write "title" —
         # found live: the schema-driven generator populated "title" on every field and left
         # "label" empty, so every chart silently fell through to the raw-field-name fallback
         # instead of the real heading. Prefer label -> title -> raw fallback.
@@ -3562,7 +3562,7 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
         groups   = _group_list_field(matrices, field) if is_list else _group_field(matrices, field)
         with cols[i % n_cols]:
             with st.container(border=True):
-                # â”€â”€ 1. Title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── 1. Title ─────────────────────────────────────────────────────
                 st.markdown(
                     f'<div style="border-left:3px solid {color};padding-left:8px;'
                     f'margin:2px 0 6px 0;">'
@@ -3573,18 +3573,18 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
                 )
                 if not counts:
                     st.caption(f"No data for {label}"); continue
-                # â”€â”€ 2. Critical one-liner, always visible â€” not buried in a dropdown â”€â”€
+                # ── 2. Critical one-liner, always visible — not buried in a dropdown ──
                 if caption:
                     st.markdown(
                         f'<div style="font-size:0.8rem;color:#111827;line-height:1.5;'
                         f'margin-bottom:8px;">{_esc(caption)}</div>',
                         unsafe_allow_html=True,
                     )
-                # â”€â”€ 3. Dropdown: what each segment/value actually means + how to read â”€â”€
+                # ── 3. Dropdown: what each segment/value actually means + how to read ──
                 has_context = subtitle or how_to or calc or legend
                 if has_context:
                     exp_key = f"about_{field.replace('.', '_')}_{i}"
-                    exp_label = "ðŸ”Ž Who counts as what â€” definitions & how to read" if legend else "ðŸ”Ž How to read this chart"
+                    exp_label = "🔎 Who counts as what — definitions & how to read" if legend else "🔎 How to read this chart"
                     with st.expander(exp_label, expanded=False, key=exp_key):
                         if subtitle:
                             st.markdown(f"**What it shows:** {subtitle}")
@@ -3593,7 +3593,7 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
                         if calc:
                             st.markdown(f"**How AI calculates this:** {calc}")
                         if legend:
-                            st.markdown("**Category guide â€” what each value means:**")
+                            st.markdown("**Category guide — what each value means:**")
                             for item in legend:
                                 name, col_raw, desc = _legend_item_parts(item)
                                 col_hex = _resolve_color(col_raw)
@@ -3607,12 +3607,12 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
                                     f'{_esc(desc)}</div></div>',
                                     unsafe_allow_html=True,
                                 )
-                # â”€â”€ 4. Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── 4. Chart ─────────────────────────────────────────────────────
                 lbls_raw = list(counts.keys())[:limit]
                 vals = [counts[l] for l in lbls_raw]
                 lbls = [_fmt_val(l) for l in lbls_raw]
                 rgs  = [groups.get(l, []) for l in lbls_raw]
-                # Build color map from legend config so chart colors == pill colors â€”
+                # Build color map from legend config so chart colors == pill colors —
                 # look up by raw value first, then _fmt_val match, then label match.
                 leg_color_map: dict[str, str] = {}
                 if legend:
@@ -3628,7 +3628,7 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
                             or leg_color_map.get(fmt_l)
                             or color)
                 chart_colors = [_pick_color(r) for r in lbls_raw] if leg_color_map else None
-                # Chart title left blank â€” the header above already shows it; passing `label`
+                # Chart title left blank — the header above already shows it; passing `label`
                 # here too rendered Plotly's own built-in title on top of it (double title,
                 # found live).
                 if chart == "h_bar":
@@ -3637,14 +3637,14 @@ def _sec_multi_distribution(sec, matrices, findings_dir, call_or, active_filters
                     fig = _v_bar(lbls, vals, "", color, h=300, resp_groups=rgs)
                 else:
                     fig = _donut(lbls, vals, "", colors=chart_colors, resp_groups=rgs, h=300)
-                # Click-to-filter enabled on every tab â€” the previous restriction to just the
+                # Click-to-filter enabled on every tab — the previous restriction to just the
                 # respondent_profiles tab was a leftover from before the schema-driven engine
                 # covered all 5 tabs, and left every other tab's charts non-clickable.
                 _chart_click_filter(
                     fig, key=f"ctcf_{field.replace('.', '_')}_{i}", lbls_raw=lbls_raw, field=field,
                     enabled=True,
                 )
-                # Legend renders once, inside the dropdown above â€” a second compact strip here
+                # Legend renders once, inside the dropdown above — a second compact strip here
                 # was pure duplication (found live: "there are two legends every time").
 
 
@@ -3700,13 +3700,13 @@ def _sec_score_distribution(sec, matrices, findings_dir, call_or, active_filters
             st.plotly_chart(
                 _v_bar(list(bkts.keys()), list(bkts.values()), title, color, h=300),
                 use_container_width=True)
-    # â”€â”€ Context in expander â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Context in expander ────────────────────────────────────────────────────
     context = []
     if sec.get("how_to_read"): context.append(f"**How to read:** {sec['how_to_read']}")
     if sec.get("calc_note"):   context.append(f"**How calculated:** {sec['calc_note']}")
     if context:
         exp_key = f"about_score_{field.replace('.', '_')}"
-        with st.expander("â„¹ About this chart", expanded=False, key=exp_key):
+        with st.expander("ℹ About this chart", expanded=False, key=exp_key):
             for c in context: st.markdown(c)
 
 
@@ -3773,7 +3773,7 @@ def _auto_detect_concepts(matrices: list[dict], sec: dict) -> list[dict]:
     concepts = []
     for i, key in enumerate(sorted(eval_keys.keys(), key=_sort_key)):
         sub_keys = sorted(eval_keys[key])
-        # Derive human label: "route1_evaluation" â†’ "Route 1", "concept_a_evaluation" â†’ "Concept A"
+        # Derive human label: "route1_evaluation" → "Route 1", "concept_a_evaluation" → "Concept A"
         label_raw = key.replace("_evaluation", "").replace("_", " ").title()
         # Fix common acronyms mangled by .title()
         _ACR = {"Fiu": "FIU", "Sgb": "SGB", "Nps": "NPS", "T 1 ": "T+1 ", "Diy": "DIY",
@@ -3820,7 +3820,7 @@ def _sec_route_attribute_grid(sec, matrices, findings_dir, call_or, active_filte
     for i, c in enumerate(concepts):
         avg = _avg([_get(m, c["score_path"]) for m in matrices])
         _kpi(score_cols[i], f"{c['label']} Appeal",
-             f"{avg:.1f}/10" if avg is not None else "â€”", c["color"])
+             f"{avg:.1f}/10" if avg is not None else "—", c["color"])
 
     st.markdown("---")
 
@@ -3862,7 +3862,7 @@ def _sec_claim_reactions(sec, matrices, findings_dir, call_or, active_filters, a
            "confused":"#8b5cf6","skeptical":"#f97316","rejection":_C["neg"]}
     top_n  = sec.get("top_n", 15)
     sorted_claims = sorted(agg.items(), key=lambda x: -x[1]["total"])
-    st.markdown(f"**Key Claim Reactions** â€” {len(agg)} claims tested")
+    st.markdown(f"**Key Claim Reactions** — {len(agg)} claims tested")
 
     def _render_claim_card(claim, data):
         total = data["total"]
@@ -3901,9 +3901,9 @@ def _sec_diverging_bar(sec, matrices, findings_dir, call_or, active_filters, all
     limit   = sec.get("limit", 12)
     _chart_header(
         title,
-        subtitle=sec.get("subtitle", "What pulls respondents toward adopting Karat (right) vs what holds them back (left) â€” extracted from interview responses."),
+        subtitle=sec.get("subtitle", "What pulls respondents toward adopting Karat (right) vs what holds them back (left) — extracted from interview responses."),
         how_to_read="Green bars extend right = adoption drivers. Red bars extend left = barriers. Items appearing on both sides = ambivalent factors.",
-        calc_note="AI-extracted lists from adoption.drivers and adoption.barriers. Model pulls specific factors mentioned by respondent â€” verbatim themes, not inferred. Multi-select per respondent, counted once each.",
+        calc_note="AI-extracted lists from adoption.drivers and adoption.barriers. Model pulls specific factors mentioned by respondent — verbatim themes, not inferred. Multi-select per respondent, counted once each.",
     )
     _legend_row([
         (d_label, _C["pos"], "factors that pull the respondent toward adopting"),
@@ -3949,7 +3949,7 @@ def _sec_segment_kpi_table(sec, matrices, findings_dir, call_or, active_filters,
 
 
 def _sec_segment_card_grid(sec, matrices, findings_dir, call_or, active_filters, all_matrices, proj_name):
-    """Styled per-segment colored cards (title + n + stat rows) â€” the config-driven equivalent
+    """Styled per-segment colored cards (title + n + stat rows) — the config-driven equivalent
     of the hand-built "Respondent Profiles by Segment" row. Reuses _seg_card/_seg_color exactly
     as the legacy _render_profiles did, so visual output matches; only the field list is
     config-driven instead of hardcoded."""
@@ -4022,9 +4022,9 @@ def _sec_text_quotes(sec, matrices, findings_dir, call_or, active_filters, all_m
     max_q   = sec.get("max_quotes", 6)
     quotes = [
         {"content": str(_get(m, field)).strip(),
-         "segment": str(_get(m,"respondent.segment") or "â€”"),
-         "city":    str(_get(m,"respondent.city") or "â€”"),
-         "doc_id":  str(m.get("doc_id") or "â€”")}
+         "segment": str(_get(m,"respondent.segment") or "—"),
+         "city":    str(_get(m,"respondent.city") or "—"),
+         "doc_id":  str(m.get("doc_id") or "—")}
         for m in matrices
         if _get(m, field) and len(str(_get(m, field)).strip()) > 10
     ]
@@ -4040,7 +4040,7 @@ def _sec_text_quotes(sec, matrices, findings_dir, call_or, active_filters, all_m
             f'<div style="font-size:0.82rem;color:{_C["text"]};margin-bottom:6px;'
             f'font-style:italic;line-height:1.5;">{content_esc}</div>'
             f'<span style="font-size:0.63rem;color:{_C["muted"]};">'
-            f'{_esc(q["segment"])} Â· {_esc(q["city"])} Â· {_esc(q["doc_id"])}'
+            f'{_esc(q["segment"])} · {_esc(q["city"])} · {_esc(q["doc_id"])}'
             f'</span></div>', unsafe_allow_html=True)
 
 
@@ -4112,15 +4112,15 @@ def _sec_tagline_preferences(sec, matrices, findings_dir, call_or, active_filter
         for m in matrices:
             vb = _get(m, verb_field)
             if vb and len(str(vb).strip()) > 10 and shown < 5:
-                seg  = str(_get(m,"respondent.segment") or "â€”")
-                city = str(_get(m,"respondent.city") or "â€”")
-                pref = _fmt_val(_get(m, pref_field) or "â€”")
+                seg  = str(_get(m,"respondent.segment") or "—")
+                city = str(_get(m,"respondent.city") or "—")
+                pref = _fmt_val(_get(m, pref_field) or "—")
                 sc = _seg_color(seg)
                 st.markdown(
                     f'<div style="border-left:3px solid {sc};padding:6px 12px;margin:4px 0;'
                     f'background:{sc}08;border-radius:0 5px 5px 0;">'
                     f'<span style="font-size:0.6rem;color:{_C["muted"]};">'
-                    f'{_esc(seg)} Â· {_esc(city)} Â· prefers: {_esc(pref)}</span><br>'
+                    f'{_esc(seg)} · {_esc(city)} · prefers: {_esc(pref)}</span><br>'
                     f'<span style="font-size:0.82rem;">{_esc(str(vb).strip())}</span>'
                     f'</div>', unsafe_allow_html=True)
                 shown += 1
@@ -4141,9 +4141,9 @@ def _sec_route_preference(sec, matrices, findings_dir, call_or, active_filters, 
         calc_note="AI-extracted from preferred_route field. Model infers explicit or implicit preference from what the respondent said was more convincing. Values: Route1, Route2, Blended, Unclear.",
     )
     _legend_row([
-        ("Route 1", _C["r1"],  "Safety / Ownership-led â€” leads with vault allocation, SEBI oversight, capital protection"),
-        ("Route 2", _C["r2"],  "Returns / Value-led â€” leads with yield, SGB comparison, compounding in gold units"),
-        ("Blended", _C["amb"], "found both routes compelling â€” neither clearly won"),
+        ("Route 1", _C["r1"],  "Safety / Ownership-led — leads with vault allocation, SEBI oversight, capital protection"),
+        ("Route 2", _C["r2"],  "Returns / Value-led — leads with yield, SGB comparison, compounding in gold units"),
+        ("Blended", _C["amb"], "found both routes compelling — neither clearly won"),
     ])
     c1, c2 = st.columns([1, 2])
     with c1:
@@ -4179,9 +4179,9 @@ def _sec_adoption_detail(sec, matrices, findings_dir, call_or, active_filters, a
                if _get(m, tr_field) is not None and isinstance(_get(m, tr_field), (int, float))]
     avg_trial = sum(trials)/len(trials) if trials else None
     kc = st.columns(3)
-    _kpi(kc[0], "Avg Intent", f"{avg_int:.1f}/10" if avg_int else "â€”", _C["pos"])
+    _kpi(kc[0], "Avg Intent", f"{avg_int:.1f}/10" if avg_int else "—", _C["pos"])
     _kpi(kc[1], "w/ Trial Amount", f"{len(trials)}/{n}", _C["r1"])
-    _kpi(kc[2], "Avg Trial Amount", f"â‚¹{avg_trial:,.0f}" if avg_trial else "â€”", _C["seg_dg"])
+    _kpi(kc[2], "Avg Trial Amount", f"₹{avg_trial:,.0f}" if avg_trial else "—", _C["seg_dg"])
     st.markdown("---")
     d_c = _count_list_field(matrices, d_field)
     b_c = _count_list_field(matrices, b_field)
@@ -4222,7 +4222,7 @@ def _sec_adoption_detail(sec, matrices, findings_dir, call_or, active_filters, a
                 f'<div style="border-left:3px solid {_C["neg"]};padding:6px 12px;margin:4px 0;'
                 f'background:{_C["neg"]}06;border-radius:0 5px 5px 0;">'
                 f'<span style="font-size:0.6rem;color:{_C["muted"]};">'
-                f'{_esc(bv["segment"])} Â· {_esc(bv["city"])} Â· {_esc(bv["doc_id"])}'
+                f'{_esc(bv["segment"])} · {_esc(bv["city"])} · {_esc(bv["doc_id"])}'
                 f'</span><br><span style="font-size:0.82rem;">{_esc(bv["content"])}</span>'
                 f'</div>', unsafe_allow_html=True)
 
@@ -4252,7 +4252,7 @@ def _sec_trust_builders(sec, matrices, findings_dir, call_or, active_filters, al
         if tb_c:
             _chart_header(
                 "What Builds Trust in CoinDCX Karat",
-                subtitle="Specific proof points respondents said would make them trust the product â€” extracted from what they actually mentioned.",
+                subtitle="Specific proof points respondents said would make them trust the product — extracted from what they actually mentioned.",
                 how_to_read="Longer bar = more respondents cited that factor. Top 3 = priority messaging elements.",
                 calc_note="AI-extracted as list from trust_builders. Model pulls specific trust-building factors mentioned: e.g. SEBI regulation, audited reserves, brand reputation, T+1 liquidity proof. Multi-select per respondent.",
             )
@@ -4271,9 +4271,9 @@ def _sec_trust_builders(sec, matrices, findings_dir, call_or, active_filters, al
                 calc_note="AI-classified from crypto_association_effect. Model judges the directional effect of CoinDCX's crypto identity on trust in this product. Classified: positive / neutral / conditional / negative.",
             )
             _legend_row([
-                ("Low",    _C["pos"], "brand trust outweighs crypto concern â€” adoption-ready"),
-                ("Medium", _C["amb"], "partial confidence â€” needs proof points to tip over"),
-                ("High",   _C["neg"], "crypto stigma dominates â€” trust-first messaging essential"),
+                ("Low",    _C["pos"], "brand trust outweighs crypto concern — adoption-ready"),
+                ("Medium", _C["amb"], "partial confidence — needs proof points to tip over"),
+                ("High",   _C["neg"], "crypto stigma dominates — trust-first messaging essential"),
             ])
             gl = [_fmt_val(k) for k in gap_c.keys()]; gv = list(gap_c.values())
             colors_g = [_C["neg"] if "high" in k.lower() else _C["amb"] if "medium" in k.lower()
@@ -4296,7 +4296,7 @@ def _sec_trust_builders(sec, matrices, findings_dir, call_or, active_filters, al
                 f'<div style="border-left:3px solid {sc};padding:6px 12px;margin:4px 0;'
                 f'background:{sc}06;border-radius:0 5px 5px 0;">'
                 f'<span style="font-size:0.6rem;color:{_C["muted"]};">'
-                f'{_esc(vb["segment"])} Â· {_esc(vb["city"])}'
+                f'{_esc(vb["segment"])} · {_esc(vb["city"])}'
                 f'</span><br><span style="font-size:0.82rem;">{_esc(vb["content"])}</span>'
                 f'</div>', unsafe_allow_html=True)
 
@@ -4358,7 +4358,7 @@ def _sec_pain_points_summary(sec, matrices, findings_dir, call_or, active_filter
         badge = (f'<span style="background:{sev_col}22;color:{sev_col};font-size:0.6rem;'
                  f'font-weight:800;padding:2px 6px;border-radius:4px;text-transform:uppercase;">'
                  f'{_esc(pp["sev"])}</span> ') if pp["sev"] else ""
-        area_lbl = f"<b>{_esc(_fmt_val(pp['area']))}</b> â€” " if pp["area"] else ""
+        area_lbl = f"<b>{_esc(_fmt_val(pp['area']))}</b> — " if pp["area"] else ""
         qh = (f'<div style="font-size:0.78rem;color:#666;font-style:italic;margin-top:4px;'
               f'padding-left:8px;border-left:2px solid {sev_col}88;">'
               f'"{_esc(pp["quote"])}"</div>') if pp["quote"] else ""
@@ -4367,7 +4367,7 @@ def _sec_pain_points_summary(sec, matrices, findings_dir, call_or, active_filter
             f'background:{sev_col}10;border-radius:0 5px 5px 0;">'
             f'{badge}{area_lbl}<span style="font-size:0.82rem;">{_esc(pp["desc"])}</span>'
             f'{qh}<div style="font-size:0.6rem;color:{_C["muted"]};margin-top:3px;">'
-            f'{_esc(pp["segment"])} Â· {_esc(pp["city"])} Â· {_esc(pp["doc_id"])}</div>'
+            f'{_esc(pp["segment"])} · {_esc(pp["city"])} · {_esc(pp["doc_id"])}</div>'
             f'</div>', unsafe_allow_html=True)
 
 
@@ -4408,7 +4408,7 @@ def _sec_theme_clusters(sec, matrices, findings_dir, call_or, active_filters, al
 
     if use_llm_labels and not result.get("_llm_labeled"):
         # Use the reliable paid client (llm_client.call_llm_safe / deepseek-chat), not `call_or`
-        # (the free-tier OpenRouter rotation) â€” found live: that rotation's 400-token cap
+        # (the free-tier OpenRouter rotation) — found live: that rotation's 400-token cap
         # silently truncated the batched multi-cluster JSON response, breaking parsing and
         # falling back to word-frequency labels with no visible error. This labeling call is
         # cheap (one batched call) and worth doing right rather than free.
@@ -4425,7 +4425,7 @@ def _sec_theme_clusters(sec, matrices, findings_dir, call_or, active_filters, al
 
             result = label_clusters_with_llm(result, _label_call_fn)
         except Exception as e:
-            print(f"  _sec_theme_clusters: LLM labeling unavailable ({e}) â€” using word-frequency labels")
+            print(f"  _sec_theme_clusters: LLM labeling unavailable ({e}) — using word-frequency labels")
         result["_llm_labeled"] = True
         try:
             cache_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
@@ -4437,7 +4437,7 @@ def _sec_theme_clusters(sec, matrices, findings_dir, call_or, active_filters, al
     st.caption(
         f"{len(themes)} themes repeat across 2+ respondents, out of "
         f"{result.get('total_passages', 0)} verbatim passages analyzed across the whole study "
-        f"(clustered locally by semantic similarity â€” {result.get('unclustered_count', 0)} "
+        f"(clustered locally by semantic similarity — {result.get('unclustered_count', 0)} "
         f"passages don't match a repeated pattern; individual variation, not dropped)."
     )
 
@@ -4448,19 +4448,19 @@ def _sec_theme_clusters(sec, matrices, findings_dir, call_or, active_filters, al
         pain = t.get("pain_point_share", 0.0)
         color = _C["neg"] if (pain >= 0.5 or neg > pos) else (_C["pos"] if pos > neg else _C["neu"])
         with st.container(border=True):
-            pain_str = f" Â· {int(pain*100)}% pain signal" if pain > 0 else ""
+            pain_str = f" · {int(pain*100)}% pain signal" if pain > 0 else ""
             st.markdown(
                 f'<div style="border-left:3px solid {color};padding-left:10px;">'
                 f'<b>{_esc(str(t.get("label","")).title())}</b>'
-                f'<span style="color:{_C["muted"]};font-size:0.75rem;"> â€” '
-                f'{t["respondent_coverage"]} respondents Â· {t["size"]} mentions{pain_str}</span>'
+                f'<span style="color:{_C["muted"]};font-size:0.75rem;"> — '
+                f'{t["respondent_coverage"]} respondents · {t["size"]} mentions{pain_str}</span>'
                 f'</div>', unsafe_allow_html=True)
             for q in t.get("sample_quotes", [])[:3]:
                 st.markdown(
                     f'<div style="font-size:0.8rem;font-style:italic;color:{_C["text"]};'
                     f'margin:4px 0 4px 12px;">&ldquo;{_esc(q["content"])}&rdquo; '
                     f'<span style="color:{_C["muted"]};font-size:0.65rem;">'
-                    f'â€” {_esc(q["doc_id"])}</span></div>', unsafe_allow_html=True)
+                    f'— {_esc(q["doc_id"])}</span></div>', unsafe_allow_html=True)
 
 
 SECTION_RENDERERS: dict[str, Any] = {
@@ -4498,7 +4498,7 @@ def _render_section(sec: dict, matrices: list[dict], findings_dir: str,
     stype = sec.get("type", "")
     renderer = SECTION_RENDERERS.get(stype)
     if renderer is None:
-        st.warning(f"Unknown section type: `{stype}` â€” skipping."); return
+        st.warning(f"Unknown section type: `{stype}` — skipping."); return
     try:
         renderer(sec, matrices, findings_dir, call_or, active_filters, all_matrices, proj_name)
     except Exception as e:
@@ -4517,10 +4517,10 @@ def _render_from_config(proj: dict, cfg: dict, matrices: list[dict], all_matrice
         with st_tab:
             st.session_state["_ct_active_tab_id"] = tab_cfg.get("id", "")
 
-            # Theme filter â€” narrative_tags is extracted per-respondent for every project
+            # Theme filter — narrative_tags is extracted per-respondent for every project
             # (universal Layer 1 field: "themes with STRONG/MIXED evidence + any emerging
             # themes", per schema_generator.py) but this renderer never surfaced or filtered on
-            # it before. Selecting a theme here filters the WHOLE tab â€” every kpi, chart, and
+            # it before. Selecting a theme here filters the WHOLE tab — every kpi, chart, and
             # verbatim section below only sees matching respondents, not just one chart's field.
             _tab_matrices = matrices
             _all_tags = sorted({
@@ -4530,7 +4530,7 @@ def _render_from_config(proj: dict, cfg: dict, matrices: list[dict], all_matrice
             if _all_tags:
                 _tag_options = ["All themes"] + [_fmt_val(t) for t in _all_tags]
                 _sel_theme = st.selectbox(
-                    "ðŸ· Filter by theme", _tag_options,
+                    "🏷 Filter by theme", _tag_options,
                     key=f"ct_theme_filter_{tab_cfg.get('id', '')}",
                 )
                 if _sel_theme != "All themes":
@@ -4540,7 +4540,7 @@ def _render_from_config(proj: dict, cfg: dict, matrices: list[dict], all_matrice
                                for t in (m.get("narrative_tags") or []))
                     ]
                     st.caption(f"Showing {len(_tab_matrices)} of {len(matrices)} respondents "
-                               f"tagged with this theme â€” every chart and verbatim below is "
+                               f"tagged with this theme — every chart and verbatim below is "
                                f"scoped to them.")
 
             for sec in tab_cfg.get("sections", []):
@@ -4548,9 +4548,9 @@ def _render_from_config(proj: dict, cfg: dict, matrices: list[dict], all_matrice
                                 active_filters, all_matrices, proj_name)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # GLOBAL FILTER HEADER
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_header(all_matrices: list[dict], proj: dict) -> dict:
     """Render global study header + filters. Returns active filter dict."""
@@ -4592,11 +4592,11 @@ def _render_header(all_matrices: list[dict], proj: dict) -> dict:
         f'<div><span style="font-size:0.62rem;font-weight:700;color:{_C["muted"]};'
         f'text-transform:uppercase;">Avg Intent</span>'
         f'<div style="font-size:1.1rem;font-weight:800;">'
-        f'{f"{avg_int:.1f}/10" if avg_int else "â€”"}</div></div>'
+        f'{f"{avg_int:.1f}/10" if avg_int else "—"}</div></div>'
         f'<div><span style="font-size:0.62rem;font-weight:700;color:{_C["muted"]};'
         f'text-transform:uppercase;">Avg Comprehension</span>'
         f'<div style="font-size:1.1rem;font-weight:800;">'
-        f'{f"{avg_comp:.1f}/10" if avg_comp else "â€”"}</div></div>'
+        f'{f"{avg_comp:.1f}/10" if avg_comp else "—"}</div></div>'
         f'<div><span style="font-size:0.62rem;font-weight:700;color:{_C["muted"]};'
         f'text-transform:uppercase;">R1 Preferred</span>'
         f'<div style="font-size:1.1rem;font-weight:800;">{_pct_str(r1_pref, n_total)}</div></div>'
@@ -4619,7 +4619,7 @@ def _render_header(all_matrices: list[dict], proj: dict) -> dict:
     if route_f != "All": active_filters["concept_understanding.route_shown"] = route_f
     if nps_f   != "All": active_filters["nps_signal"] = nps_f
 
-    # Chart-driven cross-filters (set by clicking a bar/slice in Respondent Profiles charts â€”
+    # Chart-driven cross-filters (set by clicking a bar/slice in Respondent Profiles charts —
     # see _chart_click_filter). Merged in alongside the dropdown filters above; dropdowns win
     # on a field-path collision.
     chart_filters = st.session_state.get("ct_chart_filters", {})
@@ -4627,13 +4627,13 @@ def _render_header(all_matrices: list[dict], proj: dict) -> dict:
         active_filters.setdefault(path, val)
 
     if active_filters:
-        chips = " Â· ".join(
+        chips = " · ".join(
             f'<span style="background:{_C["accent"]}18;color:{_C["accent"]};'
             f'padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:700;">'
-            f'{_esc(v)}{" âœ•" if p in chart_filters else ""}</span>'
+            f'{_esc(v)}{" ✕" if p in chart_filters else ""}</span>'
             for p, v in active_filters.items()
         )
-        if st.button("âœ• Clear filters", key="ct_clear_f"):
+        if st.button("✕ Clear filters", key="ct_clear_f"):
             for k in ["ct_seg_f", "ct_city_f", "ct_route_f", "ct_nps_f"]:
                 if k in st.session_state:
                     del st.session_state[k]
@@ -4644,9 +4644,9 @@ def _render_header(all_matrices: list[dict], proj: dict) -> dict:
     return active_filters
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # MAIN ENTRY
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def render_concept_testing(
     proj: dict,
@@ -4665,20 +4665,20 @@ def render_concept_testing(
         return
 
     # Quality gate: "critical"-quality extractions (verbatim fidelity check failed badly) are
-    # excluded from every chart's aggregate data, not just flagged â€” this used to be advisory
+    # excluded from every chart's aggregate data, not just flagged — this used to be advisory
     # only (a badge in Extraction Studio) while the broken data rendered into charts identically
     # to clean respondents.
     from infoleap.skills.project_extractor import gate_matrices_by_quality
     all_matrices, _excluded_matrices = gate_matrices_by_quality(all_matrices)
     if _excluded_matrices:
         st.warning(
-            f"âš  {len(_excluded_matrices)} respondent(s) excluded from every chart below â€” "
+            f"⚠ {len(_excluded_matrices)} respondent(s) excluded from every chart below — "
             f"critical-quality extraction (verbatim fidelity check failed badly): "
             + ", ".join(m.get("doc_id", "?") for m in _excluded_matrices)
             + ". Re-run extraction for these files in Extraction Studio."
         )
     if not all_matrices:
-        st.warning("All matrices for this project are critical-quality â€” nothing to render. "
+        st.warning("All matrices for this project are critical-quality — nothing to render. "
                    "Re-run extraction in Extraction Studio.")
         return
 
@@ -4700,19 +4700,19 @@ def render_concept_testing(
     if not matrices:
         st.warning(
             f"No respondents match active filters. "
-            f"({len(all_matrices)} total â€” use Clear filters to reset.)"
+            f"({len(all_matrices)} total — use Clear filters to reset.)"
         )
         return
 
     fd = str(findings_dir)
 
-    # Config-driven path â€” active when ui_config.json has a "tabs" array
+    # Config-driven path — active when ui_config.json has a "tabs" array
     if cfg.get("tabs"):
         _render_from_config(proj, cfg, matrices, all_matrices, fd,
                             call_openrouter_fn, active_filters)
         return
 
-    # â”€â”€ Fallback: legacy hardcoded render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Fallback: legacy hardcoded render ──────────────────────────────────────
     n = len(matrices)
     _has_gold_fields = any(
         _get(m, "gold_behavior.formats_owned") or _get(m, "gold_behavior.gold_role")
@@ -4721,24 +4721,24 @@ def render_concept_testing(
 
     if _has_gold_fields:
         tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-            "ðŸ‘¥ Respondent Profiles",
-            "ðŸª™ Category Context",
-            "ðŸ§ª Concept Testing",
-            "âš–ï¸ Route Comparison",
-            "ðŸ¦ Trust & Adoption",
-            "ðŸ” Per Respondent",
-            "ðŸ“‹ Study Report",
+            "👥 Respondent Profiles",
+            "🪙 Category Context",
+            "🧪 Concept Testing",
+            "⚖️ Route Comparison",
+            "🏦 Trust & Adoption",
+            "🔍 Per Respondent",
+            "📋 Study Report",
         ])
         with tab2:
             _render_gold_category(matrices, fd, call_openrouter_fn, active_filters, proj_name)
     else:
         tab1, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-            "ðŸ‘¥ Respondent Profiles",
-            "ðŸ§ª Concept Testing",
-            "âš–ï¸ Route Comparison",
-            "ðŸ¦ Trust & Adoption",
-            "ðŸ” Per Respondent",
-            "ðŸ“‹ Study Report",
+            "👥 Respondent Profiles",
+            "🧪 Concept Testing",
+            "⚖️ Route Comparison",
+            "🏦 Trust & Adoption",
+            "🔍 Per Respondent",
+            "📋 Study Report",
         ])
 
     with tab1:

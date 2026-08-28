@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import numpy as np
 from sklearn.linear_model import BayesianRidge
 from sklearn.impute import SimpleImputer
@@ -56,7 +56,7 @@ class BQ3AnalyticalEngine:
             conn.close()
             return {"error": f"No attributes found for category '{cat_match}'."}
 
-        # Build parameterized WHERE clause â€” prevents SQL injection from brand/zone/gender/age values.
+        # Build parameterized WHERE clause — prevents SQL injection from brand/zone/gender/age values.
         # own_view is constructed from trusted internal logic (not user input), so table name is safe.
         nps_conditions = ["brand_name = ?"]
         nps_params: list = [target_brand_name]
@@ -87,7 +87,7 @@ class BQ3AnalyticalEngine:
             conn.close()
             return {"error": f"Insufficient NPS data (n={len(df_nps)}) for {target_brand_name} in {db_cat}."}
 
-        # attr codes come from trusted metadata JSON â€” safe to use as placeholders
+        # attr codes come from trusted metadata JSON — safe to use as placeholders
         attr_placeholders = ",".join(["?" for _ in applicable_codes])
         cat_like = f"%{cat_match.lower().rstrip('s')}%"
         query_imp = f"""

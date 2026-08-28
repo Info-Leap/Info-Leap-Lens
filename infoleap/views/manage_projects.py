@@ -1,10 +1,10 @@
-﻿"""
-Manage Projects â€” list existing ingested projects, show respondent counts, delete a project's
+"""
+Manage Projects — list existing ingested projects, show respondent counts, delete a project's
 folder, and jump to Add Project for re-ingestion into an existing project id.
 
 Re-uploading into an existing project id already works via oxdata/views/add_project.py (its
 ingest path uses CREATE TABLE IF NOT EXISTS / DROP VIEW+CREATE VIEW, so typing an existing
-project id there appends rather than errors) â€” this page's "Re-ingest" button just pre-fills
+project id there appends rather than errors) — this page's "Re-ingest" button just pre-fills
 that id via session_state so the user doesn't have to remember/retype it. See
 .planning/MULTIPROJECT_INGESTION_LOG_2026-07-27.md for the full pipeline history.
 """
@@ -27,17 +27,17 @@ from infoleap.utils.ui_styles import inject_pulse_styles
 from infoleap.db_loader import list_available_projects, get_project_meta, _DRIVE_FOLDER_MAP
 
 inject_pulse_styles()
-st.title("ðŸ—‚ï¸ Manage Projects")
+st.title("🗂️ Manage Projects")
 st.caption(
     "Every project ingested via Add Project lives at its own `oxdata/data/<project id>/oxdata.db` "
-    "â€” project_1 (this project's own real data) is never deletable from here."
+    "— project_1 (this project's own real data) is never deletable from here."
 )
 
 DATA_DIR = Path(oxdata_dir) / "data"
 
 
 def _respondent_count(pid: str, data_dir: Path) -> int | None:
-    db_path = data_dir / pid / "oxdata.db"
+    db_path = data_dir / pid / "infoleap.db"
     if db_path.exists():
         try:
             conn = sqlite3.connect(str(db_path))
@@ -88,7 +88,7 @@ active_project = st.session_state.get("active_project_id", "project_1")
 st.divider()
 
 for pid in projects:
-    db_path = DATA_DIR / pid / "oxdata.db"
+    db_path = DATA_DIR / pid / "infoleap.db"
     excel_path = DATA_DIR / pid / "master_mapping.xlsx"
     n_resp = _respondent_count(pid, DATA_DIR)
     is_active = pid == active_project
@@ -101,18 +101,18 @@ for pid in projects:
         with c1:
             label = f"**{pid}**"
             if is_active:
-                label += " ðŸŸ¢ _active_"
+                label += " 🟢 _active_"
             if is_protected:
-                label += " ðŸ”’"
+                label += " 🔒"
             st.markdown(label)
             if excel_path.exists():
-                st.caption(f"ðŸ“Š Master Excel: `{excel_path.name}`")
+                st.caption(f"📊 Master Excel: `{excel_path.name}`")
             elif db_path.exists():
-                st.caption(f"ðŸ—„ï¸ Database: `{db_path.name}`")
+                st.caption(f"🗄️ Database: `{db_path.name}`")
             else:
                 st.caption(f"`{DATA_DIR / pid}`")
             if last_sync:
-                st.caption(f"â˜ï¸ Last Drive sync: `{last_sync}`")
+                st.caption(f"☁️ Last Drive sync: `{last_sync}`")
         with c2:
             if n_resp is not None:
                 st.metric("Respondents", f"{n_resp:,}")
@@ -131,11 +131,11 @@ for pid in projects:
 
         b1, b2, b3, b4 = st.columns([1.2, 1, 1, 1])
         with b1:
-            if st.button("ðŸ” Re-ingest", key=f"reingest_{pid}"):
+            if st.button("🔁 Re-ingest", key=f"reingest_{pid}"):
                 st.session_state["_prefill_project_id"] = pid
                 st.switch_page("views/add_project.py")
         with b2:
-            if st.button("â˜ï¸ Sync to Drive", key=f"sync_drive_{pid}"):
+            if st.button("☁️ Sync to Drive", key=f"sync_drive_{pid}"):
                 try:
                     from infoleap.gdrive.client import DriveClient
                     c = DriveClient()
@@ -153,7 +153,7 @@ for pid in projects:
                 except Exception as e:
                     st.error(f"Drive sync failed: {e}")
         with b3:
-            if st.button("â¬‡ï¸ Pull Drive", key=f"pull_drive_{pid}"):
+            if st.button("⬇️ Pull Drive", key=f"pull_drive_{pid}"):
                 try:
                     from infoleap.gdrive.client import DriveClient
                     c = DriveClient()
@@ -172,15 +172,15 @@ for pid in projects:
                     st.error(f"Drive pull failed: {e}")
         with b4:
             if is_protected:
-                st.button("ðŸ—‘ï¸ Delete", key=f"del_{pid}", disabled=True,
-                           help="project_1 is the real production database â€” never deletable here.")
+                st.button("🗑️ Delete", key=f"del_{pid}", disabled=True,
+                           help="project_1 is the real production database — never deletable here.")
             else:
                 confirm_key = f"confirm_del_{pid}"
                 if st.session_state.get(confirm_key):
                     st.warning(f"Really delete `{pid}`? This removes the folder permanently.")
                     cc1, cc2 = st.columns(2)
                     with cc1:
-                        if st.button("âœ… Yes, delete", key=f"del_yes_{pid}", type="primary"):
+                        if st.button("✅ Yes, delete", key=f"del_yes_{pid}", type="primary"):
                             try:
                                 shutil.rmtree(DATA_DIR / pid)
                                 st.session_state.pop(confirm_key, None)
@@ -194,6 +194,6 @@ for pid in projects:
                             st.session_state.pop(confirm_key, None)
                             st.rerun()
                 else:
-                    if st.button("ðŸ—‘ï¸ Delete", key=f"del_{pid}"):
+                    if st.button("🗑️ Delete", key=f"del_{pid}"):
                         st.session_state[confirm_key] = True
                         st.rerun()

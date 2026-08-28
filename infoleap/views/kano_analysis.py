@@ -1,16 +1,16 @@
-﻿"""
-Kano Analysis â€” InfoLeap Pulse
+"""
+Kano Analysis — InfoLeap Pulse
 ================================
 Classifies product attributes into Must-be / Performance / Attractive / Indifferent
 using pain point severity, aspiration gap opportunity, feature importance, and NPS signals
 derived from the 233 IDI transcript matrices (Crompton FMCD study).
 
 Kano categories:
-  Must-be (M)   â€” Absence = dissatisfaction. Presence = neutral. Hygiene factors.
-  Performance (P)â€” More = better satisfaction. One-to-one with quality.
-  Attractive (A) â€” Presence = delight. Absence = neutral. Differentiators.
-  Indifferent (I)â€” No impact on satisfaction either way.
-  Reverse (R)    â€” Presence = dissatisfaction for some segments.
+  Must-be (M)   — Absence = dissatisfaction. Presence = neutral. Hygiene factors.
+  Performance (P)— More = better satisfaction. One-to-one with quality.
+  Attractive (A) — Presence = delight. Absence = neutral. Differentiators.
+  Indifferent (I)— No impact on satisfaction either way.
+  Reverse (R)    — Presence = dissatisfaction for some segments.
 """
 
 import streamlit as st
@@ -28,11 +28,11 @@ from infoleap.utils.ui_styles import (inject_pulse_styles, sidebar_context_block
 inject_pulse_styles()
 sidebar_context_block()
 
-# â”€â”€ Paths â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Paths ──────────────────────────────────────────────────────────────────────
 _BASE     = Path(__file__).resolve().parent.parent
 _MAT_DIR  = _BASE / "data" / "qual_matrices"
 
-# â”€â”€ Load matrices â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Load matrices ──────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600, show_spinner=False)
 def _load_kano_data() -> dict:
     if not _MAT_DIR.exists():
@@ -103,21 +103,21 @@ def _load_kano_data() -> dict:
 kano_data = _load_kano_data()
 total_docs = kano_data.get("total_docs", 0)
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 # KANO ATTRIBUTE TABLE
 # Derived rules:
-#   Must-be    â†’ high pain_area_high count (absence causes dissatisfaction)
-#   Performance â†’ high feature_high AND high nps_brand_attr (more = better)
-#   Attractive  â†’ high-opportunity gaps (presence = delight, absence = neutral)
-#   Indifferent â†’ low counts across all signals
-#   Reverse     â†’ features that divide promoters and detractors
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+#   Must-be    → high pain_area_high count (absence causes dissatisfaction)
+#   Performance → high feature_high AND high nps_brand_attr (more = better)
+#   Attractive  → high-opportunity gaps (presence = delight, absence = neutral)
+#   Indifferent → low counts across all signals
+#   Reverse     → features that divide promoters and detractors
+# ══════════════════════════════════════════════════════════════════════════════
 
 KANO_ATTRS = [
     # (label, category, satisfaction_score, achievement_score, n_mentions, insight)
-    # Must-be â€” absence causes dissatisfaction
+    # Must-be — absence causes dissatisfaction
     ("Jar Durability",      "Must-be",    -0.85,  0.65, 173,
-     "173 pain mentions â€” most cited failure mode. Broken jar = retired product."),
+     "173 pain mentions — most cited failure mode. Broken jar = retired product."),
     ("Motor Reliability",   "Must-be",    -0.80,  0.60, 87,
      "87 mentions, 42 high-severity. Motor failure triggers full replacement."),
     ("Blade Performance",   "Must-be",    -0.65,  0.55, 89,
@@ -125,23 +125,23 @@ KANO_ATTRS = [
     ("Panel Switch Durability","Must-be", -0.70,  0.50, 30,
      "Switch damage forces discard of entire unit. High product blame ratio."),
 
-    # Performance â€” linear satisfaction improvement
+    # Performance — linear satisfaction improvement
     ("Grinding Texture",    "Performance", 0.50,  0.60, 67,
      "Fine grinding = pride. Coarse result = disappointment. Direct NPS link."),
     ("Noise Level",         "Performance", 0.55,  0.55, 56,
-     "21 high-severity noise mentions. Lower noise â†’ higher satisfaction."),
+     "21 high-severity noise mentions. Lower noise → higher satisfaction."),
     ("Cleaning Ease",       "Performance", 0.45,  0.50, 86,
-     "10Ã— mentioned as high-importance feature. Friction drives avoidance."),
+     "10× mentioned as high-importance feature. Friction drives avoidance."),
     ("Speed & Power",       "Performance", 0.40,  0.45, 40,
      "Fast grinding and consistent output cited by promoters."),
     ("Jar Size Options",    "Performance", 0.35,  0.40, 25,
-     "Multiple jars for different quantities â€” satisfaction scales with range."),
+     "Multiple jars for different quantities — satisfaction scales with range."),
 
-    # Attractive â€” presence delights, absence neutral
+    # Attractive — presence delights, absence neutral
     ("Silent Operation",    "Attractive",  0.80,  0.30, 18,
      "Explicitly desired by 18 respondents. 'Soundless mixer' verbatim goal."),
     ("Transparent Jar",     "Attractive",  0.75,  0.25, 5,
-     "Mentioned as gap â€” see blending progress. Easy to prototype, high ROI."),
+     "Mentioned as gap — see blending progress. Easy to prototype, high ROI."),
     ("Auto / Easy Clean",   "Attractive",  0.72,  0.20, 8,
      "Self-cleaning or push-button clean cited as future delight."),
     ("Stone-quality Grind", "Attractive",  0.65,  0.15, 12,
@@ -149,7 +149,7 @@ KANO_ATTRS = [
     ("Multi-function Unit", "Attractive",  0.60,  0.20, 10,
      "Single appliance for grinding + juicing + dough. Reduces kitchen clutter."),
     ("Compact Footprint",   "Attractive",  0.55,  0.35, 18,
-     "18Ã— high-importance feature. Space saving = emotional relief in small kitchens."),
+     "18× high-importance feature. Space saving = emotional relief in small kitchens."),
 
     # Indifferent
     ("Color Options",       "Indifferent", 0.05,  0.50, 3,
@@ -157,35 +157,35 @@ KANO_ATTRS = [
     ("Brand Story / Heritage","Indifferent",0.08, 0.50, 2,
      "Heritage awareness present but does not drive satisfaction or dissatisfaction."),
 
-    # Reverse â€” divides segments
+    # Reverse — divides segments
     ("Advanced Digital Controls","Reverse",-0.30, 0.70, 4,
      "Older homemakers prefer simple knob. Complex controls frustrate this segment."),
 ]
 
-# â”€â”€ Category metadata â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Category metadata ──────────────────────────────────────────────────────────
 CAT_META = {
-    "Must-be":    {"color": "#ef4444", "icon": "ðŸ”´", "desc": "Absent = dissatisfied. Present = neutral. Non-negotiable hygiene."},
-    "Performance":{"color": "#0ea5e9", "icon": "ðŸ”µ", "desc": "More = better. Direct linear link to satisfaction."},
-    "Attractive": {"color": "#22c55e", "icon": "ðŸŸ¢", "desc": "Absent = neutral. Present = delight. Differentiators."},
-    "Indifferent":{"color": "#9ca3af", "icon": "âšª", "desc": "No impact on satisfaction either way."},
-    "Reverse":    {"color": "#f97316", "icon": "ðŸŸ ", "desc": "Presence satisfies some but dissatisfies others."},
+    "Must-be":    {"color": "#ef4444", "icon": "🔴", "desc": "Absent = dissatisfied. Present = neutral. Non-negotiable hygiene."},
+    "Performance":{"color": "#0ea5e9", "icon": "🔵", "desc": "More = better. Direct linear link to satisfaction."},
+    "Attractive": {"color": "#22c55e", "icon": "🟢", "desc": "Absent = neutral. Present = delight. Differentiators."},
+    "Indifferent":{"color": "#9ca3af", "icon": "⚪", "desc": "No impact on satisfaction either way."},
+    "Reverse":    {"color": "#f97316", "icon": "🟠", "desc": "Presence satisfies some but dissatisfies others."},
 }
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 # PAGE
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 
 section_header("Kano Analysis",
-               "Attribute classification: Must-be Â· Performance Â· Attractive Â· Indifferent Â· Reverse")
+               "Attribute classification: Must-be · Performance · Attractive · Indifferent · Reverse")
 
 st.markdown(
     f'<div style="background:linear-gradient(135deg,#0a2e22 0%,#1a5d4d 60%,#0ea5e9 100%);'
     f'border-radius:12px;padding:16px 22px;margin-bottom:16px;">'
     f'<div style="font-size:0.60rem;font-weight:700;color:rgba(255,255,255,0.45);'
     f'text-transform:uppercase;letter-spacing:0.14em;margin-bottom:3px;">InfoLeap Product Testing Toolkit</div>'
-    f'<div style="font-size:1.2rem;font-weight:900;color: #e5e7eb;">Crompton FMCD â€” Kano Analysis</div>'
+    f'<div style="font-size:1.2rem;font-weight:900;color: #e5e7eb;">Crompton FMCD — Kano Analysis</div>'
     f'<div style="font-size:0.76rem;color:rgba(255,255,255,0.55);margin-top:3px;">'
-    f'Derived from {total_docs} IDI transcripts Â· Kitchen appliance category Â· Wave 1 2021</div>'
+    f'Derived from {total_docs} IDI transcripts · Kitchen appliance category · Wave 1 2021</div>'
     f'</div>',
     unsafe_allow_html=True,
 )
@@ -197,7 +197,7 @@ n_attr = sum(1 for a in KANO_ATTRS if a[1]=="Attractive")
 n_ind  = sum(1 for a in KANO_ATTRS if a[1]=="Indifferent")
 n_rev  = sum(1 for a in KANO_ATTRS if a[1]=="Reverse")
 k1,k2,k3,k4,k5 = st.columns(5)
-with k1: kpi_card("Must-be",    str(n_must), "#ef4444", subtext="Basic hygiene â€” non-negotiable")
+with k1: kpi_card("Must-be",    str(n_must), "#ef4444", subtext="Basic hygiene — non-negotiable")
 with k2: kpi_card("Performance", str(n_perf), "#0ea5e9", subtext="Linear satisfaction drivers")
 with k3: kpi_card("Attractive",  str(n_attr), "#22c55e", subtext="Delight differentiators")
 with k4: kpi_card("Indifferent", str(n_ind),  "#9ca3af", subtext="No satisfaction impact")
@@ -205,15 +205,15 @@ with k5: kpi_card("Reverse",     str(n_rev),  "#f97316", subtext="Segment-dividi
 
 st.markdown("<div style='margin:16px 0 8px;'></div>", unsafe_allow_html=True)
 
-# â”€â”€ TABS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TABS ──────────────────────────────────────────────────────────────────────
 tab_diagram, tab_scatter, tab_table, tab_methodology = st.tabs([
-    "ðŸ“Š Kano Diagram",
-    "ðŸŽ¯ Attribute Map",
-    "ðŸ“‹ Full Table",
-    "ðŸ“– Methodology",
+    "📊 Kano Diagram",
+    "🎯 Attribute Map",
+    "📋 Full Table",
+    "📖 Methodology",
 ])
 
-# â”€â”€ TAB 1: KANO DIAGRAM (satisfaction curves) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 1: KANO DIAGRAM (satisfaction curves) ─────────────────────────────────
 with tab_diagram:
     section_header("Kano Satisfaction Curves",
                    "How each category's satisfaction changes with degree of achievement")
@@ -264,20 +264,20 @@ with tab_diagram:
     fig_kano.update_layout(**_kano_base, height=500,
                            legend=dict(orientation="h", yanchor="bottom", y=1.02,
                                        xanchor="right", x=1, font=dict(size=12)))
-    fig_kano.update_xaxes(title_text="Degree of Achievement (absent â†’ excellent)",
+    fig_kano.update_xaxes(title_text="Degree of Achievement (absent → excellent)",
                           range=[-1.05,1.05], gridcolor="#f0f0f0", zeroline=False)
-    fig_kano.update_yaxes(title_text="Customer Satisfaction (dissatisfied â†’ delighted)",
+    fig_kano.update_yaxes(title_text="Customer Satisfaction (dissatisfied → delighted)",
                           range=[-1.05,1.05], gridcolor="#f0f0f0", zeroline=False)
     st.plotly_chart(fig_kano, use_container_width=True)
     st.caption(
-        "Must-be: absence â†’ steep dissatisfaction; presence â†’ no extra delight.  "
-        "Performance: linear â€” every improvement adds satisfaction.  "
-        "Attractive: absence â†’ no penalty; presence â†’ delight spike.  "
-        "Indifferent: flat â€” consumers don't care.  "
+        "Must-be: absence → steep dissatisfaction; presence → no extra delight.  "
+        "Performance: linear — every improvement adds satisfaction.  "
+        "Attractive: absence → no penalty; presence → delight spike.  "
+        "Indifferent: flat — consumers don't care.  "
         "Reverse: presence dissatisfies some segments."
     )
 
-# â”€â”€ TAB 2: ATTRIBUTE SCATTER MAP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 2: ATTRIBUTE SCATTER MAP ──────────────────────────────────────────────
 with tab_scatter:
     section_header("Attribute Positioning Map",
                    "Each attribute placed by satisfaction impact vs. current achievement level")
@@ -343,9 +343,9 @@ with tab_scatter:
     _sc_base = {k: v for k, v in CHART_LAYOUT.items() if k not in ("xaxis","yaxis","legend")}
     fig_scatter.update_layout(**_sc_base, height=580,
                               legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-    fig_scatter.update_xaxes(title_text="Current Achievement Level (poor â† â†’ excellent)",
+    fig_scatter.update_xaxes(title_text="Current Achievement Level (poor ← → excellent)",
                              range=[-1.1,1.1], gridcolor="#f0f0f0", zeroline=False)
-    fig_scatter.update_yaxes(title_text="Satisfaction Impact (absent = low â† â†’ present = high)",
+    fig_scatter.update_yaxes(title_text="Satisfaction Impact (absent = low ← → present = high)",
                              range=[-1.1,1.1], gridcolor="#f0f0f0", zeroline=False)
     st.plotly_chart(fig_scatter, use_container_width=True)
 
@@ -363,10 +363,10 @@ with tab_scatter:
             unsafe_allow_html=True,
         )
 
-# â”€â”€ TAB 3: FULL ATTRIBUTE TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 3: FULL ATTRIBUTE TABLE ────────────────────────────────────────────────
 with tab_table:
-    section_header("All Attributes â€” Full Kano Classification",
-                   f"Derived from {total_docs} IDI transcripts Â· sorted by category then mentions")
+    section_header("All Attributes — Full Kano Classification",
+                   f"Derived from {total_docs} IDI transcripts · sorted by category then mentions")
 
     # Category filter
     _cat_filter = st.multiselect(
@@ -418,7 +418,7 @@ with tab_table:
                 unsafe_allow_html=True,
             )
 
-# â”€â”€ TAB 4: METHODOLOGY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── TAB 4: METHODOLOGY ────────────────────────────────────────────────────────
 with tab_methodology:
     section_header("How This Kano Analysis Was Built",
                    "Data derivation rules and classification logic")
@@ -430,9 +430,9 @@ with tab_methodology:
 
 | Category | Derivation rule | Key signal |
 |----------|----------------|-----------|
-| **Must-be** | High `pain_area_high` count â€” absence causes documented dissatisfaction | >40 high-severity mentions |
-| **Performance** | High `feature_high` + high `nps_brand_attr` â€” cited by NPS promoters | >10 high-importance mentions |
-| **Attractive** | High-opportunity `aspiration_reality_gaps` â€” consumer delight if solved | `commercial_opportunity = high` |
+| **Must-be** | High `pain_area_high` count — absence causes documented dissatisfaction | >40 high-severity mentions |
+| **Performance** | High `feature_high` + high `nps_brand_attr` — cited by NPS promoters | >10 high-importance mentions |
+| **Attractive** | High-opportunity `aspiration_reality_gaps` — consumer delight if solved | `commercial_opportunity = high` |
 | **Indifferent** | Low count across all signals | <5 mentions in any signal |
 | **Reverse** | Features that split promoter vs detractor sentiment | Segment-divergent mentions |
 
@@ -450,9 +450,9 @@ with tab_methodology:
 **What this IS NOT:**
 - Not a formal functional/dysfunctional survey (Kano questionnaire not administered)
 - Not statistically powered to category level
-- Directional only â€” should be validated with a formal Kano survey instrument
+- Directional only — should be validated with a formal Kano survey instrument
 
-**Next step:** Design a formal Kano questionnaire with functional/dysfunctional question pairs per attribute, administer to 200+ respondents, and compute satisfaction coefficients (CS = Attractive + Performance / total) and dissatisfaction coefficients (DS = Must-be + Performance / total Ã— -1).
+**Next step:** Design a formal Kano questionnaire with functional/dysfunctional question pairs per attribute, administer to 200+ respondents, and compute satisfaction coefficients (CS = Attractive + Performance / total) and dissatisfaction coefficients (DS = Must-be + Performance / total × -1).
 """)
 
     with st.expander("Onion Ring Connection", expanded=False):
@@ -461,11 +461,11 @@ The **Onion Ring** framework (from InfoLeap Product Testing Toolkit) maps attrib
 
 | Kano Category | Onion Ring Layer | Description |
 |--------------|-----------------|-------------|
-| Must-be | **Outer Ring** â€” Functional | What it does. Non-negotiable. |
-| Performance | **Outer + Middle Ring** | Functional â†’ Emotional (satisfaction from performance) |
-| Attractive | **Middle Ring** â€” Emotional | How it feels. Aspirational. |
-| Indifferent | **Outer Ring** â€” Not Salient | Functionally present but not meaningful |
-| Reverse | **Core Ring** â€” Identity | What it says about me â€” can conflict with self-image |
+| Must-be | **Outer Ring** — Functional | What it does. Non-negotiable. |
+| Performance | **Outer + Middle Ring** | Functional → Emotional (satisfaction from performance) |
+| Attractive | **Middle Ring** — Emotional | How it feels. Aspirational. |
+| Indifferent | **Outer Ring** — Not Salient | Functionally present but not meaningful |
+| Reverse | **Core Ring** — Identity | What it says about me — can conflict with self-image |
 
-**Implication for Crompton:** Jar durability and motor reliability sit on the Outer Ring (functional must-be). Silent operation and stone-quality grind live in the Middle Ring (emotional aspiration). Multi-function and advanced smart controls reach the Core Ring (identity â€” who I am as a cook).
+**Implication for Crompton:** Jar durability and motor reliability sit on the Outer Ring (functional must-be). Silent operation and stone-quality grind live in the Middle Ring (emotional aspiration). Multi-function and advanced smart controls reach the Core Ring (identity — who I am as a cook).
 """)

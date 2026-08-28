@@ -1,21 +1,21 @@
-﻿"""
-master_excel.py â€” Authoritative per-project master workbook.
+"""
+master_excel.py — Authoritative per-project master workbook.
 
 Sheet layout (6 sheets, intuitive):
-  META           â€” project metadata (auto, read-only)
-  BUCKET_CONFIG  â€” PRIMARY EDIT SURFACE: one row per bucket (TOM/SPONT/AIDED/NPS/etc.)
+  META           — project metadata (auto, read-only)
+  BUCKET_CONFIG  — PRIMARY EDIT SURFACE: one row per bucket (TOM/SPONT/AIDED/NPS/etc.)
                    Non-technical user edits source_column, brand_names here.
                    Color-coded by bucket type. OVERRIDE columns highlighted green.
-  BRANDS         â€” canonical brand list: code â†’ name, junk flag, in-analysis flag
-  RAW_DATA       â€” all respondent rows (editable for data corrections)
-  IMAGERY_TAGGED â€” attribute Ã— brand Ã— assoc% (auto-computed, reference only)
-  VALIDATION     â€” awareness funnel % per brand, green/red flags (auto, reference)
+  BRANDS         — canonical brand list: code → name, junk flag, in-analysis flag
+  RAW_DATA       — all respondent rows (editable for data corrections)
+  IMAGERY_TAGGED — attribute × brand × assoc% (auto-computed, reference only)
+  VALIDATION     — awareness funnel % per brand, green/red flags (auto, reference)
 
 Workflow:
-  1. Open BUCKET_CONFIG â€” see every bucket, its source column, fill rate, brand count
+  1. Open BUCKET_CONFIG — see every bucket, its source column, fill rate, brand count
   2. Change source_column if wrong column detected
   3. Fix brand names in BRANDS sheet (change brand_name col)
-  4. Upload back to app â†’ re-ingest â†’ numbers update instantly
+  4. Upload back to app → re-ingest → numbers update instantly
 """
 
 from __future__ import annotations
@@ -42,17 +42,17 @@ AWARENESS_STAGES = [
 ]
 JUNK_PATTERNS = [r"^\$\{", r"^NoneOfThese$", r"^None$", r"^Other$", r"^Raw/Loose"]
 
-# Bucket type â†’ colour (so user can visually group)
+# Bucket type → colour (so user can visually group)
 BUCKET_COLORS = {
-    # Awareness funnel â€” blue family
+    # Awareness funnel — blue family
     "TOM":           "BDD7EE", "SPONT":         "9DC3E6", "AIDED":         "2E75B6",
     "EVER_USED":     "1F4E79", "CONSIDERATION": "2F5597", "CURRENT_USER":  "4472C4",
     "PREFERRED":     "5B9BD5", "LAST_PURCHASED":"70AD47",
-    # NPS / CSAT â€” purple
+    # NPS / CSAT — purple
     "NPS":           "D9B3FF", "CSAT":          "C490E4",
-    # Imagery / Importance â€” orange
+    # Imagery / Importance — orange
     "BRAND_IMAGERY": "FCE4D6", "IMPORTANCE":    "FFD966",
-    # Demographics â€” grey
+    # Demographics — grey
     "GENDER":        "F2F2F2", "AGE":           "F2F2F2", "CITY":          "F2F2F2",
     "ZONE":          "F2F2F2", "DEMOGRAPHIC":   "F2F2F2", "INCOME":        "F2F2F2",
     "OCCUPATION":    "F2F2F2", "NCCS":          "F2F2F2",
@@ -61,7 +61,7 @@ BUCKET_COLORS = {
     "SKIP":          "D9D9D9",
 }
 
-# Bucket â†’ plain-English description
+# Bucket → plain-English description
 BUCKET_DESC = {
     "TOM":              "Top-of-mind brand (unaided, first mention)",
     "SPONT":            "Spontaneous brand recall (unaided, all mentions)",
@@ -71,10 +71,10 @@ BUCKET_DESC = {
     "CURRENT_USER":     "Currently own / use this brand",
     "PREFERRED":        "Most preferred brand for next purchase",
     "LAST_PURCHASED":   "Most recently purchased brand",
-    "NPS":              "Net Promoter Score (0â€“10 likelihood to recommend)",
-    "CSAT":             "Customer satisfaction score (0â€“10)",
+    "NPS":              "Net Promoter Score (0–10 likelihood to recommend)",
+    "CSAT":             "Customer satisfaction score (0–10)",
     "BRAND_IMAGERY":    "Brand attribute associations (multi-select per attribute)",
-    "IMPORTANCE":       "Attribute importance rating (1â€“7 scale)",
+    "IMPORTANCE":       "Attribute importance rating (1–7 scale)",
     "GENDER":           "Respondent gender",
     "AGE":              "Respondent age / age band",
     "CITY":             "Respondent city",
@@ -160,7 +160,7 @@ def write_master_excel(
     project_id: str,
     raw_df: Optional[pd.DataFrame] = None,
 ):
-    """Write master_mapping.xlsx â€” 6-sheet intuitive workbook."""
+    """Write master_mapping.xlsx — 6-sheet intuitive workbook."""
     if not HAS_OPENPYXL:
         raise ImportError("openpyxl required: pip install openpyxl")
 
@@ -179,7 +179,7 @@ def write_master_excel(
         _write_validation(wb, schema_doc, raw_df, n_resp)
 
     wb.save(output_path)
-    print(f"[OK] master_mapping.xlsx â†’ {output_path}")
+    print(f"[OK] master_mapping.xlsx → {output_path}")
 
 
 def _count_respondents(raw_df: Optional[pd.DataFrame]) -> int:
@@ -209,7 +209,7 @@ def _write_meta(wb, schema_doc, project_id, raw_data_path, n_resp):
         ("n_respondents",  n_resp),
         ("generated_at",   datetime.now().strftime("%Y-%m-%d %H:%M")),
         ("schema_version", "3.1"),
-        ("how_to_edit",    "Open BUCKET_CONFIG â€” change source_column or OVERRIDE_source_column. Open BRANDS â€” fix brand names. Re-upload to app to re-ingest."),
+        ("how_to_edit",    "Open BUCKET_CONFIG — change source_column or OVERRIDE_source_column. Open BRANDS — fix brand names. Re-upload to app to re-ingest."),
         ("sheets",         "META | BUCKET_CONFIG | BRANDS | RAW_DATA | IMAGERY_TAGGED | VALIDATION"),
     ]
     _header_row(ws, ["field", "value"])
@@ -224,14 +224,14 @@ def _write_meta(wb, schema_doc, project_id, raw_data_path, n_resp):
 
 def _write_bucket_config(wb, questions, raw_df, n_resp):
     """
-    PRIMARY EDIT SURFACE â€” one row per unique bucket assignment.
+    PRIMARY EDIT SURFACE — one row per unique bucket assignment.
 
     Columns:
       [auto] bucket | bucket_description | question_code | question_text
       [auto] source_column | dummy_columns | n_columns_parsed
       [auto] n_filled | fill_rate_% | brand_count | example_values
-      [EDIT] OVERRIDE_source_column â€” paste correct column name here if wrong
-      [EDIT] notes â€” any comments
+      [EDIT] OVERRIDE_source_column — paste correct column name here if wrong
+      [EDIT] notes — any comments
     """
     ws = wb.create_sheet("BUCKET_CONFIG")
 
@@ -244,8 +244,8 @@ def _write_bucket_config(wb, questions, raw_df, n_resp):
     ]
     # Row 1: group labels
     groups = [
-        ("AUTO â€” do not edit", 11),  # cols 1-11
-        ("EDITABLE â€” change these", 2),  # cols 12-13
+        ("AUTO — do not edit", 11),  # cols 1-11
+        ("EDITABLE — change these", 2),  # cols 12-13
     ]
     col_idx = 1
     for label, span in groups:
@@ -306,7 +306,7 @@ def _write_bucket_config(wb, questions, raw_df, n_resp):
             # Example values: first 5 unique non-null values from source col
             if src_col in (raw_df.columns if raw_df is not None else []):
                 ex = raw_df[src_col].dropna().unique()[:5]
-                # Show code â†’ brand if CTL exists
+                # Show code → brand if CTL exists
                 ex_parts = []
                 for v in ex:
                     code_s = str(_safe_int(v))
@@ -361,8 +361,8 @@ def _write_bucket_config(wb, questions, raw_df, n_resp):
 
 
 def _collect_all_brands(questions):
-    """All unique brand codeâ†’name from all brand-related questions."""
-    # qcode â†’ {code_str: brand_name}
+    """All unique brand code→name from all brand-related questions."""
+    # qcode → {code_str: brand_name}
     by_q: dict[str, dict[str, str]] = {}
     for q in questions:
         bucket = str(q.get("bucket", "")).upper()
@@ -386,10 +386,10 @@ def _collect_all_brands(questions):
 
 def _write_brands(wb, questions, ap_universe):
     """
-    Consolidated brand code table â€” one row per (question_code, brand_code, brand_name).
+    Consolidated brand code table — one row per (question_code, brand_code, brand_name).
     User edits brand_name column to fix spellings.
-    is_junk = TRUE â†’ excluded from all analytics.
-    in_analysis = TRUE â†’ included in AP brand universe.
+    is_junk = TRUE → excluded from all analytics.
+    in_analysis = TRUE → included in AP brand universe.
     """
     ws = wb.create_sheet("BRANDS")
 
@@ -452,17 +452,17 @@ def _write_raw_data(wb, raw_df: pd.DataFrame):
     ws.auto_filter.ref = f"A2:{get_column_letter(len(cols))}2"
     for c_idx, col in enumerate(cols, 1):
         ws.column_dimensions[get_column_letter(c_idx)].width = min(max(len(str(col)) + 2, 8), 20)
-    print(f"  [RAW_DATA] {len(raw_df)} rows Ã— {len(cols)} cols")
+    print(f"  [RAW_DATA] {len(raw_df)} rows × {len(cols)} cols")
 
 
 def _write_imagery_tagged(wb, questions, raw_df: pd.DataFrame, n_resp: int):
     """
-    Pre-compute imagery association % for each attribute Ã— brand.
+    Pre-compute imagery association % for each attribute × brand.
     Handles both dummy-column format (bq3b/1, bq3b/2...) and single-column format.
     """
     ws = wb.create_sheet("IMAGERY_TAGGED")
     ws.cell(row=1, column=1,
-            value="Auto-computed from BRAND_IMAGERY questions. Reference only â€” do not edit.")
+            value="Auto-computed from BRAND_IMAGERY questions. Reference only — do not edit.")
     if HAS_OPENPYXL:
         ws.cell(row=1, column=1).font = ITALIC_FONT
     ws.merge_cells("A1:G1")
@@ -506,7 +506,7 @@ def _write_imagery_tagged(wb, questions, raw_df: pd.DataFrame, n_resp: int):
                                    assoc_pct, n_assoc, n_resp, is_junk)
                 row_idx += 1
         else:
-            # Single column with brand code values â€” count each code occurrence
+            # Single column with brand code values — count each code occurrence
             src_col = q.get("source_column") or attr_code
             if src_col in raw_df.columns:
                 for code, brand_name in code_to_brand.items():
@@ -559,7 +559,7 @@ def _write_validation(wb, schema_doc, raw_df, n_resp):
 
     ws = wb.create_sheet("VALIDATION")
     ws.cell(row=1, column=1,
-            value="Auto-computed awareness funnel. Reference only â€” green=ok, red=monotonicity violation.")
+            value="Auto-computed awareness funnel. Reference only — green=ok, red=monotonicity violation.")
     if HAS_OPENPYXL:
         ws.cell(row=1, column=1).font = ITALIC_FONT
     ws.merge_cells("A1:I1")
@@ -596,12 +596,12 @@ def _write_validation(wb, schema_doc, raw_df, n_resp):
 
 
 # ---------------------------------------------------------------------------
-# Read master Excel â†’ schema_doc (backwards-compatible)
+# Read master Excel → schema_doc (backwards-compatible)
 # ---------------------------------------------------------------------------
 
 def read_master_excel(excel_path: str) -> dict:
     """
-    Read master_mapping.xlsx â†’ schema_doc.
+    Read master_mapping.xlsx → schema_doc.
     Reads BUCKET_CONFIG (new) OR legacy MAPPING sheet.
     OVERRIDE_source_column takes precedence over source_column if filled.
     Brand codes read from BRANDS sheet (new) or legacy BRAND_CODES / CTL_* sheets.
@@ -614,12 +614,12 @@ def read_master_excel(excel_path: str) -> dict:
     meta    = dict(zip(meta_df.iloc[:, 0].astype(str), meta_df.iloc[:, 1].astype(str)))
 
     # Build brand code lookup from BRANDS sheet (new) or BRAND_CODES (legacy)
-    # qcode â†’ {code_str: brand_name}
+    # qcode → {code_str: brand_name}
     brand_lookup: dict[str, dict[str, str]] = {}
 
     if "BRANDS" in sheets:
-        # New format has instruction row at row 1, header at row 2 â†’ header=1
-        # Old format has header at row 1 â†’ header=0. Detect by checking first cell.
+        # New format has instruction row at row 1, header at row 2 → header=1
+        # Old format has header at row 1 → header=0. Detect by checking first cell.
         _b_raw = pd.read_excel(excel_path, sheet_name="BRANDS", header=0)
         _first_col = str(_b_raw.columns[0]).lower() if len(_b_raw.columns) else ""
         _b_header  = 1 if "question_code" not in _first_col else 0
@@ -654,8 +654,8 @@ def read_master_excel(excel_path: str) -> dict:
 
     # Choose mapping sheet: prefer BUCKET_CONFIG, fall back to MAPPING
     map_sheet = "BUCKET_CONFIG" if "BUCKET_CONFIG" in sheets else "MAPPING"
-    # BUCKET_CONFIG has instruction row 1 + header row 2 â†’ header=1
-    # MAPPING (legacy) has header at row 1 (Excel row 1, pandas index 0) â†’ header=0
+    # BUCKET_CONFIG has instruction row 1 + header row 2 → header=1
+    # MAPPING (legacy) has header at row 1 (Excel row 1, pandas index 0) → header=0
     header_row = 0 if map_sheet == "MAPPING" else 1
     map_df = pd.read_excel(excel_path, sheet_name=map_sheet, header=header_row)
 
@@ -682,10 +682,10 @@ def read_master_excel(excel_path: str) -> dict:
             continue
         seen.add(src_for_dedup)
 
-        # Bucket â€” override wins
+        # Bucket — override wins
         bucket = _clean(row.get("OVERRIDE_bucket")) or _clean(row.get("bucket")) or "SKIP"
 
-        # Source column â€” override wins; use _clean() to strip NaN floats correctly
+        # Source column — override wins; use _clean() to strip NaN floats correctly
         src_col = (
             _clean(row.get("OVERRIDE_source_column")) or
             _clean(row.get("source_column")) or

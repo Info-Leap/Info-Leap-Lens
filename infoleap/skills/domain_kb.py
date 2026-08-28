@@ -1,5 +1,5 @@
-﻿"""
-DomainKB â€” pre-computed survey facts for LENS 3.2.
+"""
+DomainKB — pre-computed survey facts for LENS 3.2.
 Injected into the agent's context as verified facts, avoiding SQL for common queries.
 Computed once at module load from the live DB, cached in-process.
 """
@@ -21,7 +21,7 @@ from infoleap.db_loader import get_db_path
 def get_domain_facts() -> dict:
     """
     Returns a dict of pre-computed survey facts.
-    Cached after first call â€” safe to call repeatedly.
+    Cached after first call — safe to call repeatedly.
     Returns empty dict if DB unavailable.
     """
     try:
@@ -140,7 +140,7 @@ def get_domain_facts() -> dict:
             "zone_dist":        zone_dist,
             "nps_industry_avg": 45,
             "category_null_note": (
-                "The 'category' column is NULL for all respondents â€” "
+                "The 'category' column is NULL for all respondents — "
                 "this is a single all-category wave. Filter brands by product type "
                 "using BRAND_CATEGORIES, not respondent category."
             ),
@@ -161,7 +161,7 @@ def get_facts_as_context() -> str:
     zone_str = ", ".join(f"{z}: {n}" for z, n in facts.get("zone_dist", {}).items())
 
     return f"""
-[VERIFIED SURVEY FACTS â€” use these directly, no SQL needed for these]
+[VERIFIED SURVEY FACTS — use these directly, no SQL needed for these]
 - Survey: OX Wave 1 | {facts['base_n']:,} respondents | {facts['fieldwork_start']} to {facts['fieldwork_end']}
 - Geography: {facts['cities']} cities across {facts['zones']} zones ({zone_str})
 - Top-of-Mind leader: {facts['top_tom_brand']} at {facts['top_tom_pct']}% TOM

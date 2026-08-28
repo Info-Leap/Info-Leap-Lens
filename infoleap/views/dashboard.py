@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from infoleap.utils.ui_styles import (inject_pulse_styles, sidebar_context_block,
@@ -56,7 +56,7 @@ def show_dashboard():
     _meta = _json.loads(_meta_path.read_text()) if _meta_path.exists() else {}
     _proj_label = _meta.get("description") or _meta.get("display_name") or project_id
 
-    # â”€â”€ Hero header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Hero header ──────────────────────────────────────────────────────────
     h_col, d_col = st.columns([0.8, 0.2])
     with h_col:
         st.markdown(
@@ -68,11 +68,11 @@ def show_dashboard():
     with d_col:
         st.markdown(
             f"<div style='text-align:right;color:#94a3b8;font-size:0.8rem;margin-top:14px;'>"
-            f"ðŸ“… {dash_data['timestamp']}</div>",
+            f"📅 {dash_data['timestamp']}</div>",
             unsafe_allow_html=True,
         )
 
-    # â”€â”€ Executive KPI scorecard (6 accent cards) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Executive KPI scorecard (6 accent cards) ─────────────────────────────
     def _home_kpi(col, label, value, sub="", color="#1a5d4d"):
         with col:
             st.markdown(
@@ -95,52 +95,52 @@ def show_dashboard():
     _home_kpi(kc[0], "Respondents", f"{head['base_n']:,}", "across 18 cities", "#6366f1")
     _home_kpi(kc[1], "Brands Tracked", f"{head['n_brands']}", f"{head['n_nps_brands']} with NPS base", "#0ea5e9")
     _home_kpi(kc[2], "Market Leader",
-              _ml.get("brand", "â€”"),
-              f"TOM {_ml.get('tom',0):.1f}% Â· reach {_ml.get('aided',0):.0f}%", "#1a5d4d")
+              _ml.get("brand", "—"),
+              f"TOM {_ml.get('tom',0):.1f}% · reach {_ml.get('aided',0):.0f}%", "#1a5d4d")
     _home_kpi(kc[3], "Most Loved",
-              _lov.get("brand", "â€”"),
-              f"NPS {_lov.get('nps',0):+.0f} Â· n={_lov.get('raters',0):,}", "#22c55e")
+              _lov.get("brand", "—"),
+              f"NPS {_lov.get('nps',0):+.0f} · n={_lov.get('raters',0):,}", "#22c55e")
     _home_kpi(kc[4], "Avg Category NPS",
-              f"{head.get('avg_nps',0):+.0f}" if head.get("avg_nps") is not None else "â€”",
-              f"respondent-weighted Â· {head.get('n_neg_nps',0)} brand(s) negative", "#f59e0b")
+              f"{head.get('avg_nps',0):+.0f}" if head.get("avg_nps") is not None else "—",
+              f"respondent-weighted · {head.get('n_neg_nps',0)} brand(s) negative", "#f59e0b")
     _home_kpi(kc[5], "TOM Concentration", f"{head.get('top5_share',0):.0f}%",
               "top-5 share of first recall", "#8b5cf6")
 
-    # â”€â”€ AI executive read-out â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── AI executive read-out ────────────────────────────────────────────────
     _findings = []
     if _ml:
         _findings.append(
-            f"<b>{_ml['brand']}</b> owns the category â€” first-named by <b>{_ml['tom']:.1f}%</b> "
+            f"<b>{_ml['brand']}</b> owns the category — first-named by <b>{_ml['tom']:.1f}%</b> "
             f"and recognised by <b>{_ml['aided']:.0f}%</b> of {head['base_n']:,} respondents.")
     if _lov and _ml and _lov["brand"] != _ml["brand"]:
         _findings.append(
             f"Loyalty leadership sits elsewhere: <b>{_lov['brand']}</b> posts the strongest "
-            f"NPS at <b>{_lov['nps']:+.0f}</b> â€” advocacy and salience are not the same brand.")
+            f"NPS at <b>{_lov['nps']:+.0f}</b> — advocacy and salience are not the same brand.")
     if _gap:
         _findings.append(
             f"Biggest reach-without-recall gap: <b>{_gap['brand']}</b> is known by "
-            f"{_gap['aided']:.0f}% but top-of-mind for only {_gap['tom']:.1f}% â€” a salience "
+            f"{_gap['aided']:.0f}% but top-of-mind for only {_gap['tom']:.1f}% — a salience "
             f"opportunity, not an awareness problem.")
     if head.get("n_neg_nps"):
         _findings.append(
             f"<b>{head['n_neg_nps']}</b> of {head['n_nps_brands']} brands carry a "
-            f"<b>negative NPS</b> â€” detractors outnumber promoters.")
+            f"<b>negative NPS</b> — detractors outnumber promoters.")
     _bullets = "".join(
-        f"<div style='font-size:0.83rem;margin-bottom:6px;line-height:1.5;color:#334155;'>â€¢ {f}</div>"
+        f"<div style='font-size:0.83rem;margin-bottom:6px;line-height:1.5;color:#334155;'>• {f}</div>"
         for f in _findings[:4])
     st.markdown(
         f"<div style='background:linear-gradient(135deg,#f0fdf4,#eff6ff);border-radius:12px;"
         f"padding:14px 18px;border-left:4px solid #22c55e;margin-top:14px;'>"
         f"<div style='font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;"
-        f"color:#16a34a;margin-bottom:8px;'>ðŸ§  Executive Read-out</div>{_bullets}</div>",
+        f"color:#16a34a;margin-bottom:8px;'>🧠 Executive Read-out</div>{_bullets}</div>",
         unsafe_allow_html=True,
     )
 
     st.divider()
 
-    # â”€â”€ Section 2: Awareness Battle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Section 2: Awareness Battle ──────────────────────────────────────────
     _section_title(
-        "ðŸ“£ The Awareness Battle",
+        "📣 The Awareness Battle",
         "Aided = who knows the brand | Spontaneous = unprompted recall | TOM = first-named",
     )
     funnel_df = get_awareness_funnel_data(project_id=project_id)
@@ -148,8 +148,8 @@ def show_dashboard():
         funnel_sorted = funnel_df.sort_values("aided_pct", ascending=True)
         brands_f = funnel_sorted["brand_name"].tolist()
         fig_funnel = go.Figure()
-        # barmode="overlay" draws each trace on top of the previous one â€” since
-        # aided_pct â‰¥ spont_pct â‰¥ tom_pct always, the widest bar must be added FIRST
+        # barmode="overlay" draws each trace on top of the previous one — since
+        # aided_pct ≥ spont_pct ≥ tom_pct always, the widest bar must be added FIRST
         # so narrower bars stay visible on top of it, not the other way round.
         for metric, color, label in [
             ("aided_pct", "#d8b4fe", "Aided Awareness"),
@@ -175,17 +175,17 @@ def show_dashboard():
         )
         st.plotly_chart(fig_funnel, use_container_width=True)
         st.caption(
-            "Bars overlay â€” wider gap between Aided and TOM = high awareness but low salience. "
-            "Brands with TOM â‰ˆ Aided punch above their weight."
+            "Bars overlay — wider gap between Aided and TOM = high awareness but low salience. "
+            "Brands with TOM ≈ Aided punch above their weight."
         )
     else:
         st.info("Awareness funnel data unavailable.")
 
     st.divider()
 
-    # â”€â”€ Section 3: NPS + Salience Efficiency â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Section 3: NPS + Salience Efficiency ─────────────────────────────────
     _section_title(
-        "â¤ï¸ Loyalty & Salience Efficiency",
+        "❤️ Loyalty & Salience Efficiency",
         "Left: who has promoters vs detractors | Right: who converts reach into top-of-mind recall",
     )
     nps_col, scatter_col = st.columns([6, 4])
@@ -226,7 +226,7 @@ def show_dashboard():
             fig_nps.add_vline(x=0, line_color="#374151", line_width=1.5)
             fig_nps.update_layout(
                 barmode="relative",
-                title="NPS Composition (Detractors â† | â†’ Promoters)",
+                title="NPS Composition (Detractors ← | → Promoters)",
                 height=360,
                 margin=dict(l=10, r=10, t=40, b=10),
                 legend=dict(orientation="h", yanchor="bottom", y=1.01, xanchor="right", x=1),
@@ -280,10 +280,10 @@ def show_dashboard():
 
     st.divider()
 
-    # â”€â”€ Section 4: Geographic Story â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Section 4: Geographic Story ──────────────────────────────────────────
     _section_title(
-        "ðŸ—ºï¸ Geographic Story â€” City Dominance",
-        "Lead brand TOM % and dominance gap in each city â€” wide gap = concentrated market",
+        "🗺️ Geographic Story — City Dominance",
+        "Lead brand TOM % and dominance gap in each city — wide gap = concentrated market",
     )
     city_df = get_city_dominance(project_id=project_id)
     if not city_df.empty:
@@ -328,9 +328,9 @@ def show_dashboard():
 
     st.divider()
 
-    # â”€â”€ Section 5: Category Ã— Brand Matrix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Section 5: Category × Brand Matrix ───────────────────────────────────
     _section_title(
-        "ðŸ·ï¸ Category Ã— Brand â€” Who Owns What",
+        "🏷️ Category × Brand — Who Owns What",
         "Awareness % within each product category. Category specialists vs. pan-category generalists.",
     )
     cat_matrix = get_category_brand_matrix(project_id=project_id)
@@ -346,7 +346,7 @@ def show_dashboard():
             colorbar=dict(title="Awareness %"),
         ))
         fig_cat.update_layout(
-            title="Brand Ã— Category Awareness Matrix",
+            title="Brand × Category Awareness Matrix",
             xaxis_title="Product Category",
             yaxis_title="Brand",
             height=350,
@@ -358,14 +358,14 @@ def show_dashboard():
             "Single dark cell = category specialist."
         )
     else:
-        st.info("Category matrix unavailable â€” fact_brand_imagery category join returned no data.")
+        st.info("Category matrix unavailable — fact_brand_imagery category join returned no data.")
 
     st.divider()
 
     # Section: Appliance Ownership Story
     _section_title(
-        "ðŸ  Category Penetration â€” What India Owns",
-        "Kitchen appliance ownership across 6,631 households â€” market size context for brand battles",
+        "🏠 Category Penetration — What India Owns",
+        "Kitchen appliance ownership across 6,631 households — market size context for brand battles",
     )
     appliance_df = get_appliance_ownership_story(project_id=project_id)
     if not appliance_df.empty:
@@ -389,7 +389,7 @@ def show_dashboard():
         st.plotly_chart(fig_app, use_container_width=True)
         top_app = appliance_df.sort_values("penetration_pct", ascending=False).iloc[0]
         st.caption(
-            f"**{top_app['appliance_name']}** leads at **{top_app['penetration_pct']:.1f}%** household penetration â€” "
+            f"**{top_app['appliance_name']}** leads at **{top_app['penetration_pct']:.1f}%** household penetration — "
             f"highest competition intensity. Brands fighting here face the most informed buyers."
         )
     else:
@@ -399,8 +399,8 @@ def show_dashboard():
 
     # Section: Qualitative Pulse
     _section_title(
-        "ðŸ’¬ Qualitative Pulse â€” Consumer Voices",
-        "Real verbatim responses linked to NPS scores â€” WHY consumers recommend or reject a brand",
+        "💬 Qualitative Pulse — Consumer Voices",
+        "Real verbatim responses linked to NPS scores — WHY consumers recommend or reject a brand",
     )
     verbatim_data = get_verbatim_pulse(project_id=project_id)
     if verbatim_data:
@@ -412,29 +412,29 @@ def show_dashboard():
         vd = verbatim_data.get(sel_brand_v, {})
         v_col1, v_col2 = st.columns(2)
         with v_col1:
-            st.markdown("**ðŸŸ¢ Promoter Voices** *(NPS 9-10 â€” why they recommend)*")
+            st.markdown("**🟢 Promoter Voices** *(NPS 9-10 — why they recommend)*")
             for q in vd.get("promoter", [])[:3]:
                 st.markdown(
                     f'<div style="background:#f0fdf4;border-left:3px solid #22c55e;'
                     f'padding:10px 14px;border-radius:6px;margin:6px 0;'
-                    f'font-size:0.85rem;font-style:italic;color:#374151;">â {q} âž</div>',
+                    f'font-size:0.85rem;font-style:italic;color:#374151;">❝ {q} ❞</div>',
                     unsafe_allow_html=True,
                 )
             if not vd.get("promoter"):
                 st.info("No promoter verbatims for this brand.")
         with v_col2:
-            st.markdown("**ðŸ”´ Detractor Voices** *(NPS 0-6 â€” why they would not recommend)*")
+            st.markdown("**🔴 Detractor Voices** *(NPS 0-6 — why they would not recommend)*")
             for q in vd.get("detractor", [])[:3]:
                 st.markdown(
                     f'<div style="background:#fef2f2;border-left:3px solid #ef4444;'
                     f'padding:10px 14px;border-radius:6px;margin:6px 0;'
-                    f'font-size:0.85rem;font-style:italic;color:#374151;">â {q} âž</div>',
+                    f'font-size:0.85rem;font-style:italic;color:#374151;">❝ {q} ❞</div>',
                     unsafe_allow_html=True,
                 )
             if not vd.get("detractor"):
                 st.info("No detractor verbatims for this brand.")
         st.caption(
-            "ðŸ“Š These are real survey respondents who also gave NPS scores in the loyalty chart above. "
+            "📊 These are real survey respondents who also gave NPS scores in the loyalty chart above. "
             "Promoter voice = amplify in messaging. Detractor voice = fix first."
         )
     else:
@@ -444,8 +444,8 @@ def show_dashboard():
 
     # Section: Hidden Hooks
     _section_title(
-        "ðŸª Hidden Hooks â€” AI-Discovered Brand Drivers",
-        "Attributes with outsized NPS impact despite low stated importance â€” "
+        "🪝 Hidden Hooks — AI-Discovered Brand Drivers",
+        "Attributes with outsized NPS impact despite low stated importance — "
         "the real loyalty levers, often invisible in standard surveys",
     )
     hooks_df = get_hidden_hooks(project_id=project_id)
@@ -465,16 +465,16 @@ def show_dashboard():
                         f'margin-bottom:10px;min-height:150px;">'
                         f'<div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;'
                         f'color:#6366f1;letter-spacing:0.05em;margin-bottom:6px;">'
-                        f'{hook["category"]} Â· {hook["brand"]}</div>'
+                        f'{hook["category"]} · {hook["brand"]}</div>'
                         f'<div style="font-size:0.82rem;font-weight:600;color:#1e1b4b;margin-bottom:8px;line-height:1.3;">'
-                        f'ðŸª {hook["primary_driver"]}</div>'
+                        f'🪝 {hook["primary_driver"]}</div>'
                         f'<div style="font-size:0.72rem;color:#4b5563;line-height:1.4;">'
                         f'{str(hook["insight_narrative"])[:130]}...</div>'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
         st.caption(
-            "ðŸ”— Connection to NPS: these hidden hooks explain why brands with similar awareness scores "
+            "🔗 Connection to NPS: these hidden hooks explain why brands with similar awareness scores "
             "have very different NPS. The attribute that drives loyalty is often not the most stated one."
         )
     else:
@@ -484,8 +484,8 @@ def show_dashboard():
 
     # Section: Recent Purchase Story
     _section_title(
-        "ðŸ›’ What India Is Actually Buying â€” Recent Purchase",
-        "Appliances most recently purchased by survey respondents â€” revealed demand, not stated intent",
+        "🛒 What India Is Actually Buying — Recent Purchase",
+        "Appliances most recently purchased by survey respondents — revealed demand, not stated intent",
     )
     rp_df = get_recent_purchase_story(project_id=project_id)
     if not rp_df.empty:
@@ -511,7 +511,7 @@ def show_dashboard():
         top = rp_df.sort_values("pct", ascending=False).iloc[0]
         st.caption(
             f"**{top['appliance_name']}** dominates recent purchases at **{top['pct']:.1f}%** of households. "
-            "ðŸ”— Cross-reference with Appliance Ownership above â€” high ownership + high recent purchase = replacement market, not first-time buyers."
+            "🔗 Cross-reference with Appliance Ownership above — high ownership + high recent purchase = replacement market, not first-time buyers."
         )
     else:
         st.info("Recent purchase data unavailable.")
@@ -521,7 +521,7 @@ def show_dashboard():
         st.markdown(
             f'<div style="margin-top:12px;padding:10px 16px;background:#f8fafc;border-radius:8px;'
             f'font-size:0.83rem;color:#6b7280;">'
-            f"ðŸ’¬ {msg_count} messages in this session"
+            f"💬 {msg_count} messages in this session"
             f'</div>',
             unsafe_allow_html=True,
         )

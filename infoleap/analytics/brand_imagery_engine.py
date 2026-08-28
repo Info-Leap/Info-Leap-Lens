@@ -1,10 +1,10 @@
-﻿"""
-BrandImageryEngine â€” Fixed for oxdata star schema.
+"""
+BrandImageryEngine — Fixed for oxdata star schema.
 
 Correct tables: fact_respondents, fact_brand_awareness, fact_brand_nps, dim_brand, dim_zone, dim_city
 Correct views:  v_respondents, v_brand_awareness, v_brand_nps
 
-Previous version queried 'respondents', 'responses', 'choices', 'variables' â€”
+Previous version queried 'respondents', 'responses', 'choices', 'variables' —
 none of which exist in the current schema. Also queried bq3 imagery data
 that is not yet ingested. This version uses what is actually in the DB.
 """
@@ -36,7 +36,7 @@ class BrandImageryEngine:
         return sqlite3.connect(os.path.abspath(self.db_path))
 
     def _meta(self) -> dict:
-        """Per-project metadata (description, NPS benchmark, categories, â€¦)."""
+        """Per-project metadata (description, NPS benchmark, categories, …)."""
         from infoleap.db_loader import get_project_meta
         return get_project_meta(self.project_id)
 
@@ -58,7 +58,7 @@ class BrandImageryEngine:
         Compute brand health metrics from raw Excel (data_layer) when available,
         else from the star-schema SQLite views.
         """
-        # data_layer path â€” no SQL, computes from raw Excel + mapping
+        # data_layer path — no SQL, computes from raw Excel + mapping
         try:
             from infoleap.data_layer import get_project_layer, project_has_raw_layer
             if project_has_raw_layer(self.project_id):
@@ -69,7 +69,7 @@ class BrandImageryEngine:
 
         conn = self._get_conn()
 
-        # â”€â”€ 1. Respondent filter (geo + demographic + months; category is NULL in this DB)
+        # ── 1. Respondent filter (geo + demographic + months; category is NULL in this DB)
         resp_parts, resp_params = [], []
         if zone.lower() not in ("all", ""):
             resp_parts.append("zone_name = ?")
@@ -101,11 +101,11 @@ class BrandImageryEngine:
             conn.close()
             return {"status": "insufficient_data", "base_n": base_n}
 
-        # â”€â”€ 2. Brand filter removed (requested by user) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 2. Brand filter removed (requested by user) ───────────────────────
         brand_filter_awa, brand_filter_nps = "", ""
         brand_params = []
 
-        # â”€â”€ 3. Awareness data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 3. Awareness data ─────────────────────────────────────────────────
         awa_df = pd.read_sql_query(
             f"""
             WITH base AS (SELECT respondent_id FROM v_respondents {resp_where})
@@ -119,7 +119,7 @@ class BrandImageryEngine:
             conn, params=resp_params + brand_params
         )
 
-        # â”€â”€ 4. NPS data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 4. NPS data ───────────────────────────────────────────────────────
         nps_df = pd.read_sql_query(
             f"""
             WITH base AS (SELECT respondent_id FROM v_respondents {resp_where})
@@ -137,11 +137,11 @@ class BrandImageryEngine:
         if awa_df.empty:
             return {"status": "insufficient_data", "base_n": base_n}
 
-        # â”€â”€ 5. Per-brand metrics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── 5. Per-brand metrics ──────────────────────────────────────────────
         brands_list = []
         for (brand_id, brand_name), grp in awa_df.groupby(["brand_id", "brand_name"]):
             # Awareness stages only: TOM, SPONT (additive spontaneous), AIDED (incremental).
-            # EVER_USED/CONSIDERATION/etc. are independent usage questions â€” NOT awareness subsets.
+            # EVER_USED/CONSIDERATION/etc. are independent usage questions — NOT awareness subsets.
             # Must filter to awareness stages only; otherwise aided_n inflates to ~100%.
             _awa_grp  = grp[grp["stage"].isin(["TOM", "SPONT", "AIDED"])]
             total_awa_n = _awa_grp["respondent_id"].nunique()  # total unique respondents aware (55.0%)
@@ -168,7 +168,7 @@ class BrandImageryEngine:
                 nps_detractors_pct = round(detractors / raters * 100, 1)
 
             # Strategic score: composite of TOM (salience), total awareness (reach), NPS (loyalty).
-            # NPS is normalized from [-100,+100] â†’ [0,100] before weighting.
+            # NPS is normalized from [-100,+100] → [0,100] before weighting.
             if nps_val is not None:
                 nps_norm = (nps_val + 100) / 2.0
                 strat_score = round(tom_pct * 0.40 + total_awareness_pct * 0.10 + nps_norm * 0.50, 1)
@@ -212,7 +212,7 @@ class BrandImageryEngine:
                 "nps_promoters_pct":  nps_promoters_pct,
                 "nps_passives_pct":   nps_passives_pct,
                 "nps_detractors_pct": nps_detractors_pct,
-                # Imagery (bq3 not ingested â€” placeholders)
+                # Imagery (bq3 not ingested — placeholders)
                 "scores":  [0, 0, 0, 0, 0],
                 "imagery": [],
                 # Composite
@@ -421,7 +421,7 @@ class BrandImageryEngine:
         Returns list of dicts: {brand_name, tom_pct, spont_pct, aided_pct, nps}
         """
         # Competitors are project_1-specific config; non-project_1 projects have no predefined
-        # competitor list â€” skip gracefully rather than returning project_1's appliance rivals.
+        # competitor list — skip gracefully rather than returning project_1's appliance rivals.
         rivals = []
         if self.project_id == "project_1":
             try:
@@ -480,7 +480,7 @@ class BrandImageryEngine:
         segment_values: list = None,
     ) -> dict:
         """
-        Awareness-depth funnel (TOM/SPONT/AIDED/CONSIDERATION %) for each brand Ã— segment.
+        Awareness-depth funnel (TOM/SPONT/AIDED/CONSIDERATION %) for each brand × segment.
 
         segment_type: 'overall' | 'zone' | 'gender' | 'age_band' | 'city'
         segment_values: list of values (e.g. ['North', 'South']).
@@ -657,7 +657,7 @@ class BrandImageryEngine:
                 tom_n        = _n("TOM")
                 spont_n      = b_aw[b_aw["stage"].isin(["TOM", "SPONT"])]["respondent_id"].nunique()
                 aided_only_n = _n("AIDED")
-                # unique across all three â€” pandas AIDED may overlap with SPONT
+                # unique across all three — pandas AIDED may overlap with SPONT
                 total_awa_n  = b_aw[b_aw["stage"].isin(["TOM", "SPONT", "AIDED"])]["respondent_id"].nunique()
                 consid_n     = _n("CONSIDERATION")
                 ever_used_n  = _n("EVER_USED")
@@ -725,7 +725,7 @@ class BrandImageryEngine:
 
     def get_brand_zone_matrix(self, top_n: int = 20) -> dict:
         """
-        Brand Ã— zone awareness + NPS matrix for PCA / correspondence map.
+        Brand × zone awareness + NPS matrix for PCA / correspondence map.
         Returns: {brands, zones, tom_matrix, nps_matrix}
         """
         conn = self._get_conn()

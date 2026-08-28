@@ -1,7 +1,7 @@
-﻿"""
-DashboardEngine â€” reads real survey metrics.
+"""
+DashboardEngine — reads real survey metrics.
 Single Wave 1 survey: 6,631 respondents, April-June 2021.
-No wave splitting â€” April vs May+June is the same survey wave.
+No wave splitting — April vs May+June is the same survey wave.
 """
 import sqlite3
 import time
@@ -32,7 +32,7 @@ def get_dashboard_stats(project_id: str = "project_1") -> dict:
 
     base_n = pd.read_sql("SELECT COUNT(*) n FROM v_respondents", conn).iloc[0]["n"]
 
-    # NPS top 4 â€” full survey, min 50 raters
+    # NPS top 4 — full survey, min 50 raters
     nps_df = pd.read_sql("""
         SELECT brand_name,
                ROUND((SUM(CASE WHEN nps_score>=9 THEN 1.0 ELSE 0 END) -
@@ -146,13 +146,13 @@ def get_computed_signals(project_id: str = "project_1") -> list:
     """, conn)
     for _, row in neg_nps.iterrows():
         signals.append({
-            "title": f"{row['brand_name']} â€” Negative NPS",
+            "title": f"{row['brand_name']} — Negative NPS",
             "description": (
                 f"NPS = {row['nps']:+.0f} among {row['n']:,} raters. "
                 "Detractors outnumber promoters. Investigate service and durability complaints."
             ),
             "severity": "warning",
-            "icon": "ðŸŸ¡",
+            "icon": "🟡",
         })
 
     # Signal 2: Awareness-salience gap (aided>=30%, TOM<3%)
@@ -180,13 +180,13 @@ def get_computed_signals(project_id: str = "project_1") -> list:
     """, conn, params=[base_n, base_n, base_n, base_n])
     for _, row in gap.iterrows():
         signals.append({
-            "title": f"{row['brand_name']} â€” Awareness-Salience Gap",
+            "title": f"{row['brand_name']} — Awareness-Salience Gap",
             "description": (
                 f"Aided awareness {row['aided_pct']}% but Top-of-Mind only "
                 f"{row['tom_pct']}%. Brand is recognised but not recalled spontaneously."
             ),
             "severity": "info",
-            "icon": "ðŸ”µ",
+            "icon": "🔵",
         })
 
     # Signal 3: Top penetration appliance
@@ -202,13 +202,13 @@ def get_computed_signals(project_id: str = "project_1") -> list:
     if not top_app.empty:
         pct = round(top_app.iloc[0]["n"] / base_n * 100, 1)
         signals.append({
-            "title": f"{top_app.iloc[0]['appliance_name']} â€” Category Leader",
+            "title": f"{top_app.iloc[0]['appliance_name']} — Category Leader",
             "description": (
                 f"{pct}% household penetration across {base_n:,} respondents. "
                 "Highest ownership of any tracked kitchen appliance."
             ),
             "severity": "positive",
-            "icon": "ðŸŸ¢",
+            "icon": "🟢",
         })
 
     conn.close()
@@ -255,7 +255,7 @@ def get_home_headline_stats(project_id: str = "project_1") -> dict:
 
     n_brands = int(aware["brand_name"].nunique()) if not aware.empty else 0
     leader = aware.iloc[0] if not aware.empty else None
-    # Top-5 concentration on TOM (first-named = mutually exclusive â†’ a true share â‰¤100%)
+    # Top-5 concentration on TOM (first-named = mutually exclusive → a true share ≤100%)
     top5_share = round(aware.nlargest(5, "tom_pct")["tom_pct"].sum(), 0) if not aware.empty else 0
     # salience gap = aided - tom; biggest = strongest reach-without-recall
     gap_brand = None
@@ -265,8 +265,8 @@ def get_home_headline_stats(project_id: str = "project_1") -> dict:
 
     most_loved = nps_all.iloc[0] if not nps_all.empty else None
     least_loved = nps_all.iloc[-1] if not nps_all.empty else None
-    # Respondent-weighted category NPS: Î£(npsÂ·raters)/Î£(raters). A brand with
-    # thousands of raters counts more than one with 50 â€” the statistically correct
+    # Respondent-weighted category NPS: Σ(nps·raters)/Σ(raters). A brand with
+    # thousands of raters counts more than one with 50 — the statistically correct
     # market average (vs an unweighted mean of brand scores).
     if not nps_all.empty:
         _w = pd.to_numeric(nps_all["raters"], errors="coerce").fillna(0)
@@ -457,7 +457,7 @@ def get_category_brand_matrix(project_id: str = "project_1") -> pd.DataFrame:
     Brand imagery share % per brand per category (top 8 brands x 6 categories).
     Source: fact_brand_imagery (BQ3 imagery evaluations, NOT awareness funnel).
     Each cell = respondents who evaluated that brand in that category /
-                total respondents who evaluated ANY brand in that category Ã— 100.
+                total respondents who evaluated ANY brand in that category × 100.
     This measures brand participation share within each category's imagery study,
     not survey-wide aided awareness penetration.
     """
@@ -485,7 +485,7 @@ def get_category_brand_matrix(project_id: str = "project_1") -> pd.DataFrame:
         """, conn)
 
         # Per-category respondent base (total unique respondents who evaluated
-        # ANY brand in each category â€” correct denominator for share within category)
+        # ANY brand in each category — correct denominator for share within category)
         cat_base_df = pd.read_sql("""
             SELECT
                 CASE
@@ -573,7 +573,7 @@ def get_verbatim_pulse(project_id: str = "project_1") -> dict:
 
 @st.cache_data(ttl=3600)
 def get_hidden_hooks(project_id: str = "project_1") -> pd.DataFrame:
-    """Returns fact_findings_ledger â€” AI-discovered hidden NPS drivers. Empty DF if table empty."""
+    """Returns fact_findings_ledger — AI-discovered hidden NPS drivers. Empty DF if table empty."""
     conn = _conn(project_id)
     try:
         df = pd.read_sql("""

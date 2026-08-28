@@ -1,4 +1,4 @@
-﻿"""
+"""
 Capability Registry
 ===================
 All capability modules are registered here.
@@ -24,7 +24,7 @@ from infoleap.skills.capabilities import (
     room,
 )
 
-# Maps capability_id â†’ module. The foundry uses this to call format_prompt().
+# Maps capability_id → module. The foundry uses this to call format_prompt().
 REGISTRY: dict = {
     awareness.CAPABILITY_ID:  awareness,
     nps.CAPABILITY_ID:        nps,

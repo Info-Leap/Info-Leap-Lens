@@ -1,5 +1,5 @@
-﻿"""
-Chart Tools â€” pre-built brand health charts for the Ask Pulse agent.
+"""
+Chart Tools — pre-built brand health charts for the Ask Pulse agent.
 Exposes `get_brand_chart(chart_type, brand, zone, category)` which
 returns a Plotly figure JSON string using the same functions as the
 Brand Health dashboard.
@@ -14,13 +14,13 @@ if str(_ROOT) not in sys.path:
 
 CHART_CATALOGUE = {
     "awareness_landscape":  "All-brand stacked awareness bar (TOM / Spont / Aided)",
-    "awareness_funnel":     "Single-brand awareness funnel (Aided â†’ Spont â†’ TOM)",
-    "nps_rankings":         "NPS league table â€” all brands ranked",
+    "awareness_funnel":     "Single-brand awareness funnel (Aided → Spont → TOM)",
+    "nps_rankings":         "NPS league table — all brands ranked",
     "zone_comparison":      "Zone-by-zone awareness breakdown for a brand",
     "zone_nps":             "NPS by zone for a brand",
     "city_nps":             "City-level NPS for a brand (top 12 cities)",
     "radar":                "5-axis brand health radar for a brand",
-    "positioning":          "Strategic map â€” TOM% vs NPS scatter for all brands",
+    "positioning":          "Strategic map — TOM% vs NPS scatter for all brands",
 }
 
 
@@ -76,7 +76,7 @@ def get_brand_chart(
                 None,
             )
 
-    # â”€â”€ Chart dispatch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Chart dispatch ──────────────────────────────────────────────────────
 
     if chart_type == "awareness_landscape":
         fig = _awareness_landscape_chart(brands_list, top_n=15)
@@ -96,7 +96,7 @@ def get_brand_chart(
         aided = brand_data.get("aided_pct", 0)
         explanation = (
             f"{brand_data['brand_name']} awareness funnel: "
-            f"{aided}% aided â†’ {spont}% spontaneous â†’ {tom}% top-of-mind. "
+            f"{aided}% aided → {spont}% spontaneous → {tom}% top-of-mind. "
             f"Funnel depth reflects salience: only {round(tom/aided*100) if aided else 0}% "
             f"of those who recognise the brand recall it first unprompted."
         )
@@ -105,9 +105,9 @@ def get_brand_chart(
         highlight = brand_data["brand_name"] if brand_data else None
         fig = _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight=highlight)
         if fig is None:
-            raise ValueError("Insufficient NPS data (need â‰¥30 raters per brand).")
+            raise ValueError("Insufficient NPS data (need ≥30 raters per brand).")
         explanation = (
-            f"NPS league table â€” top 15 brands by score (min 30 raters). "
+            f"NPS league table — top 15 brands by score (min 30 raters). "
             f"Industry average: +{NPS_INDUSTRY_AVG}. "
             + (f"{highlight} highlighted in dark green." if highlight else "")
         )
@@ -167,7 +167,7 @@ def get_brand_chart(
         explanation = (
             f"Brand health radar for {brand_data['brand_name']} vs Top-5 category average. "
             f"Five axes: Salience (TOM%), Recall (Spont%), Total Reach (Aided%), "
-            f"Loyalty (NPS normalised 0â€“100), Rater Depth. "
+            f"Loyalty (NPS normalised 0–100), Rater Depth. "
             f"Area above the grey dotted line = competitive advantage."
         )
 

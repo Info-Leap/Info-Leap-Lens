@@ -1,9 +1,9 @@
-﻿import streamlit as st
+import streamlit as st
 from infoleap.utils.context import ContextEngine
 
 def inject_pulse_styles():
     """Injects the high-fidelity InfoLeap Pulse CSS + Google Fonts."""
-    # Google Fonts â€” preconnect + import for all chart font options
+    # Google Fonts — preconnect + import for all chart font options
     st.markdown(
         '<link rel="preconnect" href="https://fonts.googleapis.com">'
         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
@@ -64,7 +64,7 @@ def inject_pulse_styles():
             background-color: transparent !important;
         }
 
-        /* â”€â”€ Sidebar widget label visibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* ── Sidebar widget label visibility ────────────────────────────── */
         /* Labels above selectbox / radio / multiselect */
         [data-testid="stSidebar"] label,
         [data-testid="stSidebar"] .stSelectbox label,
@@ -77,7 +77,7 @@ def inject_pulse_styles():
             opacity: 1 !important;
         }
 
-        /* Selectbox/multiselect input box â€” white bg, black text */
+        /* Selectbox/multiselect input box — white bg, black text */
         [data-testid="stSidebar"] .stSelectbox > div > div,
         [data-testid="stSidebar"] .stMultiSelect > div > div {
             background-color: rgba(255,255,255,0.12) !important;
@@ -99,7 +99,7 @@ def inject_pulse_styles():
             fill: white !important;
         }
 
-        /* Dropdown popup â€” MUST be light so options are readable */
+        /* Dropdown popup — MUST be light so options are readable */
         [data-baseweb="popover"] ul,
         [data-baseweb="menu"] {
             background-color: #ffffff !important;
@@ -191,10 +191,10 @@ def inject_pulse_styles():
             border-radius: 4px;
         }
 
-        /* Buttons & Actions â€” primary (type="primary") stays solid/vibrant for the one main
+        /* Buttons & Actions — primary (type="primary") stays solid/vibrant for the one main
            call-to-action per section; secondary (the default) is now visually distinct (outline,
            muted) so utility buttons (Select all/none, Reset, etc.) stop competing for attention
-           with the actual next-step action. Previously every button â€” primary or secondary â€” was
+           with the actual next-step action. Previously every button — primary or secondary — was
            forced to the same solid green, so an entire screen of buttons looked equally important
            and nothing signaled "this is the one to click next." */
         .stButton button,
@@ -239,7 +239,7 @@ def inject_pulse_styles():
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* â”€â”€ Text Highlighting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* ── Text Highlighting ─────────────────────────────────────────── */
         mark {
             background: #fef08a;
             color: #111827;
@@ -248,7 +248,7 @@ def inject_pulse_styles():
             font-weight: 700;
         }
 
-        /* â”€â”€ Hero Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* ── Hero Banner ───────────────────────────────────────────────── */
         .bh-hero {
             background: linear-gradient(135deg, #0a2e22 0%, #1a5d4d 55%, #22876b 100%);
             border-radius: 16px;
@@ -303,7 +303,7 @@ def inject_pulse_styles():
             margin-top: 3px;
         }
 
-        /* â”€â”€ Brand Health Enhancements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* ── Brand Health Enhancements ─────────────────────────────────── */
         [data-testid="stMetric"] {
             background: white;
             border-radius: 12px;
@@ -364,7 +364,7 @@ def inject_pulse_styles():
             line-height: 1.75;
             color: #374151;
         }
-        /* â”€â”€ Executive Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* ── Executive Hero ────────────────────────────────────────────────── */
         .exec-hero {
             background: radial-gradient(circle at top right, #1e293b, #0f172a);
             border-radius: 24px;
@@ -412,8 +412,8 @@ def inject_pulse_styles():
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
         }
         
-        /* â”€â”€ Shared Component Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        /* pulse-kpi-card â€” standard metric tile */
+        /* ── Shared Component Styles ──────────────────────────────────────── */
+        /* pulse-kpi-card — standard metric tile */
         .pulse-kpi-card {
             border-radius: 12px;
             padding: 14px 16px;
@@ -434,7 +434,7 @@ def inject_pulse_styles():
             line-height: 1.1;
         }
 
-        /* pulse-section-header â€” standard section title bar */
+        /* pulse-section-header — standard section title bar */
         .pulse-section-header {
             border-left: 3px solid #1a5d4d;
             border-radius: 0 8px 8px 0;
@@ -447,7 +447,7 @@ def inject_pulse_styles():
             letter-spacing: -0.01em;
         }
 
-        /* pulse-empty-state â€” standard no-data placeholder */
+        /* pulse-empty-state — standard no-data placeholder */
         .pulse-empty-state {
             border: 2px dashed #e5e7eb;
             border-radius: 12px;
@@ -460,7 +460,7 @@ def inject_pulse_styles():
             justify-content: center;
         }
 
-        /* â”€â”€ Tooltips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* ── Tooltips ──────────────────────────────────────────────────────── */
         .hs-tooltip-anchor {
             cursor: help;
             font-size: 0.8rem;
@@ -496,7 +496,7 @@ def inject_pulse_styles():
         </style>
     """, unsafe_allow_html=True)
 
-# â”€â”€ Shared Design Tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Shared Design Tokens ──────────────────────────────────────────────────────
 # Single source of truth for all views. Import from here, never redefine locally.
 
 COLORS = {
@@ -538,7 +538,7 @@ ZONE_COLORS = {
     "West":  "#7c3aed",
 }
 
-# Standard Plotly chart layout â€” use in every update_layout() call
+# Standard Plotly chart layout — use in every update_layout() call
 CHART_LAYOUT = dict(
     paper_bgcolor="white",
     plot_bgcolor="white",
@@ -554,7 +554,7 @@ CHART_LAYOUT = dict(
 )
 
 
-# â”€â”€ Shared UI Component Functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Shared UI Component Functions ─────────────────────────────────────────────
 
 def section_header(title: str, subtitle: str = "", accent: str = None):
     """Standard section header used across all pages.
@@ -611,7 +611,7 @@ def kpi_card(label: str, value: str, color: str = None, subtext: str = "",
     )
 
 
-def empty_state(message: str = "No data available", icon: str = "â—‹",
+def empty_state(message: str = "No data available", icon: str = "○",
                 height: int = None, action_hint: str = ""):
     """Standard empty / no-data state used across all pages.
     Replaces: st.info(), st.error(), custom dashed HTML boxes.
@@ -669,7 +669,7 @@ def page_banner(title: str, subtitle: str = "", gradient: str = None,
 def sidebar_context_block(brand=None, respondents=6631, studies=12, active=4, show_category=True):
     """Renders the 'Active Brand' context block in the sidebar.
 
-    show_category=False: hide Switch Category selector (e.g. Brand Health â€” Wave 1 has no
+    show_category=False: hide Switch Category selector (e.g. Brand Health — Wave 1 has no
     category dimension so the selector has no effect there).
     """
     from infoleap.utils.context import ContextEngine
@@ -708,7 +708,7 @@ def sidebar_context_block(brand=None, respondents=6631, studies=12, active=4, sh
                     </div>
                 </div>
                 <div style="margin-top: 0.5rem; font-size: 0.65rem; color: #a7f3d0;">
-                    ðŸŸ¢ {active} users active in this workspace
+                    🟢 {active} users active in this workspace
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -716,7 +716,7 @@ def sidebar_context_block(brand=None, respondents=6631, studies=12, active=4, sh
 def signal_score_card(label: str, value: int, higher_is_better: bool = True,
                       lo_label: str = "Low", hi_label: str = "High",
                       context: str = ""):
-    """Standard signal score gauge card â€” identical across all project views.
+    """Standard signal score gauge card — identical across all project views.
     Use for Satisfaction / Risk / Opportunity and any derived composite score.
     value: 0-100 integer.
     higher_is_better: controls color (green=good side).
@@ -751,7 +751,7 @@ def scoreboard_card(label, value, pct, delta=None, direction=None):
     delta_html = ""
     if delta is not None and direction is not None:
         color = "#10b981" if direction == "up" else "#ef4444" if direction == "down" else "#6b7280"
-        symbol = "â–²" if direction == "up" else "â–¼" if direction == "down" else "â€¢"
+        symbol = "▲" if direction == "up" else "▼" if direction == "down" else "•"
         delta_html = f'<span style="color: {color}; margin-left: 8px; font-weight: bold;">{symbol} {abs(delta)}</span>'
 
     st.markdown(f"""

@@ -1,10 +1,10 @@
-﻿"""
-Add Project â€” multi-project ingestion: classify (Phase 1) + confirm + write (Phase 2)
+"""
+Add Project — multi-project ingestion: classify (Phase 1) + confirm + write (Phase 2)
 ====================================================================================
 Upload a new client's raw data file + data map + AP (analysis plan). A single LLM call
 (lens/ingestion/schema_ingest.py::classify_all_questions) reads the full AP text, full
 datamap text, and a row-sample of the raw data, and returns one schema-validated mapping
-document (one row per real survey question â€” bucket, shape, source column, code->label).
+document (one row per real survey question — bucket, shape, source column, code->label).
 Nothing is written to any database until a human reviews/corrects the bucket assignment in
 the table below and clicks "Confirm Bucket Assignment && Ingest", which adapts that document
 via lens/ingestion/generic_loader.py::assignment_from_schema and calls
@@ -13,7 +13,7 @@ oxdata/data/<project id>/oxdata.db.
 
 2026-08-03: replaced the old 6-stage heuristic classifier (build_mapping_report /
 classify_with_ai_fallback / reconcile_columns / group_cross_question_batteries / ...) with
-this single-call schema-driven pipeline â€” see .planning/AKSHAYAKALPA_PIPELINE_FIX_LOG.md for
+this single-call schema-driven pipeline — see .planning/AKSHAYAKALPA_PIPELINE_FIX_LOG.md for
 the 32-bug history of the old pipeline this replaces, and
 .planning/MULTIPROJECT_INGESTION_LOG_2026-07-27.md for the overall ingestion design.
 
@@ -54,7 +54,7 @@ from infoleap.ingestion.mapping_workbook import (build_mapping_workbook, read_ma
                                               apply_overrides_to_schema)
 
 
-# â”€â”€ OpenRouter model catalogue (used for model dropdown) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── OpenRouter model catalogue (used for model dropdown) ──────────────────────
 # Curated list of models available on OpenRouter that work well for structured
 # JSON classification. User can override via dropdown; .env defaults still apply
 # when no override is set.
@@ -99,7 +99,7 @@ def _build_fallback_model_list(override_model: str = None) -> list:
 
 def _questions_to_mapping_guesses(qlist):
     """Adapt schema_ingest's plain-dict question rows into the MappingGuess dataclass that
-    codebook_parser.py's export_column_map_excel/export_column_map_json still expect â€” those
+    codebook_parser.py's export_column_map_excel/export_column_map_json still expect — those
     two exporters are otherwise untouched (old pipeline's shape), so this is a display-only
     adapter, not a real classifier. matched_dimension/raw_data_sample have no equivalent in the
     new schema and are only ever displayed/joined as text by the exporters, so empty defaults
@@ -126,16 +126,16 @@ def _questions_to_mapping_guesses(qlist):
 def _generate_manual_template() -> bytes:
     """Generate the Manual Ingest Template Excel workbook.
 
-    Sheet 1 â€” MAPPING: one example row per bucket type (generic, not client-specific).
-    Sheet 2 â€” INSTRUCTIONS: bucket reference + shape definitions + AI prompt to fill it.
-    Sheet 3 â€” BUCKET_REFERENCE: all 22 buckets with descriptions.
+    Sheet 1 — MAPPING: one example row per bucket type (generic, not client-specific).
+    Sheet 2 — INSTRUCTIONS: bucket reference + shape definitions + AI prompt to fill it.
+    Sheet 3 — BUCKET_REFERENCE: all 22 buckets with descriptions.
 
     The user downloads this, fills it in (ideally with an AI assistant), then uploads it
-    alongside the raw data file for instant ingestion â€” no AI classification call needed.
+    alongside the raw data file for instant ingestion — no AI classification call needed.
     """
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
-        # Sheet 1: MAPPING â€” one generic example per shape/bucket combination
+        # Sheet 1: MAPPING — one generic example per shape/bucket combination
         example_rows = [
             # Demographics
             ("dem1",  "Please select the city where you currently reside.",
@@ -167,11 +167,11 @@ def _generate_manual_template() -> bytes:
             ("q_sat", "Overall, how satisfied are you with [Brand]? (1-5 scale)",
              "CSAT",          "numeric_score",         "q_sat_1","",  "",
              ""),
-            # Brand imagery â€” multi-brand (multivalent per attribute)
+            # Brand imagery — multi-brand (multivalent per attribute)
             ("bq_img1","Select brands you feel are trustworthy.",
              "BRAND_IMAGERY", "multivalent_source",    "bq_img1"," ", "bq_img1_1 bq_img1_2 bq_img1_3",
              '{"1":"BrandA","2":"BrandB","3":"BrandC"}'),
-            # Brand imagery â€” dummy-only (no combined column)
+            # Brand imagery — dummy-only (no combined column)
             ("bq_img2","Select brands you feel offer good value for money.",
              "BRAND_IMAGERY", "multi_select_dummies",  "bq_img2","",  "bq_img2_1 bq_img2_2 bq_img2_3",
              '{"1":"BrandA","2":"BrandB","3":"BrandC"}'),
@@ -201,33 +201,33 @@ def _generate_manual_template() -> bytes:
             "I will paste my datamap below. For EACH question in the datamap, add ONE row to the "
             "MAPPING sheet using these rules:\n"
             "- question_code: the column stem (strip trailing _1/_2/... suffix)\n"
-            "- bucket: one of 22 values â€” see BUCKET_REFERENCE sheet for full list\n"
+            "- bucket: one of 22 values — see BUCKET_REFERENCE sheet for full list\n"
             "- shape: multivalent_source (one cell holds '1 3 5'), single_value, numeric_score, "
             "  or multi_select_dummies (only 0/1 columns, no combined column)\n"
             "- source_column: exact column name to read from the data file\n"
-            "- delimiter: only for multivalent_source â€” space, comma, or semicolon\n"
+            "- delimiter: only for multivalent_source — space, comma, or semicolon\n"
             "- dummy_columns: space-separated list of 0/1 column names (multi_select_dummies only)\n"
             "- code_to_label: JSON dict {\"raw_code\": \"brand_or_label_name\"} for brand questions\n\n"
             "Delete the example rows when done. Keep only real questions.\n\n"
             "[PASTE YOUR DATAMAP HERE]"
         )
         instr_rows = [
-            ["MANUAL INGEST TEMPLATE â€” InfoLeap Pulse", ""],
+            ["MANUAL INGEST TEMPLATE — InfoLeap Pulse", ""],
             ["", ""],
             ["HOW TO USE THIS TEMPLATE", ""],
-            ["1. Fill the MAPPING sheet â€” one row per survey question to ingest.", ""],
+            ["1. Fill the MAPPING sheet — one row per survey question to ingest.", ""],
             ["2. Delete the 14 example rows (rows 2-15) and add your own.", ""],
             ["3. Use BUCKET_REFERENCE sheet to pick the right bucket for each question.", ""],
             ["4. Upload this filled template + raw data file in the Manual Ingest tab.", ""],
             ["", ""],
-            ["FASTEST WAY â€” USE AN AI (Claude, Gemini, ChatGPT):", ""],
+            ["FASTEST WAY — USE AN AI (Claude, Gemini, ChatGPT):", ""],
             ["Copy the prompt below, paste your datamap after [PASTE YOUR DATAMAP HERE], send to AI.", ""],
             ["AI PROMPT:", ""],
             [ai_prompt, ""],
             ["", ""],
             ["COLUMN GUIDE", ""],
             ["question_code", "The column stem in your raw data file (e.g. q17, not q17_1)"],
-            ["question_text", "Human-readable label (only for display â€” not used in DB write)"],
+            ["question_text", "Human-readable label (only for display — not used in DB write)"],
             ["bucket", "One of the 22 buckets in BUCKET_REFERENCE sheet (e.g. AIDED, NPS)"],
             ["shape", "multivalent_source | single_value | numeric_score | multi_select_dummies"],
             ["source_column", "The actual column name in your raw data file to read from"],
@@ -239,7 +239,7 @@ def _generate_manual_template() -> bytes:
             ["multivalent_source", "One column holds all selections as delimited codes: '1 3 5'"],
             ["single_value", "One column, one value per respondent"],
             ["numeric_score", "Numeric rating (NPS 0-10, CSAT 1-5, importance 1-7)"],
-            ["multi_select_dummies", "No combined column â€” only one-hot dummy columns (0/1 per option)"],
+            ["multi_select_dummies", "No combined column — only one-hot dummy columns (0/1 per option)"],
         ]
         pd.DataFrame(instr_rows, columns=["Field", "Description"]).to_excel(
             writer, sheet_name="INSTRUCTIONS", index=False)
@@ -260,7 +260,7 @@ def _render_manage_project():
     from pathlib import Path as _Path
 
     oxdata_data_dir = _Path(oxdata_dir) / "data"
-    db_paths = sorted(glob.glob(str(oxdata_data_dir / "*" / "oxdata.db")))
+    db_paths = sorted(glob.glob(str(oxdata_data_dir / "*" / "infoleap.db")))
     project_ids = [_Path(p).parent.name for p in db_paths]
 
     if not project_ids:
@@ -271,10 +271,10 @@ def _render_manage_project():
     if not selected:
         return
 
-    db_path = str(oxdata_data_dir / selected / "oxdata.db")
+    db_path = str(oxdata_data_dir / selected / "infoleap.db")
     db_file = _Path(db_path)
 
-    # â”€â”€ Project info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Project info ──────────────────────────────────────────────────────────
     st.markdown(f"**DB path:** `{db_path}`")
     if db_file.exists():
         size_mb = db_file.stat().st_size / (1024 * 1024)
@@ -301,8 +301,8 @@ def _render_manage_project():
 
     st.divider()
 
-    # â”€â”€ Edit Analysis Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    st.subheader("âš™ï¸ Analysis Configuration")
+    # ── Edit Analysis Config ──────────────────────────────────────────────────
+    st.subheader("⚙️ Analysis Configuration")
     try:
         _conn2 = _sqlite3.connect(db_path)
         _tables2 = [r[0] for r in _conn2.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
@@ -332,7 +332,7 @@ def _render_manage_project():
         _gate_stages = st.multiselect("Awareness gate stages", _all_stages, default=_cur_stages)
         _excl_brands = st.text_input("Exclude brand IDs (comma-separated ints)", value=_cfg.get("exclude_brand_ids", ""))
 
-        if st.form_submit_button("ðŸ’¾ Save Analysis Config"):
+        if st.form_submit_button("💾 Save Analysis Config"):
             try:
                 _conn3 = _sqlite3.connect(db_path)
                 # Create table if this is an older project without it
@@ -355,8 +355,8 @@ def _render_manage_project():
 
     st.divider()
 
-    # â”€â”€ Edit Brand Names â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    st.subheader("ðŸ·ï¸ Brand Names")
+    # ── Edit Brand Names ──────────────────────────────────────────────────────
+    st.subheader("🏷️ Brand Names")
     try:
         _conn4 = _sqlite3.connect(db_path)
         _brands_df = pd.read_sql("SELECT brand_id, brand_name FROM dim_brand ORDER BY brand_id", _conn4)
@@ -371,7 +371,7 @@ def _render_manage_project():
             column_config={"brand_id": st.column_config.NumberColumn("ID", disabled=True)},
             use_container_width=True,
         )
-        if st.button("ðŸ’¾ Save Brand Names", key="save_brands"):
+        if st.button("💾 Save Brand Names", key="save_brands"):
             try:
                 _conn5 = _sqlite3.connect(db_path)
                 for _, row in _edited_brands.iterrows():
@@ -386,8 +386,8 @@ def _render_manage_project():
 
     st.divider()
 
-    # â”€â”€ Re-run Indexes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    if st.button("ðŸ”§ Re-run Performance Indexes", key="reindex"):
+    # ── Re-run Indexes ────────────────────────────────────────────────────────
+    if st.button("🔧 Re-run Performance Indexes", key="reindex"):
         try:
             _conn6 = _sqlite3.connect(db_path)
             _conn6.execute("CREATE INDEX IF NOT EXISTS idx_fba_resp_brand_stage ON fact_brand_awareness(respondent_id, brand_id, stage)")
@@ -400,8 +400,8 @@ def _render_manage_project():
 
     st.divider()
 
-    # â”€â”€ Delete Project â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    st.subheader("ðŸ—‘ï¸ Delete Project")
+    # ── Delete Project ────────────────────────────────────────────────────────
+    st.subheader("🗑️ Delete Project")
     st.error(
         f"**This cannot be undone.** Deleting project `{selected}` will permanently remove "
         f"the entire `oxdata/data/{selected}/` directory and all its data."
@@ -409,7 +409,7 @@ def _render_manage_project():
     _confirm_input = st.text_input(
         f"Type `{selected}` to confirm deletion", key="delete_confirm_input"
     )
-    if st.button("ðŸ—‘ï¸ Delete Project Permanently", key="delete_project_btn", type="primary"):
+    if st.button("🗑️ Delete Project Permanently", key="delete_project_btn", type="primary"):
         if _confirm_input.strip() == selected:
             try:
                 _del_path = str(oxdata_data_dir / selected)
@@ -424,53 +424,53 @@ def _render_manage_project():
 
 
 inject_pulse_styles()
-st.title("ðŸ§¬ Add Project â€” Ingestion Pipeline")
+st.title("🧬 Add Project — Ingestion Pipeline")
 
-# â”€â”€ Mode toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Mode toggle ───────────────────────────────────────────────────────────────
 mode = st.radio(
     "Ingestion mode",
-    ["ðŸ¤– AI Classify (recommended)", "ðŸ“‹ Manual Template Ingest"],
+    ["🤖 AI Classify (recommended)", "📋 Manual Template Ingest"],
     horizontal=True,
     help="AI Classify: upload 3 files, AI maps every column automatically. "
          "Manual Template: download template, fill it (with AI help), upload for instant write.",
 )
-_manual_mode = mode.startswith("ðŸ“‹")
+_manual_mode = mode.startswith("📋")
 
 st.divider()
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 # MANUAL TEMPLATE INGEST MODE
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 if _manual_mode:
-    st.markdown("### ðŸ“‹ Manual Template Ingest")
+    st.markdown("### 📋 Manual Template Ingest")
     st.info(
-        "**How it works:** Download the template below â†’ open it â†’ fill in the MAPPING sheet "
-        "(use Claude or another AI with your datamap to do this fast) â†’ upload the filled "
-        "template + your raw data file â†’ instant ingest, no AI classification call needed."
+        "**How it works:** Download the template below → open it → fill in the MAPPING sheet "
+        "(use Claude or another AI with your datamap to do this fast) → upload the filled "
+        "template + your raw data file → instant ingest, no AI classification call needed."
     )
 
     # Download template
     tmpl_bytes = _generate_manual_template()
     st.download_button(
-        "ðŸ“¥ Download Ingest Template (Excel)",
+        "📥 Download Ingest Template (Excel)",
         tmpl_bytes,
         "infoleap_ingest_template.xlsx",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         use_container_width=False,
     )
 
-    with st.expander("ðŸ“– How to fill the template with Claude / another AI"):
+    with st.expander("📖 How to fill the template with Claude / another AI"):
         st.markdown("""
 **Prompt to give Claude:**
 
 > I have a market research survey. I'll give you the data map (Variable/Label list) and the
-> template Excel file. Fill in the MAPPING sheet â€” one row per survey question.
+> template Excel file. Fill in the MAPPING sheet — one row per survey question.
 > Rules:
 > - `bucket`: pick from the BUCKET_REFERENCE sheet (e.g. AIDED, NPS, BRAND_IMAGERY)
 > - `shape`: multivalent_source if one column holds "1 3 5" style codes; multi_select_dummies
 >   if only q34_1_1, q34_1_2 dummy columns exist; numeric_score for ratings; single_value otherwise
 > - `source_column`: the column name exactly as it appears in the data file
-> - `code_to_label`: JSON dict with codeâ†’brand/attribute name for brand funnel + imagery questions
+> - `code_to_label`: JSON dict with code→brand/attribute name for brand funnel + imagery questions
 > - Skip screener questions, household ownership questions, and media channel questions
 >
 > Here is my data map: [paste your datamap text or attach file]
@@ -493,7 +493,7 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
         manual_data_file = st.file_uploader(
             "Raw data", type=["xlsx", "xls", "csv"], label_visibility="collapsed",
             key="manual_data_upload",
-            help="The respondent-level survey export â€” one row per respondent.",
+            help="The respondent-level survey export — one row per respondent.",
         )
 
     manual_project_id = st.text_input(
@@ -503,7 +503,7 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
         help="Destination: oxdata/data/<this id>/oxdata.db",
     )
 
-    with st.expander("âš™ï¸ Brand names (required for brand-identity questions)"):
+    with st.expander("⚙️ Brand names (required for brand-identity questions)"):
         manual_brand_text = st.text_input(
             "Known brand names (comma-separated)",
             placeholder="e.g. Akshayakalpa Organic, Country Delight, Amul",
@@ -511,7 +511,7 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
         )
 
     manual_run = st.button(
-        "âš¡ Ingest Now",
+        "⚡ Ingest Now",
         type="primary",
         disabled=(manual_template_file is None or manual_data_file is None
                   or not manual_project_id.strip()),
@@ -523,9 +523,9 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
 
         def _tick(label="Ingesting"):
             elapsed = time.time() - _t0
-            _timer_ph.caption(f"â± {label}â€¦ {elapsed:.1f}s elapsed")
+            _timer_ph.caption(f"⏱ {label}… {elapsed:.1f}s elapsed")
 
-        with st.spinner("Reading template and writing to databaseâ€¦"):
+        with st.spinner("Reading template and writing to database…"):
             try:
                 _tick("Reading template")
                 manual_template_file.seek(0)
@@ -566,11 +566,11 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
                     })
 
                 if not manual_questions:
-                    st.error("No valid rows found in MAPPING sheet â€” check the template.")
+                    st.error("No valid rows found in MAPPING sheet — check the template.")
                 elif not manual_project_id.strip():
                     st.error("Project ID required.")
                 elif manual_project_id.strip() == "project_1":
-                    st.error("Cannot write to 'project_1' â€” pick a different project ID.")
+                    st.error("Cannot write to 'project_1' — pick a different project ID.")
                 else:
                     _tick("Parsing data file")
                     manual_data_file.seek(0)
@@ -599,7 +599,7 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
 
                     out_dir = Path(oxdata_dir) / "data" / clean_pid
                     out_dir.mkdir(parents=True, exist_ok=True)
-                    out_db_path = str(out_dir / "oxdata.db")
+                    out_db_path = str(out_dir / "infoleap.db")
 
                     # Write master_mapping.xlsx first (primary data layer format)
                     try:
@@ -639,14 +639,14 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
 
                     st.balloons()
                     st.success(
-                        f"âœ… Done in **{elapsed:.1f}s** â€” Project `{clean_pid}` created with master Excel mapping "
+                        f"✅ Done in **{elapsed:.1f}s** — Project `{clean_pid}` created with master Excel mapping "
                         f"and {len(ingest_df):,} respondent(s)."
                     )
                     _master_out = str(out_dir / "master_mapping.xlsx")
                     if os.path.exists(_master_out):
                         with open(_master_out, "rb") as _fh:
                             st.download_button(
-                                "â¬‡ï¸ Download master_mapping.xlsx",
+                                "⬇️ Download master_mapping.xlsx",
                                 _fh.read(),
                                 file_name=f"{clean_pid}_master_mapping.xlsx",
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -662,9 +662,9 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
     st.stop()
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 # AI CLASSIFY MODE (original flow)
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 st.caption(
     "Give it three files. It reads the Data map to know every question's answer options, reads "
     "the AP (analysis plan) to know which funnel stage/bucket each question belongs to and how "
@@ -672,24 +672,24 @@ st.caption(
     "ONE pass. Nothing is written until you review the mapping below and confirm."
 )
 
-with st.expander("ðŸ“‹ What files do I need? (collect from your research agency)", expanded=False):
+with st.expander("📋 What files do I need? (collect from your research agency)", expanded=False):
     st.markdown("""
 | File | What it is | Who provides it | Typical filename |
 |------|-----------|-----------------|-----------------|
 | **Raw data** | One row per respondent, all survey answers as codes | Research agency | `Data_900_Jan2026.xlsx` |
-| **Data map** | Column name â†’ description + answer code labels | Research agency | `DATAMAP.xls` or `Codebook.xlsx` |
-| **Analysis plan (AP)** | Question number â†’ title + type (TOM/SPONT/Imageryâ€¦) | Research agency / PM | `AP_v3.xlsx` |
+| **Data map** | Column name → description + answer code labels | Research agency | `DATAMAP.xls` or `Codebook.xlsx` |
+| **Analysis plan (AP)** | Question number → title + type (TOM/SPONT/Imagery…) | Research agency / PM | `AP_v3.xlsx` |
 | **Questionnaire** *(optional)* | The actual question text, for ambiguous columns | Research agency | `.doc` / `.pdf` |
 
 **Minimum to ingest:** Raw data + Data map + AP.
-**If AP is unavailable:** Use the Data map as the AP input â€” classification will work but with lower confidence on funnel stage columns.
-**If you have a `.doc` questionnaire:** Upload it as the Data map â€” the pipeline extracts question text automatically.
+**If AP is unavailable:** Use the Data map as the AP input — classification will work but with lower confidence on funnel stage columns.
+**If you have a `.doc` questionnaire:** Upload it as the Data map — the pipeline extracts question text automatically.
     """)
 
-# â”€â”€ Resume from checkpoint â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-with st.expander("â© Resume from saved checkpoint (skip re-classify)", expanded=False):
+# ── Resume from checkpoint ───────────────────────────────────────────────────
+with st.expander("⏩ Resume from saved checkpoint (skip re-classify)", expanded=False):
     st.markdown(
-        "If you already ran classification for this project, restore the session from disk â€” "
+        "If you already ran classification for this project, restore the session from disk — "
         "no re-upload or AI call needed. Requires `llm_mapping_raw.json` and `raw_data.xlsx` "
         "saved in `oxdata/data/<project_id>/`."
     )
@@ -706,7 +706,7 @@ with st.expander("â© Resume from saved checkpoint (skip re-classify)", expan
         if not _r_json.exists():
             _r_errors.append(f"`llm_mapping_raw.json` not found in oxdata/data/{_r_pid}/")
         if not _r_xlsx.exists():
-            _r_errors.append(f"`raw_data.xlsx` not found in oxdata/data/{_r_pid}/ â€” re-upload raw file above first")
+            _r_errors.append(f"`raw_data.xlsx` not found in oxdata/data/{_r_pid}/ — re-upload raw file above first")
         if _r_errors:
             for _e in _r_errors:
                 st.error(_e)
@@ -720,19 +720,19 @@ with st.expander("â© Resume from saved checkpoint (skip re-classify)", expan
                 st.session_state["ap_project_id"] = _r_pid
                 n_q = len(_r_schema_doc.get("questions", []))
                 st.success(
-                    f"Checkpoint loaded â€” {n_q} questions, {len(_r_raw_df)} respondents. "
+                    f"Checkpoint loaded — {n_q} questions, {len(_r_raw_df)} respondents. "
                     "Scroll down to review mapping or download the workbook."
                 )
             except Exception as _r_err:
                 st.error(f"Failed to load checkpoint: {_r_err}")
 
-# â”€â”€ Step 1: three inputs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Step 1: three inputs ─────────────────────────────────────────────────────
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown("**1. Raw data**")
     data_file = st.file_uploader(
         "Raw data file", type=["xlsx", "xls", "csv"], label_visibility="collapsed",
-        help="The respondent-level survey export â€” one row per respondent.",
+        help="The respondent-level survey export — one row per respondent.",
     )
 with c2:
     st.markdown("**2. Data map**")
@@ -746,7 +746,7 @@ with c3:
     ap_tabplan_file = st.file_uploader(
         "AP", type=["xlsx", "xls"], label_visibility="collapsed",
         help="Tells the pipeline how each bucket (TOM, SPONT, AIDED, ...) is actually "
-             "calculated and which columns feed it â€” the AP's own table titles are the most "
+             "calculated and which columns feed it — the AP's own table titles are the most "
              "reliable signal for which funnel stage a question is.",
     )
 
@@ -781,8 +781,8 @@ if codebook_file is not None:
         except Exception as e:
             st.error(f"Couldn't read data map's sheet names: {e}")
 
-with st.expander("âš™ï¸ Advanced settings"):
-    # â”€â”€ Model dropdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+with st.expander("⚙️ Advanced settings"):
+    # ── Model dropdown ────────────────────────────────────────────────────────
     st.markdown("**AI model for classification**")
     model_labels = [label for label, _ in _OPENROUTER_MODEL_OPTIONS]
     selected_model_label = st.selectbox(
@@ -799,16 +799,16 @@ with st.expander("âš™ï¸ Advanced settings"):
     if _model_override:
         st.caption(f"Will try `{_model_override}` first, then fall back to .env models.")
     else:
-        st.caption("Using model order from `.env` (OPENROUTER_MODEL_PRO â†’ ALT â†’ LLAMA â†’ MINI â†’ NANO).")
+        st.caption("Using model order from `.env` (OPENROUTER_MODEL_PRO → ALT → LLAMA → MINI → NANO).")
 
     st.markdown("---")
 
-    # â”€â”€ Regression matrix upload â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    st.markdown("**Regression matrix (optional â€” for XLSTAT-matched driver analysis)**")
+    # ── Regression matrix upload ──────────────────────────────────────────────
+    st.markdown("**Regression matrix (optional — for XLSTAT-matched driver analysis)**")
     st.caption(
         "Upload a pre-built wide-format CSV: columns `respondent_id`, `brand_id`, `dv_ever_used`, "
         "then one column per imagery attribute (binary 0/1). "
-        "When present, pooled driver regression uses this file directly â€” "
+        "When present, pooled driver regression uses this file directly — "
         "guarantees n and variable values match XLSTAT exactly."
     )
     _reg_proj_id = st.text_input(
@@ -835,7 +835,7 @@ with st.expander("âš™ï¸ Advanced settings"):
 
     st.markdown("---")
 
-    # â”€â”€ Brand names â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand names ──────────────────────────────────────────────────────────
     st.markdown("**Brand list**")
     if "ap_brand_text" not in st.session_state:
         st.session_state["ap_brand_text"] = ""
@@ -891,14 +891,14 @@ with st.expander("âš™ï¸ Advanced settings"):
     )
 
 project_id_for_classify = st.text_input(
-    "Project ID (used during classification and as the destination folder â€” "
+    "Project ID (used during classification and as the destination folder — "
     "folder-safe: letters, numbers, underscore)",
     placeholder="e.g. akshayakalpa",
-    help="Destination: oxdata/data/<this id>/oxdata.db. Set this before Process â€” the "
+    help="Destination: oxdata/data/<this id>/oxdata.db. Set this before Process — the "
          "classification call tags the mapping with it, and it pre-fills the ingest step below.",
 )
 
-run = st.button("âš™ï¸ Process", type="primary",
+run = st.button("⚙️ Process", type="primary",
                  disabled=(data_file is None or codebook_file is None
                            or ap_tabplan_file is None or not project_id_for_classify.strip()))
 
@@ -933,10 +933,10 @@ if run:
     def _render_classify_progress(stage: str, substage: str = "", elapsed: float = 0.0, model_name: str = ""):
         """Render a styled progress card during classification."""
         stages = [
-            ("ðŸ“‚", "Parse files", "Reading data & codebook"),
-            ("ðŸ§ ", "Build context", "Packaging columns + value labels"),
-            ("ðŸ¤–", "AI classify", "LLM maps every question to schema bucket"),
-            ("âœ…", "Done", ""),
+            ("📂", "Parse files", "Reading data & codebook"),
+            ("🧠", "Build context", "Packaging columns + value labels"),
+            ("🤖", "AI classify", "LLM maps every question to schema bucket"),
+            ("✅", "Done", ""),
         ]
         stage_keys = ["parse", "context", "ai", "done"]
         current_idx = stage_keys.index(stage) if stage in stage_keys else 0
@@ -944,28 +944,28 @@ if run:
         bars = []
         for i, (icon, label, _) in enumerate(stages):
             if i < current_idx:
-                dot = "ðŸŸ¢"
+                dot = "🟢"
                 style = "color:#4CAF50;font-weight:600"
             elif i == current_idx:
-                dot = "ðŸ”µ"
+                dot = "🔵"
                 style = "color:#2196F3;font-weight:700"
             else:
-                dot = "âšª"
+                dot = "⚪"
                 style = "color:#888;font-weight:400"
             bars.append(f'<span style="{style}">{dot} {icon} {label}</span>')
 
         model_line = f'<br><span style="color:#aaa;font-size:0.8em">Model: <code>{model_name}</code></span>' if model_name else ""
-        substage_line = f'<br><span style="color:#ccc;font-size:0.85em">â†³ {substage}</span>' if substage else ""
-        elapsed_line = f'<br><span style="color:#999;font-size:0.8em">â± {elapsed:.1f}s elapsed</span>' if elapsed > 0 else ""
+        substage_line = f'<br><span style="color:#ccc;font-size:0.85em">↳ {substage}</span>' if substage else ""
+        elapsed_line = f'<br><span style="color:#999;font-size:0.8em">⏱ {elapsed:.1f}s elapsed</span>' if elapsed > 0 else ""
 
         html = f"""
         <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #2d3561;
                     border-radius:12px;padding:20px 24px;margin:12px 0;font-family:monospace">
           <div style="font-size:1.05em;color:#e0e0e0;margin-bottom:12px;letter-spacing:0.5px">
-            ðŸ”¬ <b>AI Classification Pipeline</b>
+            🔬 <b>AI Classification Pipeline</b>
           </div>
           <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px">
-            {"&nbsp;&nbsp;â†’&nbsp;&nbsp;".join(bars)}
+            {"&nbsp;&nbsp;→&nbsp;&nbsp;".join(bars)}
           </div>
           {substage_line}{model_line}{elapsed_line}
         </div>
@@ -974,7 +974,7 @@ if run:
 
     _progress_slot = st.empty()
     _progress_slot.markdown(
-        _render_classify_progress("parse", "Loading data fileâ€¦", 0.0),
+        _render_classify_progress("parse", "Loading data file…", 0.0),
         unsafe_allow_html=True)
 
     schema_doc = None
@@ -989,7 +989,7 @@ if run:
         data_cols = list(data_df_full.columns)
         st.session_state["ap_raw_df"] = data_df_full  # stored for mapping workbook download
         _progress_slot.markdown(
-            _render_classify_progress("parse", f"Data loaded â€” {len(data_cols)} columns", time.time() - _t0_classify),
+            _render_classify_progress("parse", f"Data loaded — {len(data_cols)} columns", time.time() - _t0_classify),
             unsafe_allow_html=True)
 
         codebook_file.seek(0)
@@ -1011,8 +1011,8 @@ if run:
         ap_tabplan_file.seek(0)
         ap_text = _workbook_to_text(ap_tabplan_file)
 
-        # â”€â”€ Fast path: AP file IS a master_mapping.xlsx (META + MAPPING sheets) â”€â”€
-        # No LLM needed â€” the mapping is already fully specified by the human.
+        # ── Fast path: AP file IS a master_mapping.xlsx (META + MAPPING sheets) ──
+        # No LLM needed — the mapping is already fully specified by the human.
         ap_tabplan_file.seek(0)
         _tmp_ap_path = os.path.join(tempfile.gettempdir(), f"_addproject_ap_{id(ap_tabplan_file)}.xlsx")
         with open(_tmp_ap_path, "wb") as _f:
@@ -1025,7 +1025,7 @@ if run:
 
         if _is_master_mapping:
             _progress_slot.markdown(
-                _render_classify_progress("ai", "Master mapping detected â€” skipping AI (instant)", time.time() - _t0_classify, "master_mapping.xlsx"),
+                _render_classify_progress("ai", "Master mapping detected — skipping AI (instant)", time.time() - _t0_classify, "master_mapping.xlsx"),
                 unsafe_allow_html=True)
             from infoleap.ingestion.master_excel import read_master_excel
             schema_doc = read_master_excel(_tmp_ap_path)
@@ -1034,7 +1034,7 @@ if run:
             _ai_model = "master_mapping.xlsx (no AI)"
         else:
             _progress_slot.markdown(
-                _render_classify_progress("context", "Building context packetâ€¦", time.time() - _t0_classify),
+                _render_classify_progress("context", "Building context packet…", time.time() - _t0_classify),
                 unsafe_allow_html=True)
             packet = build_context_packet(ap_text, datamap_text, data_df_full)
 
@@ -1048,15 +1048,15 @@ if run:
             _ai_model = _model_fallback_list[0] if _model_fallback_list else None
             if not _ai_key:
                 raise RuntimeError(
-                    "OPENROUTER_API_KEY missing from oxdata/.env â€” the schema-driven pipeline is "
+                    "OPENROUTER_API_KEY missing from oxdata/.env — the schema-driven pipeline is "
                     "a single AI call with no rules-only fallback; set the key before Process.")
             if not _model_fallback_list:
                 raise RuntimeError(
                     "No OPENROUTER_MODEL_* variable set in oxdata/.env (checked PRO/ALT/LLAMA/"
-                    "MINI/NANO) â€” set at least one before Process.")
+                    "MINI/NANO) — set at least one before Process.")
 
             _progress_slot.markdown(
-                _render_classify_progress("ai", f"Sending to {_ai_model}â€¦ (may take 30â€“90s)", time.time() - _t0_classify, _ai_model),
+                _render_classify_progress("ai", f"Sending to {_ai_model}… (may take 30–90s)", time.time() - _t0_classify, _ai_model),
                 unsafe_allow_html=True)
             schema_doc = classify_all_questions(
                 packet, project_id=project_id_for_classify.strip(),
@@ -1122,7 +1122,7 @@ if st.session_state.get("ap_schema_doc") is not None:
     # Completion banner
     _elapsed_str = f" in {_classify_elapsed:.1f}s" if _classify_elapsed else ""
     if _model_used:
-        st.success(f"âœ… Classification complete{_elapsed_str} â€” model: `{_model_used}`")
+        st.success(f"✅ Classification complete{_elapsed_str} — model: `{_model_used}`")
 
     column_samples = st.session_state.get("ap_column_samples", {})
     all_raw_cols = st.session_state.get("ap_data_cols", [])
@@ -1143,14 +1143,14 @@ if st.session_state.get("ap_schema_doc") is not None:
     def _sample_for_col(col, n=3, width=35):
         vals = column_samples.get(col, [])
         if not vals:
-            return "â€”"
-        return " Â· ".join(repr(v[:width]) for v in vals[:n])
+            return "—"
+        return " · ".join(repr(v[:width]) for v in vals[:n])
 
     def _conf_badge(c):
         c = float(c or 0)
-        if c >= 0.8: return "ðŸŸ¢"
-        elif c >= 0.5: return "ðŸŸ¡"
-        return "ðŸ”´"
+        if c >= 0.8: return "🟢"
+        elif c >= 0.5: return "🟡"
+        return "🔴"
 
     editor_rows = []
     for i, q in enumerate(questions):
@@ -1167,21 +1167,21 @@ if st.session_state.get("ap_schema_doc") is not None:
             "reasoning": q.get("reasoning"),
         })
 
-    # â”€â”€ BUCKET SUMMARY PILLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    st.markdown("### ðŸ—ºï¸ Mapping â€” how the pipeline read your file")
+    # ── BUCKET SUMMARY PILLS ─────────────────────────────────────────────
+    st.markdown("### 🗺️ Mapping — how the pipeline read your file")
 
     _BUCKET_META = {
-        "TOM": ("ðŸ¥‡", "#1565C0"), "SPONT": ("ðŸ’¬", "#1976D2"), "AIDED": ("ðŸ‘", "#0288D1"),
-        "CONSIDERATION": ("ðŸ¤”", "#0097A7"), "EVER_USED": ("ðŸ“¦", "#00796B"),
-        "CURRENT_USER": ("âœ…", "#388E3C"), "PREFERRED": ("â­", "#558B2F"),
-        "LAST_PURCHASED": ("ðŸ›’", "#827717"),
-        "NPS": ("ðŸ“Š", "#E65100"), "CSAT": ("ðŸ˜Š", "#BF360C"),
-        "BRAND_IMAGERY": ("ðŸ–¼", "#6A1B9A"), "IMPORTANCE": ("âš–", "#4527A0"),
-        "ATTITUDE": ("ðŸ’­", "#283593"), "PURCHASE_JOURNEY": ("ðŸ—º", "#1A237E"),
-        "PRICE_PAID": ("ðŸ’°", "#880E4F"), "PORTFOLIO_AWARENESS": ("ðŸ“‹", "#4E342E"),
-        "GENDER": ("ðŸ‘¤", "#37474F"), "AGE": ("ðŸŽ‚", "#37474F"),
-        "CITY": ("ðŸ™", "#37474F"), "ZONE": ("ðŸ—¾", "#37474F"),
-        "DEMOGRAPHIC": ("ðŸ“", "#455A64"), "SKIP": ("â­", "#616161"),
+        "TOM": ("🥇", "#1565C0"), "SPONT": ("💬", "#1976D2"), "AIDED": ("👁", "#0288D1"),
+        "CONSIDERATION": ("🤔", "#0097A7"), "EVER_USED": ("📦", "#00796B"),
+        "CURRENT_USER": ("✅", "#388E3C"), "PREFERRED": ("⭐", "#558B2F"),
+        "LAST_PURCHASED": ("🛒", "#827717"),
+        "NPS": ("📊", "#E65100"), "CSAT": ("😊", "#BF360C"),
+        "BRAND_IMAGERY": ("🖼", "#6A1B9A"), "IMPORTANCE": ("⚖", "#4527A0"),
+        "ATTITUDE": ("💭", "#283593"), "PURCHASE_JOURNEY": ("🗺", "#1A237E"),
+        "PRICE_PAID": ("💰", "#880E4F"), "PORTFOLIO_AWARENESS": ("📋", "#4E342E"),
+        "GENDER": ("👤", "#37474F"), "AGE": ("🎂", "#37474F"),
+        "CITY": ("🏙", "#37474F"), "ZONE": ("🗾", "#37474F"),
+        "DEMOGRAPHIC": ("📝", "#455A64"), "SKIP": ("⏭", "#616161"),
     }
 
     from collections import defaultdict as _defdict
@@ -1194,9 +1194,9 @@ if st.session_state.get("ap_schema_doc") is not None:
 
     _pill_html = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px">'
     for b, rows in _non_skip:
-        icon, color = _BUCKET_META.get(b, ("â€¢", "#555"))
+        icon, color = _BUCKET_META.get(b, ("•", "#555"))
         lc = sum(1 for r in rows if float(r.get("confidence") or 0) < 0.5)
-        warn = " âš ï¸" if lc else ""
+        warn = " ⚠️" if lc else ""
         _pill_html += (
             f'<span style="background:{color}22;border:1px solid {color}66;'
             f'border-radius:20px;padding:4px 12px;font-size:0.82em;color:{color};font-weight:600">'
@@ -1206,30 +1206,30 @@ if st.session_state.get("ap_schema_doc") is not None:
         _pill_html += (
             f'<span style="background:#33333322;border:1px solid #66666644;'
             f'border-radius:20px;padding:4px 12px;font-size:0.82em;color:#888">'
-            f'â­ SKIP ({len(_skip_rows)})</span>'
+            f'⏭ SKIP ({len(_skip_rows)})</span>'
         )
     _pill_html += '</div>'
     st.markdown(_pill_html, unsafe_allow_html=True)
     _conf_note = (
-        f"{n_high} ðŸŸ¢ auto-confirmed Â· {n_med} ðŸŸ¡ medium Â· {n_low} ðŸ”´ need review "
+        f"{n_high} 🟢 auto-confirmed · {n_med} 🟡 medium · {n_low} 🔴 need review "
         f"({len(questions)} total)"
     )
     st.caption(_conf_note)
 
-    # â”€â”€ FOCUS MODE: show only uncertain rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── FOCUS MODE: show only uncertain rows ──────────────────────────────
     _focus_uncertain = st.toggle(
-        "ðŸŽ¯ Focus: show only uncertain classifications (< 0.7 confidence)",
+        "🎯 Focus: show only uncertain classifications (< 0.7 confidence)",
         value=(n_low + n_med) > 0 and (n_low + n_med) < len(questions),
         help="Hide high-confidence rows so you only review what actually needs attention. "
-             "High-confidence rows are still ingested â€” this is display-only.",
+             "High-confidence rows are still ingested — this is display-only.",
         key="ap_focus_uncertain",
     )
     if _focus_uncertain and (n_low + n_med) == 0:
-        st.success("All questions classified with high confidence â€” nothing to review!")
+        st.success("All questions classified with high confidence — nothing to review!")
     elif _focus_uncertain:
         st.info(
             f"Showing {n_low + n_med} uncertain rows. "
-            f"{n_high} high-confidence rows hidden â€” they'll still be ingested."
+            f"{n_high} high-confidence rows hidden — they'll still be ingested."
         )
 
     def _rows_to_show(rows):
@@ -1237,19 +1237,19 @@ if st.session_state.get("ap_schema_doc") is not None:
             return rows
         return [r for r in rows if float(r.get("confidence") or 0) < 0.7]
 
-    # â”€â”€ GROUPED EDITORS per bucket â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── GROUPED EDITORS per bucket ────────────────────────────────────────
     _all_edits_this_render = {}
 
     for b, rows in _non_skip + ([("SKIP", _skip_rows)] if _skip_rows else []):
         if not rows:
             continue
-        icon, color = _BUCKET_META.get(b, ("â€¢", "#555"))
+        icon, color = _BUCKET_META.get(b, ("•", "#555"))
         low_conf = [r for r in rows if float(r.get("confidence") or 0) < 0.5]
         visible_rows = _rows_to_show(rows)
         if not visible_rows:
             continue  # all high-confidence; skip this bucket in focus mode
-        warn_str = f" â€” âš ï¸ {len(low_conf)} need review" if low_conf else ""
-        hidden_note = f" Â· {len(rows) - len(visible_rows)} hidden" if len(visible_rows) < len(rows) else ""
+        warn_str = f" — ⚠️ {len(low_conf)} need review" if low_conf else ""
+        hidden_note = f" · {len(rows) - len(visible_rows)} hidden" if len(visible_rows) < len(rows) else ""
         with st.expander(
             f"{icon} **{b}** &nbsp; {len(visible_rows)} shown{hidden_note}{warn_str}",
             expanded=(b != "SKIP" and len(visible_rows) <= 12),
@@ -1265,7 +1265,7 @@ if st.session_state.get("ap_schema_doc") is not None:
                 bucket = row.get("bucket") or ""
                 if bucket in _CTL_WARN_BUCKETS and shape in _CTL_WARN_SHAPES:
                     if not ctl:
-                        return "âš  empty"
+                        return "⚠ empty"
                     return f"{len(ctl)} brands"
                 return ""
 
@@ -1293,7 +1293,7 @@ if st.session_state.get("ap_schema_doc") is not None:
                         "Source column", options=all_raw_cols, required=True, width="medium"),
                     "CTL": st.column_config.TextColumn(
                         "CTL brands", disabled=True, width="small",
-                        help="codeâ†’brand mapping entries. 'âš  empty' = brands won't be counted."),
+                        help="code→brand mapping entries. '⚠ empty' = brands won't be counted."),
                     "Sample values": st.column_config.TextColumn(
                         "Sample values", disabled=True, width="medium"),
                     "AI reasoning": st.column_config.TextColumn(
@@ -1321,19 +1321,19 @@ if st.session_state.get("ap_schema_doc") is not None:
         elif i in question_edits:
             del question_edits[i]
 
-    with st.expander("ðŸ”Ž code â†’ label detail (per question)"):
+    with st.expander("🔎 code → label detail (per question)"):
         for i, q in enumerate(questions):
             labels = q.get("code_to_label") or {}
             if not labels:
                 continue
-            with st.expander(f"`{q.get('question_code')}` â€” {(q.get('question_text') or '')[:70]}"):
+            with st.expander(f"`{q.get('question_code')}` — {(q.get('question_text') or '')[:70]}"):
                 st.dataframe(pd.DataFrame(list(labels.items()), columns=["Code", "Label"]), hide_index=True, use_container_width=True)
 
     st.divider()
-    st.markdown("### âœ‹ Manual assignment")
+    st.markdown("### ✋ Manual assignment")
     st.info(
         "For raw columns the classifier missed or skipped entirely. Add a row, pick the real "
-        "column name from the dropdown (no typing needed), and choose its bucket â€” it gets "
+        "column name from the dropdown (no typing needed), and choose its bucket — it gets "
         "merged into the confirmed assignment below alongside the AI-classified rows above."
     )
     manual_editor_df = st.data_editor(
@@ -1345,7 +1345,7 @@ if st.session_state.get("ap_schema_doc") is not None:
         column_config={
             "question_code": st.column_config.TextColumn(
                 "Question code (label only)", width="medium",
-                help="Free text â€” used only as a display label, doesn't need to match anything."),
+                help="Free text — used only as a display label, doesn't need to match anything."),
             "source_column": st.column_config.SelectboxColumn(
                 "Column name", options=all_raw_cols, required=True, width="large",
                 help="Pick the exact column from your uploaded data file."),
@@ -1385,9 +1385,9 @@ if st.session_state.get("ap_schema_doc") is not None:
             })
         return live
 
-    with st.expander("ðŸ”§ Advanced / technical details (only if you need to dig deeper)"):
+    with st.expander("🔧 Advanced / technical details (only if you need to dig deeper)"):
         st.caption(
-            "Everything here is optional â€” the simplified table above is enough to confirm "
+            "Everything here is optional — the simplified table above is enough to confirm "
             "and ingest. Use this section to export the current mapping (as edited above) for "
             "client signoff or an audit trail."
         )
@@ -1397,24 +1397,24 @@ if st.session_state.get("ap_schema_doc") is not None:
         with c_dl1:
             excel_bytes = export_column_map_excel(
                 _export_guesses, value_labels_by_code=_export_value_labels_by_code)
-            st.download_button("ðŸ“Š Export Column Map (Excel)", excel_bytes,
+            st.download_button("📊 Export Column Map (Excel)", excel_bytes,
                                 "column_map_audit.xlsx",
                                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                 use_container_width=True)
         with c_dl2:
             json_export_str = export_column_map_json(
                 _export_guesses, value_labels_by_code=_export_value_labels_by_code)
-            st.download_button("ðŸ“„ Export Column Map (JSON)", json_export_str.encode("utf-8"),
+            st.download_button("📄 Export Column Map (JSON)", json_export_str.encode("utf-8"),
                                 "column_map_audit.json", "application/json", use_container_width=True)
 
         st.markdown("---")
-        st.markdown("**ðŸ“¥ Full Mapping Workbook** â€” richly formatted Excel with AI mapping + dropdown overrides + raw data sheet")
+        st.markdown("**📥 Full Mapping Workbook** — richly formatted Excel with AI mapping + dropdown overrides + raw data sheet")
         st.caption(
             "Download this workbook, correct any bucket mappings in the OVERRIDE_bucket column "
             "(dropdown validated), then upload the corrected file below to re-ingest without re-running the AI."
         )
         _wb_pid = (st.session_state.get("_prefill_project_id") or "").strip()
-        _wb_db_path = str(Path(oxdata_dir) / "data" / _wb_pid / "oxdata.db") if _wb_pid else None
+        _wb_db_path = str(Path(oxdata_dir) / "data" / _wb_pid / "infoleap.db") if _wb_pid else None
         _wb_df_raw = st.session_state.get("ap_raw_df")  # stored at upload time
         _wb_live_schema = {"project_id": _wb_pid, "questions": _build_live_questions()}
         try:
@@ -1426,7 +1426,7 @@ if st.session_state.get("ap_schema_doc") is not None:
             )
             _wb_fname = f"{_wb_pid or 'mapping'}_workbook.xlsx"
             st.download_button(
-                "ðŸ“¥ Download Full Mapping Workbook (.xlsx)",
+                "📥 Download Full Mapping Workbook (.xlsx)",
                 _wb_bytes,
                 _wb_fname,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1438,7 +1438,7 @@ if st.session_state.get("ap_schema_doc") is not None:
 
         st.markdown("---")
         st.caption(
-            "**Raw LLM classification (audit)** â€” the unedited mapping the LLM returned for "
+            "**Raw LLM classification (audit)** — the unedited mapping the LLM returned for "
             "this project id, saved to disk the moment classification finished."
         )
         _raw_pid_for_view = (st.session_state.get("_prefill_project_id") or "").strip()
@@ -1449,7 +1449,7 @@ if st.session_state.get("ap_schema_doc") is not None:
         if _raw_path_for_view and _raw_path_for_view.exists():
             _raw_bytes_for_view = _raw_path_for_view.read_bytes()
             st.download_button(
-                "ðŸ§¾ Download raw LLM mapping (llm_mapping_raw.json)",
+                "🧾 Download raw LLM mapping (llm_mapping_raw.json)",
                 _raw_bytes_for_view, "llm_mapping_raw.json", "application/json",
                 use_container_width=True,
             )
@@ -1458,9 +1458,9 @@ if st.session_state.get("ap_schema_doc") is not None:
         else:
             st.caption("(no saved raw mapping file found for this project id yet)")
 
-    # â”€â”€ PRE-INGEST VALIDATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── PRE-INGEST VALIDATION ─────────────────────────────────────────────────
     st.divider()
-    st.markdown("### ðŸ” Pre-ingest validation")
+    st.markdown("### 🔍 Pre-ingest validation")
     st.caption("Automated checks run before writing to disk. Fix blockers before ingesting.")
 
     def _run_preflight(live_questions, raw_cols):
@@ -1477,7 +1477,7 @@ if st.session_state.get("ap_schema_doc") is not None:
         awareness = {"TOM", "SPONT", "AIDED"}
         if not any(b in non_skip for b in awareness):
             results.append(("error", "Awareness funnel missing",
-                            "No TOM/SPONT/AIDED bucket assigned â€” funnel chart will be empty."))
+                            "No TOM/SPONT/AIDED bucket assigned — funnel chart will be empty."))
         else:
             results.append(("ok", "Awareness funnel",
                             f"{sum(non_skip.get(b,0) for b in awareness)} question(s) mapped."))
@@ -1485,14 +1485,14 @@ if st.session_state.get("ap_schema_doc") is not None:
         # Critical: NPS or CSAT must be present for loyalty section
         if "NPS" not in non_skip and "CSAT" not in non_skip:
             results.append(("warning", "Loyalty metrics missing",
-                            "No NPS or CSAT bucket â€” Loyalty & Market section will be empty."))
+                            "No NPS or CSAT bucket — Loyalty & Market section will be empty."))
         else:
             results.append(("ok", "Loyalty metrics", "NPS/CSAT present."))
 
         # Critical: BRAND_IMAGERY must be present for imagery sections
         if "BRAND_IMAGERY" not in non_skip:
             results.append(("error", "Brand imagery missing",
-                            "No BRAND_IMAGERY bucket â€” Imagery & Analytics will be empty."))
+                            "No BRAND_IMAGERY bucket — Imagery & Analytics will be empty."))
         else:
             results.append(("ok", "Brand imagery",
                             f"{non_skip['BRAND_IMAGERY']} attribute(s) mapped."))
@@ -1502,7 +1502,7 @@ if st.session_state.get("ap_schema_doc") is not None:
         mapped_demo = [b for b in demo_buckets if b in non_skip]
         if len(mapped_demo) < 2:
             results.append(("warning", "Demographics sparse",
-                            f"Only {mapped_demo or 'none'} demographic buckets â€” filters may be limited."))
+                            f"Only {mapped_demo or 'none'} demographic buckets — filters may be limited."))
         else:
             results.append(("ok", "Demographics", f"Mapped: {', '.join(sorted(mapped_demo))}."))
 
@@ -1512,19 +1512,19 @@ if st.session_state.get("ap_schema_doc") is not None:
         for q in live_questions:
             src = q.get("source_column") or ""
             if src and src not in raw_col_set:
-                missing_cols.append(f"{q.get('question_code')} â†’ '{src}'")
+                missing_cols.append(f"{q.get('question_code')} → '{src}'")
             for dc in (q.get("dummy_columns") or []):
                 if dc and dc not in raw_col_set:
-                    missing_cols.append(f"{q.get('question_code')} dummy â†’ '{dc}'")
+                    missing_cols.append(f"{q.get('question_code')} dummy → '{dc}'")
         if missing_cols:
             results.append(("error", "Missing source columns",
                             f"{len(missing_cols)} column(s) not found in raw data: "
                             + ", ".join(missing_cols[:5])
-                            + ("â€¦" if len(missing_cols) > 5 else "")))
+                            + ("…" if len(missing_cols) > 5 else "")))
         else:
             results.append(("ok", "Source columns", "All mapped columns exist in raw data."))
 
-        # CTL-empty check: awareness/imagery questions with no code_to_label â†’ 0 brand rows
+        # CTL-empty check: awareness/imagery questions with no code_to_label → 0 brand rows
         _CTL_REQUIRED_BUCKETS = {
             "TOM", "SPONT", "AIDED", "EVER_USED", "CURRENT_USER",
             "CONSIDERATION", "PREFERRED", "LAST_PURCHASED", "BRAND_IMAGERY",
@@ -1539,9 +1539,9 @@ if st.session_state.get("ap_schema_doc") is not None:
                 empty_ctl_qs.append(f"{q.get('question_code')} [{bucket}]")
         if empty_ctl_qs:
             results.append(("warning", "Empty code_to_label",
-                            f"{len(empty_ctl_qs)} brand question(s) have no codeâ†’brand mapping â€” "
+                            f"{len(empty_ctl_qs)} brand question(s) have no code→brand mapping — "
                             "brands will NOT be counted: " + ", ".join(empty_ctl_qs[:5])
-                            + ("â€¦" if len(empty_ctl_qs) > 5 else "")))
+                            + ("…" if len(empty_ctl_qs) > 5 else "")))
 
         # Low-confidence rows still on real buckets
         low_conf_real = [q for q in live_questions
@@ -1550,7 +1550,7 @@ if st.session_state.get("ap_schema_doc") is not None:
         if low_conf_real:
             results.append(("warning", "Low-confidence mappings",
                             f"{len(low_conf_real)} question(s) have <40% confidence but are assigned "
-                            "to real buckets â€” verify these are correct before ingesting."))
+                            "to real buckets — verify these are correct before ingesting."))
 
         return results
 
@@ -1563,9 +1563,9 @@ if st.session_state.get("ap_schema_doc") is not None:
     _pf_oks = [r for r in _pf_results if r[0] == "ok"]
 
     _pf_cols = st.columns(3)
-    _pf_cols[0].metric("âœ… Passed", len(_pf_oks))
-    _pf_cols[1].metric("âš ï¸ Warnings", len(_pf_warnings))
-    _pf_cols[2].metric("âŒ Blockers", len(_pf_errors))
+    _pf_cols[0].metric("✅ Passed", len(_pf_oks))
+    _pf_cols[1].metric("⚠️ Warnings", len(_pf_warnings))
+    _pf_cols[2].metric("❌ Blockers", len(_pf_errors))
 
     for sev, name, msg in _pf_results:
         if sev == "error":
@@ -1576,9 +1576,9 @@ if st.session_state.get("ap_schema_doc") is not None:
             st.success(f"**{name}:** {msg}")
 
     st.divider()
-    st.markdown("### ðŸš€ Ingest â€” write the confirmed assignment to a new project database")
+    st.markdown("### 🚀 Ingest — write the confirmed assignment to a new project database")
     st.caption(
-        "Every project gets its OWN database file at oxdata/data/<project id>/oxdata.db â€” "
+        "Every project gets its OWN database file at oxdata/data/<project id>/oxdata.db — "
         "never appended into project_1's real production database, which is hard-blocked below."
     )
     _prefill_id = st.session_state.get("_prefill_project_id", "")
@@ -1590,28 +1590,28 @@ if st.session_state.get("ap_schema_doc") is not None:
              "it already exists from a previous confirmed batch for the same project).",
     )
 
-    if st.button("âœ… Confirm Bucket Assignment && Ingest", type="primary"):
+    if st.button("✅ Confirm Bucket Assignment && Ingest", type="primary"):
         live_questions = _build_live_questions()
         live_schema_doc = {"project_id": schema_doc.get("project_id"), "questions": live_questions}
         pieces = assignment_from_schema(live_schema_doc)
         assignment = pieces["assignment"]
 
         if not assignment:
-            st.warning("Nothing assigned â€” every row is still SKIP.")
+            st.warning("Nothing assigned — every row is still SKIP.")
         elif not new_project_id or not new_project_id.strip():
             st.error("Enter a new project ID before ingesting.")
         elif not re.match(r'^[a-zA-Z0-9_]+$', new_project_id.strip()):
             st.error("Project ID must be letters, numbers, and underscores only (no spaces or special characters).")
         elif new_project_id.strip() == "project_1":
-            st.error("Refusing to write to 'project_1' â€” that's the real production database.")
+            st.error("Refusing to write to 'project_1' — that's the real production database.")
         elif data_file is None and "ap_raw_df" not in st.session_state:
-            st.error("Raw data file upload is gone â€” re-upload it and click Process again.")
+            st.error("Raw data file upload is gone — re-upload it and click Process again.")
         elif (not brand_text.strip()
               and any(bucket in assignment for bucket in (
                   "TOM", "SPONT", "AIDED", "EVER_USED", "CURRENT_USER", "CONSIDERATION",
                   "PREFERRED", "BRAND_IMAGERY", "PORTFOLIO_AWARENESS"))):
             st.error(
-                "ðŸ›‘ No brand names entered, but this project has brand-identity questions. "
+                "🛑 No brand names entered, but this project has brand-identity questions. "
                 "Expand 'Advanced settings' and fill in 'Known brand names', then click ingest again."
             )
         else:
@@ -1619,19 +1619,19 @@ if st.session_state.get("ap_schema_doc") is not None:
                 items = assignment.get(bucket)
                 if not items:
                     continue
-                with st.expander(f"{bucket} â€” {len(items)} question(s)", expanded=False):
+                with st.expander(f"{bucket} — {len(items)} question(s)", expanded=False):
                     for it in items:
                         st.markdown(
-                            f"`{it['question_code']}` â€” {it['question_text']} "
-                            f"â†’ column: `{', '.join(str(c) for c in it['data_columns'])}`"
+                            f"`{it['question_code']}` — {it['question_text']} "
+                            f"→ column: `{', '.join(str(c) for c in it['data_columns'])}`"
                         )
 
             _t0_ingest = time.time()
             _ingest_timer = st.empty()
 
-            with st.spinner("Writing to the new project databaseâ€¦"):
+            with st.spinner("Writing to the new project database…"):
                 try:
-                    _ingest_timer.caption(f"â± Writingâ€¦ 0.0s elapsed")
+                    _ingest_timer.caption(f"⏱ Writing… 0.0s elapsed")
                     # Use uploaded file or fall back to checkpoint-loaded DataFrame
                     if data_file is not None:
                         data_file.seek(0)
@@ -1642,15 +1642,15 @@ if st.session_state.get("ap_schema_doc") is not None:
                     else:
                         ingest_df = st.session_state["ap_raw_df"]
 
-                    # Strip ghost columns (in schema but not in raw data) â€” warn, don't crash
+                    # Strip ghost columns (in schema but not in raw data) — warn, don't crash
                     missing_cols = sorted({
                         c for items in assignment.values() for it in items
                         for c in it["data_columns"] if c not in ingest_df.columns
                     })
                     if missing_cols:
                         st.warning(
-                            f"âš  {len(missing_cols)} schema column(s) not found in raw data â€” skipped: "
-                            f"{', '.join(missing_cols[:10])}{'â€¦' if len(missing_cols) > 10 else ''}. "
+                            f"⚠ {len(missing_cols)} schema column(s) not found in raw data — skipped: "
+                            f"{', '.join(missing_cols[:10])}{'…' if len(missing_cols) > 10 else ''}. "
                             "This is normal if the survey skipped some dummy columns."
                         )
                         # Remove ghost columns from assignment
@@ -1681,7 +1681,7 @@ if st.session_state.get("ap_schema_doc") is not None:
 
                     out_dir = Path(oxdata_dir) / "data" / clean_new_pid
                     out_dir.mkdir(parents=True, exist_ok=True)
-                    out_db_path = str(out_dir / "oxdata.db")
+                    out_db_path = str(out_dir / "infoleap.db")
 
                     # Write master_mapping.xlsx and project_meta.json first
                     try:
@@ -1727,14 +1727,14 @@ if st.session_state.get("ap_schema_doc") is not None:
                 _ingest_timer.empty()
                 st.balloons()
                 st.success(
-                    f"âœ… Done in **{elapsed_ingest:.1f}s** â€” Project `{clean_new_pid}` created with master Excel mapping "
+                    f"✅ Done in **{elapsed_ingest:.1f}s** — Project `{clean_new_pid}` created with master Excel mapping "
                     f"and {len(ingest_df):,} respondent(s)."
                 )
                 _master_out = str(out_dir / "master_mapping.xlsx")
                 if os.path.exists(_master_out):
                     with open(_master_out, "rb") as _fh:
                         st.download_button(
-                            "â¬‡ï¸ Download master_mapping.xlsx",
+                            "⬇️ Download master_mapping.xlsx",
                             _fh.read(),
                             file_name=f"{clean_new_pid}_master_mapping.xlsx",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1742,14 +1742,14 @@ if st.session_state.get("ap_schema_doc") is not None:
                         )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 # WORKBOOK RE-INGEST SECTION
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 st.divider()
-with st.expander("ðŸ“‹ Re-ingest from Corrected Mapping Workbook", expanded=False):
+with st.expander("📋 Re-ingest from Corrected Mapping Workbook", expanded=False):
     st.markdown(
         "**If you corrected the OVERRIDE columns in the downloaded mapping workbook**, upload it here "
-        "to re-run ingestion with your corrections â€” without re-uploading raw data or re-running the AI."
+        "to re-run ingestion with your corrections — without re-uploading raw data or re-running the AI."
     )
     st.caption(
         "Only the OVERRIDE_bucket and OVERRIDE_source_column columns are read. "
@@ -1775,11 +1775,11 @@ with st.expander("ðŸ“‹ Re-ingest from Corrected Mapping Workbook", expande
                 "Run the classify step first for this project, then download and correct the workbook."
             )
         elif _rb_pid == "project_1":
-            st.error("Refusing to re-ingest into 'project_1' â€” that's the real production database.")
+            st.error("Refusing to re-ingest into 'project_1' — that's the real production database.")
         else:
             try:
                 _rb_overrides = read_master_mapping(_rb_wb_file.getvalue())
-                st.success(f"Workbook parsed â€” {len(_rb_overrides)} override(s) found.")
+                st.success(f"Workbook parsed — {len(_rb_overrides)} override(s) found.")
                 if _rb_overrides:
                     st.dataframe(
                         pd.DataFrame([
@@ -1789,13 +1789,13 @@ with st.expander("ðŸ“‹ Re-ingest from Corrected Mapping Workbook", expande
                         hide_index=True, use_container_width=True,
                     )
                 else:
-                    st.info("No override columns filled â€” workbook matches original AI mapping. Nothing to change.")
+                    st.info("No override columns filled — workbook matches original AI mapping. Nothing to change.")
             except Exception as _rb_err:
                 st.error(f"Failed to parse workbook: {_rb_err}")
                 _rb_overrides = {}
 
             if _rb_overrides and st.button(
-                "âœ… Apply Overrides && Re-ingest", type="primary", key="reingest_apply_btn"
+                "✅ Apply Overrides && Re-ingest", type="primary", key="reingest_apply_btn"
             ):
                 try:
                     _rb_raw_loaded = json.loads(_rb_json_path.read_text(encoding="utf-8"))
@@ -1813,11 +1813,11 @@ with st.expander("ðŸ“‹ Re-ingest from Corrected Mapping Workbook", expande
                     if _rb_raw_df is None or not isinstance(_rb_raw_df, pd.DataFrame):
                         st.error(
                             "Raw data file not in session and no raw_data.xlsx saved on disk. "
-                            "Use the 'â© Resume from saved checkpoint' section above to restore session, "
+                            "Use the '⏩ Resume from saved checkpoint' section above to restore session, "
                             "or re-upload the raw file in the classify section."
                         )
                     else:
-                        with st.spinner("Re-ingesting with corrected mappingsâ€¦"):
+                        with st.spinner("Re-ingesting with corrected mappings…"):
                             _rb_brand_names = [
                                 b.strip() for b in
                                 st.session_state.get("ap_brand_text", "").split(",")
@@ -1825,7 +1825,7 @@ with st.expander("ðŸ“‹ Re-ingest from Corrected Mapping Workbook", expande
                             ]
                             _rb_out_dir = Path(oxdata_dir) / "data" / _rb_pid
                             _rb_out_dir.mkdir(parents=True, exist_ok=True)
-                            _rb_out_db = str(_rb_out_dir / "oxdata.db")
+                            _rb_out_db = str(_rb_out_dir / "infoleap.db")
                             _rb_result = load_confirmed_assignment(
                                 _rb_pieces["assignment"],
                                 _rb_pieces.get("value_labels_by_code", {}),
@@ -1835,16 +1835,16 @@ with st.expander("ðŸ“‹ Re-ingest from Corrected Mapping Workbook", expande
                                 brand_names=_rb_brand_names,
                                 delimiter_by_code=_rb_pieces.get("delimiter_by_code", {}),
                             )
-                        st.success(f"âœ… Re-ingested into oxdata/data/{_rb_pid}/oxdata.db with your corrections.")
+                        st.success(f"✅ Re-ingested into oxdata/data/{_rb_pid}/oxdata.db with your corrections.")
                         if _rb_result.get("warnings"):
                             for _w in _rb_result["warnings"]:
                                 st.warning(_w)
                 except Exception as _rb_ingest_err:
                     st.error(f"Re-ingest failed: {_rb_ingest_err}")
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 # MANAGE PROJECT SECTION
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 st.divider()
-with st.expander("âš™ï¸ Manage Existing Project", expanded=False):
+with st.expander("⚙️ Manage Existing Project", expanded=False):
     _render_manage_project()

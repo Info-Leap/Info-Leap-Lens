@@ -1,4 +1,4 @@
-﻿"""
+"""
 Streamlit components for rendering qualitative research findings.
 """
 
@@ -24,7 +24,7 @@ def render_qual_result(qual_data: dict, is_columnar: bool = False):
 
     # Use a container with a subtle background for the entire qual section
     with st.container():
-        st.markdown("### ðŸŽ™ï¸ Consumer Insights")
+        st.markdown("### 🎙️ Consumer Insights")
 
         if qual_data.get("core_category"):
             st.markdown(f"**Research Focus:** `{qual_data['core_category']}`")
@@ -79,7 +79,7 @@ def render_qual_result(qual_data: dict, is_columnar: bool = False):
 
 def render_mixed_insight(answer: str, qual_data: dict, df=None, sql=""):
     """Renders a clean, summary-first integrated view for mixed-mode queries."""
-    st.markdown("### ðŸ§  Integrated Research Analysis")
+    st.markdown("### 🧠 Integrated Research Analysis")
 
     # 1. Main Result (The 'Hero' Answer)
     # We use st.info or standard markdown to ensure theme-aware readability
@@ -87,7 +87,7 @@ def render_mixed_insight(answer: str, qual_data: dict, df=None, sql=""):
     st.divider()
 
     # 2. Detailed Evidence in professional expanders
-    with st.expander("ðŸ“Š View Statistical Evidence (Quantitative)", expanded=False):
+    with st.expander("📊 View Statistical Evidence (Quantitative)", expanded=False):
         if df is not None and not df.empty:
             from infoleap.views.chart_renderer import render_result
             render_result(df, "Quant Results")
@@ -97,6 +97,6 @@ def render_mixed_insight(answer: str, qual_data: dict, df=None, sql=""):
         else:
             st.info("No quantitative data matched this specific segment.")
 
-    with st.expander("ðŸŽ™ï¸ View Consumer Insights (Qualitative)", expanded=False):
+    with st.expander("🎙️ View Consumer Insights (Qualitative)", expanded=False):
         render_qual_result(qual_data, is_columnar=False)
 

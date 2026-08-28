@@ -1,5 +1,5 @@
-﻿"""
-qual_generic_renderer.py â€” InfoLeap Pulse
+"""
+qual_generic_renderer.py — InfoLeap Pulse
 ==========================================
 Generic Streamlit renderer for any qualitative research project.
 Reads ui_config.json and renders 7 analysis tabs.
@@ -52,7 +52,7 @@ def _sev_color(sev: str) -> str:
     return {"critical": _P["red"], "high": _P["orange"], "medium": _P["amber"], "low": _P["green"]}.get((sev or "").lower(), _P["neutral"])
 
 def _sent_color(sent: str) -> tuple[str, str]:
-    return {"positive": (_P["green"], "â–²"), "negative": (_P["red"], "â–¼"), "neutral": (_P["neutral"], "â€”")}.get((sent or "").lower(), (_P["neutral"], "Â·"))
+    return {"positive": (_P["green"], "▲"), "negative": (_P["red"], "▼"), "neutral": (_P["neutral"], "—")}.get((sent or "").lower(), (_P["neutral"], "·"))
 
 def _md_bold(text: str) -> str:
     return _re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
@@ -66,11 +66,11 @@ def _build_highlight_idx(matrix: dict) -> list:
     for p in (matrix.get("all_passages") or []):
         if isinstance(p, dict) and p.get("decision_signal") and p.get("content"):
             frag = _re.sub(r"\s+", " ", p["content"].lower())[:60]
-            idx.append((frag, "â†’ decision", _P["teal"]))
+            idx.append((frag, "→ decision", _P["teal"]))
     mpv = matrix.get("most_powerful_verbatim")
     if mpv:
         frag = _re.sub(r"\s+", " ", mpv.lower())[:60]
-        idx.append((frag, "â˜… key quote", _P["purple"]))
+        idx.append((frag, "★ key quote", _P["purple"]))
     return idx
 
 def _parse_ai_sections(text: str, keys: list[str]) -> dict[str, list[str]]:
@@ -103,7 +103,7 @@ def _compute_kpi_value(field_cfg: dict, matrices: list[dict]) -> str:
     path = field_cfg.get("path", ""); fmt = field_cfg.get("format", ""); total = len(matrices)
     if fmt == "/10":
         avg = _safe_avg([_get_nested(m, path) for m in matrices])
-        return f"{avg:.1f}/10" if avg is not None else "â€”"
+        return f"{avg:.1f}/10" if avg is not None else "—"
     if fmt == "promoter_count":
         n = sum(1 for m in matrices if (m.get("nps_signal") or "").lower() == "promoter")
         return f"{n}/{total}"
@@ -111,7 +111,7 @@ def _compute_kpi_value(field_cfg: dict, matrices: list[dict]) -> str:
         n = sum(1 for m in matrices if str(_get_nested(m, path) or "").lower() == "high")
         return f"{n}/{total}"
     avg = _safe_avg([_get_nested(m, path) for m in matrices])
-    return f"{avg:.1f}" if avg is not None else "â€”"
+    return f"{avg:.1f}" if avg is not None else "—"
 
 def _compute_signal_score(score_cfg: dict, matrices: list[dict]) -> int:
     stype = score_cfg.get("type", ""); total = len(matrices)
@@ -237,7 +237,7 @@ def _render_filter_bar(matrices: list[dict], filter_fields: list[dict]) -> tuple
     filtered = matrices; active_filters = {}
     for col, ff in zip(cols, filter_fields):
         key = ff.get("key", ""); label = ff.get("label", key)
-        vals = sorted({str(_get_nested(m, key) or "â€”") for m in matrices if _get_nested(m, key)})
+        vals = sorted({str(_get_nested(m, key) or "—") for m in matrices if _get_nested(m, key)})
         opts = ["All"] + vals
         chosen = col.selectbox(label, opts, key=f"filter_{key}")
         filtered = _apply_filter(filtered, key, chosen)
@@ -251,8 +251,8 @@ def _render_distribution(field_path: str, label: str, matrices: list[dict], orde
     "v_bar"), normally sourced from a ui_config.json field's "chart" value.
     Pass "auto" to let select_chart_type_llm() pick based on the data shape.
     """
-    vals = [str(_get_nested(m, field_path) or "â€”") for m in matrices]
-    counts = Counter(v for v in vals if v != "â€”")
+    vals = [str(_get_nested(m, field_path) or "—") for m in matrices]
+    counts = Counter(v for v in vals if v != "—")
     if not counts: return
     items = sorted(counts.items(), key=lambda x: (ordered_values.index(x[0]) if ordered_values and x[0] in ordered_values else -x[1]))
     ordered_counts = {k: v for k, v in items}
@@ -293,7 +293,7 @@ def _render_sec_route_detail_grid(sec: dict, matrices: list[dict]) -> None:
         scols = st.columns(len(score_flds))
         for i, sf in enumerate(score_flds):
             avg = _safe_avg([_get_nested(m, sf.get("path","")) for m in matrices])
-            with scols[i]: kpi_card(sf.get("label",""), f"{avg:.1f}/10" if avg is not None else "â€”", _BRAND_PAL[i % len(_BRAND_PAL)])
+            with scols[i]: kpi_card(sf.get("label",""), f"{avg:.1f}/10" if avg is not None else "—", _BRAND_PAL[i % len(_BRAND_PAL)])
         st.markdown("<div style='margin:8px 0;'></div>", unsafe_allow_html=True)
     lcol, rcol = st.columns(2)
     for col, label, attrs in [(lcol, r1_label, r1_attrs), (rcol, r2_label, r2_attrs)]:
@@ -303,7 +303,7 @@ def _render_sec_route_detail_grid(sec: dict, matrices: list[dict]) -> None:
                 path = attr.get("path", ""); lbl = attr.get("label", path.split(".")[-1])
                 vals = [str(_get_nested(m, path) or "") for m in matrices if _get_nested(m, path)]
                 counts = Counter(vals); total = len(vals) or 1
-                top = counts.most_common(1)[0] if counts else ("â€”", 0)
+                top = counts.most_common(1)[0] if counts else ("—", 0)
                 pct = round(top[1] / total * 100)
                 color = _P["green"] if top[0] in ("yes", "strong", "high", "clear") else (_P["red"] if top[0] in ("no", "weak", "low", "confused") else _P["amber"])
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:8px 12px;border-radius:8px;background:#f9fafb;margin-bottom:6px;border-left:3px solid {color};">'
@@ -393,7 +393,7 @@ def _render_sec_score_grid(sec: dict, matrices: list[dict]) -> None:
     cols = st.columns(min(len(fields), 4))
     for i, sf in enumerate(fields[:4]):
         avg = _safe_avg([_get_nested(m, sf.get("path","")) for m in matrices])
-        with cols[i]: kpi_card(sf.get("label",""), f"{avg:.1f}" if avg is not None else "â€”", _BRAND_PAL[i % len(_BRAND_PAL)])
+        with cols[i]: kpi_card(sf.get("label",""), f"{avg:.1f}" if avg is not None else "—", _BRAND_PAL[i % len(_BRAND_PAL)])
 
 def _render_sec_verbatim_list(sec: dict, matrices: list[dict]) -> None:
     field = sec.get("field", ""); max_items = sec.get("max_items", 10)
@@ -426,7 +426,7 @@ def _render_sec_portfolio_context(sec: dict, matrices: list[dict]) -> None:
         acols = st.columns(min(len(alloc_fields), 6))
         for i, af in enumerate(alloc_fields[:6]):
             avg = _safe_avg([_get_nested(m, af.get("path","")) for m in matrices])
-            with acols[i]: kpi_card(af.get("label",""), f"{avg:.0f}%" if avg is not None else "â€”", _BRAND_PAL[i % len(_BRAND_PAL)])
+            with acols[i]: kpi_card(af.get("label",""), f"{avg:.0f}%" if avg is not None else "—", _BRAND_PAL[i % len(_BRAND_PAL)])
 
 _TAB4_RENDERERS = {
     "distribution": _render_sec_distribution,
@@ -452,7 +452,7 @@ def _render_tab1_deep_dive(matrices: list[dict], all_matrices: list[dict], ui_co
     if brief:
         _render_study_brief_card(ui_config, brief)
 
-    entities = sorted({str(_get_nested(m, f"respondent.{seg_key}") or _get_nested(m, seg_key) or "â€”") for m in matrices if _get_nested(m, f"respondent.{seg_key}") or _get_nested(m, seg_key)})
+    entities = sorted({str(_get_nested(m, f"respondent.{seg_key}") or _get_nested(m, seg_key) or "—") for m in matrices if _get_nested(m, f"respondent.{seg_key}") or _get_nested(m, seg_key)})
     if not entities: return
     sel_entity = st.selectbox(f"Select {entity_label}", ["All"] + entities, key="tab1_entity_sel")
     view = matrices if sel_entity == "All" else [m for m in matrices if str(_get_nested(m, f"respondent.{seg_key}") or _get_nested(m, seg_key) or "") == sel_entity]
@@ -480,7 +480,7 @@ def _render_tab1_deep_dive(matrices: list[dict], all_matrices: list[dict], ui_co
 
     st.markdown("<div style='margin:16px 0;'></div>", unsafe_allow_html=True)
 
-    # Signal scores â€” always computed from universal fields
+    # Signal scores — always computed from universal fields
     section_header("Study Health Signals", accent=_P["purple"])
     _render_signal_scores(view, ui_config)
 
@@ -508,7 +508,7 @@ def _render_tab1_deep_dive(matrices: list[dict], all_matrices: list[dict], ui_co
             st.markdown(f'<div style="background:radial-gradient(circle at top right, #1e293b, #0f172a);border-radius:24px;padding:32px;border:1px solid rgba(255,255,255,0.1);color:white;"><div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.15em;color:{_NEON};font-weight:800;margin-bottom:15px;">Intelligence Synthesis</div><div style="font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.9);">{_md_bold(_html_mod.escape(cache[cache_key]))}</div></div>', unsafe_allow_html=True)
             if st.button("Regenerate"): cache.pop(cache_key); insight_cache_path.write_text(json.dumps(cache)); st.rerun()
         else:
-            if st.button("âœ¨ Generate AI Synthesis", type="primary"):
+            if st.button("✨ Generate AI Synthesis", type="primary"):
                 with st.spinner("Analyzing..."):
                     res = call_openrouter_fn(f"Synthesize findings for {sel_entity} project {proj_id}.", "Research analyst bot.")
                     if res: cache[cache_key] = res; insight_cache_path.write_text(json.dumps(cache)); st.rerun()
@@ -641,7 +641,7 @@ def _render_tab3_themes(matrices: list[dict], ui_config: dict) -> None:
     jobs = _collect_list_field(matrices, "jobs_to_be_done")
     unspoken = _collect_list_field(matrices, "unspoken_needs")
 
-    # narrative_tags: only use as supplement â€” filter to reference framework tags
+    # narrative_tags: only use as supplement — filter to reference framework tags
     ref_tags: list[str] = ui_config.get("tab3_reference_tags") or []
     raw_tags: Counter = Counter()
     for m in matrices:
@@ -875,7 +875,7 @@ def _render_tab7_inspector(matrices: list[dict], ui_config: dict, proj: dict) ->
     if st.session_state.get(open_key):
         m = next((x for x in matrices if x.get("doc_id") == st.session_state[open_key]), None)
         if m:
-            if st.button("â† Back"): st.session_state[open_key] = None; st.rerun()
+            if st.button("← Back"): st.session_state[open_key] = None; st.rerun()
             st.markdown(f'<div style="background:#0f172a;border-radius:16px;padding:24px;color:white;margin-bottom:20px;"><div style="font-size:1.6rem;font-weight:900;">{m.get("doc_id","")}</div></div>', unsafe_allow_html=True)
             raw_p = abs_paths.get("transcripts") / "processed" / f"{m.get('doc_id')}.md"
             if raw_p.exists():
@@ -915,7 +915,7 @@ def _render_findings_report(proj_id: str, rs_path: Path, findings_dir: Path, pro
     section_header("Strategic Findings", f"{prefix.rstrip('_') or 'Full Study'}")
     for sec in sections:
         fpath = findings_dir / f"{prefix}{sec.get('id','')}.json"
-        with st.expander(f"ðŸ“‹ {sec.get('title','')}"):
+        with st.expander(f"📋 {sec.get('title','')}"):
             if fpath.exists():
                 fd = json.loads(fpath.read_text(encoding="utf-8"))
                 st.markdown(f'<div style="font-size:0.9rem;line-height:1.75;color:#374151;">{_md_bold(_html_mod.escape(fd.get("finding_text","")))}</div>', unsafe_allow_html=True)
@@ -930,27 +930,27 @@ def render_generic_project(proj: dict, ui_config: dict, base_path: Path, call_op
     page_banner(proj_dn, ui_config.get("study_context", "Intelligence Engine"), eyebrow="ACTIVE PROJECT")
     m_dir = proj.get("abs_paths", {}).get("matrices")
     all_m = [json.loads(f.read_text(encoding="utf-8")) for f in sorted(m_dir.glob("*_matrix.json"))] if m_dir and m_dir.exists() else []
-    if not all_m: empty_state("No data found.", icon="ðŸ“‚"); return
+    if not all_m: empty_state("No data found.", icon="📂"); return
     # Quality gate: "critical"-quality extractions (verbatim fidelity check failed badly) are
-    # excluded from every chart's aggregate data, not just flagged in the Health tab below â€”
+    # excluded from every chart's aggregate data, not just flagged in the Health tab below —
     # previously advisory only.
     from infoleap.skills.project_extractor import gate_matrices_by_quality
     all_m, _excluded_m = gate_matrices_by_quality(all_m)
     if _excluded_m:
         st.warning(
-            f"âš  {len(_excluded_m)} respondent(s) excluded from every chart below â€” "
+            f"⚠ {len(_excluded_m)} respondent(s) excluded from every chart below — "
             f"critical-quality extraction (verbatim fidelity check failed badly): "
             + ", ".join(m.get("doc_id", "?") for m in _excluded_m)
             + ". Re-run extraction for these files in Extraction Studio."
         )
-    if not all_m: empty_state("All matrices are critical-quality â€” nothing to render. Re-run "
-                              "extraction in Extraction Studio.", icon="ðŸ“‚"); return
+    if not all_m: empty_state("All matrices are critical-quality — nothing to render. Re-run "
+                              "extraction in Extraction Studio.", icon="📂"); return
     f_fields = ui_config.get("filter_fields") or []
     if f_fields: matrices, active_filters = _render_filter_bar(all_m, f_fields)
     else: matrices = all_m; active_filters = {}
     st.markdown(f'<div style="font-size:0.75rem;color:#6b7280;margin-bottom:20px;">Showing <b>{len(matrices)}</b> of {len(all_m)} interviews</div>', unsafe_allow_html=True)
     _brief = _load_study_brief(proj, base_path)
-    tabs = st.tabs(["ðŸ” Deep Dive", "âš  Pain Points", "ðŸ· Themes", f"ðŸ“Š {ui_config.get('tab4_label','Analysis')}", "ðŸ”’ Health", "ðŸ’¬ Search", "ðŸ”¬ Inspector"])
+    tabs = st.tabs(["🔍 Deep Dive", "⚠ Pain Points", "🏷 Themes", f"📊 {ui_config.get('tab4_label','Analysis')}", "🔒 Health", "💬 Search", "🔬 Inspector"])
     with tabs[0]: _render_tab1_deep_dive(matrices, all_m, ui_config, proj_id, base_path/"data/projects"/proj_id/"insights_cache.json", call_openrouter_fn, ui_config.get("study_context",""), brief=_brief)
     with tabs[1]: _render_tab2_pain(matrices, ui_config)
     with tabs[2]: _render_tab3_themes(matrices, ui_config)

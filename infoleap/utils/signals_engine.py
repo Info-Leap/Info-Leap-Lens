@@ -1,4 +1,4 @@
-﻿import sqlite3
+import sqlite3
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -161,7 +161,7 @@ class SignalsEngine:
             """, conn)
             for _, row in neg.iterrows():
                 signals.append({
-                    "title": f"Negative NPS â€” {row['brand_name']}",
+                    "title": f"Negative NPS — {row['brand_name']}",
                     "description": (
                         f"NPS = {row['nps']:+.0f} among {row['n']:,} raters. "
                         "Detractors outnumber promoters."
@@ -199,7 +199,7 @@ class SignalsEngine:
             """, conn, params=[base_n, base_n, base_n, base_n])
             for _, row in gap.iterrows():
                 signals.append({
-                    "title": f"Salience Gap â€” {row['brand_name']}",
+                    "title": f"Salience Gap — {row['brand_name']}",
                     "description": (
                         f"Aided awareness {row['aided_pct']}% but Top-of-Mind "
                         f"only {row['tom_pct']}%. Brand recognised but not recalled spontaneously."
@@ -217,7 +217,7 @@ class SignalsEngine:
                 "title": "Signal computation error",
                 "description": str(e),
                 "severity": "Warning",
-                "metric": "â€”",
+                "metric": "—",
                 "recommendation": "Check DB connectivity.",
             })
         finally:

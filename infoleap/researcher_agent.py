@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import json
 import time
@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 import streamlit as st
 
 # --- 0. SETUP & CREDENTIALS ---
-# Load .env from oxdata/ directory (explicit path â€” robust regardless of cwd)
+# Load .env from oxdata/ directory (explicit path — robust regardless of cwd)
 _ENV_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(_ENV_FILE, override=False)  # override=False: respect already-set env vars
 
@@ -119,7 +119,7 @@ class ResearchDeps:
     bq3_engine: BQ3AnalyticalEngine = field(default_factory=BQ3AnalyticalEngine)
     all_verbatims: List[Dict] = field(default_factory=list)
     last_brand_health_fig: Any = None
-    brand_health_cache: Dict = field(default_factory=dict)  # brandâ†’summary, prevents redundant calls
+    brand_health_cache: Dict = field(default_factory=dict)  # brand→summary, prevents redundant calls
 
 class FinalReport(BaseModel):
     summary: str = Field(description="Comprehensive analytical narrative. For analytical questions: 3-6 paragraphs covering (1) headline metric with exact numbers, (2) comparison to peers/average, (3) segment breakdown, (4) consumer voice if retrieved, (5) Pulse Insight strategic implication. NOT a 2-4 sentence summary. End with 'Pulse Insight: [one strategic sentence]'.")
@@ -152,31 +152,31 @@ class FinalReport(BaseModel):
 
 # --- 4. THE AGENT ---
 def get_orchestrator_prompt(profile: str, active_brand: str = "All Brands", active_cat: str = "All") -> str:
-    return f"""You are LENS â€” an intelligent market research assistant with access to survey data from 6,631+ respondents across 18 Indian cities. You function like ChatGPT but grounded entirely in this survey's data. You think, reason, compare, and synthesize â€” you do not just retrieve and display SQL tables.
+    return f"""You are LENS — an intelligent market research assistant with access to survey data from 6,631+ respondents across 18 Indian cities. You function like ChatGPT but grounded entirely in this survey's data. You think, reason, compare, and synthesize — you do not just retrieve and display SQL tables.
 
 ### 0. WHO YOU ARE
 You are not a SQL query tool. You are an analyst. When a user asks a question, you:
 1. Understand the full intent (not just extract keywords)
 2. Fetch the relevant data using tools
 3. Synthesize it into a rich, human narrative with exact numbers
-4. Compare â€” always give context (vs. competitors, vs. national average, vs. prior data)
+4. Compare — always give context (vs. competitors, vs. national average, vs. prior data)
 5. Cite your sources inline, naturally
-6. Connect to the conversation history â€” reference what was said before
+6. Connect to the conversation history — reference what was said before
 
 Your responses should feel like talking to a knowledgeable analyst, not querying a database.
 
-### 1. REACT LOOP â€” MANDATORY EXECUTION MODEL
-Operate in strict Reason â†’ Act â†’ Observe â†’ Reason cycle.
+### 1. REACT LOOP — MANDATORY EXECUTION MODEL
+Operate in strict Reason → Act → Observe → Reason cycle.
 
 **REASON:** Before EACH tool call: "I need [data] because [reason]. Calling [tool]."
 
 **ACT:** Call ONE tool per cycle. For comparisons (X vs Y, Zone A vs B), call the tool once per entity.
 
 **OBSERVE:** After tool returns: "I found: [key finding]. Sufficient? [Yes/No + reason]"
-- NO: state gap â†’ call next tool
+- NO: state gap → call next tool
 - YES: write FinalReport
 
-**STOPPING CRITERIA â€” write FinalReport as soon as:**
+**STOPPING CRITERIA — write FinalReport as soon as:**
 1. At least one tool returned actual data with real numbers.
 2. For "why/reason/driver/opinion" questions: `get_qualitative_feedback` called once.
 3. For explicit comparisons (X vs Y): data for both entities. For single-entity questions, ONE tool call is enough.
@@ -184,20 +184,20 @@ Operate in strict Reason â†’ Act â†’ Observe â†’ Reason cycle.
 
 ### 2. ABSOLUTE RULES
 - NO FinalReport until at least ONE tool called with real data.
-- **BRAND HEALTH RULE**: For awareness (TOM/SPONT/AIDED), NPS, brand funnel, competitive positioning â†’ call `get_brand_health_context`. It returns pre-computed verified metrics INCLUDING zone_breakdown and city_nps already inside the response. Call it ONCE per brand (zone="all") â€” the response contains all zone/city/rival data you need. Do NOT call it again with different zone values. Do NOT also run SQL for NPS or awareness.
+- **BRAND HEALTH RULE**: For awareness (TOM/SPONT/AIDED), NPS, brand funnel, competitive positioning → call `get_brand_health_context`. It returns pre-computed verified metrics INCLUDING zone_breakdown and city_nps already inside the response. Call it ONCE per brand (zone="all") — the response contains all zone/city/rival data you need. Do NOT call it again with different zone values. Do NOT also run SQL for NPS or awareness.
 - **WHY/PREFER BAN**: NEVER answer "why" or "what makes" questions using ONLY `run_sql`. MUST call `get_qualitative_feedback` or `analyze_brand_drivers`.
-- NEVER query `fact_verbatims` or `fact_transcript_segments` via SQL â€” use `get_qualitative_feedback` instead.
+- NEVER query `fact_verbatims` or `fact_transcript_segments` via SQL — use `get_qualitative_feedback` instead.
 - No placeholders. No "I will do X next". Call the tool NOW.
 
-### 3. CONVERSATION CONTEXT â€” CRITICAL
+### 3. CONVERSATION CONTEXT — CRITICAL
 You receive the session history in `Context:` at the start of every prompt. USE IT.
 
-- **Follow-up resolution**: "And for South?" â†’ resolve using entities from previous turn. Look at `Context:` to find what brand/metric was discussed.
-- **Reference previous findings**: "As we found for Bajaj in the North (NPS: 47)..." â€” bring forward specific numbers from prior turns.
+- **Follow-up resolution**: "And for South?" → resolve using entities from previous turn. Look at `Context:` to find what brand/metric was discussed.
+- **Reference previous findings**: "As we found for Bajaj in the North (NPS: 47)..." — bring forward specific numbers from prior turns.
 - **Build on prior analysis**: If Turn 1 analyzed awareness and Turn 2 asks for NPS, contextualize the NPS in light of the awareness position.
 - **Filter persistence**: If Turn 1 established "West Zone, Female segment", Turn 2 inherits those filters unless user changes them.
 - **For summary requests** ("what did we discuss", "key findings so far"): synthesize ALL prior turns from `Context:` into a coherent brief without calling any tools.
-- **Short follow-ups** (â‰¤5 words, no brand named): always resolve from conversation context before calling a tool.
+- **Short follow-ups** (≤5 words, no brand named): always resolve from conversation context before calling a tool.
 
 ### 4. ENTITY RESOLUTION
 - NEVER use "it", "them", "they", "that brand" in tool calls. Always use explicit names.
@@ -205,8 +205,8 @@ You receive the session history in `Context:` at the start of every prompt. USE 
 - Geographical rule: Don't mix zones. If Zone=North is active, don't query Chennai (South).
 
 ### 5. COMPARISON MANDATE
-For analytical questions, provide comparison context using data already returned â€” do NOT make extra tool calls just for comparison context unless the user explicitly asks for comparison.
-- `get_brand_health_context` already returns rivals, zone breakdown, city NPS in a single call â€” use those, don't call the tool again.
+For analytical questions, provide comparison context using data already returned — do NOT make extra tool calls just for comparison context unless the user explicitly asks for comparison.
+- `get_brand_health_context` already returns rivals, zone breakdown, city NPS in a single call — use those, don't call the tool again.
 - For NPS/awareness questions: rivals are already in the brand health response. Use them.
 - Only call an extra tool if the user explicitly asks "compare to X" or "vs X" and that entity's data hasn't been fetched yet.
 
@@ -215,9 +215,9 @@ For analytical questions, provide comparison context using data already returned
 ### 6. RESPONSE QUALITY STANDARDS
 
 **Length & Depth**: Write comprehensive, analytical responses. For any real analytical question, write 3-6 substantive paragraphs, NOT 2-4 sentences. Match depth to complexity:
-- Simple count/fact â†’ 2-3 sentences + exact number
-- Brand analysis â†’ 3-4 paragraphs covering: headline metric, comparisons, segment breakdown, consumer voice if available, strategic implication
-- Complex comparison â†’ full analysis per entity + synthesis paragraph
+- Simple count/fact → 2-3 sentences + exact number
+- Brand analysis → 3-4 paragraphs covering: headline metric, comparisons, segment breakdown, consumer voice if available, strategic implication
+- Complex comparison → full analysis per entity + synthesis paragraph
 
 **Narrative Structure** (for analytical questions):
 1. **Headline**: Direct answer with the key number(s)
@@ -226,13 +226,13 @@ For analytical questions, provide comparison context using data already returned
 4. **Consumer Voice**: What people actually say (if qualitative data retrieved)
 5. **Pulse Insight**: One strategic implication sentence, starting "Pulse Insight: "
 
-**Citation**: Every qualitative claim â†’ [Doc_ID] inline. E.g., "Consumers find it noisy [Doc_88, Doc_102]."
+**Citation**: Every qualitative claim → [Doc_ID] inline. E.g., "Consumers find it noisy [Doc_88, Doc_102]."
 
 **Tone**: Decisive, clear, analytical. Never hedge. If data says it, state it as fact. No "it appears", "seems to suggest", "needs verification".
 
 ### 7. ACCURACY RULES
 - **PULSE INSIGHT (MANDATORY)**: Every summary MUST end with "Pulse Insight: [one strategic sentence]."
-- **DEMOGRAPHIC LOCK**: For respondent counts / gender / city distribution â†’ query `v_respondents` only. NOT `v_brand_nps` or `v_brand_awareness` (those have multiple rows per person).
+- **DEMOGRAPHIC LOCK**: For respondent counts / gender / city distribution → query `v_respondents` only. NOT `v_brand_nps` or `v_brand_awareness` (those have multiple rows per person).
 - **Empty Segment Rule**: Report "no data" ONLY if BOTH `run_sql` AND `get_qualitative_feedback` (with fallback) return nothing.
 - **Hallucination Guard**: NEVER claim a brand is good/bad at an attribute unless it appears in `last_df` or verbatims with actual data.
 - **Cross-Location Fallback**: If city search returns nothing, retry globally. Say "No interviews in [City], but globally for [Brand], consumers say...".
@@ -255,11 +255,11 @@ Advanced chart specs (use `chart_spec` field):
 - `get_brand_health_context`: Pre-computed awareness funnel + NPS + competitive position for any brand
 - `run_python`: Generate Plotly visualization from current `last_df`
 - `list_categories_for_brand`: Discover which categories a brand competes in
-- `statistical_significance`: XLSTAT-style significance letters â€” "is X significantly higher than Y?", "which brands lead on awareness/consideration with statistical confidence"
-- `perceptual_map`: Correspondence Analysis â€” "how are brands positioned", "perceptual map", "which attributes define the market", "who is closest to brand X in image"
-- `imagery_profile`: Brand Image Profiling â€” "what is brand X known for", "image strengths/weaknesses", "where does X over/under-index on perception"
-- `driver_regression`: Key-driver regression â€” "what drives NPS/CSAT for brand X", "which attributes most affect loyalty", "importance of drivers"
-- `segment_difference_test`: Segment ANOVA â€” "does brand X perform differently across zones/gender/age", "is the regional difference significant"
+- `statistical_significance`: XLSTAT-style significance letters — "is X significantly higher than Y?", "which brands lead on awareness/consideration with statistical confidence"
+- `perceptual_map`: Correspondence Analysis — "how are brands positioned", "perceptual map", "which attributes define the market", "who is closest to brand X in image"
+- `imagery_profile`: Brand Image Profiling — "what is brand X known for", "image strengths/weaknesses", "where does X over/under-index on perception"
+- `driver_regression`: Key-driver regression — "what drives NPS/CSAT for brand X", "which attributes most affect loyalty", "importance of drivers"
+- `segment_difference_test`: Segment ANOVA — "does brand X perform differently across zones/gender/age", "is the regional difference significant"
 
 ### 10. DRIVER ATTRIBUTES (for analyze_brand_drivers)
 - **Productivity**: Voltage fluctuation tolerance, Silent operation, Fast motor cooling, Energy efficiency
@@ -270,8 +270,8 @@ Advanced chart specs (use `chart_spec` field):
 - **Price/Value**: Fair pricing, Discount offers
 
 ### 11. OUTPUT FIELDS
-- `summary`: Comprehensive narrative (see Â§6 Response Quality Standards). 3-6 paragraphs for analysis.
-- `thinking`: Max 2 sentences â€” your data collection plan.
+- `summary`: Comprehensive narrative (see §6 Response Quality Standards). 3-6 paragraphs for analysis.
+- `thinking`: Max 2 sentences — your data collection plan.
 - `chart_code`: Pure Python Plotly code defining `fig`.
 - `consumer_voice`: Actual raw verbatim quotes, NOT summaries.
 - `sources`: Source IDs for cited verbatims.
@@ -298,7 +298,7 @@ def resolve_pronouns(question: str, history: List[Dict],
     q_low = question.lower()
     words  = q_low.split()
 
-    # Don't touch long questions â€” they're already explicit enough
+    # Don't touch long questions — they're already explicit enough
     if len(words) > 10:
         return question
 
@@ -341,12 +341,12 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         deps = ResearchDeps(session_id=session_id)
         profile = get_dynamic_respondent_profile(deps.db_path)
 
-        # Memory â€” retrieve relevant past episodes for context
+        # Memory — retrieve relevant past episodes for context
         try:
             from infoleap.skills.memory_service import memory as lens_memory
             prior_episodes = lens_memory.retrieve_relevant_episodes(question, limit=2)
             memory_context = (
-                "\n[MEMORY â€” relevant past analyses]\n"
+                "\n[MEMORY — relevant past analyses]\n"
                 + "\n---\n".join(prior_episodes[:2])
                 if prior_episodes else ""
             )
@@ -373,7 +373,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         
         # Fast-Path: Basic Greeting
         if re.sub(r'[^\w\s]', '', q_low.strip()) in ["hi", "hello", "hey", "who are you"]:
-            yield {"type": "result", "data": FinalReport(thinking="Greeting", respondent_profile=profile, summary="Hello! I am LENS 3.2. How can I help you?"), "df": None, "engine": "âš¡ Fast-Path"}
+            yield {"type": "result", "data": FinalReport(thinking="Greeting", respondent_profile=profile, summary="Hello! I am LENS 3.2. How can I help you?"), "df": None, "engine": "⚡ Fast-Path"}
             return
 
         # NEW: True Fast-Path Bypass (Camouflaged as Agent Flow)
@@ -383,7 +383,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         match = await router.find_match_neural(question, fast_call)
 
         # FAQ match is used ONLY as a routing hint / few-shot context.
-        # We NEVER return the static model_answer â€” it may contain unfilled
+        # We NEVER return the static model_answer — it may contain unfilled
         # {{placeholders}} and is not grounded in live data. The full REACT
         # loop agent runs for every question.
         if match:
@@ -440,17 +440,17 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
                     return await subagents.call(MODEL_MINI, user_prompt, system_prompt)
                 query_plan = await plan_query(question, session_context, _mini_llm)
                 if query_plan.steps:
-                    steps_desc = " â†’ ".join(
+                    steps_desc = " → ".join(
                         f"[{s.skill}] {s.sub_question[:60]}" for s in query_plan.steps
                     )
                     plan_hint = (
-                        f"\n[QUERY PLAN â€” {len(query_plan.steps)} steps]\n"
+                        f"\n[QUERY PLAN — {len(query_plan.steps)} steps]\n"
                         + "\n".join(f"Step {s.step_id} ({s.skill}): {s.sub_question}"
                                     for s in query_plan.steps)
                         + f"\nMerge strategy: {query_plan.merge_strategy}\n"
                     )
                     yield {"type": "thought",
-                           "content": f"Complex query â€” decomposed into {len(query_plan.steps)} steps: {steps_desc}"}
+                           "content": f"Complex query — decomposed into {len(query_plan.steps)} steps: {steps_desc}"}
                     print(f"[DEBUG] Query plan: {steps_desc}")
             except Exception as e:
                 print(f"[DEBUG] plan_query failed (non-fatal): {e}")
@@ -658,7 +658,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
                 except Exception as e:
                     print(f"[DEBUG] BQ3 Global fallback failed: {e}")
                     return (
-                        f"BQ3 driver analysis unavailable for {brand} â€” brand imagery data "
+                        f"BQ3 driver analysis unavailable for {brand} — brand imagery data "
                         f"(bq3 attributes) not yet ingested in this database. "
                         f"REQUIRED ACTION: Call get_qualitative_feedback with "
                         f"task='reasons consumers prefer {brand} over competitors' "
@@ -667,7 +667,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
 
                 if "error" in res:
                     return (
-                        f"BQ3 driver analysis unavailable for {brand} â€” brand imagery data "
+                        f"BQ3 driver analysis unavailable for {brand} — brand imagery data "
                         f"not yet ingested. "
                         f"REQUIRED ACTION: Call get_qualitative_feedback with "
                         f"task='reasons consumers prefer {brand} over competitors'."
@@ -676,7 +676,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
 
             if "error" in res:
                 return (
-                    f"BQ3 driver analysis unavailable for {brand} â€” brand imagery data "
+                    f"BQ3 driver analysis unavailable for {brand} — brand imagery data "
                     f"not yet ingested in this database. "
                     f"REQUIRED ACTION: Call get_qualitative_feedback with "
                     f"task='reasons consumers prefer {brand} over competitors' "
@@ -741,7 +741,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
             try:
                 import plotly.express as px
                 import plotly.graph_objects as go
-                # Restrict builtins to a safe subset â€” prevents import/open/exec inside exec'd code
+                # Restrict builtins to a safe subset — prevents import/open/exec inside exec'd code
                 _safe_builtins = {
                     "len": len, "range": range, "enumerate": enumerate, "zip": zip,
                     "list": list, "dict": dict, "tuple": tuple, "set": set,
@@ -755,7 +755,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
                     "df": ctx.deps.last_df, "pd": pd, "np": np, "px": px, "go": go,
                     "__builtins__": _safe_builtins,
                 }
-                exec(code, scope)  # nosec â€” guarded by pattern check + restricted builtins above
+                exec(code, scope)  # nosec — guarded by pattern check + restricted builtins above
                 if scope.get("fig") is not None:
                     ctx.deps.last_brand_health_fig = scope["fig"]
                 return f"Result: visual generated. CODE: {code}"
@@ -784,11 +784,11 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
             """
             cache_key = f"{brand}|{zone}|{gender}|{age_band}|{city}"
             if cache_key in ctx.deps.brand_health_cache:
-                return f"[Already fetched â€” use data above] {ctx.deps.brand_health_cache[cache_key]}"
+                return f"[Already fetched — use data above] {ctx.deps.brand_health_cache[cache_key]}"
             # Prevent tool-loop: if brand health was already called for this brand with any filter, return cached all-filters version
             brand_any_key = next((k for k in ctx.deps.brand_health_cache if k.startswith(f"{brand}|all|")), None)
             if brand_any_key and zone != "all":
-                return f"[Zone subset â€” global data already fetched] {ctx.deps.brand_health_cache[brand_any_key]}"
+                return f"[Zone subset — global data already fetched] {ctx.deps.brand_health_cache[brand_any_key]}"
             ctx.deps.tools_called.append(f"brand_health: {brand} [{zone}/{gender}/{age_band}/{city}]")
             await ctx.deps.thought_queue.put(
                 f"Fetching brand health data for {brand} (zone={zone}, gender={gender})"
@@ -803,7 +803,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
                     zone=zone, city=city, gender=gender, age_band=age_band
                 )
 
-                # Build funnel chart â€” focal brand full funnel + rivals TOM comparison
+                # Build funnel chart — focal brand full funnel + rivals TOM comparison
                 raw = await _asyncio.to_thread(
                     get_brand_health_data, brand,
                     zone=zone, city=city, gender=gender, age_band=age_band
@@ -859,10 +859,10 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
                                 font=dict(size=11, color="#1a5d4d" if e["focal"] else "#6b7280"),
                             )
 
-                    filters_str = " Â· ".join(f"{k}={v}" for k, v in [("zone", zone), ("gender", gender), ("city", city)] if v != "all") or "All respondents"
+                    filters_str = " · ".join(f"{k}={v}" for k, v in [("zone", zone), ("gender", gender), ("city", city)] if v != "all") or "All respondents"
                     fig.update_layout(
                         barmode="stack",
-                        title=dict(text=f"Awareness Funnel â€” {raw['brand_name']} vs Rivals<br><sup>{filters_str} Â· Base N={raw['base_n']:,}</sup>", x=0.02),
+                        title=dict(text=f"Awareness Funnel — {raw['brand_name']} vs Rivals<br><sup>{filters_str} · Base N={raw['base_n']:,}</sup>", x=0.02),
                         template="plotly_white",
                         paper_bgcolor="rgba(0,0,0,0)",
                         plot_bgcolor="rgba(0,0,0,0)",
@@ -889,7 +889,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
                     pass
                 return f"Brand health retrieval error: {e}"
 
-        # â”€â”€ Advanced analytics suite (XLSTAT-grade) â€” Python+R engines â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Advanced analytics suite (XLSTAT-grade) — Python+R engines ──────────
         # Streamlit-free wrappers from analytics_tools.py. Each returns a concise
         # text summary grounded in live DB data; the agent reads & narrates it.
         @orchestrator.tool
@@ -901,7 +901,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
             EVER_USED|CURRENT_USER|PREFERRED. Returns which brands significantly beat
             which (Excel-style A/B/C letters) at the given confidence."""
             ctx.deps.tools_called.append(f"sig_test: {metric}")
-            await ctx.deps.thought_queue.put(f"Running column-proportion significance test on {metric}â€¦")
+            await ctx.deps.thought_queue.put(f"Running column-proportion significance test on {metric}…")
             try:
                 from infoleap.skills.analytics_tools import significance_test
                 return significance_test(metric=metric, confidence=confidence)
@@ -911,12 +911,12 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         @orchestrator.tool
         async def perceptual_map(ctx: RunContext[ResearchDeps],
                                  category: str = "all", top_brands: int = 12) -> str:
-            """Correspondence Analysis (CAN MAP) â€” perceptual positioning of brands vs
+            """Correspondence Analysis (CAN MAP) — perceptual positioning of brands vs
             imagery attributes. category: all|ceiling fans|air cooler|mixer grinder|
             led batten|water heater|water pumps. Returns the dominant dimensions,
             variance explained, and which attributes define each axis."""
             ctx.deps.tools_called.append(f"can_map: {category}")
-            await ctx.deps.thought_queue.put(f"Running Correspondence Analysis for {category}â€¦")
+            await ctx.deps.thought_queue.put(f"Running Correspondence Analysis for {category}…")
             try:
                 from infoleap.skills.analytics_tools import correspondence_analysis
                 return correspondence_analysis(category=category, top_brands=top_brands)
@@ -926,11 +926,11 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         @orchestrator.tool
         async def imagery_profile(ctx: RunContext[ResearchDeps],
                                   brand: str, category: str = "all", top: int = 8) -> str:
-            """Brand Image Profiling (BIP) â€” which imagery attributes a brand over- or
+            """Brand Image Profiling (BIP) — which imagery attributes a brand over- or
             under-indexes on vs the market, with significance. Returns the brand's
             distinctive strengths and weaknesses in consumer perception."""
             ctx.deps.tools_called.append(f"bip: {brand}")
-            await ctx.deps.thought_queue.put(f"Profiling {brand} imagery vs marketâ€¦")
+            await ctx.deps.thought_queue.put(f"Profiling {brand} imagery vs market…")
             try:
                 from infoleap.skills.analytics_tools import brand_imagery_profile
                 return brand_imagery_profile(brand=brand, category=category, top=top)
@@ -941,12 +941,12 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         async def driver_regression(ctx: RunContext[ResearchDeps],
                                     brand: str, outcome: str = "NPS",
                                     topbox_min: int = 9, top: int = 8) -> str:
-            """Key Driver REGRESSION (R) â€” which imagery attributes most drive an
+            """Key Driver REGRESSION (R) — which imagery attributes most drive an
             outcome for a brand. outcome: NPS|CSAT. topbox_min: top-box recode
-            threshold (9 = 9-10 â†’ 1). Returns standardized-importance ranking with
+            threshold (9 = 9-10 → 1). Returns standardized-importance ranking with
             statistical significance (the levers and drags on the outcome)."""
             ctx.deps.tools_called.append(f"driver_reg: {brand}/{outcome}")
-            await ctx.deps.thought_queue.put(f"Running key-driver regression for {brand} ({outcome})â€¦")
+            await ctx.deps.thought_queue.put(f"Running key-driver regression for {brand} ({outcome})…")
             try:
                 from infoleap.skills.analytics_tools import key_driver_regression
                 return key_driver_regression(brand=brand, outcome=outcome,
@@ -957,11 +957,11 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         @orchestrator.tool
         async def segment_difference_test(ctx: RunContext[ResearchDeps],
                                           brand: str, segment: str = "zone") -> str:
-            """Segment ANOVA (R) â€” tests whether a brand's perception/advocacy differs
+            """Segment ANOVA (R) — tests whether a brand's perception/advocacy differs
             significantly across a demographic segment. segment: zone|gender|age_band.
             Returns F-statistic, p-value, and which segments differ."""
             ctx.deps.tools_called.append(f"anova: {brand}/{segment}")
-            await ctx.deps.thought_queue.put(f"Running segment ANOVA for {brand} by {segment}â€¦")
+            await ctx.deps.thought_queue.put(f"Running segment ANOVA for {brand} by {segment}…")
             try:
                 from infoleap.skills.analytics_tools import segment_anova
                 return segment_anova(brand=brand, segment=segment)
@@ -993,16 +993,16 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
         
         # --- STAGE 3: SELF-CORRECTION (Logic Check) ---
         print(f"[DEBUG] Starting Self-Correction check")
-        yield {"type": "thought", "content": "ðŸ” Self-Correction: Verifying chart/data consistency..."}
+        yield {"type": "thought", "content": "🔍 Self-Correction: Verifying chart/data consistency..."}
         
         # --- STAGE 4: SENIOR AUDITOR PASS (only when live data was retrieved) ---
         if deps.session_findings:
             print(f"[DEBUG] Starting Senior Auditor pass ({len(deps.session_findings)} findings)")
-            yield {"type": "thought", "content": "ðŸ›¡ï¸ Senior Auditor verifying data-to-answer integrity..."}
+            yield {"type": "thought", "content": "🛡️ Senior Auditor verifying data-to-answer integrity..."}
 
             accumulated_data_str = "\n---\n".join(deps.session_findings)
             audit_prompt = (
-                f"You are the Lead Data Integrity Auditor. Your job is to verify and polish the summary â€” NOT to shorten it.\n\n"
+                f"You are the Lead Data Integrity Auditor. Your job is to verify and polish the summary — NOT to shorten it.\n\n"
                 f"SUMMARY TO AUDIT:\n{report.summary}\n\n"
                 f"RAW DATABASE DATA:\n{accumulated_data_str}\n\n"
                 f"--- AUDIT RULES ---\n"
@@ -1017,7 +1017,7 @@ async def run_autonomous_research_async(question: str, message_history: List[Dic
             print(f"[DEBUG] Auditor pass completed")
             report.summary = final_summary
         else:
-            print(f"[DEBUG] Skipping auditor â€” no live data retrieved (FAQ/greeting path)")
+            print(f"[DEBUG] Skipping auditor — no live data retrieved (FAQ/greeting path)")
 
         # Store episode in memory for future sessions
         try:

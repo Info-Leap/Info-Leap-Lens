@@ -1,16 +1,16 @@
-﻿"""
-Quote Explorer â€” InfoLeap Pulse
+"""
+Quote Explorer — InfoLeap Pulse
 ==================================
-Tab 1  Survey Verbatims  â€” 6,623 bq2a responses with full demographics
-Tab 2  Transcript Intelligence â€” 233 IDI transcripts, 8 named brands
+Tab 1  Survey Verbatims  — 6,623 bq2a responses with full demographics
+Tab 2  Transcript Intelligence — 233 IDI transcripts, 8 named brands
 
 Data rules (strict):
  - Min 15 verbatims per brand to appear in any chart
- - Category column is NULL this wave â€” filter hidden
+ - Category column is NULL this wave — filter hidden
  - Charts compute on full query set; quote browser paginates at 20/page
  - Transcript NULL-brand docs: acknowledged, not hidden
  - Keyword matching uses regex word boundaries (no substring false positives)
- - SQL ORDER BY fv.id â€” stable pagination across filter changes
+ - SQL ORDER BY fv.id — stable pagination across filter changes
  - NPS computed as (promoters% - detractors%) using nps_score thresholds
  - Transcript sentiment uses keyword-based analysis (pre-tagged data broken for some brands)
 """
@@ -58,10 +58,10 @@ inject_pulse_styles()
 
 def _load_json_safe(fpath, error_log: list) -> Optional[dict]:
     """2026-07-27: shared replacement for the ~14 sites in this file that did
-    `try: json.loads(...); except Exception: pass/continue` â€” a malformed matrix (partial write,
+    `try: json.loads(...); except Exception: pass/continue` — a malformed matrix (partial write,
     truncated LLM extraction output) used to vanish with zero trace anywhere. Now the caller
     collects (filename, error) pairs into its own `error_log` list and is responsible for
-    surfacing them (st.warning near wherever the resulting count/list is shown) â€” this function
+    surfacing them (st.warning near wherever the resulting count/list is shown) — this function
     only centralizes the try/except so every site behaves the same way, not what happens after.
     """
     try:
@@ -72,11 +72,11 @@ def _load_json_safe(fpath, error_log: list) -> Optional[dict]:
 
 
 def _warn_json_errors(error_log: list, context: str = "matrix file(s)") -> None:
-    """Consistent warning rendering for _load_json_safe's error_log â€” call once after a loop."""
+    """Consistent warning rendering for _load_json_safe's error_log — call once after a loop."""
     if not error_log:
         return
     st.warning(
-        f"âš ï¸ {len(error_log)} {context} failed to parse and were skipped â€” counts below may be "
+        f"⚠️ {len(error_log)} {context} failed to parse and were skipped — counts below may be "
         f"undercounted. " +
         ", ".join(f"`{name}`" for name, _ in error_log[:5]) +
         (f" (+{len(error_log) - 5} more)" if len(error_log) > 5 else "")
@@ -86,7 +86,7 @@ def _warn_json_errors(error_log: list, context: str = "matrix file(s)") -> None:
 active_brand = st.session_state.get("active_brand", "All Brands")
 sidebar_context_block(brand=active_brand)
 
-# â”€â”€ Project resolution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Project resolution ─────────────────────────────────────────────────────────
 _pm = ProjectManager()
 _all_projects = _pm.list_projects()
 if "active_project" not in st.session_state:
@@ -96,7 +96,7 @@ _active_project = st.session_state["active_project"]
 _active_proj_meta = _pm.get_project(_active_project) or {}
 _study_type = _active_proj_meta.get("study_type", "ethnographic")
 
-# â”€â”€ Paths â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Paths ─────────────────────────────────────────────────────────────────────
 DB            = str(get_db_path(required_table="fact_respondents"))
 _BASE         = Path(__file__).resolve().parent.parent
 _TREES_DIR    = _BASE / "data" / "pageindex_trees"
@@ -120,7 +120,7 @@ def _count_tree_passages() -> int:
 _PROCESSED_DIR = _BASE / "data" / "qualitative" / "processed"
 _TI_CACHE     = _BASE / "data" / "transcript_insights_cache.json"
 
-# â”€â”€ OpenRouter (free models for transcript AI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── OpenRouter (free models for transcript AI) ─────────────────────────────────
 try:
     from dotenv import load_dotenv, find_dotenv
     _env_path = str(_BASE / ".env")
@@ -129,7 +129,7 @@ except Exception:
     pass
 
 def _get_or_key() -> str:
-    """Lazy key loader â€” re-reads env each call so hot-reloads pick it up."""
+    """Lazy key loader — re-reads env each call so hot-reloads pick it up."""
     key = os.getenv("OPENROUTER_API_KEY", "")
     if not key:
         try:
@@ -144,11 +144,11 @@ _OR_KEY = _get_or_key()
 _OR_URL     = "https://openrouter.ai/api/v1/chat/completions"
 
 # Primary model for all narrative/insight generation. Rotation across the rest of
-# _FREE_MODELS below is fallback-ONLY (primary timeout or hard error) â€” never the
+# _FREE_MODELS below is fallback-ONLY (primary timeout or hard error) — never the
 # default path. Was: silently picking whichever of 8 wildly different free models
 # answered first, causing visibly inconsistent tone/quality between runs.
 #
-# Deliberately a free-tier model, not a paid one â€” this function is still named
+# Deliberately a free-tier model, not a paid one — this function is still named
 # _call_openrouter_free (via its back-compat wrapper) and every call site expects
 # free-tier-only cost behavior. Picking a paid model here would silently start
 # billing on every AI narrative generated by Quote Explorer. DeepSeek R1 is
@@ -166,7 +166,7 @@ _FREE_MODELS = [
     "openai/gpt-oss-20b:free",
     "google/gemma-4-31b-it:free",
     "microsoft/phi-4-reasoning:free",
-]  # Strictly free models only â€” no paid fallback
+]  # Strictly free models only — no paid fallback
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -185,7 +185,7 @@ def _clean_openrouter_models(models: list[dict]) -> tuple[list[tuple], list[tupl
     """Filters the raw catalog down to real, usable, honestly-priced chat models.
     Returns (free, paid) where paid items are (name, slug, p_in, p_out, ctx_len) and
     free items are (name, slug, ctx_len). Drops: meta-routers (openrouter/auto, fusion,
-    pareto-code â€” pricing '-1' placeholder, not a pinned model), non-text-output models
+    pareto-code — pricing '-1' placeholder, not a pinned model), non-text-output models
     (audio/image generators), and any model with negative/placeholder pricing."""
     free, paid = [], []
     for m in models:
@@ -222,29 +222,29 @@ def _get_openrouter_model_options() -> dict:
     models = _fetch_openrouter_catalog()
 
     if not models:
-        options["â”€â”€ Paid ($/M tokens) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"] = "__divider__"
+        options["── Paid ($/M tokens) ──────────"] = "__divider__"
         for label, slug in [
-            ("DeepSeek Chat â€” $0.20 in / $0.80 out", "deepseek/deepseek-chat"),
-            ("Gemini 2.5 Flash â€” $0.30 in / $2.50 out", "google/gemini-2.5-flash"),
-            ("Qwen 2.5 72B Instruct â€” $0.35 in / $0.40 out", "qwen/qwen-2.5-72b-instruct"),
-            ("Llama 3.3 70B Instruct â€” $0.35 in / $0.40 out", "meta-llama/llama-3.3-70b-instruct"),
+            ("DeepSeek Chat — $0.20 in / $0.80 out", "deepseek/deepseek-chat"),
+            ("Gemini 2.5 Flash — $0.30 in / $2.50 out", "google/gemini-2.5-flash"),
+            ("Qwen 2.5 72B Instruct — $0.35 in / $0.40 out", "qwen/qwen-2.5-72b-instruct"),
+            ("Llama 3.3 70B Instruct — $0.35 in / $0.40 out", "meta-llama/llama-3.3-70b-instruct"),
         ]:
             options[label] = slug
-        options["â”€â”€ Free â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"] = "__divider__"
+        options["── Free ─────────────────────"] = "__divider__"
         for slug in _FREE_MODELS:
-            options[f"{slug} â€” Free"] = slug
+            options[f"{slug} — Free"] = slug
         return options
 
     free, paid = _clean_openrouter_models(models)
     free.sort(key=lambda t: t[0].lower())
     paid.sort(key=lambda t: t[2])
 
-    options["â”€â”€ Paid ($/M tokens, cheapest first) â”€â”€"] = "__divider__"
+    options["── Paid ($/M tokens, cheapest first) ──"] = "__divider__"
     for name, slug, p_in, p_out, _ctx in paid:
-        options[f"{name} â€” ${p_in:.2f} in / ${p_out:.2f} out"] = slug
-    options["â”€â”€ Free â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"] = "__divider__"
+        options[f"{name} — ${p_in:.2f} in / ${p_out:.2f} out"] = slug
+    options["── Free ─────────────────────"] = "__divider__"
     for name, slug, _ctx in free:
-        options[f"{name} â€” Free"] = slug
+        options[f"{name} — Free"] = slug
 
     return options
 
@@ -253,11 +253,11 @@ def _get_openrouter_model_options() -> dict:
 def _get_top_extraction_models(n: int = 20) -> dict:
     """Curated top-N model picker for the extraction pipeline (Step 1 / Step 2 / Reconcile).
     The full 300+ live catalog includes free-tier junk unsuited to structured JSON extraction
-    on long transcripts (moderation models, tiny/experimental providers, roleplay finetunes) â€”
+    on long transcripts (moderation models, tiny/experimental providers, roleplay finetunes) —
     scanning it directly for "cheapest 20" surfaces that junk before any real paid model shows
     up. Instead: use this project's own already-tested free-model shortlist (_FREE_MODELS,
     proven on this pipeline) as the free tier, then fill the rest with live-priced real paid
-    models ascending by cost â€” genuinely cheapest-to-priciest, but curated not noisy."""
+    models ascending by cost — genuinely cheapest-to-priciest, but curated not noisy."""
     options: dict = {"Default (pipeline fallback chain)": None}
     models = _fetch_openrouter_catalog()
     _, paid = _clean_openrouter_models(models)
@@ -273,24 +273,24 @@ def _get_top_extraction_models(n: int = 20) -> dict:
         return options
 
     for slug in _FREE_MODELS:
-        options[f"{slug} â€” Free"] = slug
+        options[f"{slug} — Free"] = slug
 
     n_paid = max(0, n - len(_FREE_MODELS))
     for name, slug, p_in, p_out, ctx in paid[:n_paid]:
         ctx_label = f"{ctx // 1000}K ctx" if ctx else "ctx n/a"
-        options[f"{name} â€” ${p_in:.2f} in / ${p_out:.2f} out â€” {ctx_label}"] = slug
+        options[f"{name} — ${p_in:.2f} in / ${p_out:.2f} out — {ctx_label}"] = slug
 
     return options
 
 
-# â”€â”€ Design tokens â€” sourced from shared ui_styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Design tokens — sourced from shared ui_styles ─────────────────────────────
 _P         = COLORS          # shared palette dict
 _BRAND_PAL = BRAND_COLORS    # shared ordered palette
 _ZONE_C    = ZONE_COLORS     # shared zone colors
 _FONT      = "Inter, Arial, sans-serif"
 _MIN_N     = 15
 
-# â”€â”€ Attribute keyword sets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Attribute keyword sets ─────────────────────────────────────────────────────
 _ATTRS: dict[str, set] = {
     "Price / Value":    {"price","cost","affordable","cheap","expensive","value","worth",
                          "daam","mehnga","sasta","budget","costly","money","rupee","saving",
@@ -307,7 +307,7 @@ _ATTRS: dict[str, set] = {
                          "attractive","dikhna","sundar","appearance","sleek","elegant","finish"},
 }
 
-# â”€â”€ Sentiment lexicon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Sentiment lexicon ─────────────────────────────────────────────────────────
 _POS = {"good","great","best","excellent","acha","badhiya","pasand","quality","durable",
         "reliable","trusted","fast","strong","affordable","value","love","happy","recommend",
         "famous","popular","superior","efficient","nice","prefer","satisfied","perfect",
@@ -329,9 +329,9 @@ _STOP = {
     "then","than","too","do","did","does","had","been","being","because","if","else",
 }
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 # DATA LAYER
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 
 @st.cache_data(ttl=3600)
 def _load_opts() -> dict:
@@ -387,9 +387,9 @@ def _query_verbatims(brands, cities, zones, genders, age_bands, keyword):
     rows = conn.execute(f"""
         SELECT fv.id,
                fv.response_text,
-               COALESCE(db_tom.brand_name,'â€”') brand,
-               COALESCE(vr.gender,'â€”')          gender,
-               COALESCE(vr.age_band,'â€”')         age_band,
+               COALESCE(db_tom.brand_name,'—') brand,
+               COALESCE(vr.gender,'—')          gender,
+               COALESCE(vr.age_band,'—')         age_band,
                dc.city_name,
                dz.zone_name
         FROM fact_verbatims fv
@@ -425,7 +425,7 @@ def _load_brand_quant_context() -> dict:
         GROUP BY db.brand_name
     """, (base_n,)).fetchall()
 
-    # Correct NPS formula: (promoters - detractors) / total Ã— 100
+    # Correct NPS formula: (promoters - detractors) / total × 100
     nps_rows = conn.execute("""
         SELECT db.brand_name,
                ROUND(
@@ -657,7 +657,7 @@ def _load_matrix_intel(_mtime: float = 0.0) -> dict:
 
 
 def _bm25_score(query_terms: list[str], doc_tokens: list[str], avg_dl: float, k1: float = 1.5, b: float = 0.75) -> float:
-    """BM25 relevance score â€” better than simple keyword match, no external deps."""
+    """BM25 relevance score — better than simple keyword match, no external deps."""
     dl = len(doc_tokens)
     doc_tf: dict = {}
     for t in doc_tokens:
@@ -770,14 +770,14 @@ def _search_matrix_passages(query: str, brand_filter: str = None, city_filter: s
     return results[:150]
 
 
-# â”€â”€â”€ save reference before any reassignment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── save reference before any reassignment ──────────────────────────────────
 _search_matrix_passages_bm25 = _search_matrix_passages
 
 
 def _cdcx_search_passages(query: str, segment_filter: str = None, city_filter: str = None,
                            topic_filter: str = None, sentiment_filter: str = None,
                            matrices_dir: Path = None) -> list:
-    """Enhanced passage search for CoinDCX â€” supports segment/topic/sentiment filters."""
+    """Enhanced passage search for CoinDCX — supports segment/topic/sentiment filters."""
     raw = _search_matrix_passages_bm25(query, brand_filter=segment_filter,
                                        city_filter=city_filter, matrices_dir=matrices_dir)
     if topic_filter and topic_filter != "All":
@@ -787,20 +787,20 @@ def _cdcx_search_passages(query: str, segment_filter: str = None, city_filter: s
     return raw
 
 
-# â”€â”€â”€ legacy compat: old code does m.get("respondent",...) then appends brand/city â”€â”€
-# New BM25 function returns those keys already â€” no changes needed in callers.
+# ─── legacy compat: old code does m.get("respondent",...) then appends brand/city ──
+# New BM25 function returns those keys already — no changes needed in callers.
 
 # keep old for-loop version stub (referenced below in Mixer passage search)
 def _search_matrix_passages_old(query: str, brand_filter: str = None, city_filter: str = None) -> list:
-    """Thin wrapper kept for backward compat â€” delegates to BM25 implementation."""
+    """Thin wrapper kept for backward compat — delegates to BM25 implementation."""
     return _search_matrix_passages_bm25(query, brand_filter=brand_filter, city_filter=city_filter)
 
 
-# Mixer passage search uses _search_matrix_passages â€” point to BM25
-_search_matrix_passages = _search_matrix_passages_bm25  # noqa: F811 â€” intentional rebind
+# Mixer passage search uses _search_matrix_passages — point to BM25
+_search_matrix_passages = _search_matrix_passages_bm25  # noqa: F811 — intentional rebind
 
 
-# â”€â”€â”€ old for-loop stub (never called â€” kept to avoid NameError in old code paths)
+# ─── old for-loop stub (never called — kept to avoid NameError in old code paths)
 def _search_matrix_passages_for_legacy(query: str, brand_filter: str = None, city_filter: str = None) -> list:
     results = []
     if not _MATRICES_DIR.exists():
@@ -1004,7 +1004,7 @@ def _load_transcript_intel(_mtime: float = 0.0, _v: int = 3) -> dict:
                 content_low = content.lower()
                 words = set(re.findall(r'\b\w+\b', content_low))
 
-                # â”€â”€ CONTENT-BASED sentiment (fixes broken pre-tags) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── CONTENT-BASED sentiment (fixes broken pre-tags) ──────────
                 pos_hits = len(words & _POS)
                 neg_hits = len(words & _NEG)
                 if pos_hits > neg_hits:
@@ -1019,40 +1019,40 @@ def _load_transcript_intel(_mtime: float = 0.0, _v: int = 3) -> dict:
 
                 bd["n_passages"] += 1
 
-                # â”€â”€ Topic classification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── Topic classification ─────────────────────────────────────
                 matched_topics = []
                 for topic_name, kws in _TOPIC_KWORDS.items():
                     if words & kws:
                         bd["topics"][topic_name] += 1
                         matched_topics.append(topic_name)
 
-                # â”€â”€ Attr keyword matching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── Attr keyword matching ────────────────────────────────────
                 for attr_name, kws in _ATTRS.items():
                     if words & kws:
                         bd["attrs"][attr_name] += 1
 
-                # â”€â”€ Loyalty phrases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── Loyalty phrases ──────────────────────────────────────────
                 if any(phrase in content_low for phrase in _LOYAL_PHRASES):
                     bd["loyalty_hits"] += 1
 
-                # â”€â”€ Quote sampling (keep best examples) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                # ── Quote sampling (keep best examples) ──────────────────────
                 # Prefer quotes 60-350 chars, substantive (not just interviewer Q)
                 clean = re.sub(r'\s+', ' ', content.strip())
                 quote_score = pos_hits + neg_hits  # how sentiment-charged
                 if 60 <= len(clean) <= 400 and ":" not in clean[:15]:
                     if sent_label == "positive" and len(bd["pos_quotes"]) < 5:
                         bd["pos_quotes"].append({
-                            "text": clean, "city": city or "â€”",
+                            "text": clean, "city": city or "—",
                             "score": quote_score, "topics": matched_topics[:2],
                         })
                     elif sent_label == "negative" and len(bd["neg_quotes"]) < 5:
                         bd["neg_quotes"].append({
-                            "text": clean, "city": city or "â€”",
+                            "text": clean, "city": city or "—",
                             "score": quote_score, "topics": matched_topics[:2],
                         })
                     elif sent_label == "neutral" and quote_score >= 2 and len(bd["notable_quotes"]) < 4:
                         bd["notable_quotes"].append({
-                            "text": clean, "city": city or "â€”",
+                            "text": clean, "city": city or "—",
                             "score": quote_score, "topics": matched_topics[:2],
                         })
 
@@ -1091,7 +1091,7 @@ def _load_transcript_intel(_mtime: float = 0.0, _v: int = 3) -> dict:
 
 
 def _call_llm_pinned(prompt: str, system: str = "You are a qualitative research analyst.") -> str:
-    """Call the pinned primary model (free-tier â€” see _PINNED_MODEL comment); fall
+    """Call the pinned primary model (free-tier — see _PINNED_MODEL comment); fall
     back through the rest of _FREE_MODELS only on failure/timeout, never by default.
     Total wall-clock budget: 45s across primary + fallbacks to prevent long page freezes."""
     key = _get_or_key()
@@ -1134,7 +1134,7 @@ def _call_llm_pinned(prompt: str, system: str = "You are a qualitative research 
 
 
 def _call_openrouter_free(prompt: str, system: str = "You are a qualitative research analyst.") -> str:
-    """Back-compat wrapper â€” all existing call sites now get the pinned model first,
+    """Back-compat wrapper — all existing call sites now get the pinned model first,
     falling back through _FREE_MODELS only on failure."""
     return _call_llm_pinned(prompt, system)
 
@@ -1157,10 +1157,10 @@ def _save_insight_cache(cache: dict):
 
 def _insight_cache_key(brand: str, mtime: float = 0.0) -> str:
     """Cache key tied to data mtime so re-extracted matrices bust stale AI narratives.
-    Was: hardcoded '{brand}_v4' suffix with no relationship to underlying data â€”
+    Was: hardcoded '{brand}_v4' suffix with no relationship to underlying data —
     re-extraction left stale cached narratives showing indefinitely.
 
-    mtime is truncated to whole seconds â€” acceptable since matrix extraction is a
+    mtime is truncated to whole seconds — acceptable since matrix extraction is a
     slow, manual/offline batch job, not something that re-runs sub-second."""
     return f"{brand}_v4_{int(mtime)}"
 
@@ -1178,17 +1178,17 @@ def _generate_brand_transcript_insight(brand: str, bd: dict) -> str:
     promoter_pct = bd.get("promoter_pct", 0)
     pos_res_pct  = bd.get("positive_resolution_pct", 0)
 
-    # Pain points â€” from matrix
+    # Pain points — from matrix
     pain_pts = bd.get("pain_points", [])
     if isinstance(pain_pts, dict):
         pain_pts = pain_pts.get("all", []) or pain_pts.get("top_5", [])
     top_pains = [
-        f'[{p.get("area","?")}Â·{p.get("severity","?")}] {p.get("issue",p.get("issue_description",""))[:80]}'
-        + (f' â€” "{_clean_quote(p.get("quote",p.get("verbatim_quote",""))[:150])}"' if p.get("quote") or p.get("verbatim_quote") else "")
+        f'[{p.get("area","?")}·{p.get("severity","?")}] {p.get("issue",p.get("issue_description",""))[:80]}'
+        + (f' — "{_clean_quote(p.get("quote",p.get("verbatim_quote",""))[:150])}"' if p.get("quote") or p.get("verbatim_quote") else "")
         for p in (pain_pts[:4] if pain_pts else [])
     ]
 
-    # Aspiration gaps â€” from matrix
+    # Aspiration gaps — from matrix
     gaps = bd.get("aspiration_gaps", [])
     if isinstance(gaps, dict):
         gaps = gaps.get("high_opportunity", []) or gaps.get("all", [])
@@ -1207,7 +1207,7 @@ def _generate_brand_transcript_insight(brand: str, bd: dict) -> str:
     # Unspoken needs
     unspoken = [str(u.get("need",u))[:100] for u in bd.get("unspoken_needs",[])[:3]]
 
-    # Blame attribution â€” keys from _load_matrix_intel() are self_ratio / product_ratio
+    # Blame attribution — keys from _load_matrix_intel() are self_ratio / product_ratio
     blame = bd.get("blame", {})
     sb_ratio = blame.get("self_ratio", blame.get("self_blame_ratio", 0))
     pb_ratio = blame.get("product_ratio", blame.get("product_blame_ratio", 0))
@@ -1220,7 +1220,7 @@ def _generate_brand_transcript_insight(brand: str, bd: dict) -> str:
     _study_ctx_for_prompt = _mx_study_ctx if '_mx_study_ctx' in dir() and _mx_study_ctx else \
         "FMCD category (mixer-grinders, food processors). Middle-class Indian consumers. Purchase cycles 5-10 years."
 
-    prompt = f"""BRAND TRANSCRIPT INTELLIGENCE BRIEF â€” {brand.upper()}
+    prompt = f"""BRAND TRANSCRIPT INTELLIGENCE BRIEF — {brand.upper()}
 
 STUDY: {n_docs} In-depth interviews, {len(cities)} cities: {', '.join(cities[:6])}
 Context: {_study_ctx_for_prompt}
@@ -1248,13 +1248,13 @@ CRITICAL VERBATIMS:
 
 Write a sharp 4-part brief. Every claim must trace to specific evidence above. Be {brand}-specific. No hedging.
 
-WHAT CONSUMERS LOVE: [2 sentences â€” the emotional/functional core of {brand}'s appeal. What specific language reveals WHY they choose it?]
+WHAT CONSUMERS LOVE: [2 sentences — the emotional/functional core of {brand}'s appeal. What specific language reveals WHY they choose it?]
 
-PAIN POINTS: [2 sentences â€” root complaint. Product failure, service failure, or expectation mismatch? Quote the most damaging criticism. What does this cost in loyalty?]
+PAIN POINTS: [2 sentences — root complaint. Product failure, service failure, or expectation mismatch? Quote the most damaging criticism. What does this cost in loyalty?]
 
-BRAND EQUITY SIGNAL: [1 sentence â€” STRONG/MODERATE/WEAK consumer equity for {brand}. What evidence drives this verdict? Consider: {promoter_pct:.0f}% promoter, {strained_pct}% strained, {sb_ratio:.0%} self-blame.]
+BRAND EQUITY SIGNAL: [1 sentence — STRONG/MODERATE/WEAK consumer equity for {brand}. What evidence drives this verdict? Consider: {promoter_pct:.0f}% promoter, {strained_pct}% strained, {sb_ratio:.0%} self-blame.]
 
-STRATEGIC SIGNAL: [1-2 sentences â€” single most urgent action for the {brand} team. Which pain to fix or positive theme to amplify. Name specific city/segment if data supports it.]
+STRATEGIC SIGNAL: [1-2 sentences — single most urgent action for the {brand} team. Which pain to fix or positive theme to amplify. Name specific city/segment if data supports it.]
 
 Output only the 4 sections above."""
 
@@ -1262,13 +1262,13 @@ Output only the 4 sections above."""
         prompt,
         system=(
             "You are a senior qualitative research analyst specialising in Indian consumer behaviour and FMCD brand strategy. "
-            "You interpret IDI transcripts to extract strategic insight â€” not summaries. "
+            "You interpret IDI transcripts to extract strategic insight — not summaries. "
             "Write for brand managers who need to act, not academics who need to reflect. "
-            "Be specific, evidence-grounded, and opinionated. If data is thin, say so â€” don't pad."
+            "Be specific, evidence-grounded, and opinionated. If data is thin, say so — don't pad."
         ),
     )
     if result:
-        # Drop this brand's older mtime-keyed entries â€” otherwise every
+        # Drop this brand's older mtime-keyed entries — otherwise every
         # re-extraction adds a new key and the cache file grows forever.
         cache = {k: v for k, v in cache.items() if not k.startswith(f"{brand}_v4_")}
         cache[cache_key] = result
@@ -1291,9 +1291,9 @@ def _qual_search_cached(query, brand, city):
         return []
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 # ANALYTICS (in-memory)
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 
 _ANON_ID_RE      = re.compile(r'\bR_[0-9a-f]{6,10}\b', re.IGNORECASE)
 _DIALOGUE_RE     = re.compile(r'(?<!\w)([MR]):\s+')   # IDI transcript turn marker
@@ -1307,7 +1307,7 @@ def _has_dialogue(text: str) -> bool:
     return bool(_DIALOGUE_RE.search(text))
 
 def _parse_dialogue(text: str) -> list:
-    """Split IDI transcript text on M:/R: markers â†’ [(speaker, content), ...]."""
+    """Split IDI transcript text on M:/R: markers → [(speaker, content), ...]."""
     parts = _DIALOGUE_RE.split(text)
     result = []
     if parts[0].strip():
@@ -1324,15 +1324,15 @@ def _parse_dialogue(text: str) -> list:
 def _sentiment(text: str) -> tuple:
     words = set(re.findall(r'\b\w+\b', text.lower()))
     p, n = len(words & _POS), len(words & _NEG)
-    if p > n:   return "Positive", _P["green"],  "â–²"
-    if n > p:   return "Negative", _P["red"],    "â–¼"
-    return "Neutral", "#94a3b8", "â—"
+    if p > n:   return "Positive", _P["green"],  "▲"
+    if n > p:   return "Negative", _P["red"],    "▼"
+    return "Neutral", "#94a3b8", "●"
 
 
 def _compute_brand_attributes(rows: list) -> dict:
     brand_buckets: dict = defaultdict(list)
     for r in rows:
-        if r["brand"] != "â€”":
+        if r["brand"] != "—":
             brand_buckets[r["brand"]].append(r["text"].lower())
 
     result = {}
@@ -1357,7 +1357,7 @@ def _compute_brand_attributes(rows: list) -> dict:
 def _compute_sentiment_by_brand(rows: list) -> list:
     brand_sent: dict = defaultdict(lambda: {"pos": 0, "neu": 0, "neg": 0, "n": 0})
     for r in rows:
-        if r["brand"] == "â€”":
+        if r["brand"] == "—":
             continue
         s = _sentiment(r["text"])[0]
         bd = brand_sent[r["brand"]]
@@ -1424,7 +1424,7 @@ def _compute_distinctive_words(rows: list) -> dict:
         for w in re.findall(r'\b[a-zA-Z]{3,}\b', r["text"].lower()):
             if w not in _STOP:
                 global_count[w] += 1
-                if r["brand"] != "â€”":
+                if r["brand"] != "—":
                     brand_counts[r["brand"]][w] += 1
                 global_total += 1
 
@@ -1450,9 +1450,9 @@ def _compute_distinctive_words(rows: list) -> dict:
     return result
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# CHARTS â€” smaller, cleaner, one insight per chart
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
+# CHARTS — smaller, cleaner, one insight per chart
+# ═════════════════════════════════════════════════════════════════════════════
 
 def _chart_header(title: str, subtitle: str = "", how_to_read: str = ""):
     """Renders a styled chart title block + optional reading guide above the chart."""
@@ -1480,7 +1480,7 @@ def _chart_footer(text: str):
 def _legend_pills(items: list):
     """Renders coloured pill legend below a chart. items = [(label, hex_color, description)]"""
     def _desc_html(desc):
-        return f'<span style="color:#9ca3af;"> â€” {desc}</span>' if desc else ""
+        return f'<span style="color:#9ca3af;"> — {desc}</span>' if desc else ""
 
     pills_html = "".join(
         f'<span style="display:inline-flex;align-items:center;gap:4px;margin:0 8px 4px 0;">'
@@ -1509,7 +1509,7 @@ def _base_layout(**kw) -> dict:
 
 
 def _chart_sentiment_diverging(sent_data: list):
-    """Diverging bar â€” positive right, negative left. One clear message per brand."""
+    """Diverging bar — positive right, negative left. One clear message per brand."""
     if not sent_data:
         return None
     # Cap at 12 brands so chart stays readable
@@ -1525,7 +1525,7 @@ def _chart_sentiment_diverging(sent_data: list):
         text=[f"+{v:.0f}%" for v in pos_vals],
         textposition="inside",
         textfont=dict(size=10, color="white", family=_FONT),
-        hovertemplate="<b>%{y}</b> â€” Positive: %{x:.1f}%<extra></extra>",
+        hovertemplate="<b>%{y}</b> — Positive: %{x:.1f}%<extra></extra>",
     ))
     fig.add_trace(go.Bar(
         name="Negative", x=neg_vals, y=brands, orientation="h",
@@ -1533,7 +1533,7 @@ def _chart_sentiment_diverging(sent_data: list):
         text=[f"{d['neg_pct']:.0f}%" for d in sent_data],
         textposition="inside",
         textfont=dict(size=10, color="white", family=_FONT),
-        hovertemplate="<b>%{y}</b> â€” Negative: %{customdata:.1f}%<extra></extra>",
+        hovertemplate="<b>%{y}</b> — Negative: %{customdata:.1f}%<extra></extra>",
         customdata=[d["neg_pct"] for d in sent_data],
     ))
     x_max = max(pos_vals, default=0)
@@ -1560,7 +1560,7 @@ def _chart_sentiment_diverging(sent_data: list):
 
 
 def _chart_attribute_heatmap(brand_attrs: dict):
-    """Brand Ã— attribute heatmap â€” % of verbatims mentioning each topic."""
+    """Brand × attribute heatmap — % of verbatims mentioning each topic."""
     if not brand_attrs:
         return None
     attrs  = list(_ATTRS.keys())
@@ -1582,7 +1582,7 @@ def _chart_attribute_heatmap(brand_attrs: dict):
         colorbar=dict(title=dict(text="%", font=dict(size=9)),
                       ticksuffix="%", thickness=10, len=0.7,
                       tickfont=dict(size=8)),
-        hovertemplate="<b>%{y}</b> â€” %{x}<br>%{z:.1f}% of verbatims<extra></extra>",
+        hovertemplate="<b>%{y}</b> — %{x}<br>%{z:.1f}% of verbatims<extra></extra>",
     ))
     fig.update_layout(**_base_layout(
         height=max(220, 38 * len(brands) + 90),
@@ -1599,7 +1599,7 @@ def _chart_zone_word_bars(zone_words: dict):
     if not zones:
         return None
 
-    # Show as 2Ã—2 grid of individual charts for readability
+    # Show as 2×2 grid of individual charts for readability
     figs = {}
     for zone in zones:
         words_data = zone_words[zone][:5]
@@ -1610,10 +1610,10 @@ def _chart_zone_word_bars(zone_words: dict):
         fig = go.Figure(go.Bar(
             x=ratios, y=labels, orientation="h",
             marker=dict(color=zc, opacity=0.80, line=dict(width=0)),
-            text=[f"{r:.1f}Ã—" for r in ratios],
+            text=[f"{r:.1f}×" for r in ratios],
             textposition="outside",
             textfont=dict(size=10, color="#374151", family=_FONT),
-            hovertemplate="%{y}: %{x:.2f}Ã— national avg<extra></extra>",
+            hovertemplate="%{y}: %{x:.2f}× national avg<extra></extra>",
         ))
         fig.update_layout(**_base_layout(
             height=220,
@@ -1675,7 +1675,7 @@ def _chart_transcript_sentiment_bar(intel: dict):
             text=[f"{v:.0f}%" if v >= 8 else "" for v in vals],
             textposition="inside",
             textfont=dict(size=10, color="white" if color != "#cbd5e1" else "#374151", family=_FONT),
-            hovertemplate=f"<b>%{{y}}</b> â€” {name}: %{{x:.1f}}%<extra></extra>",
+            hovertemplate=f"<b>%{{y}}</b> — {name}: %{{x:.1f}}%<extra></extra>",
         ))
 
     fig.update_layout(**_base_layout(
@@ -1690,9 +1690,9 @@ def _chart_transcript_sentiment_bar(intel: dict):
     return fig
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 # UI HELPERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 
 def _kpi(val, label, color=None):
     color = color or _P["teal"]
@@ -1768,31 +1768,31 @@ def _render_transcript_ai(brand: str, text: str, accent: str,
     sections = _parse_ai_sections(text, _KEYS)
 
     _DEFAULT_ICONS = {
-        "WHAT CONSUMERS LOVE":  ("â–²", _P["green"]),
-        "PAIN POINTS":          ("â–¼", _P["red"]),
-        "BRAND EQUITY SIGNAL":  ("â—†", _P["purple"]),
-        "STRATEGIC SIGNAL":     ("â†’", _P["teal"]),
-        "WHAT THIS SEGMENT WANTS": ("â–²", _P["green"]),
-        "TRUST SIGNALS":        ("â—†", _P["purple"]),
+        "WHAT CONSUMERS LOVE":  ("▲", _P["green"]),
+        "PAIN POINTS":          ("▼", _P["red"]),
+        "BRAND EQUITY SIGNAL":  ("◆", _P["purple"]),
+        "STRATEGIC SIGNAL":     ("→", _P["teal"]),
+        "WHAT THIS SEGMENT WANTS": ("▲", _P["green"]),
+        "TRUST SIGNALS":        ("◆", _P["purple"]),
     }
     if icons_cfg:
         _DEFAULT_ICONS.update({
-            k: tuple(v) if isinstance(v, (list, tuple)) and len(v) >= 2 else ("â†’", accent)
+            k: tuple(v) if isinstance(v, (list, tuple)) and len(v) >= 2 else ("→", accent)
             for k, v in icons_cfg.items()
         })
-    icons = {k: _DEFAULT_ICONS.get(k, ("â†’", accent)) for k in _KEYS}
+    icons = {k: _DEFAULT_ICONS.get(k, ("→", accent)) for k in _KEYS}
     has_structured = any(sections.values())
     if has_structured:
         parts = [
             f'<div style="border-left:4px solid {accent};border-radius:6px;'
             f'background:#f8fafc;padding:14px 18px;">'
             f'<div style="font-size:0.68rem;font-weight:800;letter-spacing:0.08em;'
-            f'color:{accent};text-transform:uppercase;margin-bottom:12px;">AI Insight Â· {_html_mod.escape(brand)}</div>'
+            f'color:{accent};text-transform:uppercase;margin-bottom:12px;">AI Insight · {_html_mod.escape(brand)}</div>'
         ]
         for key, (icon, col_) in icons.items():
             lines = sections.get(key, [])
             if lines:
-                # _md_bold converts **text** â†’ <b>text</b> before escaping individual segments
+                # _md_bold converts **text** → <b>text</b> before escaping individual segments
                 body = "<br>".join(_md_bold(_html_mod.escape(ln)) for ln in lines)
                 parts.append(
                     f'<div style="margin-bottom:12px;padding:10px 12px;background:{col_}08;'
@@ -1839,19 +1839,19 @@ def _section(title: str, sub: str = "", accent: str = None, icon: str = ""):
     )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 # PAGE HEADER
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 
 _STATUS_COLORS = {
     "processed": _P["green"], "extracted": _P["teal"],
     "converting": _P["amber"], "raw": "#94a3b8", "error": _P["red"],
 }
 _STATUS_ICONS = {
-    "processed": "âœ“", "extracted": "â—", "converting": "â‹¯", "raw": "â—‹", "error": "âœ—",
+    "processed": "✓", "extracted": "●", "converting": "⋯", "raw": "○", "error": "✗",
 }
 
-# â”€â”€ Combined header + project selector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Combined header + project selector ────────────────────────────────────────
 _aproj_meta = _active_proj_meta
 _aproj_n    = _aproj_meta.get("transcript_count", 0)
 _aproj_mn   = _aproj_meta.get("matrix_count", 0)
@@ -1866,10 +1866,10 @@ for _pp in _all_projects:
     _pp_id    = _pp["id"]
     _pp_stat  = _pm.get_status(_pp_id)
     _pp_sc    = _STATUS_COLORS.get(_pp_stat, "#94a3b8")
-    _pp_si    = _STATUS_ICONS.get(_pp_stat, "â—‹")
+    _pp_si    = _STATUS_ICONS.get(_pp_stat, "○")
     _pp_n     = _pp.get("transcript_count", 0)
     _pp_mn    = _pp.get("matrix_count", 0)
-    _pp_sn    = _pp["display_name"].split("â€”")[0].strip() if "â€”" in _pp["display_name"] else _pp["display_name"][:22]
+    _pp_sn    = _pp["display_name"].split("—")[0].strip() if "—" in _pp["display_name"] else _pp["display_name"][:22]
     _is_a     = (_pp_id == _active_project)
     _pill_bg  = "white" if _is_a else "rgba(255,255,255,0.12)"
     _pill_col = _P["teal"] if _is_a else "rgba(255,255,255,0.7)"
@@ -1902,7 +1902,7 @@ st.markdown(
     f'<div style="font-size:0.60rem;color:rgba(255,255,255,0.4);text-transform:uppercase;'
     f'letter-spacing:0.1em;margin-bottom:3px;">Status</div>'
     f'<div style="font-size:0.8rem;font-weight:700;color:{_aproj_sc};">'
-    f'{_STATUS_ICONS.get(_aproj_stat,"â—‹")} {_aproj_stat}</div>'
+    f'{_STATUS_ICONS.get(_aproj_stat,"○")} {_aproj_stat}</div>'
     f'<div style="font-size:0.68rem;color:rgba(255,255,255,0.4);margin-top:2px;">'
     f'{_aproj_mn} extracted / {_aproj_n} total</div>'
     f'</div>'
@@ -1919,55 +1919,55 @@ _sw_cols = st.columns(len(_all_projects) + 1)
 for _swi, _swp in enumerate(_all_projects):
     if _swp["id"] != _active_project:
         with _sw_cols[_swi]:
-            _sw_short = _swp["display_name"].split("â€”")[0].strip()[:18]
+            _sw_short = _swp["display_name"].split("—")[0].strip()[:18]
             if st.button(f"Switch to {_sw_short}", key=f"sw_{_swp['id']}", use_container_width=True):
                 st.session_state["active_project"] = _swp["id"]
                 for _k in ["ti_open_doc","ti_city_filter","ti_page","cdcx_open_doc"]:
                     st.session_state.pop(_k, None)
                 st.rerun()
 with _sw_cols[-1]:
-    if st.button("â†» Refresh Projects", key="refresh_projects", use_container_width=True):
+    if st.button("↻ Refresh Projects", key="refresh_projects", use_container_width=True):
         new_ids = _pm.scan_for_new_projects()
         if new_ids:
-            st.info(f"New projects found: {', '.join(new_ids)} â€” switch to them and run extraction from their Inspector tab.")
+            st.info(f"New projects found: {', '.join(new_ids)} — switch to them and run extraction from their Inspector tab.")
         else:
             st.toast("No new projects found.")
         st.cache_data.clear()
         st.rerun()
 
-with st.expander("âž• Upload New Project (ZIP)", expanded=False):
+with st.expander("➕ Upload New Project (ZIP)", expanded=False):
 
-    with st.expander("ðŸ“– How to structure your ZIP â€” full spec", expanded=False):
+    with st.expander("📖 How to structure your ZIP — full spec", expanded=False):
         st.markdown("""
 **ZIP structure (all paths relative to ZIP root or one top-level folder):**
 
 ```
 my-project.zip
-â”œâ”€â”€ transcripts/                 â† REQUIRED â€” your interview files
-â”‚   â”œâ”€â”€ Interview_01.docx        â† .docx or .md, any filename
-â”‚   â”œâ”€â”€ Interview_02.docx
-â”‚   â””â”€â”€ ...
-â”‚
-â”œâ”€â”€ source_docs/                 â† RECOMMENDED â€” used to auto-generate schema
-â”‚   â”œâ”€â”€ DG_MyStudy.docx          â† Discussion Guide (any name matching *DG*.docx)
-â”‚   â””â”€â”€ AI_Prompt_MyStudy.docx  â† Analysis brief (any name matching *prompt*.docx)
-â”‚
-â”œâ”€â”€ schema/                      â† OPTIONAL â€” pre-built schema (skip schema_generator)
-â”‚   â”œâ”€â”€ master_prompt.txt        â† If present, used directly for extraction
-â”‚   â””â”€â”€ extraction_schema.json  â† If present, skips schema_generator entirely
-â”‚
-â””â”€â”€ project.json                 â† OPTIONAL â€” auto-created from ZIP filename if missing
+├── transcripts/                 ← REQUIRED — your interview files
+│   ├── Interview_01.docx        ← .docx or .md, any filename
+│   ├── Interview_02.docx
+│   └── ...
+│
+├── source_docs/                 ← RECOMMENDED — used to auto-generate schema
+│   ├── DG_MyStudy.docx          ← Discussion Guide (any name matching *DG*.docx)
+│   └── AI_Prompt_MyStudy.docx  ← Analysis brief (any name matching *prompt*.docx)
+│
+├── schema/                      ← OPTIONAL — pre-built schema (skip schema_generator)
+│   ├── master_prompt.txt        ← If present, used directly for extraction
+│   └── extraction_schema.json  ← If present, skips schema_generator entirely
+│
+└── project.json                 ← OPTIONAL — auto-created from ZIP filename if missing
 ```
 
 ---
 
-**Path 1 â€” Auto-generate schema (recommended for new projects)**
+**Path 1 — Auto-generate schema (recommended for new projects)**
 
 Put your Discussion Guide + Analysis Brief in `source_docs/`. After upload, click
 **Run Schema Generator** (or the full pipeline runs it automatically). The app calls
 `schema_generator.py` which reads both docs via LLM and produces:
-- `schema/extraction_schema.json` â€” JSON extraction schema
-- `schema/master_prompt.txt` â€” system prompt for extraction
+- `schema/extraction_schema.json` — JSON extraction schema
+- `schema/master_prompt.txt` — system prompt for extraction
 
 File naming conventions for auto-detection:
 - Discussion Guide: `DG_*.docx`, `*DG*.docx`, `*discussion*guide*.docx`
@@ -1975,7 +1975,7 @@ File naming conventions for auto-detection:
 
 ---
 
-**Path 2 â€” Pre-built schema (fastest, full control)**
+**Path 2 — Pre-built schema (fastest, full control)**
 
 Write `schema/master_prompt.txt` yourself and include it in the ZIP. Format:
 
@@ -1989,7 +1989,7 @@ SUMMARY: One paragraph describing the study objective, sample, cities.
 
 ---
 
-PHASE 1 â€” FREE-FORM REASONING (no schema constraints)
+PHASE 1 — FREE-FORM REASONING (no schema constraints)
 
 Read the COMPLETE transcript before writing anything. Think through:
 A. WHO IS THIS RESPONDENT? (profile, demographics, mindset)
@@ -2000,13 +2000,13 @@ E. SIGNALS AND MOTIVATIONS
 
 ---
 
-PHASE 2 â€” STRUCTURED JSON EXTRACTION
+PHASE 2 — STRUCTURED JSON EXTRACTION
 
 Extract into this exact schema:
 {
   "respondent": {
     "city": "string",
-    "brand_owned": "string",    â† or "segment" for concept tests
+    "brand_owned": "string",    ← or "segment" for concept tests
     "gender": "string",
     "age_band": "string",
     "occupation": "string"
@@ -2021,7 +2021,7 @@ Extract into this exact schema:
   ],
   "all_passages": [
     {
-      "content": "verbatim quote â‰¥30 chars",
+      "content": "verbatim quote ≥30 chars",
       "sentiment": "positive|negative|neutral|ambivalent",
       "topic": "snake_case_topic",
       "pain_point": true/false,
@@ -2041,12 +2041,12 @@ TRANSCRIPT:
 
 ---
 
-**`project.json` â€” optional, auto-created if missing**
+**`project.json` — optional, auto-created if missing**
 
 ```json
 {
   "id": "my-project",
-  "display_name": "My Study â€” Brand X Consumer Research",
+  "display_name": "My Study — Brand X Consumer Research",
   "study_type": "ethnographic",
   "transcript_format": "docx",
   "description": "50-word study description",
@@ -2062,10 +2062,10 @@ TRANSCRIPT:
     "entity_label": "Brand",
     "ai_insight_keys": ["WHAT CONSUMERS LOVE", "PAIN POINTS", "BRAND EQUITY SIGNAL", "STRATEGIC SIGNAL"],
     "ai_insight_icons": {
-      "WHAT CONSUMERS LOVE":  ["â–²", "#22c55e"],
-      "PAIN POINTS":          ["â–¼", "#ef4444"],
-      "BRAND EQUITY SIGNAL":  ["â—†", "#a855f7"],
-      "STRATEGIC SIGNAL":     ["â†’", "#14b8a6"]
+      "WHAT CONSUMERS LOVE":  ["▲", "#22c55e"],
+      "PAIN POINTS":          ["▼", "#ef4444"],
+      "BRAND EQUITY SIGNAL":  ["◆", "#a855f7"],
+      "STRATEGIC SIGNAL":     ["→", "#14b8a6"]
     },
     "tab_descriptions": {
       "Deep Dive": "Per-brand deep dive",
@@ -2080,20 +2080,20 @@ TRANSCRIPT:
 }
 ```
 
-**`segment_key`** â€” the respondent field used for grouping in Deep Dive tab.
+**`segment_key`** — the respondent field used for grouping in Deep Dive tab.
 Use `"brand_owned"` for brand studies, `"segment"` for concept tests.
 
-**`filter_keys`** â€” fields shown as filter dropdowns. Must match keys in `respondent` JSON.
+**`filter_keys`** — fields shown as filter dropdowns. Must match keys in `respondent` JSON.
 
 ---
 
-**Transcript file naming â€” best practice**
+**Transcript file naming — best practice**
 
 ```
-Brand_City_Gender_Age.docx          â† e.g. Crompton_Delhi_F_35.docx
-DI_01_SegmentName_City.docx         â† e.g. DI_01_StockInvestor_Delhi.docx
+Brand_City_Gender_Age.docx          ← e.g. Crompton_Delhi_F_35.docx
+DI_01_SegmentName_City.docx         ← e.g. DI_01_StockInvestor_Delhi.docx
 ```
-Naming is flexible â€” the extractor reads content, not filename.
+Naming is flexible — the extractor reads content, not filename.
 Metadata (city, brand, segment) should appear in the transcript body or filename
 so the LLM can extract them into `respondent.*` fields.
 
@@ -2103,11 +2103,11 @@ so the LLM can extract them into `respondent.*` fields.
 
 ```
 my-project.zip
-â””â”€â”€ transcripts/
-    â”œâ”€â”€ interview_01.md   â† paste transcript as markdown
-    â””â”€â”€ interview_02.md
+└── transcripts/
+    ├── interview_01.md   ← paste transcript as markdown
+    └── interview_02.md
 ```
-Upload â†’ switch to project â†’ paste master_prompt.txt in the editor â†’ extract.
+Upload → switch to project → paste master_prompt.txt in the editor → extract.
 """)
 
     _up_zip = st.file_uploader(
@@ -2116,12 +2116,12 @@ Upload â†’ switch to project â†’ paste master_prompt.txt in the editor
     )
 
     _up_id_override = st.text_input(
-        "Project ID (optional â€” leave blank to derive from filename)",
+        "Project ID (optional — leave blank to derive from filename)",
         placeholder="e.g. my-study-2026",
         key="new_proj_id_override",
     ).strip().lower()
 
-    if _up_zip and st.button("ðŸ“¦ Install Project", key="install_proj_btn", type="primary"):
+    if _up_zip and st.button("📦 Install Project", key="install_proj_btn", type="primary"):
         import zipfile, io, re as _re2
 
         # Derive project ID
@@ -2198,7 +2198,7 @@ Upload â†’ switch to project â†’ paste master_prompt.txt in the editor
                         # Switch to new project
                         st.session_state["active_project"] = _proj_id_new
                         st.cache_data.clear()
-                        st.success(f"Project '{_proj_id_new}' installed. Switchingâ€¦")
+                        st.success(f"Project '{_proj_id_new}' installed. Switching…")
                         st.rerun()
 
             except zipfile.BadZipFile:
@@ -2211,11 +2211,11 @@ st.markdown("<div style='margin:4px 0;'></div>", unsafe_allow_html=True)
 opts = _load_opts()
 brand_idx_map = {b: i for i, b in enumerate(opts["brands"])}
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# Generic project setup UI â€” works for any project registered in registry.json.
+# ─────────────────────────────────────────────────────────────────────────────
+# Generic project setup UI — works for any project registered in registry.json.
 # Renders file structure + master prompt editor + extraction trigger.
 # Called from the generic project block AND can be reused by project-specific views.
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 def _render_project_setup(proj_id: str, proj: dict):
     paths        = proj.get("abs_paths", {})
     display_name = proj.get("display_name", proj_id)
@@ -2239,28 +2239,28 @@ def _render_project_setup(proj_id: str, proj: dict):
         f'{_html_mod.escape(display_name)}</div>'
         f'<div style="font-size:0.78rem;color:#6b7280;margin-top:4px;">'
         f'<span style="color:{_sc_h};font-weight:700;">Status: {status}</span>'
-        f'&nbsp;Â·&nbsp;{m_count} matrices extracted</div></div>',
+        f'&nbsp;·&nbsp;{m_count} matrices extracted</div></div>',
         unsafe_allow_html=True,
     )
 
     if m_count > 0:
-        # Matrices exist â€” caller (generic renderer) handles display. Just return silently.
+        # Matrices exist — caller (generic renderer) handles display. Just return silently.
         return
 
-    # No matrices yet â€” show setup / confirm flow
+    # No matrices yet — show setup / confirm flow
     st.markdown(
         f'<div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:12px;'
         f'padding:16px 20px;margin-bottom:16px;">'
         f'<div style="font-size:0.88rem;font-weight:700;color:#92400e;margin-bottom:6px;">'
-        f'âš  No extracted matrices yet â€” review prompt then run extraction</div>'
+        f'⚠ No extracted matrices yet — review prompt then run extraction</div>'
         f'<div style="font-size:0.82rem;color:#78350f;line-height:1.7;">'
-        f'Uses OpenRouter free-tier. Each transcript â‰ˆ 2 LLM calls. Takes 5â€“30 min total.</div>'
+        f'Uses OpenRouter free-tier. Each transcript ≈ 2 LLM calls. Takes 5–30 min total.</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
     # Project structure
-    with st.expander("ðŸ“ Project Structure â€” review before extraction", expanded=True):
+    with st.expander("📁 Project Structure — review before extraction", expanded=True):
         _ps_c1, _ps_c2 = st.columns(2)
         with _ps_c1:
             st.markdown(
@@ -2271,7 +2271,7 @@ def _render_project_setup(proj_id: str, proj: dict):
             if src_dir and src_dir.exists():
                 for _sf in sorted(src_dir.iterdir()):
                     _sz = round(_sf.stat().st_size / 1024, 1)
-                    _ic = "ðŸ“„" if _sf.suffix == ".docx" else ("ðŸ“Š" if _sf.suffix == ".pptx" else "ðŸ“")
+                    _ic = "📄" if _sf.suffix == ".docx" else ("📊" if _sf.suffix == ".pptx" else "📁")
                     st.markdown(
                         f'<div style="font-size:0.77rem;padding:4px 0;border-bottom:1px solid #f1f5f9;'
                         f'display:flex;justify-content:space-between;">'
@@ -2283,7 +2283,7 @@ def _render_project_setup(proj_id: str, proj: dict):
                 _ss = round(schema_path.stat().st_size / 1024, 1)
                 st.markdown(
                     f'<div style="font-size:0.77rem;padding:4px 0;margin-top:4px;">'
-                    f'ðŸ“‹ {schema_path.name} &nbsp;<span style="color:#9ca3af;">{_ss} KB</span></div>',
+                    f'📋 {schema_path.name} &nbsp;<span style="color:#9ca3af;">{_ss} KB</span></div>',
                     unsafe_allow_html=True,
                 )
         with _ps_c2:
@@ -2304,12 +2304,12 @@ def _render_project_setup(proj_id: str, proj: dict):
                 st.markdown(
                     f'<div style="font-size:0.72rem;padding:3px 0;border-bottom:1px solid #f1f5f9;'
                     f'display:flex;justify-content:space-between;">'
-                    f'<span>ðŸ“ {_html_mod.escape(_tf.name)}</span>'
+                    f'<span>📝 {_html_mod.escape(_tf.name)}</span>'
                     f'<span style="color:#9ca3af;">{_tsz} KB</span></div>',
                     unsafe_allow_html=True,
                 )
             if len(_trans_files) > 30:
-                st.caption(f"â€¦ and {len(_trans_files) - 30} more")
+                st.caption(f"… and {len(_trans_files) - 30} more")
             if not _trans_files:
                 st.warning(f"No {t_ext} files found in transcripts folder.")
 
@@ -2321,7 +2321,7 @@ def _render_project_setup(proj_id: str, proj: dict):
         except Exception:
             pass
 
-    _section("ðŸ¤– Extraction Master Prompt", "Review Â· edit Â· confirm before running extraction")
+    _section("🤖 Extraction Master Prompt", "Review · edit · confirm before running extraction")
 
     if _master_txt:
         _json_start       = _master_txt.find("\n{")
@@ -2342,14 +2342,14 @@ def _render_project_setup(proj_id: str, proj: dict):
             f'border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;">'
             f'<div style="font-size:0.68rem;font-weight:800;color:{_P["teal"]};'
             f'text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">'
-            f'Role Â· Context Â· Pre-extraction Reasoning</div>'
+            f'Role · Context · Pre-extraction Reasoning</div>'
             f'<pre style="font-size:0.76rem;color:#1f2937;white-space:pre-wrap;'
             f'line-height:1.7;margin:0;font-family:monospace;">'
             f'{_html_mod.escape(_role_section)}</pre></div>',
             unsafe_allow_html=True,
         )
         if _schema_section:
-            with st.expander("{ } JSON Schema â€” click to expand", expanded=False):
+            with st.expander("{ } JSON Schema — click to expand", expanded=False):
                 st.code(_schema_section, language="json")
         if _rules_section:
             st.markdown(
@@ -2357,20 +2357,20 @@ def _render_project_setup(proj_id: str, proj: dict):
                 f'border-radius:0 8px 8px 0;padding:12px 16px;margin-top:6px;">'
                 f'<div style="font-size:0.68rem;font-weight:800;color:{_P["purple"]};'
                 f'text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">'
-                f'Critical Rules Â· Scoring Definitions</div>'
+                f'Critical Rules · Scoring Definitions</div>'
                 f'<pre style="font-size:0.76rem;color:#1f2937;white-space:pre-wrap;'
                 f'line-height:1.7;margin:0;font-family:monospace;">'
                 f'{_html_mod.escape(_rules_section)}</pre></div>',
                 unsafe_allow_html=True,
             )
-        if st.toggle("âœï¸ Edit master prompt before extraction", key=f"{proj_id}_edit_prompt"):
+        if st.toggle("✏️ Edit master prompt before extraction", key=f"{proj_id}_edit_prompt"):
             _edit_txt = st.text_area(
                 "master_prompt.txt",
                 value=_master_txt,
                 height=500,
                 key=f"{proj_id}_prompt_edit_area",
             )
-            if st.button("ðŸ’¾ Save prompt", key=f"{proj_id}_save_prompt"):
+            if st.button("💾 Save prompt", key=f"{proj_id}_save_prompt"):
                 try:
                     mp_path.write_text(_edit_txt, encoding="utf-8")
                     st.success("Prompt saved.")
@@ -2382,11 +2382,11 @@ def _render_project_setup(proj_id: str, proj: dict):
         st.caption(f"Expected: {mp_path}")
         _new_prompt = st.text_area(
             "Create master_prompt.txt",
-            placeholder="Paste your extraction system prompt hereâ€¦",
+            placeholder="Paste your extraction system prompt here…",
             height=400,
             key=f"{proj_id}_create_prompt",
         )
-        if st.button("ðŸ’¾ Save new prompt", key=f"{proj_id}_create_prompt_save",
+        if st.button("💾 Save new prompt", key=f"{proj_id}_create_prompt_save",
                      disabled=not _new_prompt.strip() if "_new_prompt" in dir() else True):
             try:
                 mp_path.parent.mkdir(parents=True, exist_ok=True)
@@ -2408,7 +2408,7 @@ def _render_project_setup(proj_id: str, proj: dict):
     with _ex_c2:
         _confirm_key = f"_{proj_id}_extraction_confirmed"
         if st.button(
-            "â–¶ Run Extraction Now", type="primary",
+            "▶ Run Extraction Now", type="primary",
             use_container_width=True, key=f"{proj_id}_trigger_extraction",
             disabled=(not _master_txt),
         ):
@@ -2416,7 +2416,7 @@ def _render_project_setup(proj_id: str, proj: dict):
                 import subprocess as _subp, sys as _sys
                 _script = Path(__file__).resolve().parent.parent / "skills" / "project_extractor.py"
                 t_count = proj.get("transcript_count", "?")
-                with st.spinner(f"Extracting {t_count} transcriptsâ€¦ keep this tab open."):
+                with st.spinner(f"Extracting {t_count} transcripts… keep this tab open."):
                     try:
                         _xr = _subp.run(
                             [_sys.executable, str(_script), "--project", proj_id],
@@ -2438,18 +2438,18 @@ def _render_project_setup(proj_id: str, proj: dict):
                 st.session_state[_confirm_key] = True
                 t_count = proj.get("transcript_count", "?")
                 st.warning(
-                    f"âš  This will call OpenRouter for ~{t_count} transcripts. "
+                    f"⚠ This will call OpenRouter for ~{t_count} transcripts. "
                     f"Click **Run Extraction Now** again to confirm."
                 )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# EXTRACTION STUDIO â€” human-in-the-loop redo of the extraction pipeline.
+# ═════════════════════════════════════════════════════════════════════════════
+# EXTRACTION STUDIO — human-in-the-loop redo of the extraction pipeline.
 # Files -> Run Step 1 (initial findings) -> Review & select -> Finalize (Step 2 + write matrices)
 # -> optional Reconcile. Works even when matrices already exist (unlike _render_project_setup,
-# which silently no-ops once m_count > 0) â€” this is how you redo a project that's already been
+# which silently no-ops once m_count > 0) — this is how you redo a project that's already been
 # through the pipeline once, per file, with a human checkpoint before anything is committed.
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 def _auto_select_criteria(entries: list, matrices_dir, doc_id_fn, cap: int = 10) -> set:
     """
     Default file selection by criteria, not just 'everything unprocessed': stratify by
@@ -2490,12 +2490,12 @@ def _infer_field_def_from_matrices(fname: str, matrices_dir) -> dict:
     stubbing it as an untyped string. Found live on CoinDCX: route1_evaluation/route2_evaluation
     are real objects with sub_fields (appeal_rating, appeal_reasons, credibility_gaps) in every
     one of 23 matrices, but a prior schema regeneration dropped their object/sub_fields
-    definition and the old restore path put them back as plain `{"type": "string"}` stubs â€”
+    definition and the old restore path put them back as plain `{"type": "string"}` stubs —
     silently losing per-sub-field narrowing in Step 2b (the field just showed a bare checkbox,
     no way to review/narrow appeal_rating etc.) and the correct object shape in
     master_prompt.txt's DIMENSIONS block (extraction kept working only because the model
     ignored the wrong schema type, not because anything here was correct)."""
-    _desc = ("Restored â€” was in existing matrices but dropped by a schema regeneration; "
+    _desc = ("Restored — was in existing matrices but dropped by a schema regeneration; "
              "type/shape inferred from real matrix data.")
     if matrices_dir and matrices_dir.exists():
         for mf in matrices_dir.glob("*_matrix.json"):
@@ -2526,18 +2526,18 @@ def _infer_field_def_from_matrices(fname: str, matrices_dir) -> dict:
 
 def _doc_id_for_project(proj: dict, filename: str) -> str:
     """Project-aware doc_id, matching whatever pipeline actually extracted this
-    project's matrices â€” the two pipelines disagree and neither is universal:
+    project's matrices — the two pipelines disagree and neither is universal:
 
     - concept_testing projects (e.g. CoinDCX): docx transcripts named "DI N_...",
       extracted via project_extractor.py's CLI, which derives doc_id via
-      _doc_id_from_filename()'s "DI\\s*(\\d+)" regex â†’ "DI_N".
+      _doc_id_from_filename()'s "DI\\s*(\\d+)" regex → "DI_N".
     - ethnographic projects (e.g. Mixer): pre-processed .md transcripts with no
       such naming convention, extracted via lens/ingestion/transcript_matrix_builder.py,
       which uses doc_id = Path(filename).stem verbatim (see that file's `md_path.stem`).
 
     Using the wrong one for a project silently breaks every doc-id-keyed lookup in
-    Extraction Studio (existing-matrix detection, quality badges, staleness, and â€”
-    critically â€” which filename a re-extraction writes to, which could otherwise
+    Extraction Studio (existing-matrix detection, quality badges, staleness, and —
+    critically — which filename a re-extraction writes to, which could otherwise
     create an orphaned duplicate matrix the dashboard never reads).
     """
     from infoleap.skills import project_extractor as _pex
@@ -2549,7 +2549,7 @@ def _doc_id_for_project(proj: dict, filename: str) -> str:
 
 def _render_pipeline_sync_banner(proj_id: str):
     """Glance-level warning when schema/matrices/ui_config.json/reconciliation have
-    drifted out of sync â€” today the only place this was visible was buried inside
+    drifted out of sync — today the only place this was visible was buried inside
     Extraction Studio's per-file staleness list. Shown once at the top of every
     project view (concept_testing, ethnographic, generic) regardless of renderer."""
     from infoleap.skills.project_extractor import pipeline_sync_status
@@ -2559,7 +2559,7 @@ def _render_pipeline_sync_banner(proj_id: str):
         return
     if _sync.get("warnings"):
         st.warning(
-            "âš  **Pipeline out of sync** â€” " + "  \n".join(f"- {w}" for w in _sync["warnings"])
+            "⚠ **Pipeline out of sync** — " + "  \n".join(f"- {w}" for w in _sync["warnings"])
         )
 
 
@@ -2584,8 +2584,8 @@ def _render_extraction_studio(proj_id: str, proj: dict):
         if not (index_path and index_path.exists()):
             _missing.append("`processed_index.json` (created on first extraction run)")
         st.caption(
-            "Extraction Studio can't run yet â€” missing: " + "; ".join(_missing) +
-            ". Use the project's Setup section (or â–¶ Run Extraction Now for a first pass) before "
+            "Extraction Studio can't run yet — missing: " + "; ".join(_missing) +
+            ". Use the project's Setup section (or ▶ Run Extraction Now for a first pass) before "
             "coming back here to review a sample."
         )
         return
@@ -2607,7 +2607,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
     entries = [(fn, e) for fn, e in index.items() if e.get("status") in ("ok", "skipped")]
     entries.sort(key=lambda x: x[0])
 
-    # Sample size â€” was a hardcoded cap=10 with no UI control. Keyed into _auto_key so
+    # Sample size — was a hardcoded cap=10 with no UI control. Keyed into _auto_key so
     # changing it recomputes the selection instead of serving a stale cached set.
     _cap_key = f"es_{proj_id}_cap"
     _cap = st.number_input(
@@ -2618,7 +2618,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
     )
 
     # Auto-selection computed up front (not just inside Step 1's block) so the status strip
-    # below reflects the real effective selection on the very first render â€” mirrors exactly
+    # below reflects the real effective selection on the very first render — mirrors exactly
     # what each file checkbox will default to, without needing the checkboxes to have executed
     # yet this pass (session_state for a checkbox key only exists after that widget has run).
     _auto_key = f"es_{proj_id}_auto_selected_{_cap}"
@@ -2634,10 +2634,10 @@ def _render_extraction_studio(proj_id: str, proj: dict):
     n_pending_review = sum(1 for r in st.session_state[_s1_key].values() if r.get("status") == "pending_review")
     _has_discovery = bool(st.session_state.get(_disc_key) or schema.get("discovery"))
 
-    # â”€â”€ How this works â€” plain-language explainer, expanded by default (was collapsed and
-    # showed a hardcoded CoinDCX example regardless of which project you were looking at â€”
+    # ── How this works — plain-language explainer, expanded by default (was collapsed and
+    # showed a hardcoded CoinDCX example regardless of which project you were looking at —
     # confusing/misleading for any other study). Now open by default and the example is built
-    # from THIS project's real matrix (if one exists yet) or its real schema field names â€”
+    # from THIS project's real matrix (if one exists yet) or its real schema field names —
     # never another project's field vocabulary.
     def _build_example_snippet(proj_id: str, schema: dict, matrices_dir) -> str:
         if matrices_dir and matrices_dir.exists():
@@ -2656,7 +2656,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     return json.dumps(_snippet, indent=2, ensure_ascii=False, default=str)
                 except Exception:
                     pass
-        # No matrices yet â€” build a schema-shaped placeholder from this project's own fields.
+        # No matrices yet — build a schema-shaped placeholder from this project's own fields.
         _fields = (schema.get("layer2", {}) or {}).get("fields", {}) or {}
         _example: dict = {"doc_id": "<respondent_id>"}
         for _fname, _fdef in list(_fields.items())[:4]:
@@ -2666,30 +2666,30 @@ def _render_extraction_studio(proj_id: str, proj: dict):
         _example["_quality_label"] = "<poor / fair / good / excellent>"
         return json.dumps(_example, indent=2, ensure_ascii=False)
 
-    with st.expander("â„¹ï¸ How this works â€” read this first", expanded=True):
+    with st.expander("ℹ️ How this works — read this first", expanded=True):
         st.markdown(
             "**This turns raw interview transcripts into structured, chartable data in 5 stages "
-            "â€” run them top to bottom, in order:**\n\n"
-            "1. **Files** â€” pick which transcripts to work with (a smart default is pre-selected for you).\n"
-            "2. **Scope & thinking guidance** *(optional)* â€” tell the AI what to focus on in plain English.\n"
-            "3. **Discover & refresh prompt** â€” the AI reads your selected transcripts once and decides "
-            "what fields/questions THIS study needs â€” this is a one-time setup step, not run per-interview.\n"
-            "4. **Run extraction** â€” for every selected file, the AI reads that ONE transcript and fills in "
+            "— run them top to bottom, in order:**\n\n"
+            "1. **Files** — pick which transcripts to work with (a smart default is pre-selected for you).\n"
+            "2. **Scope & thinking guidance** *(optional)* — tell the AI what to focus on in plain English.\n"
+            "3. **Discover & refresh prompt** — the AI reads your selected transcripts once and decides "
+            "what fields/questions THIS study needs — this is a one-time setup step, not run per-interview.\n"
+            "4. **Run extraction** — for every selected file, the AI reads that ONE transcript and fills in "
             "the fields decided in step 3, producing one JSON file per respondent (a \"matrix\").\n"
-            "5. **Review & finalize** â€” you can edit or reject the AI's findings before they're locked in, "
+            "5. **Review & finalize** — you can edit or reject the AI's findings before they're locked in, "
             "then the final structured JSON is written to disk and the dashboard picks it up automatically."
         )
         st.markdown(
-            f"**Example of the final output for *{proj.get('display_name', proj_id)}*** â€” "
+            f"**Example of the final output for *{proj.get('display_name', proj_id)}*** — "
             + ("one real respondent from this project:" if (matrices_dir and matrices_dir.exists()
                and any(matrices_dir.glob('*_matrix.json')))
                else "shaped from this project's own schema fields (no respondents extracted yet):")
         )
         st.code(_build_example_snippet(proj_id, schema, matrices_dir), language="json")
-        st.caption("This exact file is what the dashboard's charts and KPIs read from â€” nothing is "
+        st.caption("This exact file is what the dashboard's charts and KPIs read from — nothing is "
                    "computed separately. If a chart looks wrong, the fix is always in this file.")
 
-    # â”€â”€ Status strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Status strip ───────────────────────────────────────────────────────────
     def _pill(label: str, value, ok: bool):
         col = _P["green"] if ok else "#94a3b8"
         st.markdown(
@@ -2714,33 +2714,33 @@ def _render_extraction_studio(proj_id: str, proj: dict):
     _scope_fields_confirmed_absent = schema.get("_scope_fields_confirmed_absent") or []
 
     # All 4 gap/warning checks below used to render as always-open st.warning() blocks stacked
-    # one after another before the user ever reached Phase 1 â€” 4 walls of text with no priority
+    # one after another before the user ever reached Phase 1 — 4 walls of text with no priority
     # order, competing with the Phase 1/2 badges below that already summarize the same thing.
     # Collapsed into one expander, badge-counted, auto-expanded only when something here needs
-    # action (an unacknowledged mismatch or a genuinely missing scope field) â€” not for the
+    # action (an unacknowledged mismatch or a genuinely missing scope field) — not for the
     # purely informational "confirmed absent" case.
     _needs_action = bool(mismatches) or bool(_scope_fields_missing)
     _n_issues = (len(mismatches) + len(_uncovered_obj) + len(_not_chartable_obj)
                  + len(_scope_fields_missing) + len(_scope_fields_confirmed_absent))
     acknowledged = True
-    # Hidden for now, per explicit request â€” scope-named fields now get auto-applied right after
-    # Discovery (see the ðŸ”Ž Run discovery handler above), so this panel's main previously-manual
+    # Hidden for now, per explicit request — scope-named fields now get auto-applied right after
+    # Discovery (see the 🔎 Run discovery handler above), so this panel's main previously-manual
     # job (Search/Add stub per missing field) mostly happens automatically now. Kept behind this
     # flag rather than deleted so it's a one-line flip to bring back, e.g. for a project where
     # auto-resolution didn't find evidence and a human needs to look at _scope_fields_confirmed_absent.
     _SHOW_GAPS_WARNINGS_PANEL = False
     if _n_issues and _SHOW_GAPS_WARNINGS_PANEL:
-        with st.expander(f"âš  {_n_issues} gap/warning item(s) from Discovery & scope checks",
+        with st.expander(f"⚠ {_n_issues} gap/warning item(s) from Discovery & scope checks",
                           expanded=_needs_action):
             if mismatches:
                 st.warning(
-                    "âš  **Discovery found assumptions in the brief/DG that the transcripts don't "
+                    "⚠ **Discovery found assumptions in the brief/DG that the transcripts don't "
                     "actually support:**\n\n" + "\n".join(f"- {m}" for m in mismatches)
                 )
                 acknowledged = st.checkbox("I've reviewed these mismatches", key=_ack_key)
 
             if _uncovered_obj or _not_chartable_obj:
-                _msg = "âš  **Schema completeness gaps found by the last discovery run:**\n\n"
+                _msg = "⚠ **Schema completeness gaps found by the last discovery run:**\n\n"
                 if _uncovered_obj:
                     _msg += "Not mapped to any field at all:\n" + "\n".join(f"- {o}" for o in _uncovered_obj) + "\n\n"
                 if _not_chartable_obj:
@@ -2750,27 +2750,27 @@ def _render_extraction_studio(proj_id: str, proj: dict):
 
             # Deterministic cross-check: fields your own Scope guidance ("1b" below) explicitly
             # names (e.g. "Schema fields: `tax_advantage_noticed`, ...") but that never got created
-            # by any discovery run â€” doesn't depend on Discovery's transcript sample happening to
+            # by any discovery run — doesn't depend on Discovery's transcript sample happening to
             # surface the topic, unlike _uncovered_objectives above. Fuzzy-matched against every
             # field AND sub-field name so a renamed/restructured field isn't flagged as missing.
             if _scope_fields_missing:
                 with st.container(border=True):
                     st.warning(
-                        "âš  **Fields your scope guidance named explicitly, but no discovery run ever "
+                        "⚠ **Fields your scope guidance named explicitly, but no discovery run ever "
                         "created:**\n\nThese come from the \"Schema fields:\" lines in your Section 1b "
-                        "guidance â€” grounded in what YOU said this study needs, not dependent on "
+                        "guidance — grounded in what YOU said this study needs, not dependent on "
                         "Discovery's transcript sample happening to surface the topic."
                     )
                     st.caption(
-                        "ðŸ” Search = re-reads real transcripts for genuine evidence before creating the "
-                        "field (never fabricates â€” reports back honestly if nothing's there). "
+                        "🔍 Search = re-reads real transcripts for genuine evidence before creating the "
+                        "field (never fabricates — reports back honestly if nothing's there). "
                         "+ Add stub = force-create an empty placeholder yourself, no evidence required."
                     )
-                    if st.button("ðŸ” Search all missing fields for evidence",
+                    if st.button("🔍 Search all missing fields for evidence",
                                  key=f"{proj_id}_es_search_all_scope"):
                         from infoleap.skills import schema_generator as _sg
                         with st.spinner(f"Searching transcripts for {len(_scope_fields_missing)} "
-                                         f"field(s)â€¦"):
+                                         f"field(s)…"):
                             _result = _sg.resolve_missing_scope_fields(proj_id, _scope_fields_missing)
                         if _result["resolved"]:
                             st.success(f"Found real evidence for {len(_result['resolved'])} field(s): "
@@ -2784,9 +2784,9 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     for _mf in _scope_fields_missing:
                         _c1, _c2, _c3 = st.columns([3, 1.4, 1])
                         _c1.markdown(f"- `{_mf}`")
-                        if _c2.button("ðŸ” Search for evidence", key=f"{proj_id}_es_search_{_mf}"):
+                        if _c2.button("🔍 Search for evidence", key=f"{proj_id}_es_search_{_mf}"):
                             from infoleap.skills import schema_generator as _sg
-                            with st.spinner(f"Searching transcripts for `{_mf}`â€¦"):
+                            with st.spinner(f"Searching transcripts for `{_mf}`…"):
                                 _result = _sg.resolve_missing_scope_fields(proj_id, [_mf])
                             if _mf in _result["resolved"]:
                                 _fd = _result["resolved"][_mf]
@@ -2796,24 +2796,24 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                 )
                             else:
                                 st.info(f"Searched {len(_result['transcripts_checked'])} transcript(s) "
-                                        f"â€” genuinely no evidence for `{_mf}`.")
+                                        f"— genuinely no evidence for `{_mf}`.")
                             st.cache_data.clear()
                             st.rerun()
                         if _c3.button("+ Add stub", key=f"{proj_id}_es_addstub_{_mf}"):
                             schema.setdefault("layer2", {}).setdefault("fields", {})[_mf] = {
                                 "type": "string",
                                 "description": (
-                                    f"Auto-added stub â€” named in scope guidance's \"Schema fields:\" "
+                                    f"Auto-added stub — named in scope guidance's \"Schema fields:\" "
                                     f"list but never created by any discovery run. Refine the type/"
                                     f"values/rule before relying on it in analysis."
                                 ),
                             }
-                            # The field now genuinely exists in schema â€” but _scope_fields_missing
+                            # The field now genuinely exists in schema — but _scope_fields_missing
                             # is a separate static list (only rewritten by a full generate_schema
                             # run), so without removing _mf here it kept showing up in this exact
                             # "no discovery run ever created" section forever after Add stub was
                             # clicked, making the button look like it did nothing. Same class of
-                            # bug the ðŸ” Search path already avoids (schema_generator.py:1912-1913).
+                            # bug the 🔍 Search path already avoids (schema_generator.py:1912-1913).
                             schema["_scope_fields_missing"] = [
                                 f for f in schema.get("_scope_fields_missing", []) if f != _mf]
                             schema_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False),
@@ -2826,34 +2826,34 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             if _scope_fields_confirmed_absent:
                 with st.container(border=True):
                     st.info(
-                        "â„¹ **Searched real transcripts for these â€” genuinely no evidence found:**\n\n"
+                        "ℹ **Searched real transcripts for these — genuinely no evidence found:**\n\n"
                         + "\n".join(f"- `{f}`" for f in _scope_fields_confirmed_absent)
                         + "\n\nNot fabricated to close the gap. Widen the transcript selection in Step 1 "
                         "and re-search, or accept these objectives aren't covered by this dataset."
                     )
 
-    # â”€â”€ Phase 1: Setup â€” files & guidance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    _p1_badge = "âœ… Done"
+    # ── Phase 1: Setup — files & guidance ────────────────────────────────────
+    _p1_badge = "✅ Done"
     _p1_verdict = f"{len(entries)} transcript(s) available"
     with st.expander(
-        f"{_p1_badge}  Â·  PHASE 1 â€” Setup: files & guidance  Â·  {_p1_verdict}",
+        f"{_p1_badge}  ·  PHASE 1 — Setup: files & guidance  ·  {_p1_verdict}",
         expanded=False,
     ):
         st.caption(
             "Pick which transcripts to work with, and tell the AI what this study is about and "
             "how to reason about it. Feeds directly into Phase 2's schema design."
         )
-        # â”€â”€ Step 1: Files â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        _section("1 Â· Files", "Pick which transcripts to work with below", accent=_P["teal"], icon="ðŸ“")
+        # ── Step 1: Files ──────────────────────────────────────────────────────────
+        _section("1 · Files", "Pick which transcripts to work with below", accent=_P["teal"], icon="📁")
         with st.container(border=True):
             st.caption(
                 f"When you first open this, {len(auto_selected)} of {len(entries)} files are "
-                f"pre-checked (stratified across segment Ã— city, prioritizing not-yet-extracted "
-                f"transcripts) â€” check/uncheck any file below to change that. Your current selection "
+                f"pre-checked (stratified across segment × city, prioritizing not-yet-extracted "
+                f"transcripts) — check/uncheck any file below to change that. Your current selection "
                 f"is shown in the status strip above and the counter to the right of the buttons below."
             )
 
-            # â”€â”€ quality lookup (cheap â€” only reads matrices for files that already have one) â”€â”€
+            # ── quality lookup (cheap — only reads matrices for files that already have one) ──
             def _matrix_quality(doc_id: str):
                 if not matrices_dir:
                     return None
@@ -2869,22 +2869,22 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             _quality_color = {"excellent": _P["green"], "good": "#3b82f6",
                                "poor": "#f59e0b", "critical": "#dc2626"}
 
-            # â”€â”€ bulk actions row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ── bulk actions row ─────────────────────────────────────────────────────
             bc1, bc2, bc3, bc4 = st.columns([1, 1, 1, 2])
             with bc1:
-                if st.button("â˜‘ Select all", key=f"{proj_id}_es_sel_all", use_container_width=True):
+                if st.button("☑ Select all", key=f"{proj_id}_es_sel_all", use_container_width=True):
                     for fn, _e in entries:
                         st.session_state[_sel_key][fn] = True
                         st.session_state[f"{proj_id}_es_file_{fn}"] = True
                     st.rerun()
             with bc2:
-                if st.button("â˜ Select none", key=f"{proj_id}_es_sel_none", use_container_width=True):
+                if st.button("☐ Select none", key=f"{proj_id}_es_sel_none", use_container_width=True):
                     for fn, _e in entries:
                         st.session_state[_sel_key][fn] = False
                         st.session_state[f"{proj_id}_es_file_{fn}"] = False
                     st.rerun()
             with bc3:
-                if st.button("â†º Reset to default", key=f"{proj_id}_es_sel_reset", use_container_width=True):
+                if st.button("↺ Reset to default", key=f"{proj_id}_es_sel_reset", use_container_width=True):
                     for fn, _e in entries:
                         _v = fn in auto_selected
                         st.session_state[_sel_key][fn] = _v
@@ -2893,19 +2893,19 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             with bc4:
                 st.markdown(
                     f"<div style='text-align:right;padding-top:6px;font-size:0.82rem;color:#6b7280;'>"
-                    f"<b style='color:#111827;'>{len(selected)}</b> of {len(entries)} selected Â· "
-                    f"ðŸ” already extracted Â· ðŸ†• not yet extracted</div>",
+                    f"<b style='color:#111827;'>{len(selected)}</b> of {len(entries)} selected · "
+                    f"🔁 already extracted · 🆕 not yet extracted</div>",
                     unsafe_allow_html=True,
                 )
 
             st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
 
             # Which matrices predate the current schema (extracted before some of today's fields
-            # existed) â€” computed once per render, not per file, since it reads every matrix.
+            # existed) — computed once per render, not per file, since it reads every matrix.
             _stale_map = _pex.matrix_staleness(proj_id, schema)
 
-            # â”€â”€ file grid â€” always visible (not buried in a collapsed expander), 2 columns,
-            # each row shows status icon, filename, word count, and quality badge if extracted â”€â”€
+            # ── file grid — always visible (not buried in a collapsed expander), 2 columns,
+            # each row shows status icon, filename, word count, and quality badge if extracted ──
             with st.container(height=360, border=True):
                 grid_cols = st.columns(2)
                 for i, (fn, e) in enumerate(entries):
@@ -2916,7 +2916,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     default_checked = st.session_state[_sel_key].get(fn, fn in auto_selected)
                     with grid_cols[i % 2]:
                         checked = st.checkbox(
-                            f"{'ðŸ”' if existing else 'ðŸ†•'} {fn}", value=default_checked,
+                            f"{'🔁' if existing else '🆕'} {fn}", value=default_checked,
                             key=f"{proj_id}_es_file_{fn}",
                         )
                         st.session_state[_sel_key][fn] = checked
@@ -2930,11 +2930,11 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                         if _missing_fields:
                             meta_bits.append(
                                 f"<span style='color:#f59e0b;font-weight:700;' title='{_html_mod.escape(', '.join(_missing_fields))}'>"
-                                f"âš  stale â€” missing {len(_missing_fields)} field(s)</span>")
+                                f"⚠ stale — missing {len(_missing_fields)} field(s)</span>")
                         if meta_bits:
                             st.markdown(
                                 f"<div style='margin:-8px 0 6px 26px;font-size:0.72rem;color:#6b7280;'>"
-                                f"{' Â· '.join(meta_bits)}</div>", unsafe_allow_html=True)
+                                f"{' · '.join(meta_bits)}</div>", unsafe_allow_html=True)
             selected = [fn for fn, v in st.session_state[_sel_key].items() if v]
 
         def _resolve_md_path(fn: str):
@@ -2942,20 +2942,20 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             md_rel = entry.get("output_md")
             return (project_dir / md_rel) if md_rel else None
 
-        # â”€â”€ Step 1b: Scope & thinking guidance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 1b: Scope & thinking guidance ─────────────────────────────────────
         _scope_path = schema_path.parent / "scope_notes.txt"
         _scope_key = f"{proj_id}_es_scope_edit"
-        _section("1b Â· Scope & thinking guidance",
-                 "Tell the LLM what to look for and how to reason â€” feeds discovery, schema, and extraction",
-                 accent=_P["amber"], icon="ðŸ§­")
+        _section("1b · Scope & thinking guidance",
+                 "Tell the LLM what to look for and how to reason — feeds discovery, schema, and extraction",
+                 accent=_P["amber"], icon="🧭")
         with st.container(border=True):
             st.caption(
-                "This is NOT a predefined field list â€” it's direction (\"focus on X\") the AI uses to "
-                "decide what fields to populate itself. It flows straight into â†“ Step 2's discovery "
+                "This is NOT a predefined field list — it's direction (\"focus on X\") the AI uses to "
+                "decide what fields to populate itself. It flows straight into ↓ Step 2's discovery "
                 "call and gets baked into the master prompt shown in Step 3."
             )
 
-            # Show InfoLeap's actual source brief right here â€” the whole point of this box is to
+            # Show InfoLeap's actual source brief right here — the whole point of this box is to
             # reinforce/extend what's already in that document, not replace it, and the user
             # explicitly asked to see them side by side instead of guessing what's in the docx.
             source_docs_dir = project_dir / "source_docs" if project_dir else None
@@ -2967,12 +2967,12 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                         _brief_path = matches[0]
                         break
             if _brief_path:
-                with st.expander(f"ðŸ“„ View InfoLeap's actual brief â€” {_brief_path.name}", expanded=False):
+                with st.expander(f"📄 View InfoLeap's actual brief — {_brief_path.name}", expanded=False):
                     from infoleap.skills import schema_generator as _sg
                     _brief_text = _sg._read_docx(_brief_path)
                     st.text_area("brief_text", value=_brief_text, height=300,
                                   key=f"{proj_id}_es_brief_view", label_visibility="collapsed", disabled=True)
-                    st.caption("Read-only â€” this is the source document, not editable here. Use the box "
+                    st.caption("Read-only — this is the source document, not editable here. Use the box "
                                "below to add direction on TOP of what's already asked for here.")
             else:
                 st.caption("No AI Analysis Brief found in source_docs/ for this project.")
@@ -2983,7 +2983,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
 
             _draft_col1, _draft_col2, _draft_col3 = st.columns([1.3, 1.3, 1.6])
             with _draft_col1:
-                _draft_clicked = st.button("ðŸ“ Draft detailed guidance from brief",
+                _draft_clicked = st.button("📝 Draft detailed guidance from brief",
                                             key=f"{proj_id}_es_draft_scope",
                                             disabled=not _brief_path)
             with _draft_col2:
@@ -2993,16 +2993,16 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                 )
             with _draft_col3:
                 st.caption("Grounds the scope box in the actual brief above instead of a generic "
-                           "placeholder â€” pulls out research objectives, respondent segments, and key "
+                           "placeholder — pulls out research objectives, respondent segments, and key "
                            "things to track, written as direction the AI can act on. Review before saving.")
 
             _draft_model = _DRAFT_MODEL_OPTIONS.get(_draft_model_label)
             if _draft_model == "__divider__":
                 _draft_model = None
-                st.warning("That's a section label, not a model â€” pick an actual model above.")
+                st.warning("That's a section label, not a model — pick an actual model above.")
 
             if _draft_clicked and _brief_path:
-                with st.spinner("Reading the brief and drafting detailed guidanceâ€¦"):
+                with st.spinner("Reading the brief and drafting detailed guidance…"):
                     from infoleap.skills.llm_client import call_llm_safe
                     _dg_text_for_draft = ""
                     if source_docs_dir:
@@ -3014,7 +3014,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     _draft_prompt = f"""You are a senior qualitative research methodologist writing a STRICT
     EXTRACTION DIRECTIVE for a junior AI analyst that is about to read real transcripts and fill a structured
     schema. This is not a briefing memo and not a summary of the brief (the AI already has the brief in every
-    prompt). Every line you write must be an instruction the AI can directly act on while coding a transcript â€”
+    prompt). Every line you write must be an instruction the AI can directly act on while coding a transcript —
     if a sentence doesn't change what the AI extracts, flags, or rejects, cut it.
 
     AI ANALYSIS BRIEF (full source document, untruncated):
@@ -3022,17 +3022,17 @@ def _render_extraction_studio(proj_id: str, proj: dict):
 
     DISCUSSION GUIDE (full source document, untruncated): {_dg_text_for_draft if _dg_text_for_draft else '[not available]'}
 
-    Output a STRUCTURED directive using markdown headers (##) and bullet points â€” NOT continuous prose. Use
+    Output a STRUCTURED directive using markdown headers (##) and bullet points — NOT continuous prose. Use
     short, imperative, testable statements ("Extract:", "Accept:", "Reject:", "Decision rule:"), not narrative
     reasoning. Cover EVERY objective, named element, and segment actually present in the brief and discussion
-    guide above â€” do not compress or drop items to hit a short length; a longer, complete directive is
+    guide above — do not compress or drop items to hit a short length; a longer, complete directive is
     correct, a shorter incomplete one is not. Produce exactly these sections, in this order:
 
     ## STUDY FRAMING
     2-4 bullets. State the core tension/hypothesis this study resolves and the business decision it feeds.
-    No throat-clearing â€” state it as a fact the AI must keep in mind while coding every transcript.
+    No throat-clearing — state it as a fact the AI must keep in mind while coding every transcript.
 
-    ## OBJECTIVE â†’ EVIDENCE RULES
+    ## OBJECTIVE → EVIDENCE RULES
     One bullet block per major research objective in the brief. For each: what counts as STRONG evidence
     (concrete example phrasing), what counts as WEAK/superficial evidence to reject or flag as thin, and
     which schema field(s) this maps to if inferable from context.
@@ -3040,26 +3040,26 @@ def _render_extraction_studio(proj_id: str, proj: dict):
     ## SEGMENT DIFFERENTIATION RULES
     Bulleted decision rules only. State how named respondent segments are expected to diverge and the
     specific confound to control for before comparing them across segments (e.g. "Do not compare route
-    preference across segments without first checking prior product familiarity â€” X may only prefer route
+    preference across segments without first checking prior product familiarity — X may only prefer route
     Y because they misunderstood Z").
 
     ## NAMED-ELEMENT TRACKING CHECKLIST
     One bullet per specific claim/tagline/certification/concept the brief names for individual reaction
-    tracking. Each bullet: element name â€” what a GENUINE reaction looks like (specific trust/comprehension
+    tracking. Each bullet: element name — what a GENUINE reaction looks like (specific trust/comprehension
     inference) vs. a DEFLECTED/generic reaction (e.g. "sounds official" with no real inference).
 
     ## AMBIGUITY DECISION RULES
     Bulleted if/then rules only, one per known ambiguity type (stated intent vs. revealed behaviour, mixed/
     contradictory trust signals, segment-specific vocabulary gaps). Format: "IF [signal pattern] THEN
-    [exact coding action]." No open-ended "flag it and think about it" â€” give the concrete rule.
+    [exact coding action]." No open-ended "flag it and think about it" — give the concrete rule.
 
     ## EVIDENCE DISCIPLINE (NON-NEGOTIABLE)
     3-5 bullets, imperative voice ("Never infer X from Y", "If evidence is absent, write DATA NOT AVAILABLE
-    â€” do not estimate"), each tied to a concrete example from this brief of what fabrication would look like
+    — do not estimate"), each tied to a concrete example from this brief of what fabrication would look like
     and why it would mislead the business decision.
 
     Use markdown headers and bullets exactly as specified above. Bold (**) specific field names, brand
-    names, and concrete decision triggers so they scan quickly. Do not soften directives into prose â€”
+    names, and concrete decision triggers so they scan quickly. Do not soften directives into prose —
     every bullet should read like a rule, not a reflection."""
                     _drafted = call_llm_safe(
                         [{"role": "user", "content": _draft_prompt}], max_tokens=8000, temp=0.2,
@@ -3067,9 +3067,9 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     if _drafted:
                         st.session_state[_scope_key] = _drafted.strip()
                         _existing_scope = _drafted.strip()
-                        st.success("Drafted â€” review below, edit if needed, then Save.")
+                        st.success("Drafted — review below, edit if needed, then Save.")
                     else:
-                        st.error("Drafting failed â€” LLM call returned nothing. Try again or write manually.")
+                        st.error("Drafting failed — LLM call returned nothing. Try again or write manually.")
 
             _scope_text = st.text_area(
                 "Project scope & thinking guidance", value=_existing_scope, height=220,
@@ -3079,13 +3079,13 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             "not just what respondents say they'd do. Or click 'Draft detailed guidance "
                             "from brief' above to auto-fill this from the real source document.",
             )
-            st.caption(f"{len(_scope_text.split())} words" if _scope_text else "Empty â€” either write "
+            st.caption(f"{len(_scope_text.split())} words" if _scope_text else "Empty — either write "
                        "your own or draft from the brief above.")
-            if st.button("ðŸ’¾ Save scope", key=f"{proj_id}_es_save_scope"):
+            if st.button("💾 Save scope", key=f"{proj_id}_es_save_scope"):
                 _scope_path.write_text(_scope_text, encoding="utf-8")
-                st.success("Saved â€” next discovery run (Step 2 below) will use this.")
+                st.success("Saved — next discovery run (Step 2 below) will use this.")
 
-            # Staleness check â€” the ONLY thing that bakes scope_notes.txt into master_prompt.txt is
+            # Staleness check — the ONLY thing that bakes scope_notes.txt into master_prompt.txt is
             # a full Discovery run (Step 2 below); Step 2b's Apply / stub-add only resync the
             # DIMENSIONS block, never this one. So a saved-but-not-rediscovered scope edit is
             # otherwise invisible: master_prompt.txt keeps sending the OLD guidance to every
@@ -3097,28 +3097,28 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             _synced_scope_hash = schema.get("_scope_synced_hash")
             if _on_disk_scope.strip() and _synced_scope_hash is not None and _current_scope_hash != _synced_scope_hash:
                 st.warning(
-                    "ðŸ”´ **Scope guidance changed since the last Discovery run.** "
-                    "`master_prompt.txt` still sends the OLD guidance to every extraction call â€” "
-                    "re-run **2 Â· Discover & refresh prompt** below to pick up your edit."
+                    "🔴 **Scope guidance changed since the last Discovery run.** "
+                    "`master_prompt.txt` still sends the OLD guidance to every extraction call — "
+                    "re-run **2 · Discover & refresh prompt** below to pick up your edit."
                 )
             elif _on_disk_scope.strip() and _synced_scope_hash is not None:
-                st.caption("âœ… In sync â€” this is the scope guidance the last Discovery run baked into master_prompt.txt.")
+                st.caption("✅ In sync — this is the scope guidance the last Discovery run baked into master_prompt.txt.")
 
-    # â”€â”€ Phase 2: Design the schema (one-time) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Phase 2: Design the schema (one-time) ────────────────────────────────
     _p2_gap_count = len(_uncovered_obj) + len(_not_chartable_obj) + len(_scope_fields_missing)
     _p2_field_count = len(schema.get("layer2", {}).get("fields", {})) if schema else 0
     if _p2_field_count == 0:
-        _p2_badge = "â³ Not started"
+        _p2_badge = "⏳ Not started"
     elif _p2_gap_count > 0:
-        _p2_badge = "âš  Needs attention"
+        _p2_badge = "⚠ Needs attention"
     else:
-        _p2_badge = "âœ… Done"
+        _p2_badge = "✅ Done"
     _p2_verdict = (
         f"{_p2_field_count} fields discovered"
-        + (f" Â· {_p2_gap_count} coverage gap(s) flagged" if _p2_gap_count else " Â· no known coverage gaps")
+        + (f" · {_p2_gap_count} coverage gap(s) flagged" if _p2_gap_count else " · no known coverage gaps")
     )
     with st.expander(
-        f"{_p2_badge}  Â·  PHASE 2 â€” Design the schema (one-time, on a small sample)  Â·  {_p2_verdict}",
+        f"{_p2_badge}  ·  PHASE 2 — Design the schema (one-time, on a small sample)  ·  {_p2_verdict}",
         expanded=(_p2_field_count == 0 or _p2_gap_count > 0),
     ):
         st.caption(
@@ -3127,16 +3127,16 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             "you review/reconcile before running the full dataset. You normally do this once per "
             "project, then re-open it only if you change the brief or scope guidance."
         )
-        # â”€â”€ Step 2: Discover & refresh prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        _section("2 Â· Discover & refresh prompt",
-                 "Free-form discovery on selected transcripts â†’ regenerates schema + prompt",
-                 accent=_P["purple"], icon="ðŸ”Ž")
+        # ── Step 2: Discover & refresh prompt ─────────────────────────────────────
+        _section("2 · Discover & refresh prompt",
+                 "Free-form discovery on selected transcripts → regenerates schema + prompt",
+                 accent=_P["purple"], icon="🔎")
         with st.container(border=True):
             st.caption("Runs on exactly the files selected in Step 1. Recommended before the first "
                         "real run of a project, or after changing the file selection meaningfully. "
-                        "3-5 transcripts is enough â€” discovery reads them individually and quote-verifies "
+                        "3-5 transcripts is enough — discovery reads them individually and quote-verifies "
                         "everything before it's allowed to influence the schema.")
-            if st.button("ðŸ”Ž Run discovery on selected & refresh prompt",
+            if st.button("🔎 Run discovery on selected & refresh prompt",
                          disabled=(not selected), key=f"{proj_id}_es_discover", type="primary"):
                 sample_paths = [p for p in (_resolve_md_path(fn) for fn in selected) if p and p.exists()]
                 if not sample_paths:
@@ -3144,7 +3144,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                 else:
                     _scope_now = _scope_path.read_text(encoding="utf-8") if _scope_path.exists() else None
                     with st.spinner(f"Running discovery on {len(sample_paths)} transcripts, "
-                                     f"regenerating schema + master promptâ€¦"):
+                                     f"regenerating schema + master prompt…"):
                         from infoleap.skills import schema_generator as _sg
                         try:
                             _sg.generate_schema(
@@ -3155,7 +3155,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             fresh_schema = json.loads(schema_path.read_text(encoding="utf-8"))
 
                             # Auto-apply scope-named fields dynamically instead of requiring a
-                            # manual Search/Add-stub click per field â€” resolve_missing_scope_fields
+                            # manual Search/Add-stub click per field — resolve_missing_scope_fields
                             # already does real transcript evidence search + merges found fields
                             # into the schema + resyncs master_prompt.txt on its own; this just
                             # calls it automatically right after the schema that produced the gap
@@ -3172,7 +3172,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             # Ground enum fields in real quote examples so every one of the N
                             # per-transcript extraction calls after this judges values (e.g.
                             # coindcx_trust: high vs medium) against the same concrete evidence
-                            # instead of each call inventing its own boundary from scratch â€” see
+                            # instead of each call inventing its own boundary from scratch — see
                             # generate_field_rubrics() for why this is the actual mechanism of
                             # cross-interview inconsistency. Reuses Discovery's already-verified
                             # quote pool, no extra transcript read needed.
@@ -3185,25 +3185,25 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             st.session_state[f"{proj_id}_es_field_review_pending"] = True
                             st.cache_data.clear()
                             _n_new_fields = len(fresh_schema.get("layer2", {}).get("fields", {}))
-                            _auto_note = (f" Â· auto-applied {len(_auto_resolved_names)} scope-named "
+                            _auto_note = (f" · auto-applied {len(_auto_resolved_names)} scope-named "
                                           f"field(s) from real transcript evidence: {_auto_resolved_names}"
                                           if _auto_resolved_names else "")
-                            _anchor_note = (f" Â· grounded {_n_anchored} enum field(s) with example "
+                            _anchor_note = (f" · grounded {_n_anchored} enum field(s) with example "
                                             f"quotes for judging consistency" if _n_anchored else "")
                             st.success(
-                                f"Schema updated ({_n_new_fields} fields) â†’ master_prompt.txt "
-                                f"regenerated to match{_auto_note}{_anchor_note} â†’ review the "
+                                f"Schema updated ({_n_new_fields} fields) → master_prompt.txt "
+                                f"regenerated to match{_auto_note}{_anchor_note} → review the "
                                 f"fields in Step 2b below, or jump straight to Step 3 to see the "
                                 f"exact prompt text this produced."
                             )
-                            # Show the causal link directly, right here â€” not buried three steps down â€”
+                            # Show the causal link directly, right here — not buried three steps down —
                             # this is what was missing: seeing discovery's output become the prompt text.
                             if mp_path.exists():
                                 _fresh_mp = mp_path.read_text(encoding="utf-8")
                                 _dims_start = _fresh_mp.find("DIMENSIONS TO EXTRACT:")
                                 _dims_end = _fresh_mp.find("ENUM CONSTRAINTS:")
                                 if _dims_start != -1 and _dims_end != -1:
-                                    with st.expander("â†’ See what changed in master_prompt.txt (Step 3)", expanded=True):
+                                    with st.expander("→ See what changed in master_prompt.txt (Step 3)", expanded=True):
                                         st.caption("This is the exact block Step 3's master prompt now contains, "
                                                    "generated directly from the fields above:")
                                         st.code(_fresh_mp[_dims_start:_dims_end].strip(), language="text")
@@ -3213,22 +3213,22 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             _last_disc = st.session_state.get(_disc_key) or schema.get("discovery")
             if _last_disc:
                 st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
-                with st.expander("ðŸ” Discovered from transcripts â€” what the refreshed prompt is grounded in",
+                with st.expander("🔍 Discovered from transcripts — what the refreshed prompt is grounded in",
                                   expanded=bool(st.session_state.get(_disc_key))):
                     st.markdown(f"**Study domain observed:** {_last_disc.get('study_domain_observed', '')}")
                     rtypes = _last_disc.get("respondent_types", [])
                     if rtypes:
                         st.markdown("**Respondent types:**")
                         for t in rtypes:
-                            flag = " âš  unverified" if t.get("_unverified") else ""
-                            st.markdown(f"- `{t.get('type_name')}`{flag} â€” {t.get('definition','')}  \n"
+                            flag = " ⚠ unverified" if t.get("_unverified") else ""
+                            st.markdown(f"- `{t.get('type_name')}`{flag} — {t.get('definition','')}  \n"
                                         f"  > *\"{t.get('distinguishing_quote','')}\"*")
                     etopics = _last_disc.get("emergent_topics", [])
                     if etopics:
                         st.markdown("**Emergent topics (not in the brief):**")
                         for t in etopics:
-                            flag = " âš  unverified" if t.get("_unverified") else ""
-                            st.markdown(f"- `{t.get('topic')}`{flag} â€” *\"{t.get('example_quote','')}\"*")
+                            flag = " ⚠ unverified" if t.get("_unverified") else ""
+                            st.markdown(f"- `{t.get('topic')}`{flag} — *\"{t.get('example_quote','')}\"*")
                     if _last_disc.get("brief_dg_mismatch"):
                         st.markdown("**Brief/DG assumptions not supported by transcripts:**")
                         for m in _last_disc["brief_dg_mismatch"]:
@@ -3243,27 +3243,27 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             master_prompt = mp_path.read_text(encoding="utf-8")
             step1_section, step2_section = _pex.split_master_prompt(master_prompt)
 
-        # â”€â”€ Step 2b: Review discovered fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        # The LLM self-populates this list from the transcripts (Step 0/1 of schema_generator) â€”
+        # ── Step 2b: Review discovered fields ──────────────────────────────────────
+        # The LLM self-populates this list from the transcripts (Step 0/1 of schema_generator) —
         # nothing here is a predefined field the user typed. This panel is the human checkpoint
         # before those self-discovered fields lock into the schema every extraction run after this
-        # will be scored against â€” uncheck anything that looks invented or off-scope.
+        # will be scored against — uncheck anything that looks invented or off-scope.
         _layer2_fields = schema.get("layer2", {}).get("fields", {})
         _matrix_field_counts = _pex.fields_populated_in_matrices(proj_id)
         _missing_from_schema = {k: c for k, c in _matrix_field_counts.items() if k not in _layer2_fields}
         if _layer2_fields or _missing_from_schema:
-            _section("2b Â· Review discovered fields",
-                     "Fields the LLM proposed from the transcripts â€” uncheck anything to drop before locking",
-                     accent=_P["purple"], icon="ðŸ§©")
+            _section("2b · Review discovered fields",
+                     "Fields the LLM proposed from the transcripts — uncheck anything to drop before locking",
+                     accent=_P["purple"], icon="🧩")
             with st.container(border=True):
                 st.caption(
                     "These are the fields Step 2's discovery just decided on. Clicking Apply below "
-                    "rewrites extraction_schema.json directly â€” Step 3's master prompt already reflects "
+                    "rewrites extraction_schema.json directly — Step 3's master prompt already reflects "
                     "the full set (it was generated in Step 2), so unchecking a field here only affects "
                     "what gets validated/scored, not the prompt text itself."
                 )
                 _fr_pending = st.session_state.pop(f"{proj_id}_es_field_review_pending", False)
-                with st.expander(f"ðŸ§© {len(_layer2_fields)} discovered field(s)", expanded=_fr_pending):
+                with st.expander(f"🧩 {len(_layer2_fields)} discovered field(s)", expanded=_fr_pending):
                     _fr_sel_key = f"{proj_id}_es_field_sel"
                     _fr_val_key = f"{proj_id}_es_field_val_sel"
                     _fr_rename_key = f"{proj_id}_es_field_rename"
@@ -3273,43 +3273,43 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     for fname, fdef in _layer2_fields.items():
                         _default = st.session_state[_fr_sel_key].get(fname, True)
                         _mcount = _matrix_field_counts.get(fname, 0)
-                        _label = f"`{fname}` ({fdef.get('type','string')}) â€” {fdef.get('description','')}"
+                        _label = f"`{fname}` ({fdef.get('type','string')}) — {fdef.get('description','')}"
                         if _mcount:
-                            _label += f"  \n  âš  already populated in {_mcount} existing matrix/matrices â€” unchecking stops future extractions from filling it, existing data stays"
+                            _label += f"  \n  ⚠ already populated in {_mcount} existing matrix/matrices — unchecking stops future extractions from filling it, existing data stays"
                         st.session_state[_fr_sel_key][fname] = st.checkbox(
                             _label, value=_default, key=f"{proj_id}_es_fchk_{fname}")
 
-                        # Provenance â€” why this field exists, and which brief/DG objective it
+                        # Provenance — why this field exists, and which brief/DG objective it
                         # answers (schema_generator.py's structure_prompt now asks for both). This
                         # is the actual review signal: a field with a real, specific rationale is
                         # probably grounded; a missing or generic one is a red flag to drop or
-                        # rewrite. Read-only â€” the reasoning itself isn't meant to be hand-edited,
+                        # rewrite. Read-only — the reasoning itself isn't meant to be hand-edited,
                         # only judged.
                         if fdef.get("_source_objective") or fdef.get("_rationale"):
                             with st.container(border=True):
                                 if fdef.get("_source_objective"):
-                                    st.caption(f"ðŸ“Ž **From brief/DG:** {fdef['_source_objective']}")
+                                    st.caption(f"📎 **From brief/DG:** {fdef['_source_objective']}")
                                 if fdef.get("_rationale"):
-                                    st.caption(f"ðŸ’­ **Why this shape:** {fdef['_rationale']}")
+                                    st.caption(f"💭 **Why this shape:** {fdef['_rationale']}")
                         elif st.session_state[_fr_sel_key][fname]:
-                            st.caption("âš  No source objective/rationale recorded â€” this field predates "
+                            st.caption("⚠ No source objective/rationale recorded — this field predates "
                                        "provenance tracking, or came from an emergent Discovery topic "
                                        "not tied to a specific brief objective.")
 
-                        # Rename â€” the field name is fixed forever at Discovery time otherwise.
+                        # Rename — the field name is fixed forever at Discovery time otherwise.
                         # Renaming here only relabels the schema key (and cascades through
                         # master_prompt.txt on Apply); existing matrices keep whatever key name
                         # they were extracted under, same staleness model as everywhere else in
-                        # this panel (narrowing, restore) â€” a rename is a going-forward change.
+                        # this panel (narrowing, restore) — a rename is a going-forward change.
                         _rename_default = st.session_state[_fr_rename_key].get(fname, fname)
                         st.session_state[_fr_rename_key][fname] = st.text_input(
                             "Field name", value=_rename_default, key=f"{proj_id}_es_frename_{fname}",
                             label_visibility="collapsed",
                         )
                         if st.session_state[_fr_rename_key][fname] != fname:
-                            st.caption(f"â†³ will rename to `{st.session_state[_fr_rename_key][fname]}` on Apply")
+                            st.caption(f"↳ will rename to `{st.session_state[_fr_rename_key][fname]}` on Apply")
 
-                        # Per-value narrowing â€” e.g. narrow a discovered "life_stage" field from
+                        # Per-value narrowing — e.g. narrow a discovered "life_stage" field from
                         # 4 LLM-proposed values down to the 2 that actually matter for this study.
                         # The kept subset is written back as this field's enum constraint, so every
                         # extraction after Apply only classifies into the values checked here.
@@ -3318,7 +3318,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             st.session_state[_fr_val_key].setdefault(fname, {})
                             with st.container(border=True):
                                 st.caption(
-                                    f"`{fname}` values â€” uncheck any to narrow the categories every "
+                                    f"`{fname}` values — uncheck any to narrow the categories every "
                                     f"future extraction classifies into (existing matrices keep "
                                     f"whatever value they already have; this only changes what NEW "
                                     f"extractions are allowed to pick)."
@@ -3332,11 +3332,11 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                             key=f"{proj_id}_es_fvalchk_{fname}_{_val}")
 
                         # Same narrowing, but for enum sub-fields nested inside an object-type field
-                        # (e.g. route1_evaluation.appeal_score, .comprehension_score) â€” these carry
+                        # (e.g. route1_evaluation.appeal_score, .comprehension_score) — these carry
                         # their OWN "values" list, separate from the parent field's, and were
                         # previously invisible here entirely: only the parent's own top-level
                         # "values" got checkboxes, so any object-shaped field's enum sub-fields
-                        # (a very common shape â€” most multi-part evaluations) had no narrowing UI
+                        # (a very common shape — most multi-part evaluations) had no narrowing UI
                         # at all, even though the parent checkbox implied full control over it.
                         _sub_fields = fdef.get("sub_fields") or []
                         if _sub_fields and st.session_state[_fr_sel_key][fname]:
@@ -3349,7 +3349,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                 st.session_state[_fr_val_key].setdefault(_sf_key, {})
                                 with st.container(border=True):
                                     st.caption(
-                                        f"`{fname}.{_sf_name}` values â€” uncheck any to narrow the "
+                                        f"`{fname}.{_sf_name}` values — uncheck any to narrow the "
                                         f"categories every future extraction classifies this "
                                         f"sub-field into (existing matrices unaffected)."
                                     )
@@ -3364,20 +3364,20 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     if _missing_from_schema:
                         st.markdown("---")
                         st.warning(
-                            f"âš  **{len(_missing_from_schema)} field(s) have real data in existing matrices "
-                            f"but AREN'T in the current schema** â€” a schema regeneration dropped these. "
+                            f"⚠ **{len(_missing_from_schema)} field(s) have real data in existing matrices "
+                            f"but AREN'T in the current schema** — a schema regeneration dropped these. "
                             f"Check any you want restored:")
                         _restore_key = f"{proj_id}_es_field_restore"
                         st.session_state.setdefault(_restore_key, {})
                         for fname, cnt in sorted(_missing_from_schema.items(), key=lambda x: -x[1]):
                             _rdefault = st.session_state[_restore_key].get(fname, True)
                             st.session_state[_restore_key][fname] = st.checkbox(
-                                f"`{fname}` â€” populated in {cnt} existing matrix/matrices, not in schema",
+                                f"`{fname}` — populated in {cnt} existing matrix/matrices, not in schema",
                                 value=_rdefault, key=f"{proj_id}_es_frestore_{fname}")
 
                     _n_kept = sum(1 for v in st.session_state[_fr_sel_key].values() if v)
                     _n_restore = sum(1 for v in st.session_state.get(f"{proj_id}_es_field_restore", {}).values() if v)
-                    _btn_label = f"âœ… Apply â€” keep {_n_kept} of {len(_layer2_fields)}"
+                    _btn_label = f"✅ Apply — keep {_n_kept} of {len(_layer2_fields)}"
                     if _n_restore:
                         _btn_label += f", restore {_n_restore}"
                     if st.button(_btn_label, key=f"{proj_id}_es_apply_fields"):
@@ -3389,7 +3389,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             if st.session_state.get(f"{proj_id}_es_field_restore", {}).get(fname, True):
                                 kept[fname] = _infer_field_def_from_matrices(fname, matrices_dir)
                                 restored.append(fname)
-                        # Narrow enum values for fields where any value checkbox was unchecked â€”
+                        # Narrow enum values for fields where any value checkbox was unchecked —
                         # this becomes the new enum constraint for every future extraction.
                         narrowed = []
                         for fname, fdef in kept.items():
@@ -3399,8 +3399,8 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                 _kept_values = [v for v in _orig_values if _val_choices.get(v, True)]
                                 if _kept_values and len(_kept_values) < len(_orig_values):
                                     fdef["values"] = _kept_values
-                                    narrowed.append(f"{fname} â†’ {', '.join(_kept_values)}")
-                            # Same narrowing for enum sub-fields nested inside object-type fields â€”
+                                    narrowed.append(f"{fname} → {', '.join(_kept_values)}")
+                            # Same narrowing for enum sub-fields nested inside object-type fields —
                             # mirrors the checkbox UI above, keyed the same way ("field.subfield").
                             for _sf in (fdef.get("sub_fields") or []):
                                 _sf_name = _sf.get("name")
@@ -3412,8 +3412,8 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                 _sf_kept = [v for v in _sf_orig_values if _sf_choices.get(v, True)]
                                 if _sf_kept and len(_sf_kept) < len(_sf_orig_values):
                                     _sf["values"] = _sf_kept
-                                    narrowed.append(f"{fname}.{_sf_name} â†’ {', '.join(_sf_kept)}")
-                        # Apply renames â€” move each renamed field to its new key. Validated
+                                    narrowed.append(f"{fname}.{_sf_name} → {', '.join(_sf_kept)}")
+                        # Apply renames — move each renamed field to its new key. Validated
                         # (snake_case-ish, non-empty, not colliding with a field kept under its
                         # original name) so a typo can't silently corrupt the schema; invalid or
                         # unchanged entries are just left under their original name.
@@ -3424,23 +3424,23 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                                 _rename_choices.get(_old_name, _old_name).strip().lower()).strip("_")
                             if _new_name and _new_name != _old_name and _new_name not in kept:
                                 kept[_new_name] = kept.pop(_old_name)
-                                renamed.append(f"{_old_name} â†’ {_new_name}")
+                                renamed.append(f"{_old_name} → {_new_name}")
                         schema["layer2"]["fields"] = kept
-                        # Marks this exact review as done â€” Phase 3 extraction stays disabled until
+                        # Marks this exact review as done — Phase 3 extraction stays disabled until
                         # this has been clicked at least once for the current schema. A fresh
                         # discovery run overwrites the whole schema file, so this flag naturally
-                        # resets (the regenerated file won't carry it forward) â€” no separate
+                        # resets (the regenerated file won't carry it forward) — no separate
                         # invalidation code needed.
                         schema["_field_review_applied"] = True
                         schema_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False), encoding="utf-8")
-                        # Resync master_prompt.txt too â€” editing schema['layer2']['fields'] here without
+                        # Resync master_prompt.txt too — editing schema['layer2']['fields'] here without
                         # this left the actual prompt sent to every extraction call still listing fields
-                        # that were just dropped (found live, this session â€” the schema said N fields,
+                        # that were just dropped (found live, this session — the schema said N fields,
                         # the prompt still asked for the old set).
                         from infoleap.skills import schema_generator as _sg2
                         _sg2._resync_master_prompt_from_schema(proj_id)
                         st.cache_data.clear()
-                        _msg = f"Applied â€” {len(kept)} field(s) kept"
+                        _msg = f"Applied — {len(kept)} field(s) kept"
                         if dropped: _msg += f", dropped: {', '.join(dropped)}"
                         if restored: _msg += f", restored: {', '.join(restored)}"
                         if narrowed: _msg += f". Narrowed: {'; '.join(narrowed)}"
@@ -3449,16 +3449,16 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                           "scored against the kept fields/values.")
                         st.rerun()
 
-        # â”€â”€ Step 2c: Combine fields into a named composite â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 2c: Combine fields into a named composite ─────────────────────────
         # After reviewing field quality above, let the researcher pick 2+ fields that really
         # belong together (e.g. two near-duplicate fields, or several narrow sub-questions that
         # read better as one grouped answer) and merge them under one name they choose. Additive
         # only: the new composite is written alongside the originals (schema for future
-        # extractions, matrices for existing data) â€” nothing is deleted, so this can't destroy
-        # data the way the accidental --force regeneration in Â§2 of the 2026-07-13 audit did.
+        # extractions, matrices for existing data) — nothing is deleted, so this can't destroy
+        # data the way the accidental --force regeneration in §2 of the 2026-07-13 audit did.
         if _layer2_fields:
-            _section("2c Â· Combine fields", "Merge 2+ reviewed fields into one named composite",
-                     accent=_P["blue"], icon="ðŸ§¬")
+            _section("2c · Combine fields", "Merge 2+ reviewed fields into one named composite",
+                     accent=_P["blue"], icon="🧬")
             with st.container(border=True):
                 st.caption(
                     "Pick fields that overlap or belong together and give the combined field a "
@@ -3469,7 +3469,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                 _cf_opts = sorted(_layer2_fields.keys())
                 _cf_labels = {
                     f: f"`{f}` ({_layer2_fields[f].get('type','string')}, "
-                       f"{_matrix_field_counts.get(f, 0)} matrices) â€” {_layer2_fields[f].get('description','')}"
+                       f"{_matrix_field_counts.get(f, 0)} matrices) — {_layer2_fields[f].get('description','')}"
                     for f in _cf_opts
                 }
                 _cf_sel = st.multiselect(
@@ -3482,10 +3482,10 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     placeholder="e.g. trust_and_barriers",
                 )
                 _cf_name = re.sub(r"[^a-z0-9_]", "_", _cf_name_raw.strip().lower()).strip("_")
-                if st.button("ðŸ§¬ Combine into new field", key=f"{proj_id}_es_combine_apply",
+                if st.button("🧬 Combine into new field", key=f"{proj_id}_es_combine_apply",
                              disabled=len(_cf_sel) < 2 or not _cf_name):
                     if _cf_name in _layer2_fields:
-                        st.error(f"`{_cf_name}` already exists â€” pick a different name.")
+                        st.error(f"`{_cf_name}` already exists — pick a different name.")
                     else:
                         _sub_fields = []
                         for _sf_src in _cf_sel:
@@ -3512,7 +3512,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                         schema_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False), encoding="utf-8")
                         from infoleap.skills import schema_generator as _sg3
                         _sg3._resync_master_prompt_from_schema(proj_id)
-                        # Backfill existing matrices non-destructively â€” copy whatever values the
+                        # Backfill existing matrices non-destructively — copy whatever values the
                         # source fields already have into the new nested key, skip matrices missing
                         # all source fields so an empty composite isn't written everywhere.
                         _n_backfilled = 0
@@ -3535,27 +3535,27 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                    f"Future extractions will populate it directly.")
                         st.rerun()
 
-        # â”€â”€ Step 2d: Verbatim groups â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        # Dynamic, per-project sentiment x theme groups proposed from real extracted quotes â€”
+        # ── Step 2d: Verbatim groups ────────────────────────────────────────────────
+        # Dynamic, per-project sentiment x theme groups proposed from real extracted quotes —
         # not a fixed universal taxonomy (studies vary too much in domain for one list to fit
         # all of them), grounded the same way schema_generator.py's discovery pass is (cite the
         # real quote, never invent one). Fully user-editable: rename/delete any proposed group,
         # and reassign any individual quote by hand.
         _vg_verbatim_fields = _pex._collect_hard_verbatim_fields(schema) if hasattr(_pex, "_collect_hard_verbatim_fields") else set()
         if matrices_dir and matrices_dir.exists() and any(matrices_dir.glob("*_matrix.json")):
-            _section("2e Â· Verbatim groups", "Cluster extracted quotes into sentiment/theme groups",
-                     accent=_P.get("pink", _P["purple"]), icon="ðŸ—‚ï¸")
+            _section("2e · Verbatim groups", "Cluster extracted quotes into sentiment/theme groups",
+                     accent=_P.get("pink", _P["purple"]), icon="🗂️")
             with st.container(border=True):
                 from infoleap.skills import verbatim_grouping as _vg
                 _vg_data = _vg.load_groups(project_dir)
                 st.caption(
                     "Groups are AI-suggested from this project's own extracted verbatims, grounded "
-                    "in real quotes only (cited by exact match, never invented) â€” then fully "
+                    "in real quotes only (cited by exact match, never invented) — then fully "
                     "editable by hand: rename, delete, or reassign any single quote below."
                 )
                 _vg_col1, _vg_col2 = st.columns([1, 1])
                 with _vg_col1:
-                    if st.button("ðŸ§  Suggest groups (AI)", key=f"{proj_id}_vg_suggest"):
+                    if st.button("🧠 Suggest groups (AI)", key=f"{proj_id}_vg_suggest"):
                         _quotes = _vg.collect_verbatims(matrices_dir, _vg_verbatim_fields)
                         if not _quotes:
                             st.warning("No verbatim-flagged quotes found in this project's matrices yet.")
@@ -3564,7 +3564,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                 _proposed = _vg.propose_groups(_quotes, proj.get("display_name", proj_id),
                                                                 proj.get("study_type", "other"))
                             if not _proposed:
-                                st.error("Grouping failed or returned nothing usable â€” try again.")
+                                st.error("Grouping failed or returned nothing usable — try again.")
                             else:
                                 _vg_data["groups"] = _proposed
                                 _vg_data["generated_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
@@ -3572,7 +3572,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                 st.success(f"Proposed {len(_proposed)} group(s) from {len(_quotes)} quotes.")
                                 st.rerun()
                 with _vg_col2:
-                    if st.button("âž• Add empty group", key=f"{proj_id}_vg_add"):
+                    if st.button("➕ Add empty group", key=f"{proj_id}_vg_add"):
                         _vg_data["groups"].append({
                             "group_id": f"manual_{len(_vg_data['groups'])}", "name": "New group",
                             "sentiment": "neutral", "theme": "", "definition": "", "members": [],
@@ -3581,12 +3581,12 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                         st.rerun()
 
                 if not _vg_data["groups"]:
-                    st.caption("No groups yet â€” click **Suggest groups (AI)** or add one manually.")
+                    st.caption("No groups yet — click **Suggest groups (AI)** or add one manually.")
                 else:
                     _all_group_ids = [g["group_id"] for g in _vg_data["groups"]]
                     _all_group_names = {g["group_id"]: g["name"] for g in _vg_data["groups"]}
                     for _gi, _g in enumerate(list(_vg_data["groups"])):
-                        with st.expander(f"ðŸ—‚ï¸ {_g['name']} â€” {len(_g.get('members', []))} quote(s) "
+                        with st.expander(f"🗂️ {_g['name']} — {len(_g.get('members', []))} quote(s) "
                                           f"[{_g.get('sentiment','neutral')}]", expanded=False):
                             _new_name = st.text_input("Group name", value=_g["name"],
                                                        key=f"{proj_id}_vg_name_{_g['group_id']}")
@@ -3602,8 +3602,8 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             if _g.get("definition"):
                                 st.caption(_g["definition"])
                             for _m in _g.get("members", []):
-                                st.markdown(f"- *\"{_m['quote'][:200]}\"* â€” `{_m['doc_id']}` ({_m['field']})")
-                            if st.button("ðŸ—‘ï¸ Delete group", key=f"{proj_id}_vg_del_{_g['group_id']}"):
+                                st.markdown(f"- *\"{_m['quote'][:200]}\"* — `{_m['doc_id']}` ({_m['field']})")
+                            if st.button("🗑️ Delete group", key=f"{proj_id}_vg_del_{_g['group_id']}"):
                                 _vg_data["groups"] = [gg for gg in _vg_data["groups"] if gg["group_id"] != _g["group_id"]]
                                 _vg.save_groups(project_dir, _vg_data)
                                 st.rerun()
@@ -3623,7 +3623,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             format_func=lambda gid: _all_group_names.get(gid, gid),
                             key=f"{proj_id}_vg_reassign_target",
                         )
-                        if st.button("â†³ Move quote", key=f"{proj_id}_vg_reassign_apply"):
+                        if st.button("↳ Move quote", key=f"{proj_id}_vg_reassign_apply"):
                             _q = _all_quotes[_qsel]
                             for _g in _vg_data["groups"]:
                                 _g["members"] = [m for m in _g.get("members", [])
@@ -3636,22 +3636,22 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             st.success("Moved.")
                             st.rerun()
 
-        # â”€â”€ Step 3: View / edit the master prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        _section("3 Â· Master prompt", "Exactly what every selected transcript's Step 1 call receives",
-                 accent=_P["amber"], icon="ðŸ“„")
+        # ── Step 3: View / edit the master prompt ─────────────────────────────────
+        _section("3 · Master prompt", "Exactly what every selected transcript's Step 1 call receives",
+                 accent=_P["amber"], icon="📄")
         with st.container(border=True):
-            with st.expander("ðŸ“„ View / edit master_prompt.txt", expanded=False):
+            with st.expander("📄 View / edit master_prompt.txt", expanded=False):
                 _prompt_edit_key = f"{proj_id}_es_prompt_edit"
                 _edited_prompt = st.text_area(
                     "master_prompt.txt", value=master_prompt, height=420, key=_prompt_edit_key,
                     label_visibility="collapsed",
                 )
-                if st.button("ðŸ’¾ Save prompt", key=f"{proj_id}_es_save_prompt"):
+                if st.button("💾 Save prompt", key=f"{proj_id}_es_save_prompt"):
                     mp_path.write_text(_edited_prompt, encoding="utf-8")
-                    st.success("Saved â€” Step 1 below will use this edited prompt.")
+                    st.success("Saved — Step 1 below will use this edited prompt.")
                     st.rerun()
 
-    # â”€â”€ Phase 3: Extract & store all data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Phase 3: Extract & store all data ──────────────────────────────────
     _p3_total = len(entries)
     _p3_done = len(list(matrices_dir.glob("*_matrix.json"))) if matrices_dir and matrices_dir.exists() else 0
     _p3_quals = []
@@ -3669,35 +3669,35 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                 _p3_needs_review += 1
     _p3_avg_q = round(sum(_p3_quals) / len(_p3_quals)) if _p3_quals else None
     if _p3_done == 0:
-        _p3_badge = "â³ Not started"
+        _p3_badge = "⏳ Not started"
     elif _p3_done < _p3_total or _p3_needs_review > 0:
-        _p3_badge = "âš  Needs attention"
+        _p3_badge = "⚠ Needs attention"
     else:
-        _p3_badge = "âœ… Done"
+        _p3_badge = "✅ Done"
     _p3_verdict = (
         f"{_p3_done}/{_p3_total} interviews extracted"
-        + (f" Â· avg quality {_p3_avg_q}/100" if _p3_avg_q is not None else " Â· quality not yet scored")
-        + (f" Â· {_p3_needs_review} need review" if _p3_needs_review else "")
+        + (f" · avg quality {_p3_avg_q}/100" if _p3_avg_q is not None else " · quality not yet scored")
+        + (f" · {_p3_needs_review} need review" if _p3_needs_review else "")
     )
     with st.expander(
-        f"{_p3_badge}  Â·  PHASE 3 â€” Extract & store all data  Â·  {_p3_verdict}",
+        f"{_p3_badge}  ·  PHASE 3 — Extract & store all data  ·  {_p3_verdict}",
         expanded=(_p3_done < _p3_total or _p3_needs_review > 0 or _p3_done == 0),
     ):
         st.caption(
-            "Runs the real per-respondent extraction (Step 1 â†’ Step 2 â†’ gate â†’ retry) and writes "
+            "Runs the real per-respondent extraction (Step 1 → Step 2 → gate → retry) and writes "
             "the structured records the dashboard reads. Do this after Phase 2's schema is settled."
         )
         _p3_review_applied = bool(schema.get("_field_review_applied"))
         if not _p3_review_applied:
             st.warning(
-                "ðŸ”’ **Extraction is locked.** Apply Step 2b â€” Review discovered fields (above) at "
+                "🔒 **Extraction is locked.** Apply Step 2b — Review discovered fields (above) at "
                 "least once for this schema before running extraction. Every run after a fresh "
                 "discovery starts locked again, so a human always reviews what changed before it "
                 "reaches every transcript."
             )
-        # â”€â”€ Step 4: Run extraction (Step 1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        _section("4 Â· Run extraction â€” Step 1", "Initial findings, free-form reasoning per transcript",
-                 accent=_P["teal"], icon="â–¶")
+        # ── Step 4: Run extraction (Step 1) ───────────────────────────────────────
+        _section("4 · Run extraction — Step 1", "Initial findings, free-form reasoning per transcript",
+                 accent=_P["teal"], icon="▶")
         with st.container(border=True):
             _extraction_model_options = _get_top_extraction_models(20)
             _ex_col1, _ex_col2 = st.columns([1.3, 1.3])
@@ -3709,7 +3709,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                 )
             _extraction_model = _extraction_model_options.get(_extraction_model_label)
             with _ex_col1:
-                if st.button("â–¶ Run Step 1 â€” initial findings",
+                if st.button("▶ Run Step 1 — initial findings",
                              disabled=(not selected or not acknowledged or not _p3_review_applied),
                              key=f"{proj_id}_es_run_step1", type="primary"):
                     prog = st.progress(0.0)
@@ -3740,14 +3740,14 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                 elif not acknowledged:
                     st.caption("Acknowledge the brief/DG mismatches above to enable this.")
                 elif not _p3_review_applied:
-                    st.caption("Apply Step 2b â€” Review discovered fields (above) to enable this.")
+                    st.caption("Apply Step 2b — Review discovered fields (above) to enable this.")
 
-        # â”€â”€ Step 5: Review & select â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 5: Review & select ───────────────────────────────────────────────
         reviewable = {fn: r for fn, r in st.session_state[_s1_key].items()
                       if r.get("status") == "pending_review"}
         if reviewable:
-            _section("5 Â· Review & select", f"{len(reviewable)} transcript(s) awaiting review",
-                     accent=_P["purple"], icon="ðŸ“")
+            _section("5 · Review & select", f"{len(reviewable)} transcript(s) awaiting review",
+                     accent=_P["purple"], icon="📝")
             with st.container(border=True):
                 for fn, r in reviewable.items():
                     doc_id = _doc_id_for_project(proj, fn)
@@ -3756,7 +3756,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     _wc = len(_text.split())
                     # Step 1's prompt asks the model to fill sections A-H (see master_prompt.txt
                     # PHASE 1) and it reliably does so with real markdown (### headers, **bold**
-                    # labels) â€” the raw output was being dumped into a plain st.text_area, which
+                    # labels) — the raw output was being dumped into a plain st.text_area, which
                     # shows "###"/"**" as literal characters instead of rendering them. Pull the
                     # single most powerful verbatim (section H) out as a highlighted quote so the
                     # strongest evidence is visible without reading the whole thing.
@@ -3769,7 +3769,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     if _meta.get("city"):    _badge_bits.append(str(_meta["city"]))
                     if _meta.get("segment"): _badge_bits.append(str(_meta["segment"]))
                     if _meta.get("gender"):  _badge_bits.append(str(_meta["gender"]))
-                    _header_label = f"ðŸ“ {doc_id} â€” {fn}  Â·  {' Â· '.join(_badge_bits)}"
+                    _header_label = f"📝 {doc_id} — {fn}  ·  {' · '.join(_badge_bits)}"
                     with st.expander(_header_label, expanded=False):
                         r["approved"] = st.checkbox("Approve", value=r.get("approved", True),
                                                      key=f"{proj_id}_es_approve_{fn}")
@@ -3781,17 +3781,17 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                                 f'</div>',
                                 unsafe_allow_html=True,
                             )
-                        st.markdown("**At a glance** (rendered â€” edit below to change):")
+                        st.markdown("**At a glance** (rendered — edit below to change):")
                         with st.container(border=True):
                             st.markdown(_text if _text else "*(empty)*")
                         r["edited"] = st.text_area(
-                            "âœï¸ Edit raw findings text (Step 1 â€” editable before Step 2 extraction)",
+                            "✏️ Edit raw findings text (Step 1 — editable before Step 2 extraction)",
                             value=r.get("edited", r.get("text", "")), height=220,
                             key=f"{proj_id}_es_edit_{fn}",
                         )
 
                 n_approved = sum(1 for r in reviewable.values() if r.get("approved"))
-                if st.button(f"âœ… Finalize {n_approved} approved (Step 2 + write matrices)",
+                if st.button(f"✅ Finalize {n_approved} approved (Step 2 + write matrices)",
                              disabled=(n_approved == 0), key=f"{proj_id}_es_finalize", type="primary"):
                     matrices_dir.mkdir(parents=True, exist_ok=True)
                     prog = st.progress(0.0)
@@ -3839,7 +3839,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             q_label = parsed.get("_quality_label", "n/a")
                             status = "OK"
                             if parsed.get("_needs_review"):
-                                status = f"OK â€” âš  needs review (quality: {q_label})"
+                                status = f"OK — ⚠ needs review (quality: {q_label})"
                             results.append((fn, status))
                         except Exception as e:
                             results.append((fn, f"ERROR: {e}"))
@@ -3850,47 +3850,47 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                          st.success if status == "OK" else st.error)(f"{fn}: {status}")
                     st.cache_data.clear()
 
-        # â”€â”€ Step 6: Reconcile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        _section("6 Â· Reconcile", "Optional â€” merges near-duplicate category values across matrices",
-                 accent=_P["green"], icon="ðŸ”„")
+        # ── Step 6: Reconcile ──────────────────────────────────────────────────────
+        _section("6 · Reconcile", "Optional — merges near-duplicate category values across matrices",
+                 accent=_P["green"], icon="🔄")
         with st.container(border=True):
             st.caption("Clusters near-duplicate category values used across this project's matrices "
                         "(e.g. re-running discovery producing slightly different archetype names for the "
-                        "same thing) into one canonical label â€” logged, never silent.")
-            if st.button("ðŸ”„ Reconcile project", key=f"{proj_id}_es_reconcile"):
-                with st.spinner("Reconcilingâ€¦"):
+                        "same thing) into one canonical label — logged, never silent.")
+            if st.button("🔄 Reconcile project", key=f"{proj_id}_es_reconcile"):
+                with st.spinner("Reconciling…"):
                     report = _pex.reconcile_project(proj_id, model=_extraction_model)
                 if report.get("merged_fields"):
                     st.success(f"Merged {len(report['merged_fields'])} field(s):")
                     st.json(report["merged_fields"])
                 else:
-                    st.info("No fragmentation found â€” nothing to merge.")
+                    st.info("No fragmentation found — nothing to merge.")
                 st.cache_data.clear()
 
-        # â”€â”€ Step 7: Process all interviews â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 7: Process all interviews ──────────────────────────────────────────
         # The steps above (Discover, Review fields, Reconcile) work on a small sample to settle the
-        # schema. Once it's settled, this runs the complete pipeline â€” Step 1, Step 2, type coercion,
-        # normalisation, verbatim-fidelity gate, reflection-retry â€” on EVERY transcript in the
+        # schema. Once it's settled, this runs the complete pipeline — Step 1, Step 2, type coercion,
+        # normalisation, verbatim-fidelity gate, reflection-retry — on EVERY transcript in the
         # project in one click, no per-file review pause (that checkpoint already happened, on the
-        # sample, during schema design). Ignores the Step 1 checkbox selection on purpose â€” this is
+        # sample, during schema design). Ignores the Step 1 checkbox selection on purpose — this is
         # "process everything," not "process what's currently checked."
-        _section("7 Â· Process all interviews",
+        _section("7 · Process all interviews",
                  f"Runs Step 1 + Step 2 + gate + retry on every one of the {len(index)} transcripts "
-                 f"and stores the result â€” no per-file review",
-                 accent=_P["red"], icon="âš¡")
+                 f"and stores the result — no per-file review",
+                 accent=_P["red"], icon="⚡")
         with st.container(border=True):
             st.caption(
                 "Use this once Discover/Review fields/Reconcile above have settled the schema on a "
-                "sample. This runs the full pipeline on every transcript in the project â€” Step 1 â†’ "
-                "Step 2 â†’ type coercion â†’ gate â†’ one reflection-retry if needed â€” and writes "
+                "sample. This runs the full pipeline on every transcript in the project — Step 1 → "
+                "Step 2 → type coercion → gate → one reflection-retry if needed — and writes "
                 "straight to matrices/. Already-extracted files are re-run too, so every respondent "
                 "ends up on the current schema and master prompt, not a mix of old and new."
             )
             if not _p3_review_applied:
-                st.caption("ðŸ”’ Apply Step 2b â€” Review discovered fields (above) to enable this â€” "
+                st.caption("🔒 Apply Step 2b — Review discovered fields (above) to enable this — "
                            "this button runs every kept field/value against every transcript in the "
                            "project, so it must be a reviewed set, not whatever discovery last proposed.")
-            if st.button(f"âš¡ Run full pipeline on all {len(index)} interviews",
+            if st.button(f"⚡ Run full pipeline on all {len(index)} interviews",
                          disabled=(not _p3_review_applied),
                          key=f"{proj_id}_es_run_all", type="primary"):
                 matrices_dir.mkdir(parents=True, exist_ok=True)
@@ -3903,7 +3903,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     md_rel = entry.get("output_md")
                     md_path = (project_dir / md_rel) if md_rel else None
                     doc_id = _doc_id_for_project(proj, fn)
-                    _status_area.caption(f"Processing {doc_id} ({i+1}/{len(_all_files)})â€¦")
+                    _status_area.caption(f"Processing {doc_id} ({i+1}/{len(_all_files)})…")
                     if not md_path or not md_path.exists():
                         _results.append((fn, f"ERROR: md not found: {md_path}"))
                         _prog.progress((i + 1) / len(_all_files))
@@ -3946,22 +3946,22 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                         (matrices_dir / f"{doc_id}_matrix.json").write_text(
                             json.dumps(parsed, indent=2, ensure_ascii=False), encoding="utf-8")
                         q_label = parsed.get("_quality_label", "n/a")
-                        status = "OK" if not parsed.get("_needs_review") else f"OK â€” needs review ({q_label})"
+                        status = "OK" if not parsed.get("_needs_review") else f"OK — needs review ({q_label})"
                         _results.append((fn, status))
                     except Exception as e:
                         _results.append((fn, f"ERROR: {e}"))
                     _prog.progress((i + 1) / len(_all_files))
                 _status_area.empty()
                 n_ok = sum(1 for _, s in _results if s.startswith("OK"))
-                st.success(f"Done â€” {n_ok}/{len(_results)} processed successfully.")
+                st.success(f"Done — {n_ok}/{len(_results)} processed successfully.")
                 for fn, status in _results:
                     (st.warning if "needs review" in status else
                      st.success if status == "OK" else st.error)(f"{fn}: {status}")
                 st.cache_data.clear()
 
-        # â”€â”€ Step 8: Unmatched categories â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 8: Unmatched categories ────────────────────────────────────────────
         # Per-interview signal that a real answer didn't fit any value the schema currently declares
-        # (the model was told to write "NEW: <label>" instead of force-fitting it â€” see master_prompt's
+        # (the model was told to write "NEW: <label>" instead of force-fitting it — see master_prompt's
         # ENUM CONSTRAINTS). This is the "pipeline should tell me when a new category is needed" gap.
         _unmatched_agg: dict[str, list[dict]] = {}
         if matrices_dir and matrices_dir.exists():
@@ -3976,22 +3976,22 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                         {"doc_id": mdata.get("doc_id", mf.stem), "value": u.get("proposed_value", "")})
 
         if _unmatched_agg:
-            _section("8 Â· Unmatched categories", "Real answers that didn't fit any current schema value",
-                     accent=_P["amber"], icon="âš ")
+            _section("8 · Unmatched categories", "Real answers that didn't fit any current schema value",
+                     accent=_P["amber"], icon="⚠")
             with st.container(border=True):
                 st.caption("These respondents said something for a field that doesn't match any value "
-                           "declared in the schema â€” the model flagged it instead of silently forcing a "
+                           "declared in the schema — the model flagged it instead of silently forcing a "
                            "fit. Consider adding these as new enum values next time you refresh the schema.")
                 for field, items in _unmatched_agg.items():
-                    st.markdown(f"**`{field}`** â€” {len(items)} unmatched response(s)")
+                    st.markdown(f"**`{field}`** — {len(items)} unmatched response(s)")
                     for it in items:
                         st.markdown(f"- `{it['doc_id']}`: *\"{it['value']}\"*")
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# CONCEPT TESTING VIEW â€” any project with study_type == "concept_testing"
+# ═════════════════════════════════════════════════════════════════════════════
+# CONCEPT TESTING VIEW — any project with study_type == "concept_testing"
 # Routes by study_type, not hardcoded project ID.
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 if _study_type == "concept_testing":
     from infoleap.views.concept_testing_renderer import render_concept_testing
     _ct_proj = _pm.get_project(_active_project) or {}
@@ -4001,7 +4001,7 @@ if _study_type == "concept_testing":
 
     _render_pipeline_sync_banner(_active_project)
 
-    if st.toggle("ðŸ”¬ Extraction Studio â€” redo extraction with review", key="_es_toggle_open"):
+    if st.toggle("🔬 Extraction Studio — redo extraction with review", key="_es_toggle_open"):
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
         _render_extraction_studio(_active_project, _ct_proj)
         st.divider()
@@ -4021,11 +4021,11 @@ if _study_type == "concept_testing":
     st.stop()
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# ETHNOGRAPHIC STUDY VIEW â€” any project with study_type == "ethnographic"
+# ═════════════════════════════════════════════════════════════════════════════
+# ETHNOGRAPHIC STUDY VIEW — any project with study_type == "ethnographic"
 # Routes by study_type from registry, not hardcoded project ID.
 # Mixer is currently the only ethnographic project; future studies auto-route here.
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═════════════════════════════════════════════════════════════════════════════
 if _study_type == "ethnographic":
     from infoleap.views.ethnographic_renderer import render_ethnographic
     _eth_proj = _pm.get_project(_active_project) or {}
@@ -4033,7 +4033,7 @@ if _study_type == "ethnographic":
         st.error(f"Project '{_active_project}' not found in registry.")
         st.stop()
 
-    if st.toggle("ðŸ”¬ Extraction Studio â€” redo extraction with review", key=f"_es_toggle_open_{_active_project}"):
+    if st.toggle("🔬 Extraction Studio — redo extraction with review", key=f"_es_toggle_open_{_active_project}"):
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
         _render_extraction_studio(_active_project, _eth_proj)
         st.divider()
@@ -4071,12 +4071,12 @@ if _study_type == "ethnographic":
     st.stop()
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# GENERIC PROJECT VIEW â€” projects not handled by a dedicated renderer above
-# Driven by ui_config.json + extraction_schema.json â€” no code changes needed
+# ═════════════════════════════════════════════════════════════════════════════
+# GENERIC PROJECT VIEW — projects not handled by a dedicated renderer above
+# Driven by ui_config.json + extraction_schema.json — no code changes needed
 # per new project.
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-if _study_type not in ("concept_testing", "ethnographic"):  # unknown study types â†’ generic renderer
+# ═════════════════════════════════════════════════════════════════════════════
+if _study_type not in ("concept_testing", "ethnographic"):  # unknown study types → generic renderer
     _gen_proj = _pm.get_project(_active_project) or {}
     if not _gen_proj:
         st.error(f"Project '{_active_project}' not found in registry. Add it to data/projects/registry.json.")
@@ -4107,12 +4107,12 @@ if _study_type not in ("concept_testing", "ethnographic"):  # unknown study type
                 ) if m is not None
             ]
             if _gen_matrix_errors:
-                # 2026-07-27: was a bare `except: pass` â€” a malformed matrix (partial write,
+                # 2026-07-27: was a bare `except: pass` — a malformed matrix (partial write,
                 # truncated LLM extraction output) vanished with zero trace, so a "18 respondents
                 # shown" count with no way to know it should have been 19. Now surfaced via the
                 # shared _load_json_safe/_warn_json_errors helpers instead of a reimplemented
-                # inline try/except â€” this route used to duplicate that logic.
-                _warn_json_errors(_gen_matrix_errors, context="matrix file(s) â€” re-run extraction for them")
+                # inline try/except — this route used to duplicate that logic.
+                _warn_json_errors(_gen_matrix_errors, context="matrix file(s) — re-run extraction for them")
                 with st.expander("Parse error details"):
                     for name, err in _gen_matrix_errors:
                         st.caption(f"`{name}`: {err}")
@@ -4125,7 +4125,7 @@ if _study_type not in ("concept_testing", "ethnographic"):  # unknown study type
                     call_openrouter_fn=_call_openrouter_free,
                 )
         except ImportError:
-            st.info(f"{_gen_m_count} matrices extracted â€” generic analysis renderer loading.")
+            st.info(f"{_gen_m_count} matrices extracted — generic analysis renderer loading.")
         except Exception as _gen_err:
             st.warning(f"Renderer error: {_gen_err}")
 

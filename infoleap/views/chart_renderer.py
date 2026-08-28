@@ -1,16 +1,16 @@
-﻿"""
-Chart Renderer â€” All Visualisation Logic (Extracted from chat.py)
+"""
+Chart Renderer — All Visualisation Logic (Extracted from chat.py)
 =================================================================
 Provides two modes:
-  1. **chart_spec-driven** â€” LLM returns a JSON spec alongside SQL; we render exactly
+  1. **chart_spec-driven** — LLM returns a JSON spec alongside SQL; we render exactly
      what was requested (bar, funnel, pie, grouped_bar, nps_waterfall, etc.)
-  2. **heuristic fallback** â€” if chart_spec is absent or ``{"type": "auto"}``, the
+  2. **heuristic fallback** — if chart_spec is absent or ``{"type": "auto"}``, the
      original column-name heuristic logic selects the best chart.
 
 Public API:
-  parse_chart_spec(raw_output)  â†’ (sql, chart_spec_dict)
-  render_result(df, question, chart_spec=None)  â†’ None  (renders via st.*)
-  render_table(df)              â†’ None  (formatted st.dataframe)
+  parse_chart_spec(raw_output)  → (sql, chart_spec_dict)
+  render_result(df, question, chart_spec=None)  → None  (renders via st.*)
+  render_table(df)              → None  (formatted st.dataframe)
 """
 
 from __future__ import annotations
@@ -25,9 +25,9 @@ import plotly.graph_objects as go
 import streamlit as st
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # CHART SPEC PARSER
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def parse_chart_spec(raw_output: str) -> tuple[str, dict]:
     """
@@ -55,9 +55,9 @@ def parse_chart_spec(raw_output: str) -> tuple[str, dict]:
     return sql, chart_spec
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # HELPERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 DETAIL_MARKERS = {"respondent_id", "resp_name", "device_id", "interviewer", "response_text"}
 
@@ -66,7 +66,7 @@ SKIP_COLS = {
     "city_id", "zone_id", "id", "purchase_rank",
 }
 
-# Unified palette â€” matches brand_health.py exactly
+# Unified palette — matches brand_health.py exactly
 COLORS = {
     "primary":   "#1a5d4d",   # dark green  (TOM / main bars)
     "secondary": "#30a76a",   # mid green   (SPONT / secondary)
@@ -75,7 +75,7 @@ COLORS = {
     "warning":   "#fbbf24",
     "danger":    "#ef4444",
     "info":      "#0ea5e9",
-    # Multi-series palette â€” greens first, then supporting colours
+    # Multi-series palette — greens first, then supporting colours
     "palette": [
         "#1a5d4d", "#30a76a", "#86efac", "#0ea5e9",
         "#fbbf24", "#ef4444", "#8b5cf6", "#f97316",
@@ -170,9 +170,9 @@ def _col_label(col_name: str) -> str:
     return col_name.replace("_", " ").title()
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # INDIVIDUAL CHART RENDERERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _render_metric_cards(df: pd.DataFrame, **_kw) -> None:
     """Single-row scalar results as metric cards."""
@@ -190,7 +190,7 @@ def _render_metric_cards(df: pd.DataFrame, **_kw) -> None:
 
 def _render_bar(df: pd.DataFrame, x: str | None = None, y: str | None = None,
                 title: str | None = None, orientation: str = "h", **_kw) -> None:
-    """Bar chart â€” horizontal by default for category Ã— metric data.
+    """Bar chart — horizontal by default for category × metric data.
 
     Pass ``orientation="v"`` for a vertical bar chart (see ``_render_v_bar``).
     """
@@ -235,7 +235,7 @@ def _render_bar(df: pd.DataFrame, x: str | None = None, y: str | None = None,
     if is_vertical:
         layout_kwargs.update(xaxis_title="", yaxis_title=_col_label(value_col))
     else:
-        # First category in df_s stays on top (matches pre-adapter behavior) â€”
+        # First category in df_s stays on top (matches pre-adapter behavior) —
         # Plotly's default for horizontal bars puts the first category at the
         # bottom, which silently inverts caller-intended ordering otherwise.
         layout_kwargs.update(xaxis_title=_col_label(value_col), yaxis_title="",
@@ -250,7 +250,7 @@ def _render_bar(df: pd.DataFrame, x: str | None = None, y: str | None = None,
 
 def _render_v_bar(df: pd.DataFrame, x: str | None = None, y: str | None = None,
                 title: str | None = None, **_kw) -> None:
-    """Vertical bar chart â€” thin wrapper around ``_render_bar`` with orientation="v"."""
+    """Vertical bar chart — thin wrapper around ``_render_bar`` with orientation="v"."""
     _render_bar(df, x=x, y=y, title=title, orientation="v", **_kw)
 
 
@@ -313,7 +313,7 @@ def _render_grouped_bar(df: pd.DataFrame, x: str | None = None,
 
 def _render_stacked_bar(df: pd.DataFrame, x: str | None = None,
                         title: str | None = None, **_kw) -> None:
-    """Stacked horizontal bar â€” useful for composition breakdowns."""
+    """Stacked horizontal bar — useful for composition breakdowns."""
     scols = string_cols(df)
     mcols = metric_cols(df)
     if not scols or not mcols:
@@ -344,7 +344,7 @@ def _render_stacked_bar(df: pd.DataFrame, x: str | None = None,
 
 def _render_funnel(df: pd.DataFrame, x: str | None = None, y: str | None = None,
                    title: str | None = None, **_kw) -> None:
-    """Funnel chart â€” TOM â†’ SPONT â†’ AIDED awareness progression."""
+    """Funnel chart — TOM → SPONT → AIDED awareness progression."""
     scols = string_cols(df)
     mcols = metric_cols(df)
     if not scols or not mcols:
@@ -409,7 +409,7 @@ def _render_pie(df: pd.DataFrame, x: str | None = None, y: str | None = None,
 
 
 def _render_donut(df: pd.DataFrame, **kwargs) -> None:
-    """Donut chart â€” thin wrapper around _render_pie forcing a larger hole."""
+    """Donut chart — thin wrapper around _render_pie forcing a larger hole."""
     # 0.5 (vs. _render_pie's default 0.35 slight-inset pie) carves a hole wide
     # enough to read as a distinct "donut" shape rather than a pie with a dimple.
     kwargs["hole"] = 0.5
@@ -417,7 +417,7 @@ def _render_donut(df: pd.DataFrame, **kwargs) -> None:
 
 
 def _render_nps_waterfall(df: pd.DataFrame, title: str | None = None, **_kw) -> None:
-    """NPS stacked horizontal bar â€” Detractors | Passives | Promoters."""
+    """NPS stacked horizontal bar — Detractors | Passives | Promoters."""
     p = has_col(df, "promoter")
     d = has_col(df, "detractor")
     pas = has_col(df, "passive")
@@ -531,9 +531,9 @@ def _render_quadrant(df: pd.DataFrame, points: list | None = None,
     st.plotly_chart(fig, use_container_width=True)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # TABLE RENDERER
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def render_table(df: pd.DataFrame) -> None:
     """Formatted st.dataframe with high-readability column config."""
@@ -553,9 +553,9 @@ def render_table(df: pd.DataFrame) -> None:
     st.dataframe(df, use_container_width=True, column_config=cfg, hide_index=True)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # CHART TYPE REGISTRY
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 _CHART_REGISTRY: dict[str, Any] = {
     "bar":           _render_bar,
@@ -569,15 +569,15 @@ _CHART_REGISTRY: dict[str, Any] = {
     "table":         render_table,
     "radar":         _render_radar,
     "quadrant":      _render_quadrant,
-    "h_bar":         _render_bar,   # alias â€” _render_bar is already horizontal orientation
+    "h_bar":         _render_bar,   # alias — _render_bar is already horizontal orientation
     "v_bar":         _render_v_bar,
     "donut":         _render_donut,
 }
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # HEURISTIC CHART SELECTION (fallback when chart_spec is "auto")
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def _has_awareness_funnel_cols(df: pd.DataFrame) -> bool:
     """Detect full awareness funnel output (has tom + spont + total columns)."""
@@ -599,7 +599,7 @@ def _auto_select_chart(df: pd.DataFrame, question: str) -> str:
     if any(c in df.columns for c in DETAIL_MARKERS):
         return "table"
 
-    # NPS waterfall (check BEFORE metric_cards â€” a single-row NPS is still a waterfall)
+    # NPS waterfall (check BEFORE metric_cards — a single-row NPS is still a waterfall)
     if has_col(df, "promoter") and has_col(df, "detractor") and rows <= 40:
         return "nps_waterfall"
 
@@ -611,7 +611,7 @@ def _auto_select_chart(df: pd.DataFrame, question: str) -> str:
     if rows == 1 and len(df.columns) <= 8:
         return "metric_cards"
 
-    # Awareness funnel data (tom + spont + total cols) â€” always grouped_bar for brand comparison
+    # Awareness funnel data (tom + spont + total cols) — always grouped_bar for brand comparison
     if _has_awareness_funnel_cols(df) and scols and rows >= 2:
         return "grouped_bar"
 
@@ -635,7 +635,7 @@ def _auto_select_chart(df: pd.DataFrame, question: str) -> str:
         if any(w in q for w in ["compare", "vs", "side by side", "versus", "across zone",
                                   "across city", "by zone", "by city", "by brand"]):
             return "grouped_bar"
-        # Multi-metric with few rows and multiple pct columns â†’ grouped bar for clarity
+        # Multi-metric with few rows and multiple pct columns → grouped bar for clarity
         pct_mcols = [c for c in mcols if any(x in c.lower() for x in ["pct", "percent"])]
         if len(pct_mcols) >= 2 and rows <= 20:
             return "grouped_bar"
@@ -645,7 +645,7 @@ def _auto_select_chart(df: pd.DataFrame, question: str) -> str:
         if scols and mcols and 2 <= rows <= 10:
             return "pie"
 
-    # Default: horizontal bar for category Ã— metric
+    # Default: horizontal bar for category × metric
     if scols and mcols and (rows <= 30 or any(
         w in q for w in ["chart", "graph", "plot", "visual", "bar", "show me",
                           "rank", "ranking", "top", "bottom"]
@@ -671,7 +671,7 @@ def select_chart_type_llm(df: pd.DataFrame, question: str, call_llm_fn=None) -> 
             # (Streamlit session state, DB path resolution, ProjectManager()) that
             # can fail outside an active script context for reasons that have
             # nothing to do with whether a chart-type-selector callable exists.
-            # Any failure here just means "no LLM available" â€” fall back.
+            # Any failure here just means "no LLM available" — fall back.
             return _auto_select_chart(df, question)
 
     scols, mcols = string_cols(df), metric_cols(df)
@@ -684,16 +684,16 @@ def select_chart_type_llm(df: pd.DataFrame, question: str, call_llm_fn=None) -> 
     try:
         raw = (call_llm_fn(prompt, system="Chart type selector. Reply with one word only.") or "").strip().lower()
     except Exception:
-        # Network/timeout/API errors must never break the render path â€” fall back.
+        # Network/timeout/API errors must never break the render path — fall back.
         return _auto_select_chart(df, question)
     if raw in _CHART_REGISTRY:
         return raw
     return _auto_select_chart(df, question)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 # MAIN RENDER ENTRY POINT
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════════════════════════════
 
 import re as _re  # needed for chart_code cleaning
 
@@ -705,7 +705,7 @@ def render_result(
 ) -> None:
     """
     Render a query result.
-    Priority: chart_code (agent Python) â†’ chart_spec (JSON) â†’ heuristic auto-select.
+    Priority: chart_code (agent Python) → chart_spec (JSON) → heuristic auto-select.
 
     Args:
         df:          The query result DataFrame.

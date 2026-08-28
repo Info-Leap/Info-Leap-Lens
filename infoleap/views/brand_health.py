@@ -1,5 +1,5 @@
-﻿"""
-Brand Health Dashboard â€” Deep Dive Edition
+"""
+Brand Health Dashboard — Deep Dive Edition
 ==========================================
 Data available in current wave:
   - Full awareness+conversion funnel: AIDED/SPONT/TOM/EVER_USED/CONSIDERATION/CURRENT_USER/PREFERRED/LAST_PURCHASED
@@ -63,9 +63,9 @@ importlib.reload(_ca_mod_ref)
 importlib.reload(_bie_mod_ref)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# Data Workbench â€” AI Q&A over the currently-displayed section's data
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
+# Data Workbench — AI Q&A over the currently-displayed section's data
+# ══════════════════════════════════════════════════════════════════════════
 from dotenv import load_dotenv as _wb_load_dotenv
 _WB_ENV_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 _wb_load_dotenv(_WB_ENV_FILE, override=False)
@@ -73,7 +73,7 @@ _wb_load_dotenv(_WB_ENV_FILE, override=False)
 _WB_OR_KEY = os.getenv("OPENROUTER_API_KEY")
 _WB_OR_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 
-# Free-tier default (OpenRouter ":free" suffix â€” no cost, rate-limited ~20 rpm/200 rpd).
+# Free-tier default (OpenRouter ":free" suffix — no cost, rate-limited ~20 rpm/200 rpd).
 # Paid fallback chain used automatically if the free model errors or times out.
 _WB_MODEL_FREE = "meta-llama/llama-3.3-70b-instruct:free"
 _WB_MODEL_CHOICES = {
@@ -130,7 +130,7 @@ def _wb_truncate_rows(data, max_rows=50):
 def _workbench_capture(section_label: str, data: dict, note: str = ""):
     """Record the structured data behind the currently-rendered section so the
     Data Workbench AI panel (bottom of page) can answer questions about exactly
-    what's on screen. Cheap â€” just a session_state write, safe to call on every
+    what's on screen. Cheap — just a session_state write, safe to call on every
     rerun of a section-render function."""
     try:
         import datetime as _dt
@@ -171,13 +171,13 @@ def _wb_ask(question: str, model_choice: str):
     fallback, retries once with the paid fallback model."""
     ctx = st.session_state.get("_wb_active_section_data")
     if not ctx:
-        return None, None, "No structured data captured for this section yet â€” switch tabs/re-run the section, then try again."
+        return None, None, "No structured data captured for this section yet — switch tabs/re-run the section, then try again."
 
     import json as _json
     section = ctx.get("section", "current section")
     payload = _json.dumps(ctx.get("data", {}), default=str)
     if len(payload) > 60000:
-        payload = payload[:60000] + '... "(truncated â€” payload too large)"'
+        payload = payload[:60000] + '... "(truncated — payload too large)"'
 
     # Build project-aware description for the system prompt (dynamic, not project_1-only)
     try:
@@ -196,7 +196,7 @@ def _wb_ask(question: str, model_choice: str):
         "shown on screen for one dashboard section (JSON below). Statistical terms follow "
         "XLSTAT convention (p<0.05 = '*', p<0.01 = '**', p<0.001 = '***'; VIF>5 = moderate, "
         ">10 = severe multicollinearity; McFadden R2 0.2+ = adequate fit). "
-        "Answer using ONLY the data provided â€” do not invent numbers. If the user's question "
+        "Answer using ONLY the data provided — do not invent numbers. If the user's question "
         "is empty or generic, give a concise general analysis of what this section's data shows: "
         "headline findings, notable strengths/risks, and one actionable recommendation. "
         "Be specific, cite the actual numbers, keep it tight (bullet points over prose)."
@@ -204,7 +204,7 @@ def _wb_ask(question: str, model_choice: str):
     user_prompt = (
         f"Section: {section}\n\n"
         f"Data (JSON):\n{payload}\n\n"
-        f"Question: {question if question.strip() else '(none â€” give a general analysis of this section)'}"
+        f"Question: {question if question.strip() else '(none — give a general analysis of this section)'}"
     )
 
     model = _WB_MODEL_CHOICES.get(model_choice, _WB_MODEL_FREE)
@@ -212,12 +212,12 @@ def _wb_ask(question: str, model_choice: str):
     if text is None and model != _WB_FALLBACK_MODEL:
         text, used_model, err2 = _call_workbench_llm(_WB_FALLBACK_MODEL, system_prompt, user_prompt)
         if text is not None:
-            return text, used_model, f"âš ï¸ Fell back to {_WB_FALLBACK_MODEL} â€” {model} failed: {err}"
+            return text, used_model, f"⚠️ Fell back to {_WB_FALLBACK_MODEL} — {model} failed: {err}"
         return None, used_model, f"Both {model} and fallback {_WB_FALLBACK_MODEL} failed: {err} / {err2}"
     return text, used_model, err
 
 
-# â”€â”€ Colour palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Colour palette ──────────────────────────────────────────────────────────
 PALETTE = {
     "tom":   "#1a5d4d",
     "spont": "#30a76a",
@@ -232,13 +232,13 @@ ZONE_COLORS = {"North": "#3b82f6", "South": "#f59e0b",
                "East":  "#8b5cf6", "West":  "#ec4899"}
 NPS_INDUSTRY_AVG = BENCHMARKS.get("nps_industry_avg", 45)  # project_1 fallback; overridden per-render below
 
-# â”€â”€ Chart Theme (customisable â€” change here to reflect across all charts) â”€â”€â”€â”€
+# ── Chart Theme (customisable — change here to reflect across all charts) ────
 # Predefined palettes: "pulse_green" | "corporate_blue" | "warm_amber" | "mono"
 CHART_THEME = {
     # Active palette name (swap to change all chart colours at once)
     "palette": "pulse_green",
     # Per-palette colour sets. Every entry in the first 7 slots must stay readable at full
-    # opacity on a white background (up to 7 brands can be shown at once â€” base + 6 compare) â€”
+    # opacity on a white background (up to 7 brands can be shown at once — base + 6 compare) —
     # no pastel/near-white colours here. Anything lighter (e.g. an unselected-state tint) is
     # derived at render time via _hex_lighten()/_hex_to_rgba(), never baked into this list.
     "palettes": {
@@ -247,7 +247,7 @@ CHART_THEME = {
         "warm_amber":     ["#92400e", "#d97706", "#1e3a5f", "#6b7280", "#16a34a", "#dc2626", "#7c3aed", "#0891b2"],
         "mono":           ["#111827", "#374151", "#6b7280", "#4b5563", "#1a5d4d", "#ef4444", "#0ea5e9", "#f59e0b"],
     },
-    # Font family â€” change to match report template
+    # Font family — change to match report template
     "font_family": "Inter, Arial, sans-serif",
     # Base font size for chart labels
     "font_size": 12,
@@ -272,7 +272,7 @@ def _chart_colors() -> list:
     return CHART_THEME["palettes"].get(p, CHART_THEME["palettes"]["pulse_green"])
 
 def _chart_layout_base(height: int = 500) -> dict:
-    """Common Plotly layout kwargs â€” apply to all charts for consistency."""
+    """Common Plotly layout kwargs — apply to all charts for consistency."""
     base = dict(CHART_LAYOUT)  # shared tokens: white bg, Inter font, standard margins
     base.update(
         height=int(height * CHART_THEME["ppt_scale"]),
@@ -300,7 +300,7 @@ def _theme_fig(fig, height: int = None):
     return fig
 
 
-# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Helpers ──────────────────────────────────────────────────────────────────
 
 def _metric_card(label, value, icon, subtext="", delta=None, color=None):
     """Delegates to shared kpi_card. icon param ignored (legacy compat)."""
@@ -311,10 +311,10 @@ def _metric_card(label, value, icon, subtext="", delta=None, color=None):
     _shared_kpi_card(label, f"{value}{delta_str}", color or COLORS["teal"], subtext=subtext)
 
 
-def _insight_callout(findings, label, icon="ðŸ’¡"):
+def _insight_callout(findings, label, icon="💡"):
     if not findings:
         return
-    bullets = "".join(f'<div style="font-size:0.85rem;margin-bottom:5px;line-height:1.5;opacity:0.9;">â€¢ {f}</div>' for f in findings)
+    bullets = "".join(f'<div style="font-size:0.85rem;margin-bottom:5px;line-height:1.5;opacity:0.9;">• {f}</div>' for f in findings)
     header = f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1rem;">{icon}</span><span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#22c55e;">{label}</span></div>'
     st.markdown(f'<div style="border-radius:10px;padding:14px 16px;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.07);margin-top:10px;">{header}{bullets}</div>', unsafe_allow_html=True)
 
@@ -325,7 +325,7 @@ def _section_header(title: str, subtitle: str = ""):
 
 def _ai_chart_headline(section_key: str, data_summary: str, brand: str = "", project_id: str = "project_1") -> str | None:
     """Generate a data-driven newspaper-style headline for a chart section.
-    Session-cached per (section_key, brand, project_id) â€” never regenerates on rerun.
+    Session-cached per (section_key, brand, project_id) — never regenerates on rerun.
     Strict guardrails: numbers from data_summary only, no speculation.
     Returns headline string or None on failure/no API key.
     """
@@ -340,11 +340,11 @@ def _ai_chart_headline(section_key: str, data_summary: str, brand: str = "", pro
         _prompt = (
             "You are a market research analyst writing chart headlines for a brand health report. "
             "Write ONE headline (max 18 words) that captures the most important insight from the data below. "
-            "Rules: (1) Use only the numbers given â€” no invention. "
+            "Rules: (1) Use only the numbers given — no invention. "
             "(2) Active voice, declarative sentence. "
             "(3) Mention the brand or top finding explicitly. "
             "(4) No questions, no ellipsis, no hype words. "
-            "Output only the headline text â€” no quotes, no prefix.\n\n"
+            "Output only the headline text — no quotes, no prefix.\n\n"
             f"Brand: {brand or 'Category'}\n"
             f"Data: {data_summary}"
         )
@@ -389,7 +389,7 @@ def _sig_letters_proportions(items, alpha: float = 0.05):
     from scipy.stats import norm as _norm
 
     def _col_letter(i: int) -> str:
-        # Excel-style labels so >26 brands don't overflow into '[', '\\', ']' â€¦
+        # Excel-style labels so >26 brands don't overflow into '[', '\\', ']' …
         s, i = "", i + 1
         while i > 0:
             i, r = divmod(i - 1, 26)
@@ -413,7 +413,7 @@ def _sig_letters_proportions(items, alpha: float = 0.05):
             continue
         z = (pa - pb) / se
         pval = 2 * (1 - _norm.cdf(abs(z)))
-        if pval < alpha:  # pa >= pb by sort â†’ higher beats lower
+        if pval < alpha:  # pa >= pb by sort → higher beats lower
             beats[la].append(letters[lb])
     pct = {d[0]: d[3] * 100 for d in data}
     return letters, beats, pct
@@ -439,7 +439,7 @@ def _apply_to_plain(text: str, pattern, replacement, flags=0) -> str:
             if in_mark == 0:
                 result.append(_re.sub(pattern, replacement, part, flags=flags))
             else:
-                result.append(part)  # inside a mark â€” leave unchanged
+                result.append(part)  # inside a mark — leave unchanged
     return "".join(result)
 
 
@@ -455,8 +455,8 @@ def _highlight_text(text: str, known_names: list = None) -> str:
     text = _re.sub(r'<(?![a-zA-Z/!])', '&lt;', text)
     text = _re.sub(r'(?<![a-zA-Z"\'=\d])>', '&gt;', text)
 
-    # Dark-theme color palette â€” dark backgrounds, light text for readability
-    # 2. **bold** â†’ gold badge
+    # Dark-theme color palette — dark backgrounds, light text for readability
+    # 2. **bold** → gold badge
     text = _re.sub(
         r'\*\*(.+?)\*\*',
         r'<mark style="background:#92400e;color:#fef3c7;font-weight:700;'
@@ -464,7 +464,7 @@ def _highlight_text(text: str, known_names: list = None) -> str:
         text,
     )
 
-    # 3. Known brand/attr names â†’ teal badge (skip if already inside a mark)
+    # 3. Known brand/attr names → teal badge (skip if already inside a mark)
     if known_names:
         for name in sorted(known_names, key=len, reverse=True):
             if not name:
@@ -478,7 +478,7 @@ def _highlight_text(text: str, known_names: list = None) -> str:
                 flags=_re.IGNORECASE,
             )
 
-    # 4. Percentages â†’ orange badge (plain segments only)
+    # 4. Percentages → orange badge (plain segments only)
     text = _apply_to_plain(
         text,
         r'(\b\d+\.?\d*%)',
@@ -486,7 +486,7 @@ def _highlight_text(text: str, known_names: list = None) -> str:
         r'border-radius:3px;padding:2px 5px;">\1</mark>',
     )
 
-    # 5. Standalone decimals â†’ orange badge (plain segments only)
+    # 5. Standalone decimals → orange badge (plain segments only)
     text = _apply_to_plain(
         text,
         r'([+-]?\b\d+\.\d+)\b',
@@ -494,15 +494,15 @@ def _highlight_text(text: str, known_names: list = None) -> str:
         r'border-radius:3px;padding:2px 5px;">\1</mark>',
     )
 
-    # 6. Ï‡Â²/p-value stat markers â†’ blue badge (plain segments only)
+    # 6. χ²/p-value stat markers → blue badge (plain segments only)
     text = _apply_to_plain(
         text,
-        r'(Ï‡Â²=[\d.]+|p=[\d.]+|p-value[\s=]+[\d.]+)',
+        r'(χ²=[\d.]+|p=[\d.]+|p-value[\s=]+[\d.]+)',
         r'<mark style="background:#1e40af;color:#dbeafe;font-weight:600;'
         r'border-radius:3px;padding:2px 5px;">\1</mark>',
     )
 
-    # 7. Strategic keywords â†’ green badge (plain segments only)
+    # 7. Strategic keywords → green badge (plain segments only)
     _TERMS = (
         r'\b(significant(?:ly)?|over-indexed|under-indexed|contested|exclusive(?:ly)?|'
         r'dominant(?:ly)?|differentiat\w+|outperform\w*|strongest|weakest|battleground|'
@@ -599,7 +599,7 @@ def _structured_ai_card(raw_text: str, label: str, accent: str, known_names: lis
 def _ai_card(content: str, label: str, accent: str):
     if not content or content == "Analysis pending...":
         return
-    # Convert newlines â†’ paragraph breaks so multi-sentence content renders correctly
+    # Convert newlines → paragraph breaks so multi-sentence content renders correctly
     paragraphs = [p.strip() for p in content.strip().split("\n") if p.strip()]
     body_html = "".join(
         f'<p style="margin:0 0 8px 0;">{_highlight_text(p)}</p>'
@@ -635,7 +635,7 @@ def _md_bold(text: str) -> str:
 
 
 def _render_executive_briefing(brief: dict, sel_brand: str, filter_label: str = "All India"):
-    """Premium C-suite Executive Command Briefing â€” bottom-line verdict + 3 role lenses
+    """Premium C-suite Executive Command Briefing — bottom-line verdict + 3 role lenses
     (CEO / CMO / Head of Product). brief: dict from generate_executive_briefing()."""
     if not brief or not brief.get("bottom_line"):
         return
@@ -650,7 +650,7 @@ def _render_executive_briefing(brief: dict, sel_brand: str, filter_label: str = 
     }
     qc = quad_colors.get(quad, "#38bdf8")
 
-    # â”€â”€ Hero strip: eyebrow + quadrant badge + bottom line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Hero strip: eyebrow + quadrant badge + bottom line ───────────────────
     st.markdown(
         f'<div style="background:radial-gradient(circle at top right,#1e293b,#0f172a);'
         f'border:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;'
@@ -658,31 +658,31 @@ def _render_executive_briefing(brief: dict, sel_brand: str, filter_label: str = 
         f'<div style="display:flex;justify-content:space-between;align-items:center;'
         f'flex-wrap:wrap;gap:10px;margin-bottom:14px;">'
         f'<div style="font-size:0.68rem;font-weight:800;letter-spacing:0.22em;'
-        f'text-transform:uppercase;color:#38bdf8;">â¬¢ Executive Command Briefing</div>'
+        f'text-transform:uppercase;color:#38bdf8;">⬢ Executive Command Briefing</div>'
         f'<div style="display:flex;gap:8px;align-items:center;">'
         f'<span style="background:{qc};color:#0f172a;font-size:0.66rem;font-weight:800;'
         f'padding:4px 14px;border-radius:30px;text-transform:uppercase;letter-spacing:0.05em;'
         f'box-shadow:0 0 18px {qc}55;">{_h_escape(quad)}</span>'
         f'<span style="color:rgba(255,255,255,0.45);font-size:0.66rem;font-weight:600;">'
-        f'Salience {_h_escape(tom_rank)} Â· Advocacy {_h_escape(nps_rank)}</span>'
+        f'Salience {_h_escape(tom_rank)} · Advocacy {_h_escape(nps_rank)}</span>'
         f'</div></div>'
         f'<div style="font-size:0.62rem;color:rgba(255,255,255,0.4);text-transform:uppercase;'
-        f'letter-spacing:0.14em;margin-bottom:7px;">{_h_escape(sel_brand)} Â· {_h_escape(filter_label)}</div>'
+        f'letter-spacing:0.14em;margin-bottom:7px;">{_h_escape(sel_brand)} · {_h_escape(filter_label)}</div>'
         f'<div style="font-size:1.32rem;font-weight:800;color:#f8fafc;line-height:1.4;'
         f'letter-spacing:-0.01em;">{_md_bold(brief["bottom_line"])}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
-    # â”€â”€ Three objective analysis dimensions (neutral â€” no role framing) â”€â”€â”€â”€â”€â”€
+    # ── Three objective analysis dimensions (neutral — no role framing) ──────
     # .get() with legacy-key fallback so a stale cache never renders empty cards.
     _m = brief.get("market") or brief.get("ceo") or ""
     _d = brief.get("demand") or brief.get("cmo") or ""
     _e = brief.get("experience") or brief.get("product") or ""
     lenses = [
-        ("Market Position",       "Salience Â· Rank Â· Geography", "â—†", "#10b981", _m),
-        ("Demand & Funnel",       "Awareness â†’ Preference",      "â—†", "#38bdf8", _d),
-        ("Experience & Advocacy", "Promoters Â· Detractors",      "â—†", "#a78bfa", _e),
+        ("Market Position",       "Salience · Rank · Geography", "◆", "#10b981", _m),
+        ("Demand & Funnel",       "Awareness → Preference",      "◆", "#38bdf8", _d),
+        ("Experience & Advocacy", "Promoters · Detractors",      "◆", "#a78bfa", _e),
     ]
     cols = st.columns(3)
     for col, (title, sub, icon, color, body) in zip(cols, lenses):
@@ -730,12 +730,12 @@ def _hero_banner(brand_name: str, brand_data: dict, base_n: int,
     eligible = [b for b in brands_list if b.get("nps") is not None]
     eligible.sort(key=lambda x: x["nps"], reverse=True)
     nps_rank = next((i + 1 for i, b in enumerate(eligible) if b["brand_name"] == brand_name), None)
-    nps_rank_str = f"#{nps_rank} of {len(eligible)}" if nps_rank else "â€”"
+    nps_rank_str = f"#{nps_rank} of {len(eligible)}" if nps_rank else "—"
 
     # TOM rank
     tom_sorted = sorted(brands_list, key=lambda x: x.get("tom_pct", 0), reverse=True)
     tom_rank = next((i + 1 for i, b in enumerate(tom_sorted) if b["brand_name"] == brand_name), None)
-    tom_rank_str = f"#{tom_rank} of {len(tom_sorted)}" if tom_rank else "â€”"
+    tom_rank_str = f"#{tom_rank} of {len(tom_sorted)}" if tom_rank else "—"
 
     # Positioning quadrant
     median_tom = sum(b.get("tom_pct", 0) for b in brands_list) / max(len(brands_list), 1)
@@ -750,23 +750,23 @@ def _hero_banner(brand_name: str, brand_data: dict, base_n: int,
         quadrant, q_color = "Growth Opportunity", "#d1d5db"
 
     # Executive Hero Refactor
-    hero_html = f"""<div class="exec-hero"><p class="exec-hero-eyebrow">Strategic Brand Intelligence &middot; {seg_label}</p><h1 class="exec-hero-name">{brand_name}</h1><div style="display: flex; align-items: center; gap: 18px; margin-bottom: 30px;"><span class="exec-badge">{quadrant}</span><span style="color: rgba(255,255,255,0.4); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.02em;">{base_n:,} tracked respondents &middot; Wave 1 (2026)</span></div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;"><div class="glass-card" style="border-top: 3px solid var(--neon-cyan); background: rgba(56, 189, 248, 0.03);"><div style="font-size: 2.8rem; font-weight: 900; color: #e5e7eb; line-height: 1; letter-spacing: -0.02em;">{strat}</div><div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 10px; display: flex; align-items: center; gap: 6px;">Health Index<span class="hs-tooltip-anchor">&#9432;<span class="hs-tooltip-box"><strong>Pulse Health Index Formula</strong><br><br>Decomposed as:<br>â€¢ 40% TOM Awareness<br>â€¢ 10% Spontaneous Recall<br>â€¢ 50% Normalized Advocacy (NPS)<br><br><em>Normalized to 100-pt scale.</em></span></span></div></div><div class="glass-card"><div style="font-size: 2.2rem; font-weight: 800; color: #e5e7eb; line-height: 1;">{tom_rank_str}</div><div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 10px;">Market Salience</div></div><div class="glass-card"><div style="font-size: 2.2rem; font-weight: 800; color: #e5e7eb; line-height: 1;">{nps_rank_str}</div><div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 10px;">Advocacy Rank</div></div></div></div>"""
+    hero_html = f"""<div class="exec-hero"><p class="exec-hero-eyebrow">Strategic Brand Intelligence &middot; {seg_label}</p><h1 class="exec-hero-name">{brand_name}</h1><div style="display: flex; align-items: center; gap: 18px; margin-bottom: 30px;"><span class="exec-badge">{quadrant}</span><span style="color: rgba(255,255,255,0.4); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.02em;">{base_n:,} tracked respondents &middot; Wave 1 (2026)</span></div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px;"><div class="glass-card" style="border-top: 3px solid var(--neon-cyan); background: rgba(56, 189, 248, 0.03);"><div style="font-size: 2.8rem; font-weight: 900; color: #e5e7eb; line-height: 1; letter-spacing: -0.02em;">{strat}</div><div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 10px; display: flex; align-items: center; gap: 6px;">Health Index<span class="hs-tooltip-anchor">&#9432;<span class="hs-tooltip-box"><strong>Pulse Health Index Formula</strong><br><br>Decomposed as:<br>• 40% TOM Awareness<br>• 10% Spontaneous Recall<br>• 50% Normalized Advocacy (NPS)<br><br><em>Normalized to 100-pt scale.</em></span></span></div></div><div class="glass-card"><div style="font-size: 2.2rem; font-weight: 800; color: #e5e7eb; line-height: 1;">{tom_rank_str}</div><div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 10px;">Market Salience</div></div><div class="glass-card"><div style="font-size: 2.2rem; font-weight: 800; color: #e5e7eb; line-height: 1;">{nps_rank_str}</div><div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-top: 10px;">Advocacy Rank</div></div></div></div>"""
     st.markdown(hero_html, unsafe_allow_html=True)
 
 
 
 
 
-# â”€â”€ Chart builders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Chart builders ────────────────────────────────────────────────────────────
 
 def _weighted_mean(items, val_key, wt_key=None, default=0.0):
     """Respondent-weighted mean of a per-brand metric.
 
-        weighted_mean = Î£(valueáµ¢ Â· wáµ¢) / Î£(wáµ¢)
+        weighted_mean = Σ(valueᵢ · wᵢ) / Σ(wᵢ)
 
     wt_key selects the weight (e.g. 'nps_base' so brands with more raters count
     more). When wt_key is None/absent or all weights are 0, this reduces to the
-    simple arithmetic mean â€” which is the correct result when every brand shares
+    simple arithmetic mean — which is the correct result when every brand shares
     the same base (e.g. awareness %, asked of all respondents). Used study-wide so
     market/category benchmarks are respondent-weighted, not brand-count averages.
     """
@@ -791,7 +791,7 @@ def _weighted_mean(items, val_key, wt_key=None, default=0.0):
         n += 1
     if den > 0:
         return num / den
-    # all weights zero â†’ fall back to simple mean
+    # all weights zero → fall back to simple mean
     vals = []
     for b in items:
         try:
@@ -805,22 +805,22 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
                                all_brands_ref: list = None):
     """PPT-style vertical stacked bar + descending total-awareness line + ALL reference.
     all_brands_ref: full unfiltered brand list used for ALL bar (defaults to brands_list).
-    Segments bottomâ†’top: TOM (dark) | Spont-incremental (medium) | Aided-only (light).
+    Segments bottom→top: TOM (dark) | Spont-incremental (medium) | Aided-only (light).
     Line connects brands only (NOT ALL). Dashed reference line at ALL aided level.
     Tier bands + black header. Sig arrows vs ALL average @ 95% CI.
     """
     import math
 
-    # Caller already sorted by the user's chosen rank-by key â€” preserve that order
+    # Caller already sorted by the user's chosen rank-by key — preserve that order
     top = brands_list[:top_n]
     n_brands = len(top)
     if n_brands == 0:
         return go.Figure()
 
-    # â”€â”€ ALL benchmark â€” ALWAYS computed from full reference list, never from filter â”€â”€
+    # ── ALL benchmark — ALWAYS computed from full reference list, never from filter ──
     # Respondent-weighted mean via _weighted_mean. Awareness %s are all computed
     # over the SAME respondent base (asked of everyone), so the correct weight is
-    # equal across brands â†’ this equals the simple mean. (NPS, with per-brand rater
+    # equal across brands → this equals the simple mean. (NPS, with per-brand rater
     # bases, IS base-weighted elsewhere where that changes the result.)
     _ref = all_brands_ref if (all_brands_ref is not None and len(all_brands_ref) > 0) else top
     _n_ref = len(_ref)
@@ -848,14 +848,14 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
     total_all = [_aware_pct(b)   for b in display]
     spont_cum = [b["spont_pct"] for b in display]
 
-    # Line connects brands only â€” ALL excluded (None causes gap, no upward jump)
+    # Line connects brands only — ALL excluded (None causes gap, no upward jump)
     line_y = [None] + [_aware_pct(b) for b in top]
 
-    # â”€â”€ Tier split by tertile (brands only, index offset +1 for ALL) â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Tier split by tertile (brands only, index offset +1 for ALL) ─────────
     t1 = max(1, n_brands // 3) + 1
     t2 = max(t1 + 1, 2 * n_brands // 3 + 1)
 
-    # â”€â”€ Significance vs ALL average (z-test on aided%) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Significance vs ALL average (z-test on aided%) ───────────────────────
     sig_arrows = [""]
     for b in top:
         if base_n > 0 and all_aided > 0:
@@ -863,22 +863,22 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
             p1  = _aware_pct(b) / 100
             se  = math.sqrt(p0 * (1 - p0) / base_n)
             z   = (p1 - p0) / se if se > 0 else 0
-            sig_arrows.append("â–²" if z > 1.96 else ("â–¼" if z < -1.96 else ""))
+            sig_arrows.append("▲" if z > 1.96 else ("▼" if z < -1.96 else ""))
         else:
             sig_arrows.append("")
 
-    # â”€â”€ Colours â€” match app PALETTE (green theme) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Colours — match app PALETTE (green theme) ────────────────────────────
     _c_tom   = PALETTE["tom"]    # "#1a5d4d" dark green (TOM = strongest recall)
     _c_spont = PALETTE["spont"]  # "#30a76a" mid green (spontaneous)
     _c_aided = PALETTE["aided"]  # "#86efac" light green (aided only)
     # ALL bar: 3 distinct greys so segments remain readable
-    _c_all_tom   = "#374151"   # dark grey   â†’ TOM segment
-    _c_all_spont = "#6b7280"   # mid grey    â†’ Spont segment
-    _c_all_aided = "#d1d5db"   # light grey  â†’ Aided segment
+    _c_all_tom   = "#374151"   # dark grey   → TOM segment
+    _c_all_spont = "#6b7280"   # mid grey    → Spont segment
+    _c_all_aided = "#d1d5db"   # light grey  → Aided segment
 
     fig = go.Figure()
 
-    # â”€â”€ Tier background bands (brand columns only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Tier background bands (brand columns only) ────────────────────────────
     tier_cfg = [
         (1,  t1 - 1, "rgba(220,252,231,0.45)"),
         (t1, t2 - 1, "rgba(254,249,195,0.45)"),
@@ -892,13 +892,13 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
             fillcolor=fill, opacity=1.0, layer="below", line_width=0,
         )
 
-    # â”€â”€ ALL column: subtle grey fill to distinguish from brand columns â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── ALL column: subtle grey fill to distinguish from brand columns ────────
     fig.add_vrect(
         x0="ALL", x1="ALL",
         fillcolor="rgba(229,231,235,0.6)", opacity=1.0, layer="below", line_width=0,
     )
 
-    # â”€â”€ Stacked bars â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Stacked bars ─────────────────────────────────────────────────────────
     fig.add_trace(go.Bar(
         name="Top of Mind", x=names, y=tom_seg,
         marker_color=[_c_all_tom if n == "ALL" else _c_tom for n in names],
@@ -922,7 +922,7 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
         hovertemplate="<b>%{x}</b><br>Aided only: %{y:.1f}%<extra></extra>",
     ))
 
-    # â”€â”€ Total awareness line â€” brands only (ALL is None = no jump) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Total awareness line — brands only (ALL is None = no jump) ───────────
     fig.add_trace(go.Scatter(
         name="Total Awareness", x=names, y=line_y,
         mode="lines+markers",
@@ -932,7 +932,7 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
         hovertemplate="<b>%{x}</b><br>Total awareness: %{y:.1f}%<extra></extra>",
     ))
 
-    # â”€â”€ Dashed reference line at ALL aided level â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Dashed reference line at ALL aided level ──────────────────────────────
     fig.add_hline(
         y=all_aided,
         line=dict(dash="dot", color="#6b7280", width=1.5),
@@ -941,7 +941,7 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
         annotation_font=dict(size=9, color="#6b7280"),
     )
 
-    # â”€â”€ Total % + sig arrows above each bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Total % + sig arrows above each bar ──────────────────────────────────
     for name, tot, arr in zip(names, total_all, sig_arrows):
         if name == "ALL":
             # ALL: just show the number, no arrow
@@ -951,23 +951,23 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
                 font=dict(size=11, color="#4b5563"),
             )
         else:
-            c   = "#16a34a" if arr == "â–²" else ("#dc2626" if arr == "â–¼" else "#374151")
+            c   = "#16a34a" if arr == "▲" else ("#dc2626" if arr == "▼" else "#374151")
             txt = f"<b>{int(round(tot))}</b>" + (f" {arr}" if arr else "")
             fig.add_annotation(
                 x=name, y=tot + 4, text=txt, showarrow=False, yref="y",
                 font=dict(size=12, color=c), xanchor="center",
             )
 
-    # â”€â”€ Teal tier header band above plot (no black bg) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Teal tier header band above plot (no black bg) ────────────────────────
     fig.add_shape(
         type="rect", xref="paper", yref="paper",
         x0=0, y0=1.10, x1=1.0, y1=1.22,
         fillcolor="rgba(26,93,77,0.90)", line_width=0,
     )
     for tx, tlbl, tc in [
-        (0.22, "â† High Recall Brands",  "#86efac"),
+        (0.22, "← High Recall Brands",  "#86efac"),
         (0.55, "Mid Recall Brands",      "#fde68a"),
-        (0.83, "Low Recall Brands â†’",    "#fca5a5"),
+        (0.83, "Low Recall Brands →",    "#fca5a5"),
     ]:
         fig.add_annotation(
             xref="paper", yref="paper", x=tx, y=1.16,
@@ -975,10 +975,10 @@ def _awareness_landscape_chart(brands_list, base_n: int = 0, top_n: int = 15,
             font=dict(size=10, color=tc), xanchor="center",
         )
 
-    # â”€â”€ "Total Awareness" badge + "Data in %" (teal bg) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── "Total Awareness" badge + "Data in %" (teal bg) ──────────────────────
     fig.add_annotation(
         xref="paper", yref="paper", x=0.0, y=1.085,
-        text="<b>Total Awareness  Â·  Demographic-filtered</b>", showarrow=False,
+        text="<b>Total Awareness  ·  Demographic-filtered</b>", showarrow=False,
         font=dict(size=10, color="#1a5d4d"),
         bgcolor="rgba(220,252,231,0.85)", borderpad=4, xanchor="left",
         bordercolor="#86efac", borderwidth=1,
@@ -1082,11 +1082,11 @@ def _render_funnel_with_arrows(brand_data: dict, visible_stages: list = None):
                 f'<div style="position:relative; z-index:1; background:white; border:2px solid {c_col};'
                 f'border-radius:30px; padding:4px 16px; display:inline-flex; align-items:center; gap:8px;'
                 f'box-shadow:0 2px 8px rgba(0,0,0,0.10);">'
-                f'<span style="font-size:1rem; color:{c_col}; font-weight:700;">â†“</span>'
+                f'<span style="font-size:1rem; color:{c_col}; font-weight:700;">↓</span>'
                 f'<div style="text-align:left;">'
                 f'<div style="font-size:0.95rem; font-weight:900; color:{c_col}; line-height:1;">{conv_rate:.1f}%</div>'
                 f'<div style="font-size:0.45rem; color:#6b7280; text-transform:uppercase; font-weight:600;'
-                f'letter-spacing:0.06em;">{p_short} â†’ {c_short}</div></div></div></div>'
+                f'letter-spacing:0.06em;">{p_short} → {c_short}</div></div></div></div>'
             )
 
         # Dynamically scale font size proportional to rel_w percentage so text auto-adjusts seamlessly
@@ -1114,7 +1114,7 @@ def _render_funnel_with_arrows(brand_data: dict, visible_stages: list = None):
 
 
 def _render_conversion_funnel(brand_data: dict, visible_stages: list = None):
-    """HTML PPT-Aligned Brand Funnel â€” 4-stage with auto-fit widths and stage selection."""
+    """HTML PPT-Aligned Brand Funnel — 4-stage with auto-fit widths and stage selection."""
     if visible_stages is None:
         visible_stages = ["Total Awareness", "Ever Tried (Trial)", "Current Usage", "Most Often Used Brand (MOUB)"]
 
@@ -1175,11 +1175,11 @@ def _render_conversion_funnel(brand_data: dict, visible_stages: list = None):
                 f'<div style="position:relative; z-index:1; background:white; border:2px solid {c_col};'
                 f'border-radius:30px; padding:4px 16px; display:inline-flex; align-items:center; gap:8px;'
                 f'box-shadow:0 2px 8px rgba(0,0,0,0.10);">'
-                f'<span style="font-size:1rem; color:{c_col}; font-weight:700;">â†“</span>'
+                f'<span style="font-size:1rem; color:{c_col}; font-weight:700;">↓</span>'
                 f'<div style="text-align:left;">'
                 f'<div style="font-size:0.95rem; font-weight:900; color:{c_col}; line-height:1;">{conv_rate:.1f}%</div>'
                 f'<div style="font-size:0.45rem; color:#6b7280; text-transform:uppercase; font-weight:600;'
-                f'letter-spacing:0.06em;">{p_short} â†’ {c_short}</div></div></div></div>'
+                f'letter-spacing:0.06em;">{p_short} → {c_short}</div></div></div></div>'
             )
 
         # Dynamically scale font size proportional to rel_w percentage so text auto-adjusts seamlessly
@@ -1210,7 +1210,7 @@ def _render_conversion_funnel(brand_data: dict, visible_stages: list = None):
 
 def _funnel_png_bytes(brand_data) -> bytes:
     """
-    Matplotlib awareness funnel PNG â€” matches HTML funnel visual.
+    Matplotlib awareness funnel PNG — matches HTML funnel visual.
     Uses data coordinates with explicit non-overlapping y positions.
     """
     import io
@@ -1233,7 +1233,7 @@ def _funnel_png_bytes(brand_data) -> bytes:
     conv_to_cons  = round(consid_pct / spont_pct  * 100, 1) if spont_pct  > 0 else 0
     conv_to_tom   = round(tom_pct    / consid_pct * 100, 1) if consid_pct > 0 else 0
 
-    # Bar widths (0â€“1 scale, total awareness always full width)
+    # Bar widths (0–1 scale, total awareness always full width)
     spont_w = max(0.30, min(0.95, spont_pct  / total_awa_pct)) if total_awa_pct > 0 else 0.55
     cons_w  = max(0.25, min(0.92, consid_pct / total_awa_pct)) if total_awa_pct > 0 else 0.45
     tom_w   = max(0.20, min(0.85, tom_pct    / total_awa_pct)) if total_awa_pct > 0 else 0.35
@@ -1248,11 +1248,11 @@ def _funnel_png_bytes(brand_data) -> bytes:
     def conv_color(pct):
         return "#22c55e" if pct >= 50 else ("#f59e0b" if pct >= 25 else "#ef4444")
 
-    # â”€â”€ Layout in data coords â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Layout in data coords ──────────────────────────────────────────────────
     # matplotlib y = 0 at BOTTOM, increases upward.
     # We work in a 100-unit tall space so values are easy to reason about.
     # Bars are DRAWN with (x0, y_bottom) and height BH. 4 stages stacked bottom-up:
-    # TOM (bottom) â†’ Consideration â†’ Spontaneous â†’ Total Awareness (top).
+    # TOM (bottom) → Consideration → Spontaneous → Total Awareness (top).
     BH   = 12   # bar height
     GAP  = 9    # gap between bar bottom and next bar top  (badge sits in centre)
     CX   = 50   # centre x
@@ -1303,7 +1303,7 @@ def _funnel_png_bytes(brand_data) -> bytes:
             facecolor="white", edgecolor=bc, linewidth=1.5, zorder=5,
         )
         ax.add_patch(rect)
-        ax.text(cx - bw / 2 + 3, cy, f"â†“  {conv:.1f}%",
+        ax.text(cx - bw / 2 + 3, cy, f"↓  {conv:.1f}%",
                 ha="left", va="center", fontsize=9.5, fontweight="black",
                 color=bc, zorder=6)
         ax.text(cx + 3, cy, f"  {label}",
@@ -1311,7 +1311,7 @@ def _funnel_png_bytes(brand_data) -> bytes:
 
     # Draw title
     if brand_name:
-        ax.text(CX, Y_TITLE, f"{brand_name}  â€”  Awareness Funnel",
+        ax.text(CX, Y_TITLE, f"{brand_name}  —  Awareness Funnel",
                 ha="center", va="bottom", fontsize=11, fontweight="bold",
                 color="#111827", zorder=4)
 
@@ -1334,8 +1334,8 @@ def _funnel_png_bytes(brand_data) -> bytes:
 
 def _conversion_funnel_png_bytes(brand_data) -> bytes:
     """
-    Matplotlib conversion funnel PNG â€” matches _render_conversion_funnel's HTML visual
-    (4-stage: Total Awareness â†’ Ever Tried (Trial) â†’ Current Usage â†’ Most Often Used Brand (MOUB)).
+    Matplotlib conversion funnel PNG — matches _render_conversion_funnel's HTML visual
+    (4-stage: Total Awareness → Ever Tried (Trial) → Current Usage → Most Often Used Brand (MOUB)).
     Separate from _funnel_png_bytes (which renders the awareness-depth funnel).
     """
     import io
@@ -1395,11 +1395,11 @@ def _conversion_funnel_png_bytes(brand_data) -> bytes:
         ax.add_patch(mpatches.FancyBboxPatch((CX - bw / 2, cy - bh / 2), bw, bh,
                                               boxstyle="round,pad=0.5", facecolor="white",
                                               edgecolor=bc, linewidth=1.5, zorder=5))
-        ax.text(CX - bw / 2 + 3, cy, f"â†“  {conv:.1f}%", ha="left", va="center", fontsize=9.5,
+        ax.text(CX - bw / 2 + 3, cy, f"↓  {conv:.1f}%", ha="left", va="center", fontsize=9.5,
                 fontweight="black", color=bc, zorder=6)
 
     if brand_name:
-        ax.text(CX, y_title, f"{brand_name}  â€”  Conversion Funnel",
+        ax.text(CX, y_title, f"{brand_name}  —  Conversion Funnel",
                 ha="center", va="bottom", fontsize=11, fontweight="bold", color="#111827", zorder=4)
 
     for i, (label, pct, cnt, color) in enumerate(stages):
@@ -1419,7 +1419,7 @@ def _conversion_funnel_png_bytes(brand_data) -> bytes:
 
 def _awareness_funnel_chart(brand_data):
     """
-    Plotly awareness funnel â€” kept for comparison/fallback use.
+    Plotly awareness funnel — kept for comparison/fallback use.
     Primary download now uses _funnel_png_bytes() for visual fidelity.
     """
     total_awa_pct = float(brand_data.get("total_awareness_pct", brand_data.get("aided_pct", 0)) or 0)
@@ -1443,8 +1443,8 @@ def _awareness_funnel_chart(brand_data):
 
     inside_text = [
         f"<b>{total_awa_pct:.1f}%</b><br><span style='font-size:11px'>n={total_awa_n:,}</span>",
-        f"<b>{spont_pct:.1f}%</b><br><span style='font-size:11px'>â†“ {conv_to_spont:.1f}% from Total Aware Â· n={spont_n:,}</span>",
-        f"<b>{tom_pct:.1f}%</b><br><span style='font-size:11px'>â†“ {conv_to_tom:.1f}% from Spont Â· n={tom_n:,}</span>",
+        f"<b>{spont_pct:.1f}%</b><br><span style='font-size:11px'>↓ {conv_to_spont:.1f}% from Total Aware · n={spont_n:,}</span>",
+        f"<b>{tom_pct:.1f}%</b><br><span style='font-size:11px'>↓ {conv_to_tom:.1f}% from Spont · n={tom_n:,}</span>",
     ]
 
     fig = go.Figure(go.Funnel(
@@ -1475,7 +1475,7 @@ def _awareness_funnel_chart(brand_data):
             x=0, y=stages[i],
             xref="paper", yref="y",
             yshift=-48,
-            text=f"<b>â†“ {conv:.1f}%</b> {lbl}",
+            text=f"<b>↓ {conv:.1f}%</b> {lbl}",
             showarrow=False,
             font=dict(size=11, color=col, family="Inter, Arial, sans-serif"),
             xanchor="left",
@@ -1559,8 +1559,8 @@ def _brand_radar_chart(brand_data: dict, brands_list: list, compare_data: dict =
         return round((v + 100) / 2, 1) if v is not None else 50.0
 
     # Rater Depth = each brand's NPS sample size relative to the LARGEST tracked
-    # brand's base (self-normalising, 0-100). Dynamic â€” no hardcoded study size â€”
-    # and consistent across focus / comparison / peer-average (was Ã—3 vs Ã—5: a bug).
+    # brand's base (self-normalising, 0-100). Dynamic — no hardcoded study size —
+    # and consistent across focus / comparison / peer-average (was ×3 vs ×5: a bug).
     _max_base = max((b.get("nps_base", 0) or 0) for b in (brands_list or [])) or 1
     def _rater_depth(d):
         return min(round((d.get("nps_base", 0) or 0) / _max_base * 100, 1), 100)
@@ -1585,8 +1585,8 @@ def _brand_radar_chart(brand_data: dict, brands_list: list, compare_data: dict =
     else:
         top5 = sorted(brands_list, key=lambda x: x.get("aided_pct", 0), reverse=True)[:5]
         cmp_name = "Top-5 Avg"
-        # Awareness components share a base â†’ equal-weight mean is correct. NPS has
-        # per-brand rater bases â†’ respondent-weight it (Î£ norm_npsÂ·base / Î£ base).
+        # Awareness components share a base → equal-weight mean is correct. NPS has
+        # per-brand rater bases → respondent-weight it (Σ norm_nps·base / Σ base).
         _t5_nps_w = sum(norm_nps(b.get("nps")) * (b.get("nps_base", 0) or 0) for b in top5)
         _t5_nps_d = sum((b.get("nps_base", 0) or 0) for b in top5)
         _t5_nps = round(_t5_nps_w / _t5_nps_d, 1) if _t5_nps_d > 0 else round(
@@ -1608,7 +1608,7 @@ def _brand_radar_chart(brand_data: dict, brands_list: list, compare_data: dict =
 
     fig = go.Figure()
 
-    # â”€â”€ Zone reference rings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Zone reference rings ──────────────────────────────────────────────────
     # Ring at 66 = "Leader territory" (light green fill), 33 = "Average" (light amber)
     for r_val, r_color, r_label in [
         (66, "rgba(220,252,231,0.35)", "Leader"),
@@ -1625,7 +1625,7 @@ def _brand_radar_chart(brand_data: dict, brands_list: list, compare_data: dict =
             hoverinfo="skip",
         ))
 
-    # â”€â”€ Comparison trace â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Comparison trace ─────────────────────────────────────────────────────
     fig.add_trace(go.Scatterpolar(
         r=cmp_vals + [cmp_vals[0]],
         theta=axes + [axes[0]],
@@ -1636,7 +1636,7 @@ def _brand_radar_chart(brand_data: dict, brands_list: list, compare_data: dict =
         hovertemplate="%{theta}: %{r:.1f}<extra></extra>",
     ))
 
-    # â”€â”€ Primary brand trace â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Primary brand trace ───────────────────────────────────────────────────
     fig.add_trace(go.Scatterpolar(
         r=brand_vals + [brand_vals[0]],
         theta=axes + [axes[0]],
@@ -1648,18 +1648,18 @@ def _brand_radar_chart(brand_data: dict, brands_list: list, compare_data: dict =
         hovertemplate="%{theta}: %{r:.1f}<extra></extra>",
     ))
 
-    # â”€â”€ Zone ring legend entries (added as dummy scatter traces, hidden from chart) â”€
+    # ── Zone ring legend entries (added as dummy scatter traces, hidden from chart) ─
     # These appear in the legend to explain the reference rings
     fig.add_trace(go.Scatterpolar(
         r=[None], theta=[axes[0]],
-        name="â”€ Leader zone (66+)",
+        name="─ Leader zone (66+)",
         line=dict(color="#22c55e", width=2, dash="dot"),
         marker=dict(size=0),
         showlegend=True, mode="lines",
     ))
     fig.add_trace(go.Scatterpolar(
         r=[None], theta=[axes[0]],
-        name="â”€ Average zone (33+)",
+        name="─ Average zone (33+)",
         line=dict(color="#f59e0b", width=2, dash="dot"),
         marker=dict(size=0),
         showlegend=True, mode="lines",
@@ -1694,7 +1694,7 @@ def _brand_positioning_chart(brands_list: list, sel_brand: str):
     """
     Bubble chart: TOM% (x) vs NPS (y), bubble size = aided%, colour = NPS intensity.
     Coloured quadrant backgrounds + brand count badges per quadrant.
-    Quadrant split: median TOM (x) Ã— NPS industry avg (y).
+    Quadrant split: median TOM (x) × NPS industry avg (y).
     """
     eligible = [b for b in brands_list
                 if b.get("nps") is not None and b.get("tom_pct", 0) > 0]
@@ -1727,7 +1727,7 @@ def _brand_positioning_chart(brands_list: list, sel_brand: str):
 
     fig = go.Figure()
 
-    # â”€â”€ Coloured quadrant backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Coloured quadrant backgrounds ─────────────────────────────────────────
     fig.add_shape(type="rect", x0=median_tom, x1=x_max,
                   y0=NPS_INDUSTRY_AVG, y1=y_max,
                   fillcolor="rgba(220,252,231,0.45)", line_width=0, layer="below")
@@ -1741,7 +1741,7 @@ def _brand_positioning_chart(brands_list: list, sel_brand: str):
                   y0=y_min, y1=NPS_INDUSTRY_AVG,
                   fillcolor="rgba(243,244,246,0.45)", line_width=0, layer="below")
 
-    # â”€â”€ Non-selected brands: colour by NPS value (greenâ†’amberâ†’red) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Non-selected brands: colour by NPS value (green→amber→red) ────────────
     other_idx = [i for i, n in enumerate(names) if n != sel_brand]
     sel_idx   = [i for i, n in enumerate(names) if n == sel_brand]
 
@@ -1779,7 +1779,7 @@ def _brand_positioning_chart(brands_list: list, sel_brand: str):
             x=[x_vals[i]], y=[y_vals[i]],
             mode="markers+text",
             name=sel_brand,
-            text=[f"â˜… {sel_brand}"],
+            text=[f"★ {sel_brand}"],
             textposition="top center",
             textfont=dict(size=11, color="#1a5d4d", family="Arial Black"),
             marker=dict(
@@ -1795,7 +1795,7 @@ def _brand_positioning_chart(brands_list: list, sel_brand: str):
             ),
         ))
 
-    # â”€â”€ Quadrant dividers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Quadrant dividers ─────────────────────────────────────────────────────
     fig.add_vline(x=median_tom, line_dash="dot", line_color="#9ca3af", line_width=1.5,
                   annotation_text=f"Median TOM {median_tom:.1f}%",
                   annotation_position="bottom right", annotation_font_size=9)
@@ -1803,7 +1803,7 @@ def _brand_positioning_chart(brands_list: list, sel_brand: str):
                   annotation_text=f"Industry NPS avg +{NPS_INDUSTRY_AVG}",
                   annotation_position="top right", annotation_font_size=9)
 
-    # â”€â”€ Quadrant labels with brand counts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Quadrant labels with brand counts ─────────────────────────────────────
     x_r = x_max * 0.94   # right quadrants
     x_l = x_min + (median_tom - x_min) * 0.15  # left quadrants
     y_t = y_max - 2      # top row
@@ -1849,7 +1849,7 @@ def _brand_positioning_chart(brands_list: list, sel_brand: str):
 def _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight: str = None):
     """
     Horizontal NPS league table.
-    Zone backgrounds: red (NPS<0) / amber (0â€“industry avg) / green (above avg).
+    Zone backgrounds: red (NPS<0) / amber (0–industry avg) / green (above avg).
     Black header strip with zone tier labels. Rank # in y-axis labels.
     """
     eligible = [b for b in brands_list
@@ -1880,13 +1880,13 @@ def _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight: str = N
     colors = []
     for b in top_rev:
         if highlight and b["brand_name"] == highlight:
-            colors.append("#1a5d4d")       # selected brand â€” dark teal
+            colors.append("#1a5d4d")       # selected brand — dark teal
         elif b["nps"] >= NPS_INDUSTRY_AVG:
-            colors.append("#16a34a")       # champion â€” rich green
+            colors.append("#16a34a")       # champion — rich green
         elif b["nps"] >= 0:
-            colors.append("#f59e0b")       # developing â€” amber
+            colors.append("#f59e0b")       # developing — amber
         else:
-            colors.append("#ef4444")       # detractor zone â€” red
+            colors.append("#ef4444")       # detractor zone — red
 
     border_colors = ["#0a2e22" if (highlight and n == highlight) else "rgba(0,0,0,0)" for n in names]
     border_widths = [2        if (highlight and n == highlight) else 0               for n in names]
@@ -1895,7 +1895,7 @@ def _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight: str = N
 
     fig = go.Figure()
 
-    # â”€â”€ NPS zone background bands â€” ultra-subtle so bars stay readable â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── NPS zone background bands — ultra-subtle so bars stay readable ─────────
     fig.add_vrect(x0=x_min, x1=0,
                   fillcolor="rgba(239,68,68,0.07)", opacity=1, layer="below", line_width=0)
     fig.add_vrect(x0=0, x1=NPS_INDUSTRY_AVG,
@@ -1903,10 +1903,10 @@ def _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight: str = N
     fig.add_vrect(x0=NPS_INDUSTRY_AVG, x1=x_max,
                   fillcolor="rgba(34,197,94,0.07)", opacity=1, layer="below", line_width=0)
 
-    # â”€â”€ Zero line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Zero line ────────────────────────────────────────────────────────────
     fig.add_vline(x=0, line_color="#d1d5db", line_width=1.2)
 
-    # â”€â”€ Bars â€” white outline separates bars from subtle backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Bars — white outline separates bars from subtle backgrounds ───────────
     bar_borders = border_colors[:]
     bar_border_w = border_widths[:]
     for i, (bc, bw) in enumerate(zip(border_colors, border_widths)):
@@ -1931,7 +1931,7 @@ def _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight: str = N
         ),
     ))
 
-    # â”€â”€ Industry avg reference line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Industry avg reference line ───────────────────────────────────────────
     fig.add_vline(x=NPS_INDUSTRY_AVG, line_dash="dot", line_color="#6b7280", line_width=1.8)
     fig.add_annotation(
         xref="x", yref="paper", x=NPS_INDUSTRY_AVG, y=-0.06,
@@ -1940,14 +1940,14 @@ def _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight: str = N
         bgcolor="rgba(255,255,255,0.85)", borderpad=2,
     )
 
-    # â”€â”€ Light teal header with NPS zone labels (no black) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Light teal header with NPS zone labels (no black) ─────────────────────
     fig.add_shape(type="rect", xref="paper", yref="paper",
                   x0=0, y0=1.06, x1=1.0, y1=1.22,
                   fillcolor="rgba(26,93,77,0.10)", line=dict(color="#d1fae5", width=1))
     for tx, tlbl, tc in [
-        (0.12, "â† Detractor",   "#dc2626"),
+        (0.12, "← Detractor",   "#dc2626"),
         (0.40, "Developing",    "#d97706"),
-        (0.72, "Champion â†’",    "#16a34a"),
+        (0.72, "Champion →",    "#16a34a"),
     ]:
         fig.add_annotation(
             xref="paper", yref="paper", x=tx, y=1.14,
@@ -1955,10 +1955,10 @@ def _nps_rankings_chart(brands_list, min_raters=30, top_n=15, highlight: str = N
             font=dict(size=9, color=tc), xanchor="center",
         )
 
-    # â”€â”€ Subtitle caption â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Subtitle caption ──────────────────────────────────────────────────────
     fig.add_annotation(
         xref="paper", yref="paper", x=1.0, y=1.045,
-        text="<i>NPS pts  Â·  rank among all eligible brands</i>", showarrow=False,
+        text="<i>NPS pts  ·  rank among all eligible brands</i>", showarrow=False,
         font=dict(size=9, color="#9ca3af"), xanchor="right",
     )
 
@@ -2032,10 +2032,10 @@ def _zone_comparison_chart(zone_data: dict, brand_name: str):
 
     # Chart title annotations (no black background)
     fig.add_annotation(xref="paper", yref="paper", x=0.0, y=1.16,
-                       text=f"<b>{brand_name}  Â·  Awareness by Zone</b>",
+                       text=f"<b>{brand_name}  ·  Awareness by Zone</b>",
                        showarrow=False, font=dict(size=11, color="#1a5d4d"), xanchor="left")
     fig.add_annotation(xref="paper", yref="paper", x=1.0, y=1.085,
-                       text="<i>Data in %  Â·  dashed = zone avg</i>",
+                       text="<i>Data in %  ·  dashed = zone avg</i>",
                        showarrow=False, font=dict(size=9, color="#6366f1"), xanchor="right")
 
     # Zone-coloured x-tick callout annotations below each group
@@ -2103,9 +2103,9 @@ def _zone_nps_chart(zone_data: dict, brand_name: str):
         bgcolor="rgba(255,255,255,0.85)", borderpad=2,
     )
 
-    # Chart title â€” no black background
+    # Chart title — no black background
     fig.add_annotation(xref="paper", yref="paper", x=0.0, y=1.16,
-                       text=f"<b>{brand_name}  Â·  NPS by Zone</b>",
+                       text=f"<b>{brand_name}  ·  NPS by Zone</b>",
                        showarrow=False, font=dict(size=11, color="#1a5d4d"), xanchor="left")
 
     fig.update_layout(
@@ -2124,7 +2124,7 @@ def _zone_nps_chart(zone_data: dict, brand_name: str):
 
 def _india_zone_map(zone_data: dict, brand_name: str):
     """
-    India zone awareness map â€” bubble size = respondent base,
+    India zone awareness map — bubble size = respondent base,
     colour intensity = TOM%. Shows WHERE awareness is concentrated.
     Geographic footprint is an awareness story, not NPS.
     """
@@ -2146,7 +2146,7 @@ def _india_zone_map(zone_data: dict, brand_name: str):
         base  = d.get("zone_base", 0)
         lats.append(lat); lons.append(lon)
         toms.append(tom); aides.append(aided); sponts.append(spont); bases.append(base)
-        # Label: zone name only â€” bubble color/size already encodes the data
+        # Label: zone name only — bubble color/size already encodes the data
         bubble_labels.append(zone)
         hovers.append(
             f"<b>{zone} India</b><br>"
@@ -2191,7 +2191,7 @@ def _india_zone_map(zone_data: dict, brand_name: str):
         ),
     ))
 
-    # No second text trace â€” zone name label above bubble is sufficient
+    # No second text trace — zone name label above bubble is sufficient
     # TOM% is encoded in bubble colour (see colourbar) and full detail in hover
 
     fig.update_layout(
@@ -2199,7 +2199,7 @@ def _india_zone_map(zone_data: dict, brand_name: str):
         margin=dict(t=8, b=8, l=0, r=70),
         paper_bgcolor="rgba(0,0,0,0)",
         title=dict(
-            text=f"{brand_name} â€” Awareness by Zone  (bubble size = respondent base)",
+            text=f"{brand_name} — Awareness by Zone  (bubble size = respondent base)",
             font=dict(size=11, color="#6b7280"), x=0.01, xanchor="left",
         ),
         geo=dict(
@@ -2221,14 +2221,14 @@ def _india_zone_map(zone_data: dict, brand_name: str):
 
 def _city_nps_chart(city_nps: list, brand_name: str, top_n: int = 10):
     """
-    Horizontal NPS bar by city â€” zone-coloured bars, NPS zone backgrounds,
-    black header strip. Sorted NPS bestâ†’worst.
+    Horizontal NPS bar by city — zone-coloured bars, NPS zone backgrounds,
+    black header strip. Sorted NPS best→worst.
     """
     if not city_nps:
         return None
-    # Sort globally first, then slice â€” ensures correct top_n selection
+    # Sort globally first, then slice — ensures correct top_n selection
     top = sorted(city_nps, key=lambda c: c["nps"], reverse=True)[:top_n]
-    top_rev = list(reversed(top))  # chart renders bottomâ†’top
+    top_rev = list(reversed(top))  # chart renders bottom→top
 
     labels = [f"{c['city_name']} ({c.get('zone_name', '?')})" for c in top_rev]
     scores = [c["nps"]     for c in top_rev]
@@ -2253,11 +2253,11 @@ def _city_nps_chart(city_nps: list, brand_name: str, top_n: int = 10):
 
     fig = go.Figure()
 
-    # NPS zone backgrounds removed â€” zone-colored bars already carry semantic info.
+    # NPS zone backgrounds removed — zone-colored bars already carry semantic info.
     # Using only reference lines (zero and industry avg) to avoid color conflicts.
     fig.add_vline(x=0, line_color="#d1d5db", line_width=1.2)
 
-    # â”€â”€ Bars â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Bars ──────────────────────────────────────────────────────────────────
     fig.add_trace(go.Bar(
         y=labels, x=scores, orientation="h",
         marker=dict(color=colors, opacity=0.88,
@@ -2273,14 +2273,14 @@ def _city_nps_chart(city_nps: list, brand_name: str, top_n: int = 10):
         ),
     ))
 
-    # â”€â”€ Reference lines â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Reference lines ───────────────────────────────────────────────────────
     fig.add_vline(x=NPS_INDUSTRY_AVG, line_dash="dot", line_color="#6b7280", line_width=1.8,
                   annotation_text=f"Ind. avg +{NPS_INDUSTRY_AVG}",
                   annotation_position="top right", annotation_font_size=10)
 
-    # â”€â”€ Chart title annotations (no black background) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Chart title annotations (no black background) ─────────────────────────
     fig.add_annotation(xref="paper", yref="paper", x=0.0, y=1.12,
-                       text=f"<b>{brand_name}  Â·  City NPS</b>  <i>(min 15 raters per city)</i>",
+                       text=f"<b>{brand_name}  ·  City NPS</b>  <i>(min 15 raters per city)</i>",
                        showarrow=False, font=dict(size=11, color="#1a5d4d"), xanchor="left")
     fig.add_annotation(xref="paper", yref="paper", x=1.0, y=1.12,
                        text="<i>Bar colour = Zone</i>",
@@ -2312,12 +2312,12 @@ def _city_nps_chart(city_nps: list, brand_name: str, top_n: int = 10):
 
 def _side_by_side_funnels(comparison_data: dict, primary_brand: str, funnel_type: str = "awareness"):
     """
-    Side-by-side Plotly Funnel subplots â€” one funnel per (brand Ã— segment) combination.
+    Side-by-side Plotly Funnel subplots — one funnel per (brand × segment) combination.
     funnel_type: 'awareness' or 'conversion'
 
     Layout:
-      No segment  â†’ 1 row, N cols (one funnel per brand)
-      With segs   â†’ rows = segments, cols = brands (brand Ã— segment grid)
+      No segment  → 1 row, N cols (one funnel per brand)
+      With segs   → rows = segments, cols = brands (brand × segment grid)
     """
     from plotly.subplots import make_subplots
 
@@ -2378,9 +2378,9 @@ def _side_by_side_funnels(comparison_data: dict, primary_brand: str, funnel_type
                 stage_vals   = [aided, ever_used, current, preferred]
                 stage_labels = [
                     f"{aided:.1f}%",
-                    f"{ever_used:.1f}%  â†“{conv_ever:.0f}%",
-                    f"{current:.1f}%  â†“{conv_curr:.0f}%",
-                    f"{preferred:.1f}%  â†“{conv_pref:.0f}%",
+                    f"{ever_used:.1f}%  ↓{conv_ever:.0f}%",
+                    f"{current:.1f}%  ↓{conv_curr:.0f}%",
+                    f"{preferred:.1f}%  ↓{conv_pref:.0f}%",
                 ]
             else:
                 spont  = d.get("spont_pct", 0) or 0
@@ -2391,13 +2391,13 @@ def _side_by_side_funnels(comparison_data: dict, primary_brand: str, funnel_type
                 _conv_cons_raw = round(consid / spont * 100, 1) if spont  > 0 else 0
                 conv_tom   = round(tom    / consid * 100, 1) if consid > 0 else 0
 
-                _consid_lbl = f"{consid:.1f}%  (indep.)" if _conv_cons_raw > 100 else f"{consid:.1f}%  â†“{_conv_cons_raw:.0f}%"
+                _consid_lbl = f"{consid:.1f}%  (indep.)" if _conv_cons_raw > 100 else f"{consid:.1f}%  ↓{_conv_cons_raw:.0f}%"
                 stage_vals   = [aided, spont, consid, tom]
                 stage_labels = [
                     f"{aided:.1f}%",
-                    f"{spont:.1f}%  â†“{conv_spont:.0f}%",
+                    f"{spont:.1f}%  ↓{conv_spont:.0f}%",
                     _consid_lbl,
-                    f"{tom:.1f}%  â†“{conv_tom:.0f}%",
+                    f"{tom:.1f}%  ↓{conv_tom:.0f}%",
                 ]
 
             marker_colors = [
@@ -2418,7 +2418,7 @@ def _side_by_side_funnels(comparison_data: dict, primary_brand: str, funnel_type
                     marker=dict(color=marker_colors),
                     connector=dict(line=dict(color="rgba(0,0,0,0)")),
                     hovertemplate=(
-                        f"<b>{brand}</b> â€” {seg}<br>"
+                        f"<b>{brand}</b> — {seg}<br>"
                         "%{y}: %{x:.1f}%<br>"
                         f"Base: {base:,}<extra></extra>"
                     ),
@@ -2443,7 +2443,7 @@ def _side_by_side_funnels(comparison_data: dict, primary_brand: str, funnel_type
     # Ensure subplot titles are crisp dark slate
     fig.for_each_annotation(lambda a: a.update(font=dict(color="#0f172a", size=11, family=CHART_THEME["font_family"])))
 
-    # Single shared Y-axis label via annotation â€” hide per-subplot axis labels
+    # Single shared Y-axis label via annotation — hide per-subplot axis labels
     fig.add_annotation(
         text="Funnel Stage",
         x=-0.05, xref="paper",
@@ -2518,9 +2518,9 @@ def _render_comparison_funnels_html(comparison_data: dict, primary_brand: str, a
         diff = res.get("diff", 0)
         sign = "+" if diff > 0 else ""
         if flag == "higher":
-            return f" <span style='color:#15803d;font-weight:800;font-size:0.65rem;background:#dcfce7;border:1px solid #bbf7d0;border-radius:6px;padding:1px 5px;'>â–² {sign}{diff:.1f}%</span>"
+            return f" <span style='color:#15803d;font-weight:800;font-size:0.65rem;background:#dcfce7;border:1px solid #bbf7d0;border-radius:6px;padding:1px 5px;'>▲ {sign}{diff:.1f}%</span>"
         if flag == "lower":
-            return f" <span style='color:#b91c1c;font-weight:800;font-size:0.65rem;background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:1px 5px;'>â–¼ {sign}{diff:.1f}%</span>"
+            return f" <span style='color:#b91c1c;font-weight:800;font-size:0.65rem;background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:1px 5px;'>▼ {sign}{diff:.1f}%</span>"
         return ""
 
     for seg in all_segs:
@@ -2545,7 +2545,7 @@ def _render_comparison_funnels_html(comparison_data: dict, primary_brand: str, a
                 conv_stg2 = round(stg2 / aided * 100, 1) if aided > 0 else 0
                 conv_stg3 = round(stg3 / stg2  * 100, 1) if stg2  > 0 else 0
                 conv_stg4 = round(stg4 / stg3  * 100, 1) if stg3  > 0 else 0
-                arr2_lbl, arr3_lbl, arr4_lbl = "â†’ tried", "â†’ current", "â†’ preferred"
+                arr2_lbl, arr3_lbl, arr4_lbl = "→ tried", "→ current", "→ preferred"
 
                 if _is_primary:
                     _sig1 = _sig2 = _sig3 = _sig4 = ""
@@ -2565,9 +2565,9 @@ def _render_comparison_funnels_html(comparison_data: dict, primary_brand: str, a
                 conv_stg3 = min(_conv_stg3_raw, 100.0)
                 conv_stg4 = round(stg4 / stg3  * 100, 1) if stg3  > 0 else 0
                 # Consid. is measured independently; mark arrow when it exceeds spont base
-                arr2_lbl = "â†’ spont"
-                arr3_lbl = "indep." if _conv_stg3_raw > 100 else "â†’ consid."
-                arr4_lbl = "â†’ TOM"
+                arr2_lbl = "→ spont"
+                arr3_lbl = "indep." if _conv_stg3_raw > 100 else "→ consid."
+                arr4_lbl = "→ TOM"
 
                 if _is_primary:
                     _sig1 = _sig2 = _sig3 = _sig4 = ""
@@ -2591,7 +2591,7 @@ def _render_comparison_funnels_html(comparison_data: dict, primary_brand: str, a
             ac = _arrow_color(conv_stg2)
             cc = _arrow_color(conv_stg3)
             tc = _arrow_color(conv_stg4)
-            star        = " â˜…" if brand == primary_brand else ""
+            star        = " ★" if brand == primary_brand else ""
             hdr_outline = f"outline:2.5px solid white; outline-offset:-2px;" if brand == primary_brand else ""
 
             f_sp = max(0.42, min(0.60, round(0.55 * (stg2_w / 100) + 0.12, 2)))
@@ -2624,12 +2624,12 @@ def _render_comparison_funnels_html(comparison_data: dict, primary_brand: str, a
     </div>
   </div>
 
-  <!-- arrow â†“ Stage 1â†’Stage 2 -->
+  <!-- arrow ↓ Stage 1→Stage 2 -->
   <div style="text-align:center; padding:4px 0; background:white;">
     <div style="display:inline-flex; align-items:center; gap:4px;
                 border:1.5px solid {ac}; border-radius:20px; padding:2px 7px;
                 background:white; box-shadow:0 1px 6px rgba(0,0,0,0.10);">
-      <span style="font-size:0.85rem; color:{ac}; font-weight:700;">â†“</span>
+      <span style="font-size:0.85rem; color:{ac}; font-weight:700;">↓</span>
       <div>
         <div style="font-size:0.78rem; font-weight:800; color:{ac}; line-height:1;">{conv_stg2:.1f}%</div>
         <div style="font-size:0.4rem; color:#475569; text-transform:uppercase; font-weight:700;">{arr2_lbl}</div>
@@ -2647,12 +2647,12 @@ def _render_comparison_funnels_html(comparison_data: dict, primary_brand: str, a
     </div>
   </div>
 
-  <!-- arrow â†“ Stage 2â†’Stage 3 -->
+  <!-- arrow ↓ Stage 2→Stage 3 -->
   <div style="text-align:center; padding:4px 0; background:white;">
     <div style="display:inline-flex; align-items:center; gap:4px;
                 border:1.5px solid {cc}; border-radius:20px; padding:2px 7px;
                 background:white; box-shadow:0 1px 6px rgba(0,0,0,0.10);">
-      <span style="font-size:0.85rem; color:{cc}; font-weight:700;">â†“</span>
+      <span style="font-size:0.85rem; color:{cc}; font-weight:700;">↓</span>
       <div>
         <div style="font-size:0.78rem; font-weight:800; color:{cc}; line-height:1;">{conv_stg3:.1f}%</div>
         <div style="font-size:0.4rem; color:#475569; text-transform:uppercase; font-weight:700;">{arr3_lbl}</div>
@@ -2670,12 +2670,12 @@ def _render_comparison_funnels_html(comparison_data: dict, primary_brand: str, a
     </div>
   </div>
 
-  <!-- arrow â†“ Stage 3â†’Stage 4 -->
+  <!-- arrow ↓ Stage 3→Stage 4 -->
   <div style="text-align:center; padding:4px 0; background:white;">
     <div style="display:inline-flex; align-items:center; gap:4px;
                 border:1.5px solid {tc}; border-radius:20px; padding:2px 7px;
                 background:white; box-shadow:0 1px 6px rgba(0,0,0,0.10);">
-      <span style="font-size:0.85rem; color:{tc}; font-weight:700;">â†“</span>
+      <span style="font-size:0.85rem; color:{tc}; font-weight:700;">↓</span>
       <div>
         <div style="font-size:0.78rem; font-weight:800; color:{tc}; line-height:1;">{conv_stg4:.1f}%</div>
         <div style="font-size:0.4rem; color:#9ca3af; text-transform:uppercase; font-weight:600;">{arr4_lbl}</div>
@@ -2732,7 +2732,7 @@ def _nps_stacked_bar(brand_data):
 
     # NPS formula below the bar
     fig.add_annotation(xref="paper", yref="paper", x=0.0, y=-0.45,
-                       text=f"<b>NPS = {p:.0f}% âˆ’ {d:.0f}% = {nps_v:+.0f}</b>",
+                       text=f"<b>NPS = {p:.0f}% − {d:.0f}% = {nps_v:+.0f}</b>",
                        showarrow=False, font=dict(size=11, color=nps_color), xanchor="left")
     fig.add_annotation(xref="paper", yref="paper", x=1.0, y=-0.45,
                        text=f"<i>vs Industry avg +{NPS_INDUSTRY_AVG}: {sign}{delta}</i>",
@@ -2753,7 +2753,7 @@ def _nps_stacked_bar(brand_data):
 
 
 
-# â”€â”€ Brand Imagery chart builders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Brand Imagery chart builders ─────────────────────────────────────────────
 
 def _multi_brand_radar(brands_data: list) -> go.Figure:
     """
@@ -2907,7 +2907,7 @@ def _driver_action_matrix(drivers_df, brand_name):
 
 
 def _correlation_heatmap(matrix_data: dict) -> go.Figure:
-    """Annotated heatmap: brand Ã— brand co-awareness %."""
+    """Annotated heatmap: brand × brand co-awareness %."""
     brands = matrix_data["brands"]
     matrix = matrix_data["matrix"]
 
@@ -2934,7 +2934,7 @@ def _correlation_heatmap(matrix_data: dict) -> go.Figure:
             thickness=12, len=0.8,
             tickfont=dict(size=9), ticksuffix="%",
         ),
-        hovertemplate="%{x} Ã— %{y}: %{z:.1f}%<extra></extra>",
+        hovertemplate="%{x} × %{y}: %{z:.1f}%<extra></extra>",
     ))
     n = len(brands)
     fig.update_layout(
@@ -2971,7 +2971,7 @@ def _correspondence_map(zone_matrix: dict, highlight_brand: str = None) -> go.Fi
     coords = pca.fit_transform(X_scaled)  # (n_brands, 2)
 
     ev = pca.explained_variance_ratio_
-    x_label = f"Dim 1 ({ev[0]*100:.0f}% variance) â€” Geographic Reach Pattern"
+    x_label = f"Dim 1 ({ev[0]*100:.0f}% variance) — Geographic Reach Pattern"
     y_label = f"Dim 2 ({ev[1]*100:.0f}% variance)"
 
     colors = []
@@ -3042,7 +3042,7 @@ def _correspondence_map(zone_matrix: dict, highlight_brand: str = None) -> go.Fi
     return _theme_fig(fig)
 
 
-# â”€â”€ Cached imagery data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Cached imagery data ───────────────────────────────────────────────────────
 
 @st.cache_data(ttl=3600)
 def _get_cached_correlation(project_id: str = "project_1"):
@@ -3056,7 +3056,7 @@ def _get_cached_zone_matrix(project_id: str = "project_1"):
     return engine.get_brand_zone_matrix(top_n=20)
 
 
-# â”€â”€ Main renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Main renderer ─────────────────────────────────────────────────────────────
 
 @st.cache_data(ttl=3600)
 def _get_cached_brand_health_data(cat_arg, zone_arg, city_arg, sel_months,
@@ -3105,7 +3105,7 @@ def _get_cached_briefing(brand_name, b_data, b_n, z_data, c_nps, r_list,
         return {}
 
 
-# â”€â”€ BQ3 Imagery Analysis (Sections 13 & 14) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── BQ3 Imagery Analysis (Sections 13 & 14) ──────────────────────────────────
 
 _SIDEBAR_TO_PRODUCT = {
     "All": "All", "Ceiling Fans": "Ceiling Fans", "Air Cooler": "Air Cooler",
@@ -3181,7 +3181,7 @@ def _get_cached_imagery_interpretations(
     # to what _run_can_map would produce for the same params.
     db_fp_key = f"{ca_product}_{ca_section}_{n_brands}_{zone}_{gender}_{age_band}_{city}"
     if fp != db_fp_key and ca_res.get("status") == "ok":
-        # Test/custom data is being shown â€” generate AI directly from it.
+        # Test/custom data is being shown — generate AI directly from it.
         # Use session state as lightweight cache keyed on fingerprint.
         ss_key = f"_interp_cache_{fp}"
         if ss_key not in st.session_state:
@@ -3277,7 +3277,7 @@ def _get_attr_groups():
 
 def _ca_ai_narrative(ca_res: dict, f1_pct: float, f2_pct: float, p_val: float, chi2: float):
     """
-    Data-driven CA interpretation card â€” no LLM call needed.
+    Data-driven CA interpretation card — no LLM call needed.
     Reads directly from fit() DataFrames in ca_results.
     """
     try:
@@ -3302,28 +3302,28 @@ def _ca_ai_narrative(ca_res: dict, f1_pct: float, f2_pct: float, p_val: float, c
 
         f_coverage = f1_pct + f2_pct
         coverage_quality = (
-            "high-quality 2D representation â€” map captures most structure."
+            "high-quality 2D representation — map captures most structure."
             if f_coverage >= 70 else
-            "moderate coverage â€” some nuance in higher dimensions."
+            "moderate coverage — some nuance in higher dimensions."
             if f_coverage >= 50 else
-            "low 2D coverage â€” interpret with caution, check higher factors."
+            "low 2D coverage — interpret with caution, check higher factors."
         )
 
         findings = [
             (f"Association patterns are **{'significant' if p_val < 0.05 else 'NOT significant'}** "
-             f"(Ï‡Â²={chi2:.1f}, df={ca['chi2_test']['df']}, p={p_val:.4f}). "
+             f"(χ²={chi2:.1f}, df={ca['chi2_test']['df']}, p={p_val:.4f}). "
              + ("Brands are perceptually distinct on these attributes." if p_val < 0.05
-                else "Brands appear similar on tested attributes â€” look for sub-group differences.")),
-            (f"F1+F2 explain **{f_coverage:.1f}%** of variation (F1={f1_pct:.1f}%, F2={f2_pct:.1f}%) â€” {coverage_quality}"),
+                else "Brands appear similar on tested attributes — look for sub-group differences.")),
+            (f"F1+F2 explain **{f_coverage:.1f}%** of variation (F1={f1_pct:.1f}%, F2={f2_pct:.1f}%) — {coverage_quality}"),
             (f"**F1 (horizontal axis)** defined by brands: {', '.join(top_brands_f1)}; "
              f"top attributes: {', '.join(top_attrs_f1[:2])}."),
             (f"**F2 (vertical axis)** primarily shaped by: {', '.join(top_brands_f2)}."),
-            (f"**Best-represented in 2D map** (high cosÂ²): {', '.join(well_rep)}. "
-             + (f"Treat {', '.join(poor_rep)} positions with caution (low cosÂ²)." if poor_rep else "")),
+            (f"**Best-represented in 2D map** (high cos²): {', '.join(well_rep)}. "
+             + (f"Treat {', '.join(poor_rep)} positions with caution (low cos²)." if poor_rep else "")),
         ]
-        _insight_callout(findings, "CA Interpretation", "ðŸ§­")
+        _insight_callout(findings, "CA Interpretation", "🧭")
     except Exception:
-        pass  # narrative is optional â€” silent fail
+        pass  # narrative is optional — silent fail
 
 
 def _coords_to_brand_df(pc):
@@ -3348,7 +3348,7 @@ def _prefmap_figure(coords_df, pref_series, metric_label, sel_brand):
     import numpy as _np
     common = [b for b in coords_df.index if b in pref_series.index and pd.notna(pref_series[b])]
     if len(common) < 3:
-        return None, {"error": "Need â‰¥3 brands with both map coordinates and a preference value."}
+        return None, {"error": "Need ≥3 brands with both map coordinates and a preference value."}
     C = coords_df.loc[common]
     y = pref_series.loc[common].astype(float).values
     F1 = C["F1"].astype(float).values
@@ -3361,7 +3361,7 @@ def _prefmap_figure(coords_df, pref_series, metric_label, sel_brand):
     ss_res = float(_np.sum((y - yhat) ** 2))
     ss_tot = float(_np.sum((y - y.mean()) ** 2))
     r2 = 1 - ss_res / ss_tot if ss_tot > 0 else 0.0
-    # Preference direction (unit vector of gradient) â€” points toward increasing preference
+    # Preference direction (unit vector of gradient) — points toward increasing preference
     grad = _np.array([b1, b2], dtype=float)
     gnorm = _np.linalg.norm(grad)
     udir = grad / gnorm if gnorm > 0 else _np.array([0.0, 0.0])
@@ -3386,7 +3386,7 @@ def _prefmap_figure(coords_df, pref_series, metric_label, sel_brand):
     fig.add_annotation(x=arrow[0], y=arrow[1], ax=0, ay=0, xref="x", yref="y",
                        axref="x", ayref="y", showarrow=True, arrowhead=3,
                        arrowsize=1.4, arrowwidth=3, arrowcolor="#dc2626")
-    fig.add_annotation(x=arrow[0], y=arrow[1], text=f"â†‘ {metric_label}",
+    fig.add_annotation(x=arrow[0], y=arrow[1], text=f"↑ {metric_label}",
                        showarrow=False, font=dict(size=11, color="#dc2626", family="Inter"),
                        xshift=int(_np.sign(arrow[0]) * 18), yshift=int(_np.sign(arrow[1]) * 10),
                        bgcolor="rgba(220,38,38,0.08)")
@@ -3397,7 +3397,7 @@ def _prefmap_figure(coords_df, pref_series, metric_label, sel_brand):
         **base,
         xaxis=dict(title="F1", zeroline=False),
         yaxis=dict(title="F2", zeroline=False, scaleanchor="x", scaleratio=1),
-        title=dict(text=f"Preference Map (PREFMAP) â€” {metric_label} vector", font=dict(size=13)),
+        title=dict(text=f"Preference Map (PREFMAP) — {metric_label} vector", font=dict(size=13)),
     )
     ranking = sorted(proj.items(), key=lambda kv: -kv[1])
     return fig, {"r2": r2, "b1": b1, "b2": b2, "ranking": ranking, "n": len(common),
@@ -3406,7 +3406,7 @@ def _prefmap_figure(coords_df, pref_series, metric_label, sel_brand):
 
 def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_band_arg="all", city_arg="all", sel_brand=None, project_id="project_1", attr_ids=None, awareness_stages=None):
     _section_header(
-        "ðŸ—ºï¸ Brand Perceptual Map (CAN MAP)",
+        "🗺️ Brand Perceptual Map (CAN MAP)",
         "Correspondence Analysis: how brands cluster by attribute associations. "
         "Close points = strong shared association pattern.",
     )
@@ -3424,12 +3424,12 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
         f"Age: {age_band_arg}" if age_band_arg != "all" else None,
         f"City: {city_arg}" if city_arg != "all" else None,
     ] if f]
-    _pill = "  Â·  ".join(active_filters) if active_filters else "All India â€” no filter applied"
+    _pill = "  ·  ".join(active_filters) if active_filters else "All India — no filter applied"
     st.caption(f"Active filters: {_pill}")
 
     col1, col2, col3 = st.columns([2, 1, 1])
     with col1:
-        # Load attribute themes from project_meta.json (dynamic â€” not project_1-only)
+        # Load attribute themes from project_meta.json (dynamic — not project_1-only)
         try:
             from infoleap.db_loader import get_project_meta as _ca_get_meta
             _ca_themes = _ca_get_meta(project_id).get("attribute_themes") or ["All"]
@@ -3487,21 +3487,21 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
         ca_r   = cm_t["row_results"]
         ca_c   = cm_t["col_results"]
 
-        # â”€â”€ Significance banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Significance banner ────────────────────────────────────────────────
         _sig_color = "#15803d" if chi2_t["significant"] else "#dc2626"
-        _sig_icon  = "âœ“" if chi2_t["significant"] else "âœ—"
+        _sig_icon  = "✓" if chi2_t["significant"] else "✗"
         _sig_label = "Significant" if chi2_t["significant"] else "Not significant"
         st.markdown(
             f"<div style='display:flex;gap:16px;align-items:center;padding:8px 14px;"
             f"background:rgba(0,0,0,0.03);border-radius:8px;border-left:4px solid {_sig_color};"
             f"font-size:0.82rem;margin-bottom:8px;'>"
             f"<span style='color:{_sig_color};font-weight:700;font-size:1rem;'>{_sig_icon} {_sig_label}</span>"
-            f"<span>Ï‡Â²&nbsp;=&nbsp;<b>{chi2:.2f}</b></span>"
+            f"<span>χ²&nbsp;=&nbsp;<b>{chi2:.2f}</b></span>"
             f"<span>df&nbsp;=&nbsp;<b>{chi2_t['df']}</b></span>"
             f"<span>p&nbsp;=&nbsp;<b>{p_val:.4f}</b></span>"
-            f"<span style='color:#6b7280'>Â·</span>"
+            f"<span style='color:#6b7280'>·</span>"
             f"<span>F1+F2&nbsp;=&nbsp;<b>{f1_pct+f2_pct:.1f}%</b> of inertia</span>"
-            f"<span style='color:#6b7280'>Â·</span>"
+            f"<span style='color:#6b7280'>·</span>"
             f"<span>Total inertia&nbsp;=&nbsp;<b>{ca_res['ca_results']['total_inertia']:.4f}</b></span>"
             f"</div>",
             unsafe_allow_html=True,
@@ -3541,11 +3541,11 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                 _structured_ai_card(txt, "AI Analysis", accent, known_names=_known)
 
         with tabs[0]:
-            st.markdown("**Contingency Table â€” Brand Ã— Attribute % Association (CA input)**")
+            st.markdown("**Contingency Table — Brand × Attribute % Association (CA input)**")
             st.caption(
-                "â„¹ï¸ **Why zeros appear:** The database stores only positive brand-attribute associations "
+                "ℹ️ **Why zeros appear:** The database stores only positive brand-attribute associations "
                 "(respondents who explicitly linked a brand to an attribute). A 0.00 means zero respondents "
-                "in the current filter linked that brand to that attribute â€” this is a true data gap, not a "
+                "in the current filter linked that brand to that attribute — this is a true data gap, not a "
                 "missing value. Brands with sparse coverage (few attributes) are normal for niche or newer brands. "
                 "Zero-variance attributes (all brands identical) are automatically excluded from the CA."
             )
@@ -3560,7 +3560,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                 mat_with_totals.loc["Col Total"] = totals_row
                 zero_count = int((mat == 0).sum().sum())
                 if zero_count > 0:
-                    st.caption(f"âš ï¸ {zero_count} zero cells ({zero_count / mat.size * 100:.1f}% of matrix). "
+                    st.caption(f"⚠️ {zero_count} zero cells ({zero_count / mat.size * 100:.1f}% of matrix). "
                                f"Brands with many zeros have sparse association data.")
                 st.dataframe(mat_with_totals.round(2), use_container_width=True)
             else:
@@ -3569,11 +3569,11 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
 
         with tabs[1]:
             k1, k2, k3, k4, k5 = st.columns(5)
-            with k1: _metric_card("Total Inertia", f"{ca_res['ca_results']['total_inertia']:.4f}", "ðŸ“", "Ï‡Â²/N â€” overall variation")
-            with k2: _metric_card("F1 Inertia", f"{f1_pct:.1f}%", "ðŸŸ¦", f"Eigenvalue: {eig_df['Eigenvalue'].iloc[0]:.5f}")
-            with k3: _metric_card("F2 Inertia", f"{f2_pct:.1f}%", "ðŸŸ¨", f"Eigenvalue: {eig_df['Eigenvalue'].iloc[1]:.5f}" if len(eig_df) > 1 else "")
-            with k4: _metric_card("F1+F2", f"{f1_pct+f2_pct:.1f}%", "ðŸ“Š", "2D map coverage")
-            with k5: _metric_card("Chi-Square", f"{chi2:.2f}", "âš–ï¸", f"df={chi2_t['df']}  p={p_val:.4f}  {'âœ“ Sig.' if p_val < 0.05 else 'âœ— Not sig.'}")
+            with k1: _metric_card("Total Inertia", f"{ca_res['ca_results']['total_inertia']:.4f}", "📐", "χ²/N — overall variation")
+            with k2: _metric_card("F1 Inertia", f"{f1_pct:.1f}%", "🟦", f"Eigenvalue: {eig_df['Eigenvalue'].iloc[0]:.5f}")
+            with k3: _metric_card("F2 Inertia", f"{f2_pct:.1f}%", "🟨", f"Eigenvalue: {eig_df['Eigenvalue'].iloc[1]:.5f}" if len(eig_df) > 1 else "")
+            with k4: _metric_card("F1+F2", f"{f1_pct+f2_pct:.1f}%", "📊", "2D map coverage")
+            with k5: _metric_card("Chi-Square", f"{chi2:.2f}", "⚖️", f"df={chi2_t['df']}  p={p_val:.4f}  {'✓ Sig.' if p_val < 0.05 else '✗ Not sig.'}")
             st.markdown("<div style='margin:10px 0;'></div>", unsafe_allow_html=True)
             c_col1, c_col2 = st.columns(2)
             with c_col1:
@@ -3584,13 +3584,13 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                     {"Statistic": "Degrees of freedom", "Value": str(chi2_t['df'])},
                     {"Statistic": "p-value", "Value": f"{chi2_t['p_value']:.6f}"},
                     {"Statistic": "alpha", "Value": str(chi2_t['alpha'])},
-                    {"Statistic": "Significant?", "Value": "YES âœ“" if chi2_t['significant'] else "NO"},
+                    {"Statistic": "Significant?", "Value": "YES ✓" if chi2_t['significant'] else "NO"},
                 ]
                 st.dataframe(pd.DataFrame(chi2_rows).set_index("Statistic"), use_container_width=True)
             with c_col2:
                 st.markdown("**Eigenvalues & Inertia**")
                 eig_display = eig_df.copy().rename(columns={
-                    "Eigenvalue": "Î»", "Inertia_%": "% Inertia", "Cum_Inertia_%": "Cumul %"
+                    "Eigenvalue": "λ", "Inertia_%": "% Inertia", "Cum_Inertia_%": "Cumul %"
                 })
                 st.dataframe(
                     eig_display.style.background_gradient(subset=["% Inertia"], cmap="Blues"),
@@ -3637,10 +3637,10 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                                     show_all_dots=_show_dots_sym)
                     _theme_fig(_sym_fig)
                     st.plotly_chart(_sym_fig, use_container_width=True, config={"editable": True})
-                    st.caption("ðŸ’¡ Labels are draggable â€” click and drag any label to reposition it.")
+                    st.caption("💡 Labels are draggable — click and drag any label to reposition it.")
                 else:
                     st.info("Select at least one attribute or enable 'Show all dots'.")
-            st.caption("Brands (squares) and attributes (circles) on principal F1Ã—F2 axes. Larger markers = higher contribution.")
+            st.caption("Brands (squares) and attributes (circles) on principal F1×F2 axes. Larger markers = higher contribution.")
             st.markdown("**Brand Coordinates (F1, F2)**")
             pc = ca_res["ca_results"]["row_results"]["principal_coords"]
             if isinstance(pc, pd.DataFrame):
@@ -3688,7 +3688,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                                           show_all_dots=_show_dots_asym)
                         _theme_fig(_asym_fig)
                         st.plotly_chart(_asym_fig, use_container_width=True, config={"editable": True})
-                        st.caption("ðŸ’¡ Labels are draggable â€” click and drag any label to reposition it.")
+                        st.caption("💡 Labels are draggable — click and drag any label to reposition it.")
                     else:
                         st.info("Select at least one attribute or enable 'Show all dots'.")
                 st.caption("Rows on principal coordinates, columns on standard coordinates (XLSTAT default asymmetric biplot).")
@@ -3734,7 +3734,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
             _ca_ai("tab_3", "#f59e0b")
 
         with tabs[4]:
-            itabs = st.tabs(["Principal Coords", "Standard Coords", "Contributions", "CosÂ²", "Row Profiles", "Ï‡Â² Distances"])
+            itabs = st.tabs(["Principal Coords", "Standard Coords", "Contributions", "Cos²", "Row Profiles", "χ² Distances"])
             with itabs[0]:
                 st.caption("Principal coordinates = brand positions on the map (XLSTAT: Scores F/Rows)")
                 st.dataframe(_safe_df(ca_r["principal_coords"]).round(4), use_container_width=True)
@@ -3742,7 +3742,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                 st.caption("Standard coordinates = normalised positions (XLSTAT: Standard scores/Rows)")
                 st.dataframe(_safe_df(ca_r["standard_coords"]).round(4), use_container_width=True)
             with itabs[2]:
-                st.caption("Contribution of each brand to each factor (0â€“1; sums to 1 per factor)")
+                st.caption("Contribution of each brand to each factor (0–1; sums to 1 per factor)")
                 st.dataframe(_safe_df(ca_r["contributions"]).round(4), use_container_width=True)
             with itabs[3]:
                 st.caption("Squared cosines: quality of 2D representation per brand (closer to 1 = better)")
@@ -3756,7 +3756,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
             _ca_ai("tab_4", "#10b981")
 
         with tabs[5]:
-            itabs = st.tabs(["Principal Coords", "Standard Coords", "Contributions", "CosÂ²", "Col Profiles"])
+            itabs = st.tabs(["Principal Coords", "Standard Coords", "Contributions", "Cos²", "Col Profiles"])
             with itabs[0]:
                 st.caption("Attribute positions on the map (XLSTAT: Scores F/Columns)")
                 st.dataframe(_safe_df(ca_c["principal_coords"]).round(4), use_container_width=True)
@@ -3772,7 +3772,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
             _ca_ai("tab_5", "#f97316")
 
         with tabs[6]:
-            diag_tabs = st.tabs(["Scree", "Brandâ†’F1", "Brandâ†’F2", "Attrâ†’F1", "CosÂ² Heatmap", "Ï‡Â² Heatmap", "Row Profiles", "Trajectory"])
+            diag_tabs = st.tabs(["Scree", "Brand→F1", "Brand→F2", "Attr→F1", "Cos² Heatmap", "χ² Heatmap", "Row Profiles", "Trajectory"])
             with diag_tabs[0]:
                 _safe_chart(charts.get("scree"))
             with diag_tabs[1]:
@@ -3795,12 +3795,12 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
             _ca_ai("tab_6", "#ef4444")
 
         with tabs[7]:
-            # â”€â”€ PREFMAP: overlay external preference vector on the perceptual map â”€â”€
+            # ── PREFMAP: overlay external preference vector on the perceptual map ──
             st.markdown("**Where does preference point on the perceptual map?**")
             st.caption(
                 "PREFMAP (vector model): external preference data is regressed onto the CA map axes "
                 "(pref ~ F1 + F2). The red arrow points toward increasing preference; brands projected "
-                "onto it give the preference ranking the map implies. RÂ² = how well the 2-D map explains "
+                "onto it give the preference ranking the map implies. R² = how well the 2-D map explains "
                 "that preference metric. This is XLSTAT's preference-mapping deliverable."
             )
             try:
@@ -3813,7 +3813,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                     _pref_opts = {
                         "CONSIDERATION": "Consideration %", "PREFERRED": "Preference %",
                         "TOTAL_AIDED": "Total Awareness %", "TOM": "Top of Mind %",
-                        "nps": "NPS Score", "csat": f"CSAT (0â€“{_get_csat_scale()})",
+                        "nps": "NPS Score", "csat": f"CSAT (0–{_get_csat_scale()})",
                     }
                     _pref_avail = {k: v for k, v in _pref_opts.items() if k in _bench.columns}
                     _pm_metric = st.selectbox(
@@ -3831,7 +3831,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                         _rank = _stats_pm["ranking"]
                         _findings_pm = [
                             f"The 2-D map explains **{_r2:.0%}** of variation in **{_pref_avail[_pm_metric]}** "
-                            f"({_fit_q} fit). Higher RÂ² = preference aligns cleanly with the perceptual axes.",
+                            f"({_fit_q} fit). Higher R² = preference aligns cleanly with the perceptual axes.",
                             f"Map-implied preference leader: **{_rank[0][0]}**, then "
                             f"{', '.join(b for b, _ in _rank[1:4])}.",
                             "Brands further along the red arrow are perceived more favourably on this metric. "
@@ -3841,7 +3841,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
                             _pos = [b for b, _ in _rank].index(sel_brand) + 1
                             _findings_pm.append(
                                 f"**{sel_brand}** ranks #{_pos} of {_stats_pm['n']} on the preference axis.")
-                        _insight_callout(_findings_pm, "Preference Mapping Read-out", "ðŸ§­")
+                        _insight_callout(_findings_pm, "Preference Mapping Read-out", "🧭")
 
                         _rank_df = pd.DataFrame(
                             [{"Rank": i + 1, "Brand": b, "Pref. axis score": round(s, 3)}
@@ -3851,7 +3851,7 @@ def _render_section_13_can_map(sel_cat, zone_arg="all", gender_arg="all", age_ba
             except Exception as _e_pm:
                 st.warning(f"PREFMAP unavailable: {_e_pm}")
 
-        # â”€â”€ Rule-based CA narrative (always shown, below tabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Rule-based CA narrative (always shown, below tabs) ──────────────────
         _ca_ai_narrative(ca_res, f1_pct, f2_pct, p_val, chi2)
 
     else:
@@ -3886,7 +3886,7 @@ def _emphasize_radar_brand(fig, sel_brand):
 
 def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_arg="all", city_arg="all", sel_brand=None, project_id="project_1", attr_ids=None):
     _section_header(
-        "ðŸ“Š Brand Image Profiling (BIP Normalization)",
+        "📊 Brand Image Profiling (BIP Normalization)",
         "Which attributes each brand owns vs. the market average. "
         "YES = brand significantly over-associated with that attribute.",
     )
@@ -3903,7 +3903,7 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
         f"Age: {age_band_arg}" if age_band_arg != "all" else None,
         f"City: {city_arg}" if city_arg != "all" else None,
     ] if f]
-    _bip_pill = "  Â·  ".join(active_filters) if active_filters else "All India â€” no filter applied"
+    _bip_pill = "  ·  ".join(active_filters) if active_filters else "All India — no filter applied"
     st.caption(f"Active filters: {_bip_pill}")
 
     col1, col2, col3 = st.columns([2, 1, 1])
@@ -3990,16 +3990,16 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
         st.info("BIP Analysis: No data available for selected filters.")
         return
 
-    # â”€â”€ Apply min base-N filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Apply min base-N filter ────────────────────────────────────────────────
     if bip_min_n > 0 and hasattr(bip_matrix, "attrs"):
         n_resp = bip_matrix.attrs.get("n_resp", None)
         if n_resp is not None and isinstance(n_resp, pd.Series):
             qualify = n_resp[n_resp >= bip_min_n].index
             if len(qualify) > 0 and len(qualify) < len(bip_matrix):
                 excluded = set(bip_matrix.index) - set(qualify)
-                st.warning(f"Min base N = {bip_min_n}: excluded {len(excluded)} brand(s) â€” {', '.join(str(e) for e in excluded)}")
+                st.warning(f"Min base N = {bip_min_n}: excluded {len(excluded)} brand(s) — {', '.join(str(e) for e in excluded)}")
                 bip_matrix = bip_matrix.loc[bip_matrix.index.isin(qualify)]
-                # Re-run normalization on filtered matrix (not cached â€” apply in-memory)
+                # Re-run normalization on filtered matrix (not cached — apply in-memory)
                 from infoleap.analytics.bip_engine import BIPNormalizationEngine as _BIPE
                 _eng_filt = _BIPE(percentile_threshold=float(bip_pctile))
                 bip_filt = _eng_filt.run(matrix=bip_matrix)
@@ -4010,10 +4010,10 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
     pcts = bip_tables.get("percentiles", {})
     k1, k2, k3, k4 = st.columns(4)
     pct_val = pcts.get(f"p{bip_pctile}", pcts.get("p65", 0))
-    with k1: _metric_card("Brands", str(len(bip_matrix.index)), "ðŸ¢")
-    with k2: _metric_card("Attributes", str(len(bip_matrix.columns)), "ðŸŽ¯")
-    with k3: _metric_card(f"p{bip_pctile} Gate", f"{pct_val:.1f}", "ðŸ“Š", "Significance threshold")
-    with k4: _metric_card("Avg Assoc", f"{bip_matrix.values.mean():.1f}%", "ðŸ“ˆ")
+    with k1: _metric_card("Brands", str(len(bip_matrix.index)), "🏢")
+    with k2: _metric_card("Attributes", str(len(bip_matrix.columns)), "🎯")
+    with k3: _metric_card(f"p{bip_pctile} Gate", f"{pct_val:.1f}", "📊", "Significance threshold")
+    with k4: _metric_card("Avg Assoc", f"{bip_matrix.values.mean():.1f}%", "📈")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -4040,7 +4040,7 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
         if txt:
             _structured_ai_card(txt, "AI Analysis", accent, known_names=_bip_known)
 
-    # Shared transpose toggle for BIP tables â€” drivers as rows, brands as columns
+    # Shared transpose toggle for BIP tables — drivers as rows, brands as columns
     bip_transpose = st.checkbox("Drivers as Rows (brands as columns)", value=True,
                                  key="bip_transpose_toggle",
                                  help="Transpose tables so drivers are row labels and brands are column headers")
@@ -4058,14 +4058,14 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
 
     with tabs[0]:
         st.caption(
-            "â„¹ï¸ **Why zeros appear in the raw matrix:** Each cell = % of respondents who "
+            "ℹ️ **Why zeros appear in the raw matrix:** Each cell = % of respondents who "
             "linked brand B to attribute A (value=1 in fact_brand_imagery). A **0.00** means "
-            "zero respondents in the current filter made that association â€” this is **valid "
+            "zero respondents in the current filter made that association — this is **valid "
             "data, not missing data**. It reflects genuine lack of attribution (e.g. a niche "
             "brand not associated with a premium-price attribute). "
             "Zeros appear more when: (a) narrow category/demographic filter is applied, "
             "(b) brand has low overall awareness, or (c) attribute is outside the brand's "
-            "perceived territory. The normalization (tabs 2â€“3) accounts for this by "
+            "perceived territory. The normalization (tabs 2–3) accounts for this by "
             "comparing each brand's score to the column mean."
         )
         _bip_table(bip_tables.get("table1_raw"))
@@ -4076,10 +4076,10 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
         _bip_ai("bip_1", "#8b5cf6")
 
     with tabs[2]:
-        # â”€â”€ TABLE 4: Threshold-filtered scores (Excel structure: appears before YES/NO) â”€â”€
+        # ── TABLE 4: Threshold-filtered scores (Excel structure: appears before YES/NO) ──
         # Values below the significance gate are zeroed. Non-zero = significant association.
         # Mirrors the Excel table that precedes the YES/NO significance column.
-        _pctile_val = bip_tables.get('percentiles', {}).get(f'p{bip_pctile}', bip_tables.get('percentiles', {}).get('p65', 'â€”'))
+        _pctile_val = bip_tables.get('percentiles', {}).get(f'p{bip_pctile}', bip_tables.get('percentiles', {}).get('p65', '—'))
         _pctile_str = f"{_pctile_val:.2f}" if isinstance(_pctile_val, (int, float)) else str(_pctile_val)
         st.caption(
             f"Threshold-filtered normalized deviation. Cells below p{bip_pctile} gate ({_pctile_str}) are zeroed. "
@@ -4089,7 +4089,7 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
         _bip_ai("bip_2a", "#0891b2")
 
     with tabs[3]:
-        # â”€â”€ TABLE 14: YES / NO significance flags â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── TABLE 14: YES / NO significance flags ─────────────────────────────
         st.caption(
             f"YES = brand's normalized deviation exceeds the p{bip_pctile} significance gate. "
             "Green = significant positive association. Red = below gate."
@@ -4166,7 +4166,7 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
             st.caption("Distribution of normalised deviations. Cells beyond gate are flagged YES.")
         _bip_ai("bip_4", "#ef4444")
 
-    # â”€â”€ BIP AI Narrative â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── BIP AI Narrative ──────────────────────────────────────────────────────
     try:
         t14 = bip_tables.get("table14_significance")
         if t14 is not None and not t14.empty:
@@ -4184,21 +4184,21 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
                 strongest_attr = strongest_brand_for_attr = strongest_val = None
 
             bip_findings = [
-                (f"**{top_brand}** owns the most attributes significantly ({top_n}/{total_attrs}) â€” "
+                (f"**{top_brand}** owns the most attributes significantly ({top_n}/{total_attrs}) — "
                  f"broadest positive/negative deviation from market average." if top_brand else ""),
                 (f"Across all brands, average of **{avg_yes:.1f}** attributes flagged significant per brand "
                  f"(gate: p{bip_pctile} threshold = {pct_val:.1f})."),
             ]
             if strongest_attr:
                 bip_findings.append(
-                    f"Most contested attribute: **{strongest_attr}** â€” "
+                    f"Most contested attribute: **{strongest_attr}** — "
                     f"{strongest_brand_for_attr} deviates {strongest_val:+.1f}% from market average (normalized deviation)."
                 )
             bip_findings.append(
                 "YES = brand significantly differentiates on this attribute relative to market norm. "
                 "NO = within normal range. Use this table to identify brand equities and vulnerabilities."
             )
-            _insight_callout([f for f in bip_findings if f], "BIP Interpretation", "ðŸ“Š")
+            _insight_callout([f for f in bip_findings if f], "BIP Interpretation", "📊")
     except Exception:
         pass
 
@@ -4232,7 +4232,7 @@ _PROJECT_1_CATEGORY_LABELS = {1: "Ceiling Fans", 2: "Air Cooler", 3: "Mixer Grin
 
 
 def _is_project_1() -> bool:
-    """True only for project_1's own electrical-appliance category codes â€” other
+    """True only for project_1's own electrical-appliance category codes — other
     projects' fact_portfolio_awareness/fact_price_paid category_id values don't map to
     these labels and must fall back to the raw numeric code instead of a wrong name."""
     return st.session_state.get("active_project_id", "project_1") == "project_1"
@@ -4272,14 +4272,14 @@ def _get_portfolio_data(zone="all", gender="all", age_band="all", city="all"):
 
 
 _PRICE_TIER_LABELS = {
-    1: {1: "< â‚¹1,500", 2: "â‚¹1,501â€“2,000", 3: "â‚¹2,001â€“3,000", 4: "â‚¹3,001â€“4,000", 5: "â‚¹4,000+"},
-    2: {1: "< â‚¹3,000", 2: "â‚¹3,001â€“5,000", 3: "â‚¹5,001â€“6,000", 4: "â‚¹6,001â€“8,000",
-        5: "â‚¹8,001â€“10,000", 6: "â‚¹10,001â€“13,000", 7: "â‚¹13,001â€“15,000", 8: "â‚¹15,000+"},
-    3: {1: "< â‚¹2,000", 2: "â‚¹2,001â€“3,000", 3: "â‚¹3,001â€“5,000", 4: "â‚¹5,001â€“9,000", 5: "â‚¹9,000+"},
-    4: {1: "< â‚¹300", 2: "â‚¹301â€“500", 3: "â‚¹501â€“700", 4: "â‚¹701â€“900", 5: "â‚¹901+"},
-    5: {1: "< â‚¹3,000", 2: "â‚¹3,001â€“4,000", 3: "â‚¹4,001â€“6,500", 4: "â‚¹6,501â€“8,000", 5: "â‚¹8,000+"},
-    6: {1: "< â‚¹2,000", 2: "â‚¹2,001â€“4,000", 3: "â‚¹4,001â€“6,000", 4: "â‚¹6,001â€“8,000",
-        5: "â‚¹8,001â€“10,000", 6: "â‚¹10,001â€“15,000", 7: "â‚¹15,000+"},
+    1: {1: "< ₹1,500", 2: "₹1,501–2,000", 3: "₹2,001–3,000", 4: "₹3,001–4,000", 5: "₹4,000+"},
+    2: {1: "< ₹3,000", 2: "₹3,001–5,000", 3: "₹5,001–6,000", 4: "₹6,001–8,000",
+        5: "₹8,001–10,000", 6: "₹10,001–13,000", 7: "₹13,001–15,000", 8: "₹15,000+"},
+    3: {1: "< ₹2,000", 2: "₹2,001–3,000", 3: "₹3,001–5,000", 4: "₹5,001–9,000", 5: "₹9,000+"},
+    4: {1: "< ₹300", 2: "₹301–500", 3: "₹501–700", 4: "₹701–900", 5: "₹901+"},
+    5: {1: "< ₹3,000", 2: "₹3,001–4,000", 3: "₹4,001–6,500", 4: "₹6,501–8,000", 5: "₹8,000+"},
+    6: {1: "< ₹2,000", 2: "₹2,001–4,000", 3: "₹4,001–6,000", 4: "₹6,001–8,000",
+        5: "₹8,001–10,000", 6: "₹10,001–15,000", 7: "₹15,000+"},
 }
 
 @st.cache_data(ttl=3600)
@@ -4306,7 +4306,7 @@ def _get_price_tier_data(zone="all", gender="all", age_band="all", city="all"):
     df["category_code"] = df["category_code"].astype(int)
     df["category"] = df["category_code"].map(cat_labels).fillna(df["category_code"].astype(str))
     # price_tier is stored as TEXT in the generic multi-project schema (vs INTEGER in project_1's
-    # fixed schema) â€” coerce here so downstream numeric ops (max/round/comparisons) work regardless
+    # fixed schema) — coerce here so downstream numeric ops (max/round/comparisons) work regardless
     # of which schema this project's DB came from.
     df["price_tier"] = pd.to_numeric(df["price_tier"], errors="coerce")
     df = df.dropna(subset=["price_tier"])
@@ -4320,7 +4320,7 @@ def _get_price_tier_data(zone="all", gender="all", age_band="all", city="all"):
 
 
 def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_band="all", city="all"):
-    """Portfolio awareness â€” detailed analysis of category-brand association (BQ6)."""
+    """Portfolio awareness — detailed analysis of category-brand association (BQ6)."""
     df = _get_portfolio_data(zone, gender, age_band, city)
     if df.empty:
         st.info(
@@ -4334,7 +4334,7 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
     cat_order = ["Ceiling Fans", "LED Batten", "Water Heater", "Mixer Grinder", "Water Pumps", "Air Cooler"]
     total_resp = int(df["n_total"].iloc[0]) if "n_total" in df.columns else 6631
 
-    # â”€â”€ Auto-generated insight callout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Auto-generated insight callout ───────────────────────────────────────
     brand_df = df[df["brand_name"] == sel_brand].sort_values("pct", ascending=False)
     if not brand_df.empty:
         strongest_cat  = brand_df.iloc[0]["category"]
@@ -4349,10 +4349,10 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
                 cat_leaders[cat] = (cat_top.iloc[0]["brand_name"], cat_top.iloc[0]["pct"])
         brand_is_leader = [c for c, (b, _) in cat_leaders.items() if b == sel_brand]
         insights_pa = [
-            f"**{sel_brand}** is most strongly associated with **{strongest_cat}** â€” "
+            f"**{sel_brand}** is most strongly associated with **{strongest_cat}** — "
             f"{strongest_pct:.0f}% of all respondents connect this brand with that category.",
             f"Weakest category link is **{weakest_cat}** ({weakest_pct:.0f}%). "
-            "Low score here signals a portfolio perception gap â€” opportunity to communicate category presence."
+            "Low score here signals a portfolio perception gap — opportunity to communicate category presence."
         ]
         if brand_is_leader:
             insights_pa.append(f"**Category leadership:** {sel_brand} ranks #1 in {', '.join(brand_is_leader)}.")
@@ -4365,12 +4365,12 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
                 f"{sel_brand} trails {leader} by {gap:.0f}pp. "
                 "Closing this gap requires clearer communication of category credentials."
             )
-        _insight_callout(insights_pa, "Portfolio Perception Insights", "ðŸ—‚ï¸")
+        _insight_callout(insights_pa, "Portfolio Perception Insights", "🗂️")
 
     pa_t1, pa_t2, pa_t3 = st.tabs([
-        "ðŸ”¥ Category-Leader Matrix",
-        f"ðŸ“Š {sel_brand} Deep Dive",
-        "ðŸ… Category Champions"
+        "🔥 Category-Leader Matrix",
+        f"📊 {sel_brand} Deep Dive",
+        "🏅 Category Champions"
     ])
 
     with pa_t1:
@@ -4400,7 +4400,7 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
             texttemplate="%{text}",
             textfont=dict(size=11),
             hovertemplate=(
-                "<b>%{y}</b> â†” <b>%{x}</b><br>"
+                "<b>%{y}</b> ↔ <b>%{x}</b><br>"
                 "Association: <b>%{z:.1f}%</b><br>"
                 f"of {total_resp:,} respondents<extra></extra>"
             ),
@@ -4412,7 +4412,7 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
                           xaxis=dict(side="top", tickangle=-20),
                           yaxis=dict(autorange="reversed", automargin=True),
                           margin=dict(l=130, r=40, t=80, b=40),
-                          title=dict(text="Portfolio Awareness Matrix â€” % of All Respondents (BQ6)", font=dict(size=13)))
+                          title=dict(text="Portfolio Awareness Matrix — % of All Respondents (BQ6)", font=dict(size=13)))
         st.plotly_chart(_theme_fig(fig), use_container_width=True)
 
         # Category leadership table
@@ -4425,9 +4425,9 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
                     "Category": cat,
                     "Leader": cat_col.index[0],
                     "Leader %": f"{cat_col.iloc[0]:.0f}%",
-                    "2nd": cat_col.index[1] if len(cat_col) > 1 else "â€”",
-                    "2nd %": f"{cat_col.iloc[1]:.0f}%" if len(cat_col) > 1 else "â€”",
-                    f"{sel_brand} %": f"{pivot.loc[sel_brand, cat]:.0f}%" if sel_brand in pivot.index else "â€”",
+                    "2nd": cat_col.index[1] if len(cat_col) > 1 else "—",
+                    "2nd %": f"{cat_col.iloc[1]:.0f}%" if len(cat_col) > 1 else "—",
+                    f"{sel_brand} %": f"{pivot.loc[sel_brand, cat]:.0f}%" if sel_brand in pivot.index else "—",
                 })
         if leader_rows:
             leader_df = pd.DataFrame(leader_rows)
@@ -4451,7 +4451,7 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
             for _, row in brand_df_sorted.iterrows():
                 cat = row["category"]
                 cat_data = df[df["category"] == cat].sort_values("pct", ascending=False)
-                leader = cat_data.iloc[0]["brand_name"] if not cat_data.empty else "â€”"
+                leader = cat_data.iloc[0]["brand_name"] if not cat_data.empty else "—"
                 leader_pct = cat_data.iloc[0]["pct"] if not cat_data.empty else 0
                 rank_num = cat_data.reset_index(drop=True).index[cat_data.reset_index(drop=True)["brand_name"] == sel_brand].tolist()
                 comparison_rows.append({
@@ -4490,7 +4490,7 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
                               barmode="group",
                               yaxis_title="% of All Respondents",
                               legend=dict(orientation="h", y=-0.15, xanchor="center", x=0.5),
-                              title=dict(text=f"{sel_brand} â€” Portfolio Association vs. Category Leader", font=dict(size=13)))
+                              title=dict(text=f"{sel_brand} — Portfolio Association vs. Category Leader", font=dict(size=13)))
             st.plotly_chart(_theme_fig(fig), use_container_width=True)
 
             # Detailed table
@@ -4515,7 +4515,7 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
             )
 
     with pa_t3:
-        st.markdown("**For each product category â€” which brands own it in the consumer mind?**")
+        st.markdown("**For each product category — which brands own it in the consumer mind?**")
         sel_cat_pa = st.selectbox("Select category:", [c for c in cat_order if c in df["category"].unique()],
                                   key="pa_cat_sel")
         cat_df = df[df["category"] == sel_cat_pa].sort_values("pct", ascending=False).head(15)
@@ -4533,7 +4533,7 @@ def _render_portfolio_awareness(sel_brand: str, zone="all", gender="all", age_ba
         fig3.update_layout(**base,
                            yaxis_title="% of All Respondents",
                            xaxis=dict(tickangle=-30),
-                           title=dict(text=f"Category Champion â€” {sel_cat_pa}", font=dict(size=13)))
+                           title=dict(text=f"Category Champion — {sel_cat_pa}", font=dict(size=13)))
         st.plotly_chart(_theme_fig(fig3), use_container_width=True)
         st.caption(f"% of {total_resp:,} respondents who associate each brand with {sel_cat_pa}. Dark green = {sel_brand}.")
 
@@ -4594,11 +4594,11 @@ def _render_price_tier_distribution(sel_cat: str, zone="all", gender="all", age_
             barmode="stack",
             yaxis=dict(title="% Buyers", range=[0, 105]),
             legend=dict(orientation="h", yanchor="bottom", y=-0.2, x=0.5, xanchor="center"),
-            title=dict(text="Price Segment Mix by Category (BQ0b â€” Actual Price Paid)", font=dict(size=13)),
+            title=dict(text="Price Segment Mix by Category (BQ0b — Actual Price Paid)", font=dict(size=13)),
         )
         st.plotly_chart(_theme_fig(fig_smry), use_container_width=True)
         st.caption(
-            "Budget = lower tier(s) Â· Mid-range = middle tier(s) Â· Premium = upper tier(s). "
+            "Budget = lower tier(s) · Mid-range = middle tier(s) · Premium = upper tier(s). "
             "Tier boundaries differ per category. Base = recent buyers who reported a price."
         )
         st.dataframe(
@@ -4640,7 +4640,7 @@ def _render_price_tier_distribution(sel_cat: str, zone="all", gender="all", age_
         # Annotate top tier
         top_pct = sub.loc[sub["n"].idxmax(), "pct"]
         fig_dt.add_annotation(
-            x=top_pct, y=top_tier, text="â˜… Most common",
+            x=top_pct, y=top_tier, text="★ Most common",
             xanchor="left", xshift=65, showarrow=False,
             font=dict(size=9, color="#1a5d4d"),
             bgcolor="rgba(26,93,77,0.08)",
@@ -4649,7 +4649,7 @@ def _render_price_tier_distribution(sel_cat: str, zone="all", gender="all", age_
                      if k not in ("xaxis","yaxis","legend","margin")}
         fig_dt.update_layout(
             **layout_dt,
-            title=dict(text=f"{cat_sel2} â€” Price Paid Distribution (n={total:,})", font=dict(size=13)),
+            title=dict(text=f"{cat_sel2} — Price Paid Distribution (n={total:,})", font=dict(size=13)),
             xaxis=dict(title="% Buyers", range=[0, sub["pct"].max() * 1.3]),
             yaxis=dict(autorange="reversed", automargin=True),
             margin=dict(l=160, r=100, t=60, b=40),
@@ -4727,7 +4727,7 @@ def _get_purchase_journey_data(zone="all", gender="all", age_band="all", city="a
                     conn, params=fparams,
                 )
             elif "question_code" in col_names and "answer" in col_names:
-                # Generic-loader schema â€” remap to pq_var/value_code columns for uniform downstream
+                # Generic-loader schema — remap to pq_var/value_code columns for uniform downstream
                 # Only include rows whose question_text hints at a purchase journey topic
                 df_raw = pd.read_sql_query(
                     f"WITH {cte} "
@@ -4767,7 +4767,7 @@ def _render_purchase_journey(zone="all", gender="all", age_band="all", city="all
     if df_all is None or df_all.empty:
         st.info(
             "**Purchase Journey data unavailable for this project.** "
-            "This section requires pq1â€“pq5 structured purchase-journey variables "
+            "This section requires pq1–pq5 structured purchase-journey variables "
             "in the survey. The current dataset uses a different schema or did not "
             "collect these variables in this format."
         )
@@ -4798,7 +4798,7 @@ def _render_purchase_journey(zone="all", gender="all", age_band="all", city="all
             label_map = LABEL_MAPS[pq_key]
             sub["label"] = sub["value_code"].map(lambda c: label_map.get(int(c), f"Code {c}"))
             sub["pct"] = (sub["n"] / sub["n"].sum() * 100).round(1)
-            sub = sub.sort_values("pct", ascending=True)  # horizontal bar â€” ascending for bottom-up
+            sub = sub.sort_values("pct", ascending=True)  # horizontal bar — ascending for bottom-up
 
             top_item = sub.iloc[-1]  # highest pct after sort ascending
             base_color = colors[idx % len(colors)]
@@ -4821,7 +4821,7 @@ def _render_purchase_journey(zone="all", gender="all", age_band="all", city="all
             # Top item annotation
             fig_pj.add_annotation(
                 x=top_item["pct"], y=top_item["label"],
-                text="â˜… Top",
+                text="★ Top",
                 xanchor="left", xshift=60,
                 showarrow=False,
                 font=dict(size=9, color="#1a5d4d", family="Inter"),
@@ -4840,7 +4840,7 @@ def _render_purchase_journey(zone="all", gender="all", age_band="all", city="all
             )
             st.plotly_chart(_theme_fig(fig_pj), use_container_width=True)
             st.caption(
-                f"â˜… Top pick: **{top_item['label']}** ({top_item['pct']:.1f}%).  "
+                f"★ Top pick: **{top_item['label']}** ({top_item['pct']:.1f}%).  "
                 f"Base n = {sub['n'].sum():,} respondents (recent buyers)."
             )
 
@@ -4926,7 +4926,7 @@ def _get_csat_overall():
 
 @st.cache_data(ttl=3600)
 def _get_csat_distribution():
-    """CSAT score distribution (score Ã— n) from fact_satisfaction."""
+    """CSAT score distribution (score × n) from fact_satisfaction."""
     import sqlite3
     from infoleap.db_loader import get_db_path
     try:
@@ -4943,14 +4943,14 @@ def _get_csat_distribution():
 
 @st.cache_data(ttl=3600, show_spinner="Loading IPA data...")
 def _get_ipa_data(brand_name: str):
-    """Fetch key-driver (importance Ã— association) rows for a given brand.
+    """Fetch key-driver (importance × association) rows for a given brand.
 
-    Was `SELECT ... FROM v_key_drivers WHERE brand_name = ?` â€” that view only exists in
+    Was `SELECT ... FROM v_key_drivers WHERE brand_name = ?` — that view only exists in
     project_1's own database (a manually-created SQL view, never part of generic_loader.py's
     schema), so this crashed with "no such table: v_key_drivers" for EVERY generically-ingested
     project (found live on Akshayakalpa). The view's own definition only ever joins
-    fact_need_importance/fact_brand_imagery/dim_bq3_attribute/dim_brand â€” all four of which DO
-    exist in the generic schema â€” so inlining the same query works for any project's DB
+    fact_need_importance/fact_brand_imagery/dim_bq3_attribute/dim_brand — all four of which DO
+    exist in the generic schema — so inlining the same query works for any project's DB
     regardless of whether project_1's convenience view happens to exist in it.
     """
     import sqlite3
@@ -4959,7 +4959,7 @@ def _get_ipa_data(brand_name: str):
     conn = sqlite3.connect(str(db_path))
     try:
         # project_1's fixed schema names this column `score`; the generic multi-project schema
-        # (generic_loader.py) names it `importance_score` â€” detect which one this DB actually has
+        # (generic_loader.py) names it `importance_score` — detect which one this DB actually has
         # rather than hardcoding either, so this works regardless of which pipeline wrote the DB.
         _cols = {r[1] for r in conn.execute("PRAGMA table_info(fact_need_importance)")}
         _score_col = "importance_score" if "importance_score" in _cols else "score"
@@ -4998,7 +4998,7 @@ def _get_ipa_data(brand_name: str):
 
 
 def _render_ipa_grid(sel_brand: str):
-    """Importance-Performance Analysis (IPA) â€” readable scatter + quadrant analysis."""
+    """Importance-Performance Analysis (IPA) — readable scatter + quadrant analysis."""
     if not sel_brand:
         st.info("Select a brand to view the IPA grid.")
         return
@@ -5007,13 +5007,13 @@ def _render_ipa_grid(sel_brand: str):
     if df.empty:
         st.info(
             f"**Importance-Performance Grid unavailable for this project.** "
-            f"This chart requires attribute importance ratings (BQ3a) â€” "
+            f"This chart requires attribute importance ratings (BQ3a) — "
             f"the current dataset does not include that battery. "
             f"Only brand imagery associations (BQ3b) were collected."
         )
         return
 
-    # â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Filters ───────────────────────────────────────────────────────────────
     all_features = sorted(df["broad_feature"].dropna().unique().tolist())
     ipa_col1, ipa_col2 = st.columns([2, 3])
     with ipa_col1:
@@ -5026,30 +5026,30 @@ def _render_ipa_grid(sel_brand: str):
         )
     with ipa_col2:
         show_labels = st.toggle("Show attribute labels on chart", value=False, key="ipa_show_labels",
-                                help="Turn on to see text labels â€” may overlap with many attributes")
+                                help="Turn on to see text labels — may overlap with many attributes")
 
     df_plot = df[df["broad_feature"].isin(ipa_features)].copy() if ipa_features else df.copy()
     if df_plot.empty:
         st.info("No attributes match current filter.")
         return
 
-    # â”€â”€ Quadrant assignment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Quadrant assignment ───────────────────────────────────────────────────
     x_mid = df_plot["mean_importance"].median()
     y_mid = df_plot["pct_association"].median()
 
     def assign_quadrant(row):
         hi_imp = row["mean_importance"] >= x_mid
         hi_ass = row["pct_association"] >= y_mid
-        if hi_imp and hi_ass:     return "ðŸŸ¢ Strengths (Maintain)"
-        if not hi_imp and hi_ass: return "ðŸ”´ Opportunities (Improve)"
-        if hi_imp and not hi_ass: return "ðŸŸ¡ Monitor"
-        return "â¬œ Low Priority"
+        if hi_imp and hi_ass:     return "🟢 Strengths (Maintain)"
+        if not hi_imp and hi_ass: return "🔴 Opportunities (Improve)"
+        if hi_imp and not hi_ass: return "🟡 Monitor"
+        return "⬜ Low Priority"
 
     df_plot["quadrant"] = df_plot.apply(assign_quadrant, axis=1)
 
     # Quadrant insight callout
-    strengths = df_plot[df_plot["quadrant"] == "ðŸŸ¢ Strengths (Maintain)"]["attr_label"].tolist()
-    opportunities = df_plot[df_plot["quadrant"] == "ðŸ”´ Opportunities (Improve)"]["attr_label"].tolist()
+    strengths = df_plot[df_plot["quadrant"] == "🟢 Strengths (Maintain)"]["attr_label"].tolist()
+    opportunities = df_plot[df_plot["quadrant"] == "🔴 Opportunities (Improve)"]["attr_label"].tolist()
     ipa_insights = []
     if strengths:
         ipa_insights.append(
@@ -5061,9 +5061,9 @@ def _render_ipa_grid(sel_brand: str):
             f"**{len(opportunities)} opportunity attributes** are rated highly important by consumers but {sel_brand} has low association: "
             + ", ".join(f"*{a}*" for a in opportunities[:4]) + ("..." if len(opportunities) > 4 else "") + ". Priority investment areas."
         )
-    _insight_callout(ipa_insights, f"IPA Insights â€” {sel_brand}", "ðŸ“Š")
+    _insight_callout(ipa_insights, f"IPA Insights — {sel_brand}", "📊")
 
-    ipa_t1, ipa_t2, ipa_t3 = st.tabs(["ðŸ“ IPA Scatter", "ðŸ“‹ Quadrant Summary", "ðŸ“Š Ranked Tables"])
+    ipa_t1, ipa_t2, ipa_t3 = st.tabs(["📍 IPA Scatter", "📋 Quadrant Summary", "📊 Ranked Tables"])
 
     with ipa_t1:
         colors = _chart_colors()
@@ -5079,10 +5079,10 @@ def _render_ipa_grid(sel_brand: str):
 
         # Quadrant shading
         quad_cfg = [
-            (x_mid, x_max, y_mid, y_max_val, "rgba(34,197,94,0.08)",  "âœ¦ STRENGTHS<br>Maintain",       x_max-0.02, y_max_val-1),
-            (x_min, x_mid, y_mid, y_max_val, "rgba(239,68,68,0.08)",   "âœ¦ OPPORTUNITIES<br>Improve",    x_min+0.02, y_max_val-1),
-            (x_mid, x_max, y_min_val, y_mid, "rgba(251,191,36,0.08)",  "âœ¦ MONITOR",                     x_max-0.02, y_min_val+1),
-            (x_min, x_mid, y_min_val, y_mid, "rgba(156,163,175,0.05)", "âœ¦ LOW PRIORITY",                x_min+0.02, y_min_val+1),
+            (x_mid, x_max, y_mid, y_max_val, "rgba(34,197,94,0.08)",  "✦ STRENGTHS<br>Maintain",       x_max-0.02, y_max_val-1),
+            (x_min, x_mid, y_mid, y_max_val, "rgba(239,68,68,0.08)",   "✦ OPPORTUNITIES<br>Improve",    x_min+0.02, y_max_val-1),
+            (x_mid, x_max, y_min_val, y_mid, "rgba(251,191,36,0.08)",  "✦ MONITOR",                     x_max-0.02, y_min_val+1),
+            (x_min, x_mid, y_min_val, y_mid, "rgba(156,163,175,0.05)", "✦ LOW PRIORITY",                x_min+0.02, y_min_val+1),
         ]
         for x0, x1, y0, y1, fill, label, lx, ly in quad_cfg:
             fig_ipa.add_shape(type="rect", x0=x0, x1=x1, y0=y0, y1=y1,
@@ -5125,7 +5125,7 @@ def _render_ipa_grid(sel_brand: str):
                     "Group: %{customdata[3]}<br>"
                     "Importance score: <b>%{customdata[1]:.2f}</b>/7<br>"
                     "Brand association: <b>%{customdata[2]:.1f}%</b> of respondents<br>"
-                    "<i>Hover to explore â€” toggle labels above for names</i>"
+                    "<i>Hover to explore — toggle labels above for names</i>"
                     "<extra></extra>"
                 ),
             ))
@@ -5134,14 +5134,14 @@ def _render_ipa_grid(sel_brand: str):
                        if k not in ("xaxis", "yaxis", "legend")}
         fig_ipa.update_layout(
             **layout_base,
-            xaxis=dict(title="â† Less Important | Mean Importance Score (1â€“7) | More Important â†’",
+            xaxis=dict(title="← Less Important | Mean Importance Score (1–7) | More Important →",
                        range=[x_min, x_max], gridcolor="#f1f5f9", zeroline=False, tickformat=".1f"),
-            yaxis=dict(title="â† Lower Association | Brand Association % | Higher Association â†’",
+            yaxis=dict(title="← Lower Association | Brand Association % | Higher Association →",
                        range=[y_min_val, y_max_val], gridcolor="#f1f5f9", zeroline=False),
             legend=dict(orientation="h", yanchor="bottom", y=-0.22, xanchor="center", x=0.5,
                         font=dict(size=10), title=dict(text="Attribute Group:")),
             showlegend=True,
-            title=dict(text=f"IPA Grid â€” {sel_brand}  (hover dots for attribute names)", font=dict(size=13)),
+            title=dict(text=f"IPA Grid — {sel_brand}  (hover dots for attribute names)", font=dict(size=13)),
         )
         st.plotly_chart(_theme_fig(fig_ipa), use_container_width=True)
         st.caption(
@@ -5150,20 +5150,20 @@ def _render_ipa_grid(sel_brand: str):
         )
 
     with ipa_t2:
-        quadrant_order = ["ðŸŸ¢ Strengths (Maintain)", "ðŸ”´ Opportunities (Improve)", "ðŸŸ¡ Monitor", "â¬œ Low Priority"]
-        quad_colors   = {"ðŸŸ¢ Strengths (Maintain)": "#dcfce7", "ðŸ”´ Opportunities (Improve)": "#fee2e2",
-                         "ðŸŸ¡ Monitor": "#fef9c3", "â¬œ Low Priority": "#f1f5f9"}
+        quadrant_order = ["🟢 Strengths (Maintain)", "🔴 Opportunities (Improve)", "🟡 Monitor", "⬜ Low Priority"]
+        quad_colors   = {"🟢 Strengths (Maintain)": "#dcfce7", "🔴 Opportunities (Improve)": "#fee2e2",
+                         "🟡 Monitor": "#fef9c3", "⬜ Low Priority": "#f1f5f9"}
         quad_desc = {
-            "ðŸŸ¢ Strengths (Maintain)":     "High importance + high association. Core competitive moats. Protect & invest to maintain.",
-            "ðŸ”´ Opportunities (Improve)":  "High importance + low association. Consumers care but brand is weak here. Fix these first.",
-            "ðŸŸ¡ Monitor":                  "Low importance + high association. Brand over-delivers but consumers don't value it much.",
-            "â¬œ Low Priority":              "Low importance + low association. Neither a gap nor a strength. Deprioritise.",
+            "🟢 Strengths (Maintain)":     "High importance + high association. Core competitive moats. Protect & invest to maintain.",
+            "🔴 Opportunities (Improve)":  "High importance + low association. Consumers care but brand is weak here. Fix these first.",
+            "🟡 Monitor":                  "Low importance + high association. Brand over-delivers but consumers don't value it much.",
+            "⬜ Low Priority":              "Low importance + low association. Neither a gap nor a strength. Deprioritise.",
         }
         for q in quadrant_order:
             q_df = df_plot[df_plot["quadrant"] == q].sort_values("mean_importance", ascending=False)
             if q_df.empty:
                 continue
-            with st.expander(f"{q} â€” {len(q_df)} attribute(s)", expanded=(q in ["ðŸŸ¢ Strengths (Maintain)", "ðŸ”´ Opportunities (Improve)"])):
+            with st.expander(f"{q} — {len(q_df)} attribute(s)", expanded=(q in ["🟢 Strengths (Maintain)", "🔴 Opportunities (Improve)"])):
                 st.markdown(f"<div style='font-size:0.82rem;color:#6b7280;margin-bottom:8px'>{quad_desc[q]}</div>", unsafe_allow_html=True)
                 show_q = q_df[["attr_label", "broad_feature", "mean_importance", "pct_association"]].copy()
                 show_q.columns = ["Attribute", "Group", "Importance (avg)", "Association %"]
@@ -5180,7 +5180,7 @@ def _render_ipa_grid(sel_brand: str):
     with ipa_t3:
         rt1, rt2 = st.columns(2)
         with rt1:
-            st.markdown(f"**Top 10 by Importance â€” {sel_brand}**")
+            st.markdown(f"**Top 10 by Importance — {sel_brand}**")
             top_imp = df_plot.sort_values("mean_importance", ascending=False).head(10)[
                 ["attr_label", "broad_feature", "mean_importance", "pct_association", "quadrant"]
             ]
@@ -5188,7 +5188,7 @@ def _render_ipa_grid(sel_brand: str):
             st.dataframe(top_imp.style.format({"Importance": "{:.2f}", "Assoc %": "{:.1f}"}),
                          hide_index=True, use_container_width=True)
         with rt2:
-            st.markdown(f"**Top 10 by Brand Association â€” {sel_brand}**")
+            st.markdown(f"**Top 10 by Brand Association — {sel_brand}**")
             top_ass = df_plot.sort_values("pct_association", ascending=False).head(10)[
                 ["attr_label", "broad_feature", "mean_importance", "pct_association", "quadrant"]
             ]
@@ -5199,7 +5199,7 @@ def _render_ipa_grid(sel_brand: str):
 
 def _render_what_if_simulator(brand_name, current_assoc, nps_impacts):
     """Interactive simulator to project NPS impact based on driver association changes."""
-    st.markdown(f"### ðŸŽ¯ What-If Impact Simulator: {brand_name}")
+    st.markdown(f"### 🎯 What-If Impact Simulator: {brand_name}")
     st.markdown("Adjust the association levels (Market Presence %) for each driver to see the projected impact on NPS.")
 
     if current_assoc.empty or nps_impacts.empty:
@@ -5251,13 +5251,13 @@ def _render_what_if_simulator(brand_name, current_assoc, nps_impacts):
         contributions = contributions[contributions != 0].sort_values(ascending=False)
         if not contributions.empty:
             for d, val in contributions.items():
-                st.write(f"{'ðŸŸ¢' if val > 0 else 'ðŸ”´'} **{d}**: {val:+.2f}")
+                st.write(f"{'🟢' if val > 0 else '🔴'} **{d}**: {val:+.2f}")
         else:
             st.info("Adjust the sliders to see how NPS might move.")
 
 def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", gender_arg="all", age_band_arg="all", city_arg="all", project_id="project_1"):
     _section_header(
-        "ðŸŽ¯ Brand Driver Analysis",
+        "🎯 Brand Driver Analysis",
         "Deep-dive into which attributes drive brand perception and how brands are positioned relative to those drivers.",
     )
 
@@ -5302,9 +5302,9 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
     with col4:
         da_pctile = st.selectbox("Significance", [50, 60, 65, 70, 75, 80, 85, 90], index=2, key="da_pctile_sel")
 
-    _da_pooled = True  # always pooled â€” all brands stacked (XLSTAT category model)
+    _da_pooled = True  # always pooled — all brands stacked (XLSTAT category model)
 
-    # â”€â”€ Sample size filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Sample size filter ────────────────────────────────────────────────────
     with st.expander("Sample Filters", expanded=False):
         da_top_brands = st.slider("Max brands in analysis", 3, 19, 10, key="da_top_brands",
                                    help="Cap on number of brands included (ranked by aided awareness)")
@@ -5341,27 +5341,27 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
 
     # KPI Row
     k1, k2, k3, k4 = st.columns(4)
-    with k1: _metric_card("Drivers Analysed", str(len(selected_drivers)), "ðŸŽ¯")
-    with k2: _metric_card("Brands Compared", str(len(summary)) if summary is not None else "0", "ðŸ¢")
-    with k3: _metric_card(f"p{da_pctile} Threshold", f"{bip_tables.get('percentiles', {}).get(f'p{da_pctile}', 0):.1f}%", "ðŸ“Š")
-    with k4: _metric_card("Analysis Mode", compare_by, "ðŸ”")
+    with k1: _metric_card("Drivers Analysed", str(len(selected_drivers)), "🎯")
+    with k2: _metric_card("Brands Compared", str(len(summary)) if summary is not None else "0", "🏢")
+    with k3: _metric_card(f"p{da_pctile} Threshold", f"{bip_tables.get('percentiles', {}).get(f'p{da_pctile}', 0):.1f}%", "📊")
+    with k4: _metric_card("Analysis Mode", compare_by, "🔍")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Independent `if`s, not st.tabs() â€” some of these sub-tabs (Category Reach)
+    # Independent `if`s, not st.tabs() — some of these sub-tabs (Category Reach)
     # trigger their own fresh compute; lazy rendering avoids paying for all 10
     # on every rerun.
     _dd_labels = [
-        "ðŸ’¡ Summary & Insights",
-        "ðŸŽ¯ Driver Matrix",
-        "ðŸŽ¯ What-If Simulator",
-        "ðŸ•¸ï¸ Perceptual Map",
-        "ðŸ“Š Detailed Tables",
-        "ðŸ¤– AI Narrative",
-        "ðŸŒ Category Reach",
-        "ðŸ† Brand Battle",
-        "ðŸŽ¯ White Space",
-        "ðŸ•¸ï¸ Rival Radar",
+        "💡 Summary & Insights",
+        "🎯 Driver Matrix",
+        "🎯 What-If Simulator",
+        "🕸️ Perceptual Map",
+        "📊 Detailed Tables",
+        "🤖 AI Narrative",
+        "🌐 Category Reach",
+        "🏆 Brand Battle",
+        "🎯 White Space",
+        "🕸️ Rival Radar",
     ]
     _dd_active = st.radio("Driver Deep-Dive view", _dd_labels, horizontal=True,
                           label_visibility="collapsed", key="da_subtab_selector")
@@ -5387,19 +5387,19 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
             else:
                 st.info("Select more drivers to see detailed brand positioning insights.")
 
-        # â”€â”€ NPS Impact regression â€” goodness-of-fit + per-driver significance â”€â”€
+        # ── NPS Impact regression — goodness-of-fit + per-driver significance ──
         # nps_impacts (used by the Driver Matrix / What-If tabs below) is a raw
         # regression coefficient with no context on whether it's statistically
         # reliable. Surface the same fit stats the Key Driver Regression tab
         # shows, so a coefficient here is never displayed unqualified.
         if nps_impact_stats:
             st.divider()
-            st.markdown("**NPS Impact Regression â€” Goodness of Fit** "
+            st.markdown("**NPS Impact Regression — Goodness of Fit** "
                         "*(the model behind the importance scores used in Driver Matrix / What-If Simulator)*")
             _pct_dropped_dd = nps_impact_stats.get("pct_dropped_na", 0) or 0
             if _pct_dropped_dd > 5:
-                st.warning(f"âš ï¸ {_pct_dropped_dd:.1f}% of respondents were dropped for missing data "
-                          f"(n={nps_impact_stats.get('n_before_na_omit', '?')} â†’ n={nps_impact_stats.get('n', 0)}). "
+                st.warning(f"⚠️ {_pct_dropped_dd:.1f}% of respondents were dropped for missing data "
+                          f"(n={nps_impact_stats.get('n_before_na_omit', '?')} → n={nps_impact_stats.get('n', 0)}). "
                           f"Importance scores below may be unstable.")
             _dd_sw = nps_impact_stats.get("shapiro_wilk") or {}
             _dd_sw_p = _dd_sw.get("p_value")
@@ -5408,15 +5408,15 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
                 try: return float(nps_impact_stats.get(k, d) or d)
                 except: return float(d)
             _dd_gof_rows = [
-                {"Statistic": "RÂ²",               "Value": f"{_nis('r_squared'):.4f}"},
-                {"Statistic": "Adjusted RÂ²",      "Value": f"{_nis('adj_r_squared'):.4f}"},
+                {"Statistic": "R²",               "Value": f"{_nis('r_squared'):.4f}"},
+                {"Statistic": "Adjusted R²",      "Value": f"{_nis('adj_r_squared'):.4f}"},
                 {"Statistic": "F (model)",        "Value":
                  f"{_nis('f_statistic'):.2f}"
                  + (f"  p={_dd_fp:.4f}" if _dd_fp is not None else "")},
                 {"Statistic": "AIC",              "Value": f"{_nis('aic'):.2f}"},
                 {"Statistic": "BIC",              "Value": f"{_nis('bic'):.2f}"},
                 {"Statistic": "Shapiro-Wilk (residuals)", "Value":
-                 f"W={_dd_sw.get('w_stat', 0):.4f}  p={_dd_sw_p:.4f}" if _dd_sw_p is not None else "â€”"},
+                 f"W={_dd_sw.get('w_stat', 0):.4f}  p={_dd_sw_p:.4f}" if _dd_sw_p is not None else "—"},
                 {"Statistic": "Observations (n)", "Value": f"{nps_impact_stats.get('n', 0):,}"},
                 {"Statistic": "Predictors",       "Value": f"{nps_impact_stats.get('n_attrs', 0)}"},
             ]
@@ -5430,9 +5430,9 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
                     _dd_rows.append({
                         "Driver": _lbl,
                         "Std. coef (importance)": round(float(_coef), 4),
-                        "p-value": f"{_p:.4f}" if _p is not None else "â€”",
-                        "Significant (p<0.05)": "âœ“" if _d.get("significant") else ("â€”" if _p is not None else "?"),
-                        "95% CI": f"[{_d.get('ci_low', 0):.3f}, {_d.get('ci_high', 0):.3f}]" if _d.get("ci_low") is not None else "â€”",
+                        "p-value": f"{_p:.4f}" if _p is not None else "—",
+                        "Significant (p<0.05)": "✓" if _d.get("significant") else ("—" if _p is not None else "?"),
+                        "95% CI": f"[{_d.get('ci_low', 0):.3f}, {_d.get('ci_high', 0):.3f}]" if _d.get("ci_low") is not None else "—",
                     })
                 if _dd_rows:
                     st.markdown("**Per-driver significance** *(is each importance score statistically reliable?)*")
@@ -5501,7 +5501,7 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
         with col_ts2:
             transpose_view = st.checkbox("Drivers as Rows (transposed)", value=True,
                                           key="da_transpose_view",
-                                          help="Brands as columns, drivers as rows â€” easier to compare")
+                                          help="Brands as columns, drivers as rows — easier to compare")
 
         def _show_transposed(df, style_fn=None):
             if df is None or df.empty:
@@ -5536,10 +5536,10 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
 
     if _dd_active == _dd_labels[6]:
         _section_header(
-            "ðŸŒ Cross-Category Driver Reach",
+            "🌐 Cross-Category Driver Reach",
             "Is this driver universally important, or specific to one category? "
             "Market-norm association % shows how strongly consumers link this attribute "
-            "to brands in each category â€” regardless of which brand they pick.",
+            "to brands in each category — regardless of which brand they pick.",
         )
         reach_data = _run_cross_category_reach(tuple(sorted(selected_drivers)), da_pctile)
         reach_df     = reach_data.get("reach_df", pd.DataFrame())
@@ -5582,7 +5582,7 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
                 textposition="outside",
             ))
             fig_bar.update_layout(
-                title="Universality Score â€” Average Market Norm % Across All Categories",
+                title="Universality Score — Average Market Norm % Across All Categories",
                 yaxis_title="Avg Market Norm %",
                 height=280,
                 margin=dict(l=10, r=10, t=40, b=10),
@@ -5598,22 +5598,22 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
             if top_universal:
                 findings.append(
                     f"**{top_universal}** is the most universal driver (avg {universality.iloc[0]:.1f}% "
-                    f"market norm across all categories) â€” safe equity to build brand-wide."
+                    f"market norm across all categories) — safe equity to build brand-wide."
                 )
             for drv in list(universality.index[:3]):
-                best_cat = top_niche_cat.get(drv, "â€”")
+                best_cat = top_niche_cat.get(drv, "—")
                 best_val = reach_df.loc[best_cat, drv] if best_cat in reach_df.index else 0
                 avg_val  = universality.get(drv, 0)
                 if best_val > avg_val * 1.5:
                     findings.append(
                         f"**{drv}** skews heavily toward **{best_cat}** ({best_val:.1f}%) "
-                        f"vs overall avg ({avg_val:.1f}%) â€” category-specific opportunity."
+                        f"vs overall avg ({avg_val:.1f}%) — category-specific opportunity."
                     )
-            _insight_callout(findings, "Category Reach Interpretation", "ðŸŒ")
+            _insight_callout(findings, "Category Reach Interpretation", "🌐")
 
     if _dd_active == _dd_labels[7]:
         _section_header(
-            "ðŸ† Brand Battle â€” Per-Driver Competition",
+            "🏆 Brand Battle — Per-Driver Competition",
             "Who wins each driver head-to-head? Green bars = brand significantly "
             "over-associated (BIP YES). Dashed line = significance gate. "
             "Tight clustering = commodity driver; spread = owned territory.",
@@ -5723,8 +5723,8 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
                 st.plotly_chart(fig_single, use_container_width=True)
 
             st.caption(
-                "ðŸŸ¢ Green bar = BIP significant (brand over-indexes vs market norm). "
-                "ðŸ”µ Dashed line = market average for that driver. "
+                "🟢 Green bar = BIP significant (brand over-indexes vs market norm). "
+                "🔵 Dashed line = market average for that driver. "
                 "Bars clustered near average = commodity space; clear winner above average = owned territory."
             )
 
@@ -5738,19 +5738,19 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
                     leader = scores.index[0]
                     if gap > 8:
                         battle_findings.append(
-                            f"**{drv}**: {leader} leads by {gap:.1f}pp over #2 â€” clear ownership."
+                            f"**{drv}**: {leader} leads by {gap:.1f}pp over #2 — clear ownership."
                         )
                     else:
                         battle_findings.append(
-                            f"**{drv}**: tight contest â€” top 2 within {gap:.1f}pp â€” contested commodity space."
+                            f"**{drv}**: tight contest — top 2 within {gap:.1f}pp — contested commodity space."
                         )
-            _insight_callout(battle_findings, "Battle Analysis", "ðŸ†")
+            _insight_callout(battle_findings, "Battle Analysis", "🏆")
 
     if _dd_active == _dd_labels[8]:
         _section_header(
-            "ðŸŽ¯ Driver White Space Map",
+            "🎯 Driver White Space Map",
             "Importance (x) vs. Ownership (y). Drivers in the bottom-right quadrant "
-            "are high-market-norm but claimed by few brands â€” maximum untapped opportunity.",
+            "are high-market-norm but claimed by few brands — maximum untapped opportunity.",
         )
         col_avgs = bip_tables.get("column_averages", pd.Series(dtype=float))
         sig_df_ws = bip_tables.get("table14_significance", pd.DataFrame())
@@ -5812,10 +5812,10 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
             fig_ws.add_hline(y=y_mid, line_dash="dot", line_color="#9ca3af")
 
             for quad, (ax, ay, text) in {
-                "White Space":  (max(x_vals + [x_mid + 1]) * 0.95, y_mid * 0.15, "ðŸŸ¢ White Space<br>(build equity)"),
-                "Battleground": (max(x_vals + [x_mid + 1]) * 0.95, max(y_vals + [y_mid + 1]) * 0.9, "ðŸ”´ Battleground<br>(defend/attack)"),
-                "Owned Niche":  (min(x_vals + [x_mid - 1]) * 1.05 if min(x_vals) > 0 else x_mid * 0.1, max(y_vals + [y_mid + 1]) * 0.9, "ðŸŸ¡ Owned Niche<br>(maintain)"),
-                "Deprioritize": (min(x_vals + [x_mid - 1]) * 1.05 if min(x_vals) > 0 else x_mid * 0.1, y_mid * 0.15, "âšª Deprioritize"),
+                "White Space":  (max(x_vals + [x_mid + 1]) * 0.95, y_mid * 0.15, "🟢 White Space<br>(build equity)"),
+                "Battleground": (max(x_vals + [x_mid + 1]) * 0.95, max(y_vals + [y_mid + 1]) * 0.9, "🔴 Battleground<br>(defend/attack)"),
+                "Owned Niche":  (min(x_vals + [x_mid - 1]) * 1.05 if min(x_vals) > 0 else x_mid * 0.1, max(y_vals + [y_mid + 1]) * 0.9, "🟡 Owned Niche<br>(maintain)"),
+                "Deprioritize": (min(x_vals + [x_mid - 1]) * 1.05 if min(x_vals) > 0 else x_mid * 0.1, y_mid * 0.15, "⚪ Deprioritize"),
             }.items():
                 fig_ws.add_annotation(
                     x=ax, y=ay, text=text, showarrow=False,
@@ -5836,10 +5836,10 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
             )
             st.plotly_chart(fig_ws, use_container_width=True)
             st.caption(
-                "ðŸŸ¢ **White Space** = high consumer importance, few brands own it â€” build equity here. "
-                "ðŸ”´ **Battleground** = everyone fights here â€” only enter if you can win. "
-                "ðŸŸ¡ **Owned Niche** = brands claim it but consumers don't care much â€” maintain efficiently. "
-                "âšª **Deprioritize** = low importance, low ownership â€” skip."
+                "🟢 **White Space** = high consumer importance, few brands own it — build equity here. "
+                "🔴 **Battleground** = everyone fights here — only enter if you can win. "
+                "🟡 **Owned Niche** = brands claim it but consumers don't care much — maintain efficiently. "
+                "⚪ **Deprioritize** = low importance, low ownership — skip."
             )
 
             ws_drivers = [
@@ -5847,13 +5847,13 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
             ]
             if ws_drivers:
                 _insight_callout(
-                    [f"**{d}** is unclaimed high-value territory â€” no brand owns it above the gate yet." for d in ws_drivers[:3]],
-                    "White Space Opportunities", "ðŸŽ¯"
+                    [f"**{d}** is unclaimed high-value territory — no brand owns it above the gate yet." for d in ws_drivers[:3]],
+                    "White Space Opportunities", "🎯"
                 )
 
     if _dd_active == _dd_labels[9]:
         _section_header(
-            "ðŸ•¸ï¸ Rival Radar â€” Competitive Positioning",
+            "🕸️ Rival Radar — Competitive Positioning",
             "Normalized deviation per driver. Above 0 = brand over-associates vs. market average. "
             "Shows YOUR brand vs. top 3 rivals on every selected driver simultaneously.",
         )
@@ -5933,30 +5933,30 @@ def _render_section_16_driver_analysis(sel_cat, sel_brand=None, zone_arg="all", 
                 if strongest:
                     radar_findings.append(
                         f"**{sel_brand}** strongest on **{strongest}** "
-                        f"(+{float(brand_row[strongest]):.1f} normalized deviation) â€” protect this."
+                        f"(+{float(brand_row[strongest]):.1f} normalized deviation) — protect this."
                     )
                 if weakest and float(brand_row[weakest]) < 0:
                     rival_best = norm_df[weakest].drop(sel_brand, errors="ignore").idxmax() if weakest in norm_df.columns else None
                     radar_findings.append(
                         f"**{weakest}** is a gap for {sel_brand} ({float(brand_row[weakest]):.1f})"
-                        + (f" â€” {rival_best} owns it." if rival_best else ".")
+                        + (f" — {rival_best} owns it." if rival_best else ".")
                     )
-            _insight_callout(radar_findings, "Positioning Insights", "ðŸ•¸ï¸")
+            _insight_callout(radar_findings, "Positioning Insights", "🕸️")
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 # INDUSTRY-STANDARD BRAND HEALTH SECTIONS
 # 1. Competitive Benchmarking Panel
 # 2. Brand Equity Index (BEI)
 # 3. Funnel Conversion & Leakage
 # 4. Consumer Demographics Profile
 # 5. Attribute Ownership Map
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════════
 
 @st.cache_data(ttl=3600)
 def _competitive_benchmarking_from_layer(_layer: "ProjectDataLayer", zone="all", gender="all", age_band="all", city="all") -> pd.DataFrame:
     """
-    data_layer version of _get_competitive_benchmarking â€” no SQL.
+    data_layer version of _get_competitive_benchmarking — no SQL.
     Computes all-brand funnel % + NPS + CSAT from raw Excel via ProjectDataLayer.
     Output columns match SQL version exactly so downstream fns need no changes.
     """
@@ -6055,7 +6055,7 @@ def _competitive_benchmarking_from_layer(_layer: "ProjectDataLayer", zone="all",
 
 @st.cache_data(ttl=3600)
 def _get_competitive_benchmarking(zone="all", gender="all", age_band="all", city="all") -> pd.DataFrame:
-    """All brands Ã— funnel stage % + NPS + brand-level CSAT."""
+    """All brands × funnel stage % + NPS + brand-level CSAT."""
     # Try data layer first (raw Excel path)
     _layer = _get_layer()
     if _layer is not None:
@@ -6251,7 +6251,7 @@ def _get_brand_stage_counts(zone="all", gender="all", age_band="all", city="all"
 
 @st.cache_data(ttl=3600)
 def _get_brand_equity_scores():
-    """Composite BEI: TOMÃ—0.25 + CONSIDERATIONÃ—0.30 + NPS_normÃ—0.25 + CSAT_normÃ—0.20, scaled 0â€“100."""
+    """Composite BEI: TOM×0.25 + CONSIDERATION×0.30 + NPS_norm×0.25 + CSAT_norm×0.20, scaled 0–100."""
     df = _get_competitive_benchmarking()
     if df.empty:
         return df
@@ -6272,12 +6272,12 @@ def _get_brand_equity_scores():
     _aided = pd.to_numeric(df["AIDED"], errors="coerce").fillna(0)
     out["aided_pct"] = (_tom + _spont + _aided).round(1)
     # 2026-07-28: found live testing a sparse new project (a brand with zero TOM/CONSIDERATION/
-    # NPS/CSAT rows) â€” `df["TOM"].round(1)` crashed with "type NoneType doesn't define __round__"
+    # NPS/CSAT rows) — `df["TOM"].round(1)` crashed with "type NoneType doesn't define __round__"
     # because a column with no data for some brands comes back as object dtype holding raw `None`
     # (not a proper NaN float), and pandas' `.round()` on object dtype calls Python's built-in
     # `round()` on each element rather than a vectorized numeric round. `_tom` two lines above
     # already goes through `pd.to_numeric(..., errors="coerce")` for exactly this reason (turns
-    # None into a real NaN float, which `.round()` handles fine) â€” these four lines just weren't
+    # None into a real NaN float, which `.round()` handles fine) — these four lines just weren't
     # updated to match when that fix was made, so the same source columns crashed here instead.
     # NOT using `.fillna(0)` here (unlike `_tom`/`_spont`/`_aided` above): those three are being
     # SUMMED into aided_pct, where a missing tier should read as "0 contribution"; these four are
@@ -6305,18 +6305,18 @@ def _get_brand_equity_scores():
 
 @st.cache_data(ttl=3600)
 def _get_funnel_conversion_data():
-    """Stage-to-stage conversion rates per brand â€” two chained funnels sharing TOTAL_AIDED as
-    their anchor: the awareness-depth funnel (TOTAL_AIDED â†’ Spontaneous â†’ Consideration â†’ TOM)
-    and the behavioral funnel (TOTAL_AIDED â†’ EVER_USED â†’ CONSIDERATION â†’ LAST_PURCHASED â†’ PREFERRED)."""
+    """Stage-to-stage conversion rates per brand — two chained funnels sharing TOTAL_AIDED as
+    their anchor: the awareness-depth funnel (TOTAL_AIDED → Spontaneous → Consideration → TOM)
+    and the behavioral funnel (TOTAL_AIDED → EVER_USED → CONSIDERATION → LAST_PURCHASED → PREFERRED)."""
     df = _get_competitive_benchmarking()
     if df.empty:
         return pd.DataFrame()
 
     # TOM/SPONT/AIDED are mutually EXCLUSIVE tiers in fact_brand_awareness (each respondent's
-    # awareness lands in exactly one), not cumulative counts â€” TOTAL_AIDED = TOM + SPONT + AIDED
+    # awareness lands in exactly one), not cumulative counts — TOTAL_AIDED = TOM + SPONT + AIDED
     # (see _get_competitive_benchmarking). The classic brand-tracking awareness funnel is nested
-    # and CUMULATIVE (Total Aware âŠ‡ Spontaneous âŠ‡ Top-of-Mind), so "Spontaneous" here must be
-    # built as TOM + SPONT summed, not read off the raw SPONT column alone â€” using the raw
+    # and CUMULATIVE (Total Aware ⊇ Spontaneous ⊇ Top-of-Mind), so "Spontaneous" here must be
+    # built as TOM + SPONT summed, not read off the raw SPONT column alone — using the raw
     # column would understate spontaneous recall by excluding respondents whose recall was
     # spontaneous AND top-of-mind.
     df = df.copy()
@@ -6328,8 +6328,8 @@ def _get_funnel_conversion_data():
 
         # Awareness-depth funnel: how much of total awareness survives at each stricter recall bar.
         # NOTE: CONSIDERATION is an independent survey question (not a nested subset of
-        # Spontaneous recall â€” see comment on the behavioral funnel below), so unlike the
-        # TOTAL_AIDEDâ†’SPONTâ†’TOM chain, the Spontâ†’Consideration and Considerationâ†’TOM legs are
+        # Spontaneous recall — see comment on the behavioral funnel below), so unlike the
+        # TOTAL_AIDED→SPONT→TOM chain, the Spont→Consideration and Consideration→TOM legs are
         # NOT guaranteed monotonic and can show >100% "conversion". Kept per explicit request.
         _aware_stages = [("TOTAL_AIDED", "TOTAL_AIDED"), ("SPONT_CUML", "SPONT"),
                           ("CONSIDERATION", "CONSIDERATION"), ("TOM", "TOM")]
@@ -6340,16 +6340,16 @@ def _get_funnel_conversion_data():
             if pd.notna(v1) and pd.notna(v2) and v1 > 0:
                 rows.append({
                     "brand_name": brand,
-                    "transition": f"{s1} â†’ {s2}",
-                    "transition_label": f"{_aware_labels[i]} â†’ {_aware_labels[i+1]}",
+                    "transition": f"{s1} → {s2}",
+                    "transition_label": f"{_aware_labels[i]} → {_aware_labels[i+1]}",
                     "from_stage": s1, "to_stage": s2,
                     "from_pct": round(float(v1), 1), "to_pct": round(float(v2), 1),
                     "conversion_rate": round(float(v2) / float(v1) * 100, 1),
                 })
 
-        # Behavioral funnel â€” LAST_PURCHASED and PREFERRED swapped per explicit request;
+        # Behavioral funnel — LAST_PURCHASED and PREFERRED swapped per explicit request;
         # both are independent questions (CONSIDERATION can exceed EVER_USED, etc.), not a
-        # strictly nested funnel â€” conversion_rate here is a ratio, not literal drop-off.
+        # strictly nested funnel — conversion_rate here is a ratio, not literal drop-off.
         _beh_stages = ["TOTAL_AIDED", "EVER_USED", "CONSIDERATION", "LAST_PURCHASED", "PREFERRED"]
         for i in range(len(_beh_stages) - 1):
             s1, s2 = _beh_stages[i], _beh_stages[i + 1]
@@ -6358,8 +6358,8 @@ def _get_funnel_conversion_data():
             if pd.notna(v1) and pd.notna(v2) and v1 > 0:
                 rows.append({
                     "brand_name": brand,
-                    "transition": f"{s1} â†’ {s2}",
-                    "transition_label": f"{s1} â†’ {s2}",
+                    "transition": f"{s1} → {s2}",
+                    "transition_label": f"{s1} → {s2}",
                     "from_stage": s1, "to_stage": s2,
                     "from_pct": round(float(v1), 1), "to_pct": round(float(v2), 1),
                     "conversion_rate": round(float(v2) / float(v1) * 100, 1),
@@ -6371,8 +6371,8 @@ def _get_funnel_conversion_data():
 def _get_demographic_profile(brand_name: str, zone="all", gender="all", age_band="all", city="all"):
     """Brand consideration % broken down by gender, age_band, and zone vs. overall brand avg.
 
-    Segment filters restrict the respondent base (e.g. gender=Female â†’ age/zone breakdown among women).
-    Filtering by the same dimension being charted is degenerate (shows one segment) â€” expected.
+    Segment filters restrict the respondent base (e.g. gender=Female → age/zone breakdown among women).
+    Filtering by the same dimension being charted is degenerate (shows one segment) — expected.
     """
     import sqlite3
     from infoleap.db_loader import get_db_path
@@ -6490,16 +6490,16 @@ def _get_attribute_ownership():
 
 @st.cache_data(ttl=3600)
 def _get_ownership_matrix(top_attrs: int = 20, top_brands: int = 8, attr_order: tuple = None):
-    """Attribute Ã— brand ownership matrix â€” which brand, if any, is SIGNIFICANTLY ahead of
+    """Attribute × brand ownership matrix — which brand, if any, is SIGNIFICANTLY ahead of
     every other brand on each attribute statement (pooled two-proportion z-test per attribute,
     not just "whoever has the highest raw %").
 
-    Row order: if `attr_order` is given (a tuple of attr_labels, already ranked), use it as-is â€”
+    Row order: if `attr_order` is given (a tuple of attr_labels, already ranked), use it as-is —
     this is the driver-regression's own importance ranking for whatever Y the caller picked (NPS/
     CSAT/an imagery attribute), since which attributes matter most genuinely changes depending on
     what outcome you're explaining, not a fixed property of the attribute itself. Falls back to
     static respondent-stated importance (bq3a, fact_need_importance) only when no regression has
-    been run yet â€” a reasonable default, not the "real" ranking.
+    been run yet — a reasonable default, not the "real" ranking.
     """
     import sqlite3
     from infoleap.db_loader import get_db_path
@@ -6567,7 +6567,7 @@ def _get_ownership_matrix(top_attrs: int = 20, top_brands: int = 8, attr_order: 
     return matrix, _top_attrs, _top_brand_names
 
 
-# â”€â”€ Render: Competitive Benchmarking Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Render: Competitive Benchmarking Panel ───────────────────────────────────
 
 def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
                                      zone="all", gender="all", age_band="all", city="all"):
@@ -6587,10 +6587,10 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
         "PREFERRED":      "Preferred %",
         "LAST_PURCHASED": "Last Purchased %",
         "nps":            "NPS Score",
-        "csat":           "CSAT (0â€“10)",
+        "csat":           "CSAT (0–10)",
     }
     cb_t1, cb_t2, cb_t3, cb_t4 = st.tabs(
-        ["ðŸ“Š Heatmap Table", "ðŸ† Metric Rankings", "ðŸ“Š Stage Coverage", "ðŸ”¬ Significance Test"])
+        ["📊 Heatmap Table", "🏆 Metric Rankings", "📊 Stage Coverage", "🔬 Significance Test"])
 
     with cb_t1:
         show_df = df[[c for c in DISPLAY_COLS if c in df.columns]].copy()
@@ -6611,7 +6611,7 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
             else:
                 ratio = (val - col_min) / (col_max - col_min)
             if is_nps:
-                # Redâ€“amberâ€“green: negative=red, zero=amber, positive=green
+                # Red–amber–green: negative=red, zero=amber, positive=green
                 if val < 0:
                     r = int(220 + (1 + val / 20) * 35) if val >= -20 else 220
                     return f"background-color: rgba(239,68,68,{0.3+ratio*0.5:.2f}); color: #7f1d1d; font-weight:600;"
@@ -6643,7 +6643,7 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
         # Suppress cells where AIDED respondent count is below min_base_n
         if "aided_n" in df.columns:
             _aided_n_map = df.set_index("brand_name")["aided_n"].to_dict()
-            for col in [c for c in avail_metric_cols if c not in ("NPS Score", "CSAT (0â€“10)")]:
+            for col in [c for c in avail_metric_cols if c not in ("NPS Score", "CSAT (0–10)")]:
                 show_df[col] = show_df.apply(
                     lambda row: row[col] if _aided_n_map.get(row["Brand"], 999) >= min_base_n else float("nan"),
                     axis=1,
@@ -6652,10 +6652,10 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
         styled = (
             show_df.style
             .apply(_style_row, axis=1)
-            .format({c: "{:.1f}" for c in avail_metric_cols}, na_rep="â€”")
+            .format({c: "{:.1f}" for c in avail_metric_cols}, na_rep="—")
         )
         st.dataframe(styled, use_container_width=True, hide_index=True)
-        st.caption(f"Darker = higher value. Dark green row = selected brand. Min {min_base_n} respondents (cells below threshold shown as â€”). NPS: red (<0) Â· amber (0â€“45) Â· green (>45).")
+        st.caption(f"Darker = higher value. Dark green row = selected brand. Min {min_base_n} respondents (cells below threshold shown as —). NPS: red (<0) · amber (0–45) · green (>45).")
 
     with cb_t2:
         metric_opts = [c for c in ["TOTAL_AIDED", "SPONT", "TOM", "EVER_USED", "CURRENT_USER", "CONSIDERATION", "PREFERRED", "LAST_PURCHASED", "nps", "csat"]
@@ -6664,7 +6664,7 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
                          "EVER_USED": "Ever Tried %", "CURRENT_USER": "Current Usage %",
                          "CONSIDERATION": "Consideration %", "PREFERRED": "Preference %",
                          "LAST_PURCHASED": "Last Purchased %",
-                         "nps": "NPS Score", "csat": "CSAT (0â€“10)"}
+                         "nps": "NPS Score", "csat": "CSAT (0–10)"}
         sel_metric = st.selectbox("Sort and rank by:", metric_opts,
                                   format_func=lambda x: metric_labels.get(x, x),
                                   key="cb_rank_metric")
@@ -6682,7 +6682,7 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
                           xaxis_title=metric_labels.get(sel_metric, sel_metric),
                           yaxis=dict(autorange="reversed", automargin=True),
                           margin=dict(l=140, r=80, t=40, b=40),
-                          title=dict(text=f"Brand Rankings â€” {metric_labels.get(sel_metric, sel_metric)}", font=dict(size=13)))
+                          title=dict(text=f"Brand Rankings — {metric_labels.get(sel_metric, sel_metric)}", font=dict(size=13)))
         st.plotly_chart(_theme_fig(fig), use_container_width=True)
 
     with cb_t3:
@@ -6700,7 +6700,7 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
             "CONSIDERATION": "Consideration",
             "PREFERRED": "Preferred",
         }
-        st.caption("âš ï¸ These are **independent survey questions**, not a sequential funnel. "
+        st.caption("⚠️ These are **independent survey questions**, not a sequential funnel. "
                    "Total Awareness = TOM + Spontaneous + Aided. "
                    "Consideration/Usage stages are asked to all respondents regardless of awareness.")
         fig = go.Figure()
@@ -6722,17 +6722,17 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
         fig.update_layout(**base, barmode="group",
                           yaxis_title="% of All Respondents",
                           legend=dict(orientation="h", yanchor="bottom", y=-0.38, xanchor="center", x=0.5),
-                          title=dict(text="Stage Coverage â€” Top 12 Brands by Total Awareness", font=dict(size=13)))
+                          title=dict(text="Stage Coverage — Top 12 Brands by Total Awareness", font=dict(size=13)))
         st.plotly_chart(_theme_fig(fig), use_container_width=True)
 
     with cb_t4:
-        # â”€â”€ Column-proportion significance test (XLSTAT / pValue-style sig letters) â”€â”€
-        st.markdown("**Pairwise significance â€” which brands are *significantly* ahead?**")
+        # ── Column-proportion significance test (XLSTAT / pValue-style sig letters) ──
+        st.markdown("**Pairwise significance — which brands are *significantly* ahead?**")
         st.caption(
             "Two-proportion z-test between every pair of brands on the chosen awareness metric "
             "(pooled variance, two-sided). Each brand gets a letter (A = highest). A brand's "
             "**Sig. higher than** column lists the letters of the brands it significantly beats at the "
-            "chosen confidence â€” the standard XLSTAT / pValue column-comparison table."
+            "chosen confidence — the standard XLSTAT / pValue column-comparison table."
         )
         sig_c1, sig_c2 = st.columns([2, 1])
         _sig_stage_opts = {
@@ -6754,11 +6754,11 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
                                      format_func=lambda a: f"{a:.0%}", key="cb_sig_conf")
         _sig_alpha = round(1 - _sig_conf, 2)
 
-        # Counts are computed from the ACTIVE segment filters â€” fetch first so the
+        # Counts are computed from the ACTIVE segment filters — fetch first so the
         # segment + base are shown explicitly (makes filter application visible).
         _counts, _sig_base = _get_brand_stage_counts(zone, gender, age_band, city)
         _is_filt = any(x != "all" for x in (zone, gender, age_band, city))
-        _sig_seg = " Â· ".join(
+        _sig_seg = " · ".join(
             v for v in [
                 None if zone == "all" else zone,
                 None if gender == "all" else gender,
@@ -6770,7 +6770,7 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
             f"<div style='display:flex;gap:10px;align-items:center;margin:2px 0 8px;'>"
             f"<span style='background:{'#1a5d4d' if _is_filt else '#6b7280'};color: #e5e7eb;"
             f"font-size:0.66rem;font-weight:800;padding:3px 12px;border-radius:20px;'>"
-            f"SEGMENT Â· {_h_escape(_sig_seg)}</span>"
+            f"SEGMENT · {_h_escape(_sig_seg)}</span>"
             f"<span style='font-size:0.74rem;color:#6b7280;'>Filtered base N = "
             f"<b>{_sig_base:,}</b> respondents{' (filters applied)' if _is_filt else ''}</span></div>",
             unsafe_allow_html=True,
@@ -6793,21 +6793,21 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
                       for _, r in _stg.iterrows() if int(r["n"]) >= _sig_minn]
             if len(_items) < 2:
                 _maxn = int(_stg["n"].max()) if not _stg.empty else 0
-                st.info(f"Only {len(_items)} brand(s) have â‰¥{_sig_minn} respondents on "
+                st.info(f"Only {len(_items)} brand(s) have ≥{_sig_minn} respondents on "
                         f"**{_sig_stage_opts[_sig_stage]}** in segment **{_sig_seg}** "
                         f"(largest brand has {_maxn}). Lower the Min base N slider or widen the filters.")
             else:
                 _letters, _beats, _pct = _sig_letters_proportions(_items, alpha=_sig_alpha)
                 _rows = []
                 for lbl in sorted(_pct, key=lambda x: -_pct[x]):
-                    # preserve rank order from the test (do NOT alpha-sort â€” breaks
-                    # multi-letter labels AA/ABâ€¦); space-separate for readability
+                    # preserve rank order from the test (do NOT alpha-sort — breaks
+                    # multi-letter labels AA/AB…); space-separate for readability
                     beats = " ".join(_beats[lbl])
                     _rows.append({
                         "": _letters[lbl],
                         "Brand": lbl,
                         f"{_sig_stage_opts[_sig_stage]} %": round(_pct[lbl], 1),
-                        "Sig. higher than": beats if beats else "â€”",
+                        "Sig. higher than": beats if beats else "—",
                         "# beaten": len(_beats[lbl]),
                     })
                 _sig_df = pd.DataFrame(_rows)
@@ -6830,7 +6830,7 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
                 _n_beaten = int(_leader["# beaten"])
                 _findings = [
                     f"**{_leader['Brand']}** (letter {_leader['']}) leads on "
-                    f"**{_sig_stage_opts[_sig_stage]}** at {_leader[f'{_sig_stage_opts[_sig_stage]} %']:.1f}% â€” "
+                    f"**{_sig_stage_opts[_sig_stage]}** at {_leader[f'{_sig_stage_opts[_sig_stage]} %']:.1f}% — "
                     f"significantly ahead of **{_n_beaten}** of {len(_items)-1} rival(s) at {_sig_conf:.0%} confidence.",
                 ]
                 if sel_brand in _pct:
@@ -6842,12 +6842,12 @@ def _render_competitive_benchmarking(sel_brand: str, min_base_n: int = 30,
                     )
                 _findings.append(
                     f"Base = {_sig_base:,} respondents ({_sig_seg}). Letters share = no significant "
-                    f"difference at {_sig_conf:.0%}. Test: pooled two-proportion z, Î±={_sig_alpha}."
+                    f"difference at {_sig_conf:.0%}. Test: pooled two-proportion z, α={_sig_alpha}."
                 )
-                _insight_callout(_findings, "Significance Read-out", "ðŸ”¬")
+                _insight_callout(_findings, "Significance Read-out", "🔬")
 
 
-# â”€â”€ Render: Brand Equity Index â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Render: Brand Equity Index ───────────────────────────────────────────────
 
 def _render_brand_equity_index(sel_brand: str):
     df = _get_brand_equity_scores()
@@ -6855,7 +6855,7 @@ def _render_brand_equity_index(sel_brand: str):
         st.info("Brand equity data unavailable.")
         return
 
-    bei_t1, bei_t2 = st.tabs(["ðŸ… BEI Ranking", "ðŸ“ Component Breakdown"])
+    bei_t1, bei_t2 = st.tabs(["🏅 BEI Ranking", "📐 Component Breakdown"])
 
     with bei_t1:
         col_gauge, col_rank = st.columns([1, 2])
@@ -6892,7 +6892,7 @@ def _render_brand_equity_index(sel_brand: str):
             st.plotly_chart(_theme_fig(fig_gauge), use_container_width=True)
             st.markdown(
                 f"<div style='text-align:center;font-size:0.85rem;color:#6b7280'>"
-                f"Ranked <b>{rank}</b> of {n_total} brands &nbsp;Â·&nbsp; "
+                f"Ranked <b>{rank}</b> of {n_total} brands &nbsp;·&nbsp; "
                 f"Market avg: <b>{market_avg_bei:.1f}</b></div>",
                 unsafe_allow_html=True,
             )
@@ -6918,13 +6918,13 @@ def _render_brand_equity_index(sel_brand: str):
             ))
             base = {k: v for k, v in _chart_layout_base(300).items() if k not in ("xaxis","yaxis","legend")}
             fig_rank.update_layout(**base,
-                                   yaxis_title="Brand Equity Index (0â€“100)",
+                                   yaxis_title="Brand Equity Index (0–100)",
                                    xaxis=dict(tickangle=-35),
-                                   title=dict(text="Brand Equity Index â€” Top 15 by Aided Awareness, Ranked by BEI",
+                                   title=dict(text="Brand Equity Index — Top 15 by Aided Awareness, Ranked by BEI",
                                               font=dict(size=13)))
             st.plotly_chart(_theme_fig(fig_rank), use_container_width=True)
 
-        st.caption("BEI formula: Top-of-Mind% Ã— 0.25 + Consideration% Ã— 0.30 + NPS (norm) Ã— 0.25 + CSAT (norm) Ã— 0.20. Each component normalized 0â€“100 within dataset before weighting.")
+        st.caption("BEI formula: Top-of-Mind% × 0.25 + Consideration% × 0.30 + NPS (norm) × 0.25 + CSAT (norm) × 0.20. Each component normalized 0–100 within dataset before weighting.")
 
     with bei_t2:
         brand_row = df[df["brand_name"] == sel_brand]
@@ -6938,7 +6938,7 @@ def _render_brand_equity_index(sel_brand: str):
             except (TypeError, ValueError):
                 return default
 
-        # has_data must reflect MISSING (NaN), not zero â€” NPS 0 / CSAT 0 are valid values.
+        # has_data must reflect MISSING (NaN), not zero — NPS 0 / CSAT 0 are valid values.
         components = {
             "Top of Mind":   ("TOM_pct",          "tom_n",  "25% weight", "#1a5d4d"),
             "Consideration": ("CONSIDERATION_pct", "con_n", "30% weight", "#30a76a"),
@@ -6987,13 +6987,13 @@ def _render_brand_equity_index(sel_brand: str):
             showlegend=True,
             height=380,
             legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5),
-            title=dict(text=f"BEI Components â€” {sel_brand} vs Top Brands", font=dict(size=13)),
+            title=dict(text=f"BEI Components — {sel_brand} vs Top Brands", font=dict(size=13)),
             margin=dict(t=50, b=80, l=60, r=60),
         )
         st.plotly_chart(_theme_fig(fig_radar), use_container_width=True)
 
 
-# â”€â”€ Render: Funnel Conversion & Leakage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Render: Funnel Conversion & Leakage ──────────────────────────────────────
 
 def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="all", city="all"):
     bench_df = _get_competitive_benchmarking()
@@ -7002,8 +7002,8 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
         st.info("Funnel data unavailable.")
         return
 
-    fl_t1, fl_t2, fl_t3 = st.tabs([f"ðŸ” {sel_brand} Funnel Detail", "âš”ï¸ Competitor Conversion Comparison",
-                                   "ðŸ“ Base vs Up-to-6 Brands (significance)"])
+    fl_t1, fl_t2, fl_t3 = st.tabs([f"🔍 {sel_brand} Funnel Detail", "⚔️ Competitor Conversion Comparison",
+                                   "📐 Base vs Up-to-6 Brands (significance)"])
 
     with fl_t1:
         brand_row = bench_df[bench_df["brand_name"] == sel_brand]
@@ -7016,12 +7016,12 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
             vals     = [row[s] if s in row.index else None for s in stages]
             cat_avgs = [bench_df[s].mean() for s in stages]
 
-            # â”€â”€ Awareness depth: Total Aided â†’ Spontaneous â†’ Consideration â†’ Top of Mind â”€â”€
+            # ── Awareness depth: Total Aided → Spontaneous → Consideration → Top of Mind ──
             # Was only visible buried in the Conversion Detail expander + the Competitor
-            # Conversion Comparison dropdown further down â€” surfaced here explicitly since
+            # Conversion Comparison dropdown further down — surfaced here explicitly since
             # it's one of the most standard brand-tracking metrics and was easy to miss.
-            _aw_stage_keys = ["TOTAL_AIDED â†’ SPONT", "SPONT â†’ CONSIDERATION", "CONSIDERATION â†’ TOM"]
-            _aw_stage_lbls = ["Total Aided â†’ Spontaneous", "Spontaneous â†’ Consideration", "Consideration â†’ Top of Mind"]
+            _aw_stage_keys = ["TOTAL_AIDED → SPONT", "SPONT → CONSIDERATION", "CONSIDERATION → TOM"]
+            _aw_stage_lbls = ["Total Aided → Spontaneous", "Spontaneous → Consideration", "Consideration → Top of Mind"]
             _aw_cols = st.columns(3)
             for _awi, (_key, _lbl) in enumerate(zip(_aw_stage_keys, _aw_stage_lbls)):
                 _rate, _cat_rate = None, None
@@ -7045,13 +7045,13 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
                     unsafe_allow_html=True,
                 )
             st.caption(
-                "Awareness depth â€” of everyone aided-aware, what % recall spontaneously (unprompted); "
+                "Awareness depth — of everyone aided-aware, what % recall spontaneously (unprompted); "
                 "of those spontaneous recallers, what % have this brand top-of-mind (first-mentioned). "
                 "Cumulative, not the raw exclusive-tier %s (Spontaneous here = TOM + SPONT combined)."
             )
             st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
 
-            # â”€â”€ KPI row: conversion rates between stages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ── KPI row: conversion rates between stages ──────────────────────
             _conv_pairs = list(zip(range(len(stages)-1), range(1, len(stages))))
             _conv_cols  = st.columns(len(_conv_pairs))
             _avg_conv   = conv_df.groupby("transition")["conversion_rate"].mean().to_dict() if not conv_df.empty else {}
@@ -7062,7 +7062,7 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
 
             for _ci, (fi, ti) in enumerate(_conv_pairs):
                 _from_v, _to_v = vals[fi], vals[ti]
-                _trans_key = f"{stages[fi]} â†’ {stages[ti]}"
+                _trans_key = f"{stages[fi]} → {stages[ti]}"
                 _conv_rate = _brand_conv_map.get(_trans_key, ((_to_v/_from_v*100) if _from_v and _from_v > 0 and _to_v is not None else None))
                 _cat_c = _avg_conv.get(_trans_key)
                 if _conv_rate is not None:
@@ -7073,13 +7073,13 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
                         f"<div style='text-align:center;border:1px solid #e5e7eb;border-radius:8px;"
                         f"padding:8px 4px;'>"
                         f"<div style='font-size:0.58rem;color:#9ca3af;text-transform:uppercase;"
-                        f"font-weight:700;letter-spacing:0.06em;'>{stage_labels[fi][:4]}â†’{stage_labels[ti][:4]}</div>"
+                        f"font-weight:700;letter-spacing:0.06em;'>{stage_labels[fi][:4]}→{stage_labels[ti][:4]}</div>"
                         f"<div style='font-size:1.2rem;font-weight:900;color:#1a5d4d;'>{_conv_rate:.0f}%</div>"
                         f"{_gap_str}</div>",
                         unsafe_allow_html=True,
                     )
 
-            # â”€â”€ Dual-bar chart: brand vs category avg per stage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ── Dual-bar chart: brand vs category avg per stage ───────────────
             valid = [(lbl, v, ca) for lbl, v, ca in zip(stage_labels, vals, cat_avgs)
                      if pd.notna(v) and pd.notna(ca)]
             if valid:
@@ -7104,12 +7104,12 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
                     barmode="group",
                     yaxis_title="% of All Respondents",
                     legend=dict(orientation="h", y=-0.18, x=0.5, xanchor="center"),
-                    title=dict(text=f"{sel_brand} vs Category Average â€” Funnel Penetration",
+                    title=dict(text=f"{sel_brand} vs Category Average — Funnel Penetration",
                                font=dict(size=13)),
                 )
                 st.plotly_chart(_theme_fig(fig), use_container_width=True)
 
-            # â”€â”€ Conversion detail table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ── Conversion detail table ────────────────────────────────────────
             brand_conv = conv_df[conv_df["brand_name"] == sel_brand] if not conv_df.empty else pd.DataFrame()
             cat_conv_avg = conv_df.groupby("transition")["conversion_rate"].mean().reset_index() if not conv_df.empty else pd.DataFrame()
 
@@ -7131,9 +7131,9 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
                     "From %": "{:.1f}", "To %": "{:.1f}",
                     "Conversion %": "{:.1f}", "Cat Avg Conv %": "{:.1f}", "Gap vs Cat": "{:+.1f}",
                 }).map(color_gap, subset=["Gap vs Cat"])
-                with st.expander("ðŸ“‹ Conversion Detail Table", expanded=False):
+                with st.expander("📋 Conversion Detail Table", expanded=False):
                     st.dataframe(styled, hide_index=True, use_container_width=True)
-                    st.caption("Conversion % = (To Stage %) / (From Stage %) Ã— 100. Green gap = above category, red = below.")
+                    st.caption("Conversion % = (To Stage %) / (From Stage %) × 100. Green gap = above category, red = below.")
 
     with fl_t2:
         if conv_df.empty:
@@ -7160,19 +7160,19 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
         fig2.update_layout(**base,
                            yaxis_title="Conversion Rate %",
                            xaxis=dict(tickangle=-35),
-                           title=dict(text=f"Conversion Rate â€” {sel_transition}", font=dict(size=13)))
+                           title=dict(text=f"Conversion Rate — {sel_transition}", font=dict(size=13)))
         st.plotly_chart(_theme_fig(fig2), use_container_width=True)
-        st.caption(f"Conversion = (Stage 2 %) / (Stage 1 %) Ã— 100. Dashed line = category average {cat_avg:.1f}%.")
+        st.caption(f"Conversion = (Stage 2 %) / (Stage 1 %) × 100. Dashed line = category average {cat_avg:.1f}%.")
 
     with fl_t3:
-        st.markdown(f"**{sel_brand} (base) vs up to 6 brands â€” full funnel, with significance per stage**")
+        st.markdown(f"**{sel_brand} (base) vs up to 6 brands — full funnel, with significance per stage**")
         st.caption(
-            "Left = base brand's funnel. Right = up to 6 comparison brands, 2 rows Ã— 3 columns, "
+            "Left = base brand's funnel. Right = up to 6 comparison brands, 2 rows × 3 columns, "
             "same stages. Each comparison brand's bar is flagged if it's significantly higher or "
-            "lower than the base brand AT THAT STAGE (pooled two-proportion z-test, common base â€” "
+            "lower than the base brand AT THAT STAGE (pooled two-proportion z-test, common base — "
             "the same test used in the Significance Test tab above)."
         )
-        # Controls get their own full-width row â€” NOT the same column split as the chart
+        # Controls get their own full-width row — NOT the same column split as the chart
         # layout below, otherwise the 1:1 split from a 2-control row squeezes the 2x3 grid
         # (which needs 3x the width of the single base-brand chart) into half the page.
         _ctrl_c1, _ctrl_c2 = st.columns([2, 1])
@@ -7181,7 +7181,7 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
             _other_brands = [b for b in _all_brands_grid if b != sel_brand]
             _default_cmp = (bench_df[bench_df["brand_name"] != sel_brand]
                             .sort_values("TOTAL_AIDED", ascending=False)["brand_name"].head(6).tolist())
-            # Widget key is scoped to sel_brand â€” without this, switching the base brand (e.g.
+            # Widget key is scoped to sel_brand — without this, switching the base brand (e.g.
             # Crompton -> Bajaj) can leave a previously-selected brand in session_state that is
             # no longer valid once it becomes the new base and drops out of _other_brands,
             # which breaks/resets the multiselect unpredictably. A fresh key per base brand
@@ -7208,7 +7208,7 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
             return int(_row["n"].iloc[0]) if not _row.empty else 0
 
         def _prop_sig(cnt_a, cnt_b, base):
-            # Pooled two-proportion z â€” same formula as _sig_letters_proportions, direct
+            # Pooled two-proportion z — same formula as _sig_letters_proportions, direct
             # base-vs-one-brand comparison instead of all-pairs letters.
             if base < 1:
                 return ""
@@ -7237,7 +7237,7 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
                 _colors = ["#1a5d4d" if is_base else
                           ("#16a34a" if f == "higher" else ("#dc2626" if f == "lower" else "#94a3b8"))
                           for f in _flags]
-                _texts = [f"{v:.1f}%" + ({"higher": " â†‘", "lower": " â†“"}.get(f, ""))
+                _texts = [f"{v:.1f}%" + ({"higher": " ↑", "lower": " ↓"}.get(f, ""))
                          for v, f in zip(_vals, _flags)]
                 _fig = go.Figure(go.Bar(
                     x=_vals, y=_grid_labels, orientation="h", marker_color=_colors,
@@ -7252,16 +7252,16 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
                                    margin=dict(t=32, b=10, l=10, r=40))
                 return _fig
 
-            # 20:80 split â€” base brand narrow on the left, comparison grid (up to 2 rows Ã— 3
+            # 20:80 split — base brand narrow on the left, comparison grid (up to 2 rows × 3
             # cols) wide on the right. A 1:1 or 1:3 split still starves the 3-wide grid.
             _base_col, _grid_col = st.columns([1, 4])
             with _base_col:
                 st.plotly_chart(_theme_fig(_funnel_bar_fig(sel_brand, is_base=True)),
                                 use_container_width=True)
             with _grid_col:
-                # Ordered strongest â†’ weakest (by TOTAL_AIDED, same ranking as the default
+                # Ordered strongest → weakest (by TOTAL_AIDED, same ranking as the default
                 # comparison set) so the grid reads top-left-to-bottom-right in descending
-                # strength â€” the natural reading order â€” instead of arbitrary pick order.
+                # strength — the natural reading order — instead of arbitrary pick order.
                 _cmp_rank = (bench_df[bench_df["brand_name"].isin(_cmp_brands)]
                             .set_index("brand_name")["TOTAL_AIDED"])
                 _cmp_brands_ordered = sorted(_cmp_brands,
@@ -7281,7 +7281,7 @@ def _render_funnel_leakage(sel_brand: str, zone="all", gender="all", age_band="a
             )
 
 
-# â”€â”€ Render: Consumer Demographics Profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Render: Consumer Demographics Profile ────────────────────────────────────
 
 def _render_demographic_profile(sel_brand: str, zone="all", gender="all", age_band="all", city="all"):
     try:
@@ -7312,7 +7312,7 @@ def _render_demographic_profile(sel_brand: str, zone="all", gender="all", age_ba
                 f"<div style='font-size:0.58rem;font-weight:700;text-transform:uppercase;"
                 f"letter-spacing:0.08em;color:#15803d;margin-bottom:3px;'>Strongest Segment</div>"
                 f"<div style='font-size:1.1rem;font-weight:800;color:#14532d;'>{_demo_best[1]}</div>"
-                f"<div style='font-size:0.7rem;color:#166534;'>Index {_demo_best[0]:.0f} Â· {_demo_best[2]} Â· "
+                f"<div style='font-size:0.7rem;color:#166534;'>Index {_demo_best[0]:.0f} · {_demo_best[2]} · "
                 f"over-indexes by {_demo_best[0]-100:.0f} pts</div>"
                 f"</div>",
                 unsafe_allow_html=True,
@@ -7324,13 +7324,13 @@ def _render_demographic_profile(sel_brand: str, zone="all", gender="all", age_ba
                 f"<div style='font-size:0.58rem;font-weight:700;text-transform:uppercase;"
                 f"letter-spacing:0.08em;color:#dc2626;margin-bottom:3px;'>Underperforming Segment</div>"
                 f"<div style='font-size:1.1rem;font-weight:800;color:#7f1d1d;'>{_demo_worst[1]}</div>"
-                f"<div style='font-size:0.7rem;color:#991b1b;'>Index {_demo_worst[0]:.0f} Â· {_demo_worst[2]} Â· "
+                f"<div style='font-size:0.7rem;color:#991b1b;'>Index {_demo_worst[0]:.0f} · {_demo_worst[2]} · "
                 f"under-indexes by {100-_demo_worst[0]:.0f} pts</div>"
                 f"</div>",
                 unsafe_allow_html=True,
             )
 
-    dim_tabs = st.tabs(["ðŸ‘¥ Gender", "ðŸ“… Age Band", "ðŸ—ºï¸ Zone"])
+    dim_tabs = st.tabs(["👥 Gender", "📅 Age Band", "🗺️ Zone"])
     dim_keys  = ["gender", "age_band", "zone_id"]
     dim_names = ["Gender", "Age Band", "Zone"]
 
@@ -7367,7 +7367,7 @@ def _render_demographic_profile(sel_brand: str, zone="all", gender="all", age_ba
                                   xaxis_title=f"{sel_brand} Consideration %",
                                   yaxis=dict(automargin=True),
                                   margin=dict(l=120, r=100, t=50, b=40),
-                                  title=dict(text=f"{sel_brand} â€” Consideration by {dim_name}", font=dict(size=13)))
+                                  title=dict(text=f"{sel_brand} — Consideration by {dim_name}", font=dict(size=13)))
                 st.plotly_chart(_theme_fig(fig), use_container_width=True)
 
             with col_right:
@@ -7383,10 +7383,10 @@ def _render_demographic_profile(sel_brand: str, zone="all", gender="all", age_ba
                     "Consideration %": "{:.1f}", "N": "{:,}"
                 }).map(color_index, subset=["Index (100=avg)"])
                 st.dataframe(styled, hide_index=True, use_container_width=True)
-                st.caption("Index = segment consideration% Ã· overall brand consideration% Ã— 100. >110 = over-index (green), <90 = under-index (red).")
+                st.caption("Index = segment consideration% ÷ overall brand consideration% × 100. >110 = over-index (green), <90 = under-index (red).")
 
 
-# â”€â”€ Render: Attribute Ownership Map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Render: Attribute Ownership Map ─────────────────────────────────────────
 
 def _render_attribute_ownership(sel_brand: str):
     df = _get_attribute_ownership()
@@ -7398,7 +7398,7 @@ def _render_attribute_ownership(sel_brand: str):
         if _c in df.columns:
             df[_c] = pd.to_numeric(df[_c], errors="coerce")
 
-    ao_t1, ao_t2 = st.tabs(["ðŸ† Ownership Summary", f"ðŸŽ¯ {sel_brand} Position"])
+    ao_t1, ao_t2 = st.tabs(["🏆 Ownership Summary", f"🎯 {sel_brand} Position"])
 
     with ao_t1:
         # Group by brand ownership count
@@ -7438,7 +7438,7 @@ def _render_attribute_ownership(sel_brand: str):
                 show_df.style
                 .apply(highlight_brand, axis=1)
                 .background_gradient(subset=["Association %"], cmap="YlGn", axis=0)
-                .format({"Association %": "{:.1f}", "Lead Margin": "{:.1f}"}, na_rep="â€”")
+                .format({"Association %": "{:.1f}", "Lead Margin": "{:.1f}"}, na_rep="—")
             )
             st.dataframe(styled, hide_index=True, use_container_width=True, height=380)
             st.caption(f"Highlighted rows = attributes owned by {sel_brand}. Lead margin = gap over 2nd-place brand.")
@@ -7473,7 +7473,7 @@ def _render_attribute_ownership(sel_brand: str):
         st.markdown(f"**Attributes NOT owned by {sel_brand} (competitor owns them):**")
         # Show top 10 attributes owned by others with highest brand's own association (competitive gaps)
         # For this we need per-brand association for sel_brand on all attributes
-        # Use the full df before idxmax aggregation â€” re-query
+        # Use the full df before idxmax aggregation — re-query
         try:
             import sqlite3
             from infoleap.db_loader import get_db_path
@@ -7543,7 +7543,7 @@ def _filtered_resp_ids(zone="all", gender="all", age_band="all", city="all", pro
 
 @st.cache_data(ttl=1800, show_spinner=False)
 def _brand_attr_options(brand, project_id="project_1"):
-    """Imagery attributes with real variance for a brand â€” DV-attribute picker."""
+    """Imagery attributes with real variance for a brand — DV-attribute picker."""
     try:
         from infoleap.data_layer import get_project_layer as _gpl
         _lyr = _gpl(project_id)
@@ -7716,7 +7716,7 @@ def _driver_regression_for_brand(brand, dv_kind, topbox_min, zone="all", gender=
                 rdf_m = piv_m.copy()
                 rdf_m.insert(0, "dv", dv_m)
             else:
-                # NPS fallback â€” join from DB; keep only rows with actual NPS data
+                # NPS fallback — join from DB; keep only rows with actual NPS data
                 dv_nps = pd.read_sql(
                     "SELECT n.respondent_id || '_' || n.brand_id AS respondent_id, n.nps_score AS dv "
                     "FROM fact_brand_nps n WHERE n.nps_score IS NOT NULL", conn)
@@ -7745,9 +7745,9 @@ def _driver_regression_for_brand(brand, dv_kind, topbox_min, zone="all", gender=
 
     try:
         if is_pooled:
-            # Base = all AIDED-aware respondentÃ—brand pairs (matches XLSTAT: every aware pair
+            # Base = all AIDED-aware respondent×brand pairs (matches XLSTAT: every aware pair
             # gets a row even if respondent ticked zero imagery attributes for that brand).
-            # Cross-join with all attrs, LEFT JOIN imagery â†’ non-associated attrs = NULL = 0.
+            # Cross-join with all attrs, LEFT JOIN imagery → non-associated attrs = NULL = 0.
             bi = pd.read_sql(
                 "SELECT aw.respondent_id || '_' || aw.brand_id AS respondent_id, "
                 "       da.attr_label, COALESCE(bi.value, 0) AS value "
@@ -7857,7 +7857,7 @@ def _driver_regression_for_brand(brand, dv_kind, topbox_min, zone="all", gender=
         return {"error": "insufficient", "n": len(rdf)}
 
     # Pre-filter predictors: keep top 50 by |correlation| with outcome.
-    # Reduces R VIF computation from O(pÂ³) on 87 predictors to ~40 â€” ~5Ã— faster.
+    # Reduces R VIF computation from O(p³) on 87 predictors to ~40 — ~5× faster.
     _pred_cols = [c for c in rdf.columns if c not in ("respondent_id", "nps_score")]
     if len(_pred_cols) > 50:
         _corr = rdf[_pred_cols].corrwith(rdf["nps_score"]).abs()
@@ -7880,20 +7880,20 @@ def _norm_key(s: str) -> str:
 
 
 def _clean_attr(name: str) -> str:
-    """Human-readable attribute label: dots/underscores â†’ spaces, fix mojibake, tidy."""
+    """Human-readable attribute label: dots/underscores → spaces, fix mojibake, tidy."""
     if not name:
         return ""
     s = str(name).replace(".", " ").replace("_", " ")
     # common latin-1/utf-8 mojibake seen in the imagery labels
-    for bad, good in (("ÃƒÂ©", "Ã©"), ("ÃƒÂ¨", "Ã¨"), ("ÃƒÂ³", "Ã³"), ("ÃƒÂ±", "Ã±"),
-                      ("ÃƒÂ¤", "Ã¤"), ("Ã¢â‚¬â„¢", "'"), ("Ã‚", "")):
+    for bad, good in (("Ã©", "é"), ("Ã¨", "è"), ("Ã³", "ó"), ("Ã±", "ñ"),
+                      ("Ã¤", "ä"), ("â€™", "'"), ("Â", "")):
         s = s.replace(bad, good)
     return " ".join(s.split()).strip()
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def _attr_feature_map():
-    """attr_label â†’ broad_feature (theme) for grouping driver importance."""
+    """attr_label → broad_feature (theme) for grouping driver importance."""
     import sqlite3
     from infoleap.db_loader import get_db_path
     conn = sqlite3.connect(f"file:{get_db_path()}?mode=ro", uri=True)
@@ -7908,7 +7908,7 @@ def _attr_feature_map():
 
 def _brand_assoc_pct(brand: str) -> dict:
     """Each attribute's association % for a brand (the 'performance' axis for the
-    importance Ã— performance key-driver quadrant). Cached."""
+    importance × performance key-driver quadrant). Cached."""
     return _brand_assoc_pct_cached(brand)
 
 
@@ -7918,7 +7918,7 @@ def _brand_assoc_pct_cached(brand: str) -> dict:
     brand with attr A) / (# respondents who evaluated attr A on ANY brand).
 
     The denominator is the PER-ATTRIBUTE evaluation base (matches bip_engine's
-    column base), NOT the brand's own imagery base â€” using the brand base would
+    column base), NOT the brand's own imagery base — using the brand base would
     make %s non-comparable across attributes and inflate them vs. the BIP table.
     fact_brand_imagery.value is always 1, so AVG(value) would be a meaningless 100%."""
     import sqlite3
@@ -7951,10 +7951,10 @@ def _brand_assoc_pct_cached(brand: str) -> dict:
 
 def _render_random_forest_driver(sel_brand, dv_kind, topbox, zone, gender, age_band, city, dv_attr, _out_lbl_for_rf="", project_id="project_1"):
     """Random Forest key-driver view: OOB fit stats, variable-importance ranking,
-    OOB-error convergence, predicted-vs-actual. No coefficients/equation â€” a
+    OOB-error convergence, predicted-vs-actual. No coefficients/equation — a
     nonlinear ensemble ranks drivers by how much OOB error rises when a
     predictor's values are permuted (XLSTAT: 'Mean increase error')."""
-    with st.spinner(f"Growing random forest for {sel_brand}â€¦"):
+    with st.spinner(f"Growing random forest for {sel_brand}…"):
         res = _driver_regression_for_brand(sel_brand, dv_kind, topbox, zone, gender, age_band, city, "random_forest", dv_attr, project_id=project_id)
 
     if not res:
@@ -7962,7 +7962,7 @@ def _render_random_forest_driver(sel_brand, dv_kind, topbox, zone, gender, age_b
         return
     if "error" in res:
         if res.get("error") == "insufficient":
-            st.info(f"Need â‰¥30 respondents with {dv_kind} + imagery data for {sel_brand} "
+            st.info(f"Need ≥30 respondents with {dv_kind} + imagery data for {sel_brand} "
                     f"(found {res.get('n', 0)} after filters).")
         else:
             st.warning(f"Random forest error: {res['error']}")
@@ -7974,38 +7974,38 @@ def _render_random_forest_driver(sel_brand, dv_kind, topbox, zone, gender, age_b
         return
 
     _workbench_capture(
-        f"Driver Regression â€” {sel_brand} (Random Forest)",
+        f"Driver Regression — {sel_brand} (Random Forest)",
         {"brand": sel_brand, "model": "random_forest", "outcome": dv_kind,
          "topbox_min": topbox, "attribute_dv": dv_attr, "result": res, "importance": importance},
     )
 
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("OOB RÂ²", f"{res.get('oob_r2', 0):.3f}",
-              help="Variance explained by out-of-bag predictions â€” the forest's own honest "
+    m1.metric("OOB R²", f"{res.get('oob_r2', 0):.3f}",
+              help="Variance explained by out-of-bag predictions — the forest's own honest "
                    "held-out estimate, no separate test set needed.")
     m2.metric("OOB RMSE", f"{res.get('oob_rmse', 0):.3f}")
     m3.metric("Trees", res.get("ntree", 0))
     m4.metric("Respondents", res.get("n", 0))
 
     st.caption(f"Model: **Random Forest** (regression, {res.get('mtry','?')} predictors sampled per split) "
-               f"Â· outcome = {_out_lbl_for_rf} Â· predictors = {res.get('n_attrs', len(importance))} "
-               f"imagery attributes Â· n = {res.get('n',0):,} respondents.")
+               f"· outcome = {_out_lbl_for_rf} · predictors = {res.get('n_attrs', len(importance))} "
+               f"imagery attributes · n = {res.get('n',0):,} respondents.")
 
     if res.get("missing_pct", 0) and res["missing_pct"] > 0:
-        st.caption(f"â„¹ï¸ {res['missing_pct']:.1f}% of predictor cells had missing values, filled via "
+        st.caption(f"ℹ️ {res['missing_pct']:.1f}% of predictor cells had missing values, filled via "
                    f"{res.get('missing_data_method', 'imputation')}.")
 
-    with st.expander("ðŸ“ How Random Forest ranks drivers â€” no equation, a permutation test", expanded=False):
+    with st.expander("📐 How Random Forest ranks drivers — no equation, a permutation test", expanded=False):
         st.markdown(
             "Unlike linear/logistic regression, a random forest has no single coefficient per "
-            "predictor â€” it's an ensemble of decision trees. **Variable importance** is computed by "
+            "predictor — it's an ensemble of decision trees. **Variable importance** is computed by "
             "measuring how much the model's out-of-bag prediction error *increases* when a predictor's "
             "values are randomly shuffled (breaking its relationship with the outcome) while every "
             "other predictor stays intact. A large error increase means the model relied heavily on "
             "that predictor; near-zero means it barely mattered.")
         st.caption("This matches XLSTAT's 'Mean increase error' variable-importance metric. "
                    "Values are NOT comparable to standardized-beta importance % from the Linear/Logistic "
-                   "models â€” different scale, same ranking intent.")
+                   "models — different scale, same ranking intent.")
 
     _imp_df = pd.DataFrame(importance)
     _imp_df["attribute_clean"] = _imp_df["attribute"].apply(_clean_attr)
@@ -8018,7 +8018,7 @@ def _render_random_forest_driver(sel_brand, dv_kind, topbox, zone, gender, age_b
     fig_imp.update_layout(**_chart_layout_base(height=max(400, 24 * _top_n)))
     fig_imp.update_xaxes(title_text="Mean increase in OOB error when predictor is permuted (higher = more important)")
     fig_imp.update_yaxes(title_text="")
-    fig_imp.update_layout(title=f"Variable importance â€” top {_top_n} drivers of {_out_lbl_for_rf}")
+    fig_imp.update_layout(title=f"Variable importance — top {_top_n} drivers of {_out_lbl_for_rf}")
     st.plotly_chart(_theme_fig(fig_imp), use_container_width=True)
     st.caption("Bar length = how much prediction error rises if this attribute's values were "
                "randomly scrambled. Longer bar = the model depends on it more to predict the outcome.")
@@ -8036,7 +8036,7 @@ def _render_random_forest_driver(sel_brand, dv_kind, topbox, zone, gender, age_b
                 fig_oob.update_yaxes(title_text="OOB mean squared error")
                 fig_oob.update_layout(title="OOB error convergence")
                 st.plotly_chart(_theme_fig(fig_oob), use_container_width=True)
-                st.caption("Error should flatten as more trees are added â€” a still-falling curve at "
+                st.caption("Error should flatten as more trees are added — a still-falling curve at "
                            "the right edge means more trees could still help; a flat curve means the "
                            f"forest has converged at {res.get('ntree',0)} trees.")
         if _pva:
@@ -8065,7 +8065,7 @@ def _render_random_forest_driver(sel_brand, dv_kind, topbox, zone, gender, age_b
     _rf_corr_attrs = _rf_corrm.get("attributes") or []
     _rf_corr_mat = _rf_corrm.get("matrix") or []
     if _rf_corr_attrs and _rf_corr_mat:
-        with st.expander(f"Correlation matrix â€” predictor pairs ({len(_rf_corr_attrs)}Ã—{len(_rf_corr_attrs)})"):
+        with st.expander(f"Correlation matrix — predictor pairs ({len(_rf_corr_attrs)}×{len(_rf_corr_attrs)})"):
             _rf_corr_labels = [_clean_attr(a) for a in _rf_corr_attrs]
             _rf_fig_corr = go.Figure(go.Heatmap(
                 z=_rf_corr_mat, x=_rf_corr_labels, y=_rf_corr_labels,
@@ -8087,7 +8087,7 @@ def _render_random_forest_driver(sel_brand, dv_kind, topbox, zone, gender, age_b
 
 def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind, is_logit,
                                        segment_rows=None, segment_dim=None):
-    """Rich multi-sheet .xlsx export of a Driver Regression run â€” every table
+    """Rich multi-sheet .xlsx export of a Driver Regression run — every table
     the UI shows (parameters, ANOVA/goodness-of-fit, Type II, global tests,
     correlation matrix, VIF, influence diagnostics + DFBeta, confusion matrix,
     predictions) with formatted headers, frozen panes, number formats and a
@@ -8134,10 +8134,10 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
         ws.freeze_panes = ws.cell(row=start_row + 1, column=1).coordinate
         return start_row + len(rows) + 1
 
-    # â”€â”€ Summary / cover sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Summary / cover sheet ─────────────────────────────────────────────
     ws0 = wb.active
     ws0.title = "Summary"
-    ws0["A1"] = "InfoLeap Pulse â€” Driver Regression Report"
+    ws0["A1"] = "InfoLeap Pulse — Driver Regression Report"
     ws0["A1"].font = _TITLE_FONT
     ws0["A2"] = f"Generated {_dt.datetime.now().strftime('%Y-%m-%d %H:%M')}"
     ws0["A2"].font = _SUB_FONT
@@ -8149,7 +8149,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
         ("Dependent variable", _out_lbl),
         ("Respondents (n)", res.get("n")),
         ("Predictors", res.get("n_attrs")),
-        ("McFadden RÂ² / RÂ²", res.get("mcfadden_r2") if is_logit else res.get("r_squared")),
+        ("McFadden R² / R²", res.get("mcfadden_r2") if is_logit else res.get("r_squared")),
         ("AIC", res.get("aic")),
         ("BIC", res.get("bic")),
         ("% rows dropped (missing data)", res.get("pct_dropped_na")),
@@ -8160,27 +8160,27 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
     ws0.column_dimensions["A"].width = 32
     ws0.column_dimensions["B"].width = 30
 
-    # â”€â”€ Model Parameters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Model Parameters ──────────────────────────────────────────────────
     ws1 = wb.create_sheet("Model Parameters")
     _prows = [prow_fn(d) for d in drivers]
     if _prows:
         _headers = list(_prows[0].keys())
-        _fmt = {"Importance %": "0.0", "Std Î²": "+0.000", "Coef (b)": "+0.0000",
+        _fmt = {"Importance %": "0.0", "Std β": "+0.000", "Coef (b)": "+0.0000",
                  "p": "0.0000", "Odds ratio": "0.000", "t": "0.00"}
         _write_table(ws1, _headers, _prows, sig_col="Sig.",
                      sig_test=lambda r: r.get("Sig.") not in (None, "ns"),
                      col_formats=_fmt)
 
-    # â”€â”€ Goodness of fit / ANOVA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Goodness of fit / ANOVA ────────────────────────────────────────────
     ws2 = wb.create_sheet("Goodness of Fit")
     if is_logit:
         _gof_rows = [
-            {"Metric": "McFadden RÂ²", "Value": res.get("mcfadden_r2")},
-            {"Metric": "Cox & Snell RÂ²", "Value": res.get("cox_snell_r2")},
-            {"Metric": "Nagelkerke RÂ²", "Value": res.get("nagelkerke_r2")},
+            {"Metric": "McFadden R²", "Value": res.get("mcfadden_r2")},
+            {"Metric": "Cox & Snell R²", "Value": res.get("cox_snell_r2")},
+            {"Metric": "Nagelkerke R²", "Value": res.get("nagelkerke_r2")},
             {"Metric": "AIC", "Value": res.get("aic")},
             {"Metric": "BIC/SBC", "Value": res.get("bic")},
-            {"Metric": "-2 Log-Likelihood (LRT) Ï‡Â²", "Value": res.get("lrt_chi2")},
+            {"Metric": "-2 Log-Likelihood (LRT) χ²", "Value": res.get("lrt_chi2")},
             {"Metric": "LRT df", "Value": res.get("lrt_df")},
             {"Metric": "LRT p-value", "Value": res.get("lrt_p")},
             {"Metric": "AUC", "Value": res.get("auc")},
@@ -8191,14 +8191,14 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
         _hl = res.get("hosmer_lemeshow") or {}
         if _hl:
             _gof_rows += [
-                {"Metric": "Hosmer-Lemeshow Ï‡Â²", "Value": _hl.get("chi2")},
+                {"Metric": "Hosmer-Lemeshow χ²", "Value": _hl.get("chi2")},
                 {"Metric": "Hosmer-Lemeshow df", "Value": _hl.get("df")},
                 {"Metric": "Hosmer-Lemeshow p-value", "Value": _hl.get("p_value")},
             ]
     else:
         _gof_rows = [
-            {"Metric": "RÂ²", "Value": res.get("r_squared")},
-            {"Metric": "Adjusted RÂ²", "Value": res.get("adj_r_squared")},
+            {"Metric": "R²", "Value": res.get("r_squared")},
+            {"Metric": "Adjusted R²", "Value": res.get("adj_r_squared")},
             {"Metric": "F-statistic", "Value": res.get("f_statistic")},
             {"Metric": "F p-value", "Value": res.get("f_p_value")},
             {"Metric": "RMSE", "Value": res.get("rmse")},
@@ -8229,7 +8229,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
     if _gof_rows:
         _write_table(ws2, ["Metric", "Value"], _gof_rows)
 
-    # â”€â”€ Type II analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Type II analysis ───────────────────────────────────────────────────
     _type2 = res.get("type2") or []
     if _type2:
         ws3 = wb.create_sheet("Type II Analysis")
@@ -8242,7 +8242,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
                      sig_col="p-value", sig_test=lambda r: (r.get("p-value") or 1) < 0.05,
                      col_formats={_t2_lbl: "0.0000", "p-value": "0.000000"})
 
-    # â”€â”€ Global tests (logistic only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Global tests (logistic only) ───────────────────────────────────────
     _gtests = res.get("global_tests") or {}
     if _gtests:
         ws4 = wb.create_sheet("Global Tests")
@@ -8255,7 +8255,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
         _write_table(ws4, ["Statistic", "df", "Chi-square", "p-value"], _gt_rows,
                      col_formats={"Chi-square": "0.0000", "p-value": "0.000000"})
 
-    # â”€â”€ Correlation matrix (with color-scale conditional formatting) â”€â”€â”€â”€â”€â”€â”€
+    # ── Correlation matrix (with color-scale conditional formatting) ───────
     _corrmat = res.get("correlation_matrix") or {}
     _corr_attrs = _corrmat.get("attributes") or []
     if _corr_attrs and _corrmat.get("matrix"):
@@ -8283,7 +8283,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
             ws5.column_dimensions[get_column_letter(c)].width = 12
         ws5.freeze_panes = "B2"
 
-    # â”€â”€ VIF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── VIF ─────────────────────────────────────────────────────────────
     _vif = res.get("vif") or {}
     if _vif:
         ws6 = wb.create_sheet("VIF")
@@ -8294,7 +8294,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
                      sig_col="Flag", sig_test=lambda r: r.get("Flag") in ("high", "moderate"),
                      col_formats={"VIF": "0.00"})
 
-    # â”€â”€ Influence diagnostics (+ DFBeta) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Influence diagnostics (+ DFBeta) ───────────────────────────────────
     _infl = res.get("influence") or {}
     _top_infl = _infl.get("top_influential") or []
     if _top_infl:
@@ -8318,7 +8318,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
                 _write_table(ws7, _dfb_headers, _dfb_rows, start_row=_end_row + 2,
                              col_formats={h: "0.00000" for h in _dfb_headers if h != "Respondent"})
 
-    # â”€â”€ Confusion matrix (logistic only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Confusion matrix (logistic only) ────────────────────────────────
     _cm = res.get("confusion") or {}
     if is_logit and _cm:
         ws8 = wb.create_sheet("Confusion Matrix")
@@ -8346,7 +8346,7 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
         _write_table(ws8, ["Metric", "Value"], _disc_rows, start_row=_r + 1,
                      col_formats={"Value": "0.0%"})
 
-    # â”€â”€ Predictions (downsampled predicted-vs-actual, same points shown on screen) â”€â”€
+    # ── Predictions (downsampled predicted-vs-actual, same points shown on screen) ──
     _pc = res.get("prob_chart") if is_logit else None
     _pva = res.get("pred_vs_actual") if not is_logit else None
     if _pc and _pc.get("pred"):
@@ -8360,21 +8360,21 @@ def _build_driver_regression_workbook(res, drivers, prow_fn, sel_brand, dv_kind,
         _pred_rows = [{"Actual": x, "Predicted": y} for x, y in zip(_pva.get("x", []), _pva.get("y", []))]
         _write_table(ws9, ["Actual", "Predicted"], _pred_rows, col_formats={"Predicted": "0.0000"})
 
-    # â”€â”€ Segment comparison (Importance by Zone/Gender, on-screen expander) â”€â”€â”€â”€
-    # Was on-screen only until now â€” exported so the Excel report matches what the driver-
+    # ── Segment comparison (Importance by Zone/Gender, on-screen expander) ────
+    # Was on-screen only until now — exported so the Excel report matches what the driver-
     # regression tab actually shows, instead of the reader having to re-derive it manually.
     if segment_rows:
         ws10 = wb.create_sheet(f"Importance by {segment_dim or 'Segment'}")
         _seg_cols = ["Driver", "All"] + [k for k in segment_rows[0].keys()
                                           if k not in ("Driver", "All") and not k.endswith("_flag")]
-        _seg_headers = ["Driver", "All"] + [f"{c} (â†‘/â†“ vs All @ flagged confidence)" for c in _seg_cols[2:]]
+        _seg_headers = ["Driver", "All"] + [f"{c} (↑/↓ vs All @ flagged confidence)" for c in _seg_cols[2:]]
         _seg_out_rows = []
         for r in segment_rows:
             out = {"Driver": r["Driver"], "All": r["All"]}
             for c in _seg_cols[2:]:
                 flag = r.get(f"{c}_flag", "")
                 val = r.get(c, 0)
-                out[f"{c} (â†‘/â†“ vs All @ flagged confidence)"] = f"{val:.1f}%{' ' + flag if flag else ''}"
+                out[f"{c} (↑/↓ vs All @ flagged confidence)"] = f"{val:.1f}%{' ' + flag if flag else ''}"
             _seg_out_rows.append(out)
         _write_table(ws10, _seg_headers, _seg_out_rows, col_formats={"All": "0.0"})
 
@@ -8393,17 +8393,17 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
     _CSAT_SCALE = _get_csat_scale()  # local so function is self-contained
 
     def _rf(d, key, default=0):
-        """Safely get a float from result dict â€” guards against str errors from R bridge."""
+        """Safely get a float from result dict — guards against str errors from R bridge."""
         try: return float(d.get(key, default) or default)
         except (TypeError, ValueError): return float(default)
     st.markdown(
         "<div style='font-size:0.8rem;color:#6b7280;margin:2px 0 8px;'>"
         "Regression of the chosen dependent variable on the brand-imagery attributes. "
-        "The DV can be an outcome (NPS / CSAT) <b>or any imagery attribute</b> â€” the remaining "
-        "attributes become the predictors. Standardized coefficients (Î²); |Î²| share = relative "
+        "The DV can be an outcome (NPS / CSAT) <b>or any imagery attribute</b> — the remaining "
+        "attributes become the predictors. Standardized coefficients (β); |β| share = relative "
         "importance (XLSTAT Key Driver convention).</div>", unsafe_allow_html=True)
 
-    _target_brand = "All Brands (Pooled Category - XLSTAT)"  # always pooled â€” category model (XLSTAT)
+    _target_brand = "All Brands (Pooled Category - XLSTAT)"  # always pooled — category model (XLSTAT)
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         _dv_type = st.selectbox(
@@ -8413,7 +8413,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             key="dr_dv",
             help="NPS/CSAT = satisfaction outcomes. Imagery attribute = another attribute predicts this one. "
                  "Funnel stages (TOM/SPONT/AIDED/CONSIDERATION/EVER_USED/CURRENT_USER/PREFERRED) = "
-                 "binary 0/1 â€” which imagery drivers predict reaching that funnel stage for this brand.")
+                 "binary 0/1 — which imagery drivers predict reaching that funnel stage for this brand.")
     _FUNNEL_STAGES = {"TOM", "SPONT", "AIDED", "CONSIDERATION", "EVER_USED", "CURRENT_USER", "PREFERRED"}
     _dv_attr = None
     if _dv_type == "Imagery attribute":
@@ -8437,10 +8437,10 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         _dr_max   = int(_dr_scale)
         _dr_t2, _dr_t3 = _dr_max - 1, _dr_max - 2
         _TOPBOX = {
-            f"Top-2 Box ({_dr_t2}â€“{_dr_max} â†’ 1)": _dr_t2,
-            f"Top-3 Box ({_dr_t3}â€“{_dr_max} â†’ 1)": _dr_t3,
-            f"Top-1 Box ({_dr_max} â†’ 1)":           _dr_max,
-            f"Raw 0â€“{_dr_max} score":                0,
+            f"Top-2 Box ({_dr_t2}–{_dr_max} → 1)": _dr_t2,
+            f"Top-3 Box ({_dr_t3}–{_dr_max} → 1)": _dr_t3,
+            f"Top-1 Box ({_dr_max} → 1)":           _dr_max,
+            f"Raw 0–{_dr_max} score":                0,
         }
         with c2:
             _tb_lbl = st.selectbox("Scale recode", list(_TOPBOX), index=0, key="dr_topbox",
@@ -8460,8 +8460,8 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
     # Outcome is binary for an imagery-attribute DV (0/1) or any top-box recode.
     _dv_is_binary = (_dv_kind == "ATTR") or (_topbox > 0)
     if _model == "logistic" and not _dv_is_binary:
-        st.warning("Logistic regression needs a binary outcome â€” pick a top-box recode "
-                   "(e.g. 9â€“10 â†’ 1), or switch to Linear for the raw 0â€“10 score. Using Linear for now.")
+        st.warning("Logistic regression needs a binary outcome — pick a top-box recode "
+                   "(e.g. 9–10 → 1), or switch to Linear for the raw 0–10 score. Using Linear for now.")
         _model = "linear"
     _is_logit = (_model == "logistic")
 
@@ -8469,12 +8469,12 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         _render_random_forest_driver(_target_brand, _dv_kind, _topbox, zone, gender, age_band, city, _dv_attr,
                                      project_id=project_id,
                                      _out_lbl_for_rf=(
-            f"'{_clean_attr(_dv_attr)}'" if _dv_kind == "ATTR" else f"{_dv_kind}" + ("" if _topbox == 0 else f" top-box (â‰¥{_topbox})")
+            f"'{_clean_attr(_dv_attr)}'" if _dv_kind == "ATTR" else f"{_dv_kind}" + ("" if _topbox == 0 else f" top-box (≥{_topbox})")
         ))
         return
 
-    # â”€â”€ 1. Focus-brand regression â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    with st.spinner(f"Running {'logistic' if _is_logit else 'linear'} driver regression for {_target_brand}â€¦"):
+    # ── 1. Focus-brand regression ────────────────────────────────────────────
+    with st.spinner(f"Running {'logistic' if _is_logit else 'linear'} driver regression for {_target_brand}…"):
         res = _driver_regression_for_brand(_target_brand, _dv_kind, _topbox, zone, gender, age_band, city, _model, _dv_attr, project_id=project_id)
 
     if not res:
@@ -8482,7 +8482,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         return
     if "error" in res:
         if res.get("error") == "insufficient":
-            st.info(f"Need â‰¥30 respondents with {_dv_kind} + imagery data for {sel_brand} "
+            st.info(f"Need ≥30 respondents with {_dv_kind} + imagery data for {sel_brand} "
                     f"(found {res.get('n', 0)} after filters).")
         else:
             st.warning(f"Regression error: {res['error']}")
@@ -8494,7 +8494,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         return
 
     # Store significant driver attr_ids in session state so BIP + CAN MAP tabs can filter to them.
-    # R mangles column names (spaces/parens â†’ dots), so exact label match fails.
+    # R mangles column names (spaces/parens → dots), so exact label match fails.
     # Use _norm_key (strips all non-alphanumeric) to match mangled R names to DB labels.
     try:
         import sqlite3 as _drsql
@@ -8515,7 +8515,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         st.session_state["driver_flow_labels"]   = [_clean_attr(d["attribute"]) for d in drivers]
         st.session_state["driver_flow_brand"]    = sel_brand
         st.session_state["driver_flow_outcome"]  = _dv_kind
-        # Awareness stages used in regression â€” passed to driven CAN MAP for consistent respondent universe
+        # Awareness stages used in regression — passed to driven CAN MAP for consistent respondent universe
         _FUNNEL_STAGES_INNER = {"TOM", "SPONT", "AIDED", "CONSIDERATION", "EVER_USED", "CURRENT_USER", "PREFERRED"}
         if _dv_kind in _FUNNEL_STAGES_INNER:
             # Gate: must be aware at AIDED level to be eligible as 0 case
@@ -8529,7 +8529,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         pass
 
     _workbench_capture(
-        f"Driver Regression â€” {sel_brand} ({'Logistic' if _is_logit else 'Linear/OLS'})",
+        f"Driver Regression — {sel_brand} ({'Logistic' if _is_logit else 'Linear/OLS'})",
         {"brand": sel_brand, "model": "logistic" if _is_logit else "linear",
          "outcome": _dv_kind, "topbox_min": _topbox, "attribute_dv": _dv_attr,
          "result": res, "drivers": drivers},
@@ -8542,41 +8542,41 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         except (TypeError, ValueError):
             return float(default)
     if _is_logit:
-        m1.metric("McFadden RÂ²", f"{_safe_f(res.get('mcfadden_r2', res.get('r_squared', 0))):.3f}",
-                  help="Pseudo-RÂ² for the logistic model")
+        m1.metric("McFadden R²", f"{_safe_f(res.get('mcfadden_r2', res.get('r_squared', 0))):.3f}",
+                  help="Pseudo-R² for the logistic model")
         m2.metric("Base rate", f"{_safe_f(res.get('base_rate', 0)):.1%}", help="Share of respondents in the top box")
         m3.metric("Model", "Logistic")
     else:
-        m1.metric("RÂ² (fit)", f"{_safe_f(res.get('r_squared', 0)):.3f}",
+        m1.metric("R² (fit)", f"{_safe_f(res.get('r_squared', 0)):.3f}",
                   help="Variance in the outcome explained by all imagery drivers")
-        m2.metric("Adj. RÂ²", f"{_safe_f(res.get('adj_r_squared', 0)):.3f}")
+        m2.metric("Adj. R²", f"{_safe_f(res.get('adj_r_squared', 0)):.3f}")
         m3.metric("F-stat", f"{_safe_f(res.get('f_statistic', 0)):.1f}")
     m4.metric("Respondents", res.get("n", 0))
 
     if _dv_kind == "ATTR":
         _out_lbl = f"'{_clean_attr(_dv_attr)}'"
     else:
-        _out_lbl = f"{_dv_kind}" + ("" if _topbox == 0 else f" top-box (â‰¥{_topbox})")
+        _out_lbl = f"{_dv_kind}" + ("" if _topbox == 0 else f" top-box (≥{_topbox})")
 
     _model_note = "Logistic regression (binary outcome)" if _is_logit else "Linear regression (OLS)"
-    st.caption(f"Model: **{_model_note}** Â· outcome = {_out_lbl} Â· predictors = "
-               f"{res.get('n_attrs', len(drivers))} imagery attributes Â· n = {res.get('n',0):,} respondents.")
+    st.caption(f"Model: **{_model_note}** · outcome = {_out_lbl} · predictors = "
+               f"{res.get('n_attrs', len(drivers))} imagery attributes · n = {res.get('n',0):,} respondents.")
 
     _pct_dropped = res.get("pct_dropped_na", 0) or 0
     if _pct_dropped > 5:
-        st.warning(f"âš ï¸ {_pct_dropped:.1f}% of respondents were dropped for missing data on one or more "
-                   f"selected attributes (n={res.get('n_before_na_omit', '?')} â†’ n={res.get('n', 0)}). "
-                   f"Results below may be unstable â€” try fewer/more common attributes.")
+        st.warning(f"⚠️ {_pct_dropped:.1f}% of respondents were dropped for missing data on one or more "
+                   f"selected attributes (n={res.get('n_before_na_omit', '?')} → n={res.get('n', 0)}). "
+                   f"Results below may be unstable — try fewer/more common attributes.")
 
-    # â”€â”€ Calculation Showcase â€” transparency: show the actual fitted equation and
+    # ── Calculation Showcase — transparency: show the actual fitted equation and
     # the importance-% formula with real substituted numbers, not just the results.
     # Formulas verified against a manual XLSTAT-workbook calculation (Wald CI and
-    # |std Î²| / Î£|std Î²| Ã— 100) â€” see .regression_reference/AUDIT.md.
-    with st.expander("ðŸ“ How this is calculated â€” Model Equation", expanded=False):
+    # |std β| / Σ|std β| × 100) — see .regression_reference/AUDIT.md.
+    with st.expander("📐 How this is calculated — Model Equation", expanded=False):
         _intercept = res.get("intercept")
         _eq_drivers = sorted(drivers, key=lambda d: abs(d.get("coef", 0)), reverse=True)
         _EQ_CAP = 8
-        _eq_terms = [f"{d.get('coef', 0):+.4f}Ã—{_clean_attr(d['attribute'])}"
+        _eq_terms = [f"{d.get('coef', 0):+.4f}×{_clean_attr(d['attribute'])}"
                     for d in _eq_drivers[:_EQ_CAP]]
         _eq_body = " ".join(_eq_terms)
         _more_note = f"  + {len(_eq_drivers) - _EQ_CAP} more terms" if len(_eq_drivers) > _EQ_CAP else ""
@@ -8590,13 +8590,13 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                 st.markdown(f"**Fitted model** (top {min(_EQ_CAP, len(_eq_drivers))} of "
                            f"{len(_eq_drivers)} predictors by |coefficient|):")
                 st.code(f"{_out_lbl} = {_intercept:+.4f} {_eq_body}{_more_note}", language=None)
-            st.caption("Coefficients and predictor names are substituted live from this run's fitted model â€” "
+            st.caption("Coefficients and predictor names are substituted live from this run's fitted model — "
                       "not a template.")
         else:
             st.info("Model equation unavailable (intercept not returned by this analysis).")
 
         st.divider()
-        st.markdown("**Importance % formula** â€” how the ranking above is derived:")
+        st.markdown("**Importance % formula** — how the ranking above is derived:")
         _top2 = [d for d in _eq_drivers if d.get("std_coef") is not None][:2]
         if _top2:
             def _fcoef(v):
@@ -8607,13 +8607,13 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                 _std = _fcoef(d.get("std_coef", 0))
                 _imp = _fcoef(d.get("importance", 0))
                 st.markdown(
-                    f"Importance % = |std Î²| Ã· Î£|std Î²| Ã— 100 â€” for **{_clean_attr(d['attribute'])}**: "
-                    f"|{_std:.4f}| Ã· {_tot_abs_std:.4f} Ã— 100 = **{_imp:.2f}%**"
+                    f"Importance % = |std β| ÷ Σ|std β| × 100 — for **{_clean_attr(d['attribute'])}**: "
+                    f"|{_std:.4f}| ÷ {_tot_abs_std:.4f} × 100 = **{_imp:.2f}%**"
                 )
         st.caption("Same formula XLSTAT uses (verified against the audited sample workbook's manual "
                   "cross-check formula, cell-for-cell).")
 
-    # â”€â”€ Goodness of fit (XLSTAT full parity) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Goodness of fit (XLSTAT full parity) ─────────────────────────────────
     def _p_flag(p):
         if p is None: return ""
         if p < 0.001: return " ***"
@@ -8627,26 +8627,26 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         _hl_p   = _hl.get("p_value")
         _hl_ok  = _hl.get("good_fit")
         _gof_rows = [
-            {"Statistic": "McFadden pseudo-RÂ²",      "Value": f"{_rf(res,'mcfadden_r2'):.4f}",
+            {"Statistic": "McFadden pseudo-R²",      "Value": f"{_rf(res,'mcfadden_r2'):.4f}",
              "Note": "0.2+ = adequate, 0.4+ = good"},
-            {"Statistic": "Cox & Snell RÂ²",           "Value": f"{_rf(res,'cox_snell_r2'):.4f}",
+            {"Statistic": "Cox & Snell R²",           "Value": f"{_rf(res,'cox_snell_r2'):.4f}",
              "Note": "cannot reach 1.0 for binary DV"},
-            {"Statistic": "Nagelkerke RÂ²",            "Value": f"{_rf(res,'nagelkerke_r2'):.4f}",
-             "Note": "scaled to [0,1] â€” most cited"},
+            {"Statistic": "Nagelkerke R²",            "Value": f"{_rf(res,'nagelkerke_r2'):.4f}",
+             "Note": "scaled to [0,1] — most cited"},
             {"Statistic": "AUC (c-statistic)",        "Value": f"{_rf(res,'auc'):.4f}",
              "Note": "0.7+ acceptable, 0.8+ good"},
             {"Statistic": "AIC",                      "Value": f"{_rf(res,'aic'):.2f}",
              "Note": "lower = better fit (penalises complexity)"},
             {"Statistic": "BIC",                      "Value": f"{_rf(res,'bic'):.2f}",
              "Note": "stricter penalty than AIC"},
-            {"Statistic": "LRT Ï‡Â² (model sig.)",      "Value":
+            {"Statistic": "LRT χ² (model sig.)",      "Value":
              f"{_rf(res,'lrt_chi2'):.3f}  df={int(_rf(res,'lrt_df'))}"
-             f"  p={_lrt_p:.4f}{_p_flag(_lrt_p)}" if _lrt_p is not None else "â€”",
+             f"  p={_lrt_p:.4f}{_p_flag(_lrt_p)}" if _lrt_p is not None else "—",
              "Note": "overall model vs null (intercept-only)"},
-            {"Statistic": "Hosmer-Lemeshow Ï‡Â²",       "Value":
+            {"Statistic": "Hosmer-Lemeshow χ²",       "Value":
              f"{_rf(_hl,'chi2'):.3f}  df={int(_rf(_hl,'df',8))}"
-             f"  p={_hl_p:.4f}{_p_flag(_hl_p)}" if _hl_p is not None else "â€”",
-             "Note": "p>0.05 = good calibration âœ“" if _hl_ok else ("p<0.05 = calibration gap âš ï¸" if _hl_ok is False else "")},
+             f"  p={_hl_p:.4f}{_p_flag(_hl_p)}" if _hl_p is not None else "—",
+             "Note": "p>0.05 = good calibration ✓" if _hl_ok else ("p<0.05 = calibration gap ⚠️" if _hl_ok is False else "")},
             {"Statistic": "Base rate (top-box share)", "Value": f"{_rf(res,'base_rate'):.1%}",
              "Note": ""},
             {"Statistic": "Observations (n)",          "Value": f"{res.get('n', 0):,}", "Note": ""},
@@ -8657,9 +8657,9 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         _sw  = res.get("shapiro_wilk") or {}
         _sw_p = _sw.get("p_value")
         _gof_rows = [
-            {"Statistic": "RÂ²",           "Value": f"{_rf(res,'r_squared'):.4f}",
+            {"Statistic": "R²",           "Value": f"{_rf(res,'r_squared'):.4f}",
              "Note": "variance explained"},
-            {"Statistic": "Adjusted RÂ²",  "Value": f"{_rf(res,'adj_r_squared'):.4f}",
+            {"Statistic": "Adjusted R²",  "Value": f"{_rf(res,'adj_r_squared'):.4f}",
              "Note": "penalises added predictors"},
             {"Statistic": "F (model)",    "Value":
              f"{_rf(res,'f_statistic'):.2f}"
@@ -8669,27 +8669,27 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             {"Statistic": "AIC",          "Value": f"{_rf(res,'aic'):.2f}", "Note": ""},
             {"Statistic": "BIC",          "Value": f"{_rf(res,'bic'):.2f}", "Note": ""},
             {"Statistic": "Shapiro-Wilk (residuals)", "Value":
-             f"W={_sw.get('w_stat', 0):.4f}  p={_sw_p:.4f}{_p_flag(_sw_p)}" if _sw_p is not None else "â€”",
-             "Note": "p>0.05 = residuals normal âœ“" if _sw.get("normal") else (
-                 "p<0.05 = non-normal residuals âš ï¸" if _sw.get("normal") is False else "")},
+             f"W={_sw.get('w_stat', 0):.4f}  p={_sw_p:.4f}{_p_flag(_sw_p)}" if _sw_p is not None else "—",
+             "Note": "p>0.05 = residuals normal ✓" if _sw.get("normal") else (
+                 "p<0.05 = non-normal residuals ⚠️" if _sw.get("normal") is False else "")},
             {"Statistic": "Observations (n)", "Value": f"{res.get('n', 0):,}", "Note": ""},
             {"Statistic": "Predictors",       "Value": f"{res.get('n_attrs', 0)}", "Note": ""},
         ]
 
-    # Headline metrics (McFadden RÂ²/RÂ², n, etc.) already shown as cards above â€” this full table
+    # Headline metrics (McFadden R²/R², n, etc.) already shown as cards above — this full table
     # is the same numbers plus the ones nobody asked for by name (AIC/BIC/Hosmer-Lemeshow/
     # Shapiro-Wilk), each with a plain-English "Note" already, but a wall of 8-12 statistics is
     # still a lot to land on by default. One click away, not hidden.
-    with st.expander("ðŸ“Š Full goodness-of-fit statistics", expanded=False):
+    with st.expander("📊 Full goodness-of-fit statistics", expanded=False):
         _gof_df = pd.DataFrame(_gof_rows)
         st.dataframe(_gof_df, hide_index=True, use_container_width=True)
 
     if _is_logit:
-        # Classification table (confusion matrix at 0.5 threshold) â€” laid out
+        # Classification table (confusion matrix at 0.5 threshold) — laid out
         # exactly like XLSTAT's "Classification table for the training sample":
         # rows = observed ("from"), columns = predicted ("to"), with a Total
         # column/row and a "% correct" column per observed class.
-        # Own full-width row (not squeezed beside the GOF table) â€” heatmap and
+        # Own full-width row (not squeezed beside the GOF table) — heatmap and
         # tables each get real room instead of fighting for a 1.4/3 column.
         _cm = res.get("confusion") or {}
         if _cm:
@@ -8725,8 +8725,8 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                     "Predicted 0": [_tn, _fn, _tn+_fn],
                     "Predicted 1": [_fp2, _tp, _fp2+_tp],
                     "Total":       [_row0_total, _row1_total, res.get("n", _row0_total+_row1_total)],
-                    "% correct":   [f"{_tn/_row0_total:.1%}" if _row0_total else "â€”",
-                                    f"{_tp/_row1_total:.1%}" if _row1_total else "â€”",
+                    "% correct":   [f"{_tn/_row0_total:.1%}" if _row0_total else "—",
+                                    f"{_tp/_row1_total:.1%}" if _row1_total else "—",
                                     f"{res.get('accuracy',0):.1%}"],
                 })
                 st.dataframe(_cm_df, hide_index=True, use_container_width=True)
@@ -8743,7 +8743,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                       "calls; off-diagonal are misses. % correct = how often that row's actual class was "
                       "predicted correctly.")
     else:
-        # OLS ANOVA decomposition â€” own full-width row too
+        # OLS ANOVA decomposition — own full-width row too
         if res.get("ss_total"):
             st.divider()
             _fp3 = res.get("f_p_value")
@@ -8755,25 +8755,25 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                  "MS": round(_ms_m, 2),
                  "F / p": f"F={_rf(res,'f_statistic'):.2f}  p={_fp3:.4f}{_p_flag(_fp3)}" if _fp3 is not None else f"F={_rf(res,'f_statistic'):.2f}"},
                 {"Source":"Residual", "SS": _rf(res,"ss_resid"), "df": int(_rf(res,"df_resid")),
-                 "MS": round(_ms_r, 2), "F / p": "â€”"},
+                 "MS": round(_ms_r, 2), "F / p": "—"},
                 {"Source":"Total",    "SS": res.get("ss_total",0),
                  "df": int((res.get("df_model",0) or 0)+(res.get("df_resid",0) or 0)),
-                 "MS": float("nan"), "F / p": "â€”"},
+                 "MS": float("nan"), "F / p": "—"},
             ])
-            st.dataframe(_anova_df.style.format({"SS": "{:,.1f}", "MS": "{:,.2f}"}, na_rep="â€”"),
+            st.dataframe(_anova_df.style.format({"SS": "{:,.1f}", "MS": "{:,.2f}"}, na_rep="—"),
                          hide_index=True, use_container_width=True)
 
-    # â”€â”€ VIF table (multicollinearity check) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── VIF table (multicollinearity check) ──────────────────────────────────
     _vif = res.get("vif") or {}
     if _vif:
         _vif_rows = sorted(
             [{"Attribute": _clean_attr(k), "VIF": v,
-              "Flag": "âš ï¸ high" if v > 10 else ("âš¡ moderate" if v > 5 else "âœ“ ok")}
+              "Flag": "⚠️ high" if v > 10 else ("⚡ moderate" if v > 5 else "✓ ok")}
              for k, v in _vif.items()],
             key=lambda r: -r["VIF"])
         _high_vif = [r for r in _vif_rows if r["VIF"] > 5]
-        with st.expander(f"Multicollinearity check â€” VIF"
-                         + (f"  âš ï¸ {len(_high_vif)} attributes with VIF > 5" if _high_vif else "  âœ“ all clear")):
+        with st.expander(f"Multicollinearity check — VIF"
+                         + (f"  ⚠️ {len(_high_vif)} attributes with VIF > 5" if _high_vif else "  ✓ all clear")):
             _vif_s = pd.DataFrame(_vif_rows).style
             _vif_cell = getattr(_vif_s, "map", getattr(_vif_s, "applymap", None))
             _vif_s = _vif_cell(lambda v: "color:#dc2626;font-weight:700" if "high" in str(v) else
@@ -8785,8 +8785,8 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                        "High VIF means two attributes co-occur so strongly that their individual "
                        "coefficients (and importance shares) become unreliable.")
 
-    # â”€â”€ Type II analysis (XLSTAT "Type II analysis") â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    # Per-predictor significance from single-term deletion â€” independent of entry
+    # ── Type II analysis (XLSTAT "Type II analysis") ─────────────────────────
+    # Per-predictor significance from single-term deletion — independent of entry
     # order, unlike the Wald/t-test already shown per driver above.
     _type2 = res.get("type2") or []
     if _type2:
@@ -8795,16 +8795,16 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
               ("Chi-square (LR)" if _is_logit else "F"):
                   t.get("lr_chi2") if _is_logit else t.get("f_stat"),
               "p-value": t.get("p_value"),
-              "Significant": "âœ“" if _rf(t, "p_value", 1) < 0.05 else ""}
+              "Significant": "✓" if _rf(t, "p_value", 1) < 0.05 else ""}
              for t in _type2],
             key=lambda r: (_rf(r, "p-value", 1) if r.get("p-value") is not None else 1))
-        with st.expander("Type II analysis â€” per-predictor significance (order-independent)"):
+        with st.expander("Type II analysis — per-predictor significance (order-independent)"):
             st.dataframe(pd.DataFrame(_t2_rows), hide_index=True, use_container_width=True)
-            st.caption("Tests each predictor's contribution with every other predictor already in the model â€” "
+            st.caption("Tests each predictor's contribution with every other predictor already in the model — "
                       "unlike entry-order-dependent Type I tests, this matches XLSTAT's default 'Type II "
                       "analysis' and confirms the Wald/t-test significance shown per driver above.")
 
-    # â”€â”€ Global significance tests (XLSTAT "Test of H0") â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Global significance tests (XLSTAT "Test of H0") ──────────────────────
     # XLSTAT reports 3 overall-model tests (-2LL/LRT, Score, Wald); the app
     # previously only surfaced LRT. Show all 3 side by side.
     _gtests = res.get("global_tests") or {}
@@ -8816,20 +8816,20 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             if _g:
                 _gt_rows.append({"Test": _label, "Chi-square": _g.get("chi2"),
                                   "df": _g.get("df"), "p-value": _g.get("p_value"),
-                                  "Significant": "âœ“" if (_g.get("p_value") or 1) < 0.05 else ""})
+                                  "Significant": "✓" if (_g.get("p_value") or 1) < 0.05 else ""})
         if _gt_rows:
-            with st.expander("Global tests â€” overall model significance (3-test parity)"):
+            with st.expander("Global tests — overall model significance (3-test parity)"):
                 st.dataframe(pd.DataFrame(_gt_rows), hide_index=True, use_container_width=True)
                 st.caption("Three equivalent tests of H0: all predictor coefficients = 0. XLSTAT reports all "
-                          "three; they should broadly agree â€” large divergence between them is itself a "
+                          "three; they should broadly agree — large divergence between them is itself a "
                           "diagnostic signal (e.g. quasi-complete separation).")
 
-    # â”€â”€ Correlation matrix of predictors (XLSTAT "Correlation matrix") â”€â”€â”€â”€â”€â”€â”€
+    # ── Correlation matrix of predictors (XLSTAT "Correlation matrix") ───────
     _corrm = res.get("correlation_matrix") or {}
     _corr_attrs = _corrm.get("attributes") or []
     _corr_mat = _corrm.get("matrix") or []
     if _corr_attrs and _corr_mat:
-        with st.expander(f"Correlation matrix â€” predictor pairs ({len(_corr_attrs)}Ã—{len(_corr_attrs)})"):
+        with st.expander(f"Correlation matrix — predictor pairs ({len(_corr_attrs)}×{len(_corr_attrs)})"):
             _corr_labels = [_clean_attr(a) for a in _corr_attrs]
             _fig_corr = go.Figure(go.Heatmap(
                 z=_corr_mat, x=_corr_labels, y=_corr_labels,
@@ -8849,36 +8849,36 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                 cmap="RdBu_r", vmin=-1, vmax=1), use_container_width=True)
             st.caption("Pairwise Pearson correlation between predictor attributes (not with the outcome). "
                       "High |r| between two predictors (rule of thumb: |r| > 0.7) signals redundancy that "
-                      "shows up as inflated VIF above â€” this table lets you see which specific pairs are driving it.")
+                      "shows up as inflated VIF above — this table lets you see which specific pairs are driving it.")
 
-    # â”€â”€ Global significance tests (XLSTAT "Test of H0") â€” logistic only â”€â”€â”€â”€â”€â”€
+    # ── Global significance tests (XLSTAT "Test of H0") — logistic only ──────
     # XLSTAT reports 3 overall-model tests side by side; the app previously only
     # surfaced the -2LL/LRT row. OLS's equivalent overall test is the F-statistic
     # already shown in the ANOVA table above, so this block is logistic-only.
     _gtests = res.get("global_tests") or {}
     if _gtests:
-        with st.expander("Test of H0 â€” global significance (3 tests)"):
+        with st.expander("Test of H0 — global significance (3 tests)"):
             _gt_rows = []
-            for _key, _lbl in (("minus2ll", "âˆ’2 Log(Likelihood)"), ("score", "Score"), ("wald", "Wald")):
+            for _key, _lbl in (("minus2ll", "−2 Log(Likelihood)"), ("score", "Score"), ("wald", "Wald")):
                 _t = _gtests.get(_key)
                 if _t:
                     _gt_rows.append({"Statistic": _lbl, "df": _t.get("df"),
                                       "Chi-square": _t.get("chi2"),
                                       "p-value": _t.get("p_value"),
-                                      "Significant": "âœ“" if (_t.get("p_value") if _t.get("p_value") is not None else 1) < 0.05 else ""})
+                                      "Significant": "✓" if (_t.get("p_value") if _t.get("p_value") is not None else 1) < 0.05 else ""})
             st.dataframe(pd.DataFrame(_gt_rows), hide_index=True, use_container_width=True)
-            st.caption("All 3 tests ask the same question â€” does the full model fit meaningfully better than "
-                      "an intercept-only model? â€” via different statistical approximations. âˆ’2LL (likelihood "
+            st.caption("All 3 tests ask the same question — does the full model fit meaningfully better than "
+                      "an intercept-only model? — via different statistical approximations. −2LL (likelihood "
                       "ratio) is the standard/most-cited; Score and Wald are shown for full XLSTAT parity. "
                       "They should (and normally do) agree qualitatively on significance.")
 
-    # â”€â”€ Correlation matrix of predictors (XLSTAT "Correlation matrix") â”€â”€â”€â”€â”€â”€â”€
+    # ── Correlation matrix of predictors (XLSTAT "Correlation matrix") ───────
     _corrmat = res.get("correlation_matrix") or {}
     _corr_attrs = _corrmat.get("attributes") or []
     if _corr_attrs and _corrmat.get("matrix"):
         _corr_labels = [_clean_attr(a) for a in _corr_attrs]
         _corr_z = _corrmat["matrix"]
-        with st.expander(f"Correlation matrix â€” {len(_corr_attrs)} predictors"):
+        with st.expander(f"Correlation matrix — {len(_corr_attrs)} predictors"):
             _fig_corr = go.Figure(go.Heatmap(
                 z=_corr_z, x=_corr_labels, y=_corr_labels,
                 zmid=0, zmin=-1, zmax=1,
@@ -8895,10 +8895,10 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             st.dataframe(_corr_df.style.format("{:.2f}").background_gradient(
                 cmap="RdYlGn", vmin=-1, vmax=1) if importlib.util.find_spec("matplotlib") else _corr_df,
                 use_container_width=True)
-            st.caption("Pearson correlation between predictor attributes. High off-diagonal values (near Â±1) "
-                      "flag redundant predictors â€” cross-check against the VIF table above.")
+            st.caption("Pearson correlation between predictor attributes. High off-diagonal values (near ±1) "
+                      "flag redundant predictors — cross-check against the VIF table above.")
 
-    # â”€â”€ Influence diagnostics (XLSTAT "Influence diagnostics") â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Influence diagnostics (XLSTAT "Influence diagnostics") ───────────────
     # Cook's distance + leverage, summarised to the most influential respondents
     # rather than a full per-row dump.
     _infl = res.get("influence") or {}
@@ -8906,8 +8906,8 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
     if _top_infl:
         _n_hl = _infl.get("n_high_leverage", 0)
         _n_hc = _infl.get("n_high_cooks_d", 0)
-        with st.expander(f"Influence diagnostics â€” outlier check"
-                         + (f"  âš ï¸ {_n_hc} high-influence respondents" if _n_hc else "  âœ“ no high-influence outliers")):
+        with st.expander(f"Influence diagnostics — outlier check"
+                         + (f"  ⚠️ {_n_hc} high-influence respondents" if _n_hc else "  ✓ no high-influence outliers")):
             _lev_cut = _infl.get("leverage_cutoff")
             _cd_cut  = _infl.get("cooksd_cutoff")
             _fig_infl = go.Figure(go.Scatter(
@@ -8918,11 +8918,11 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                            opacity=0.75),
                 text=[f"Respondent #{r['obs']}" for r in _top_infl], hoverinfo="text+x+y"))
             # This panel only ever shows the top-20 by Cook's D, so on a large sample
-            # every plotted point legitimately clears the population-level cutoff â€”
+            # every plotted point legitimately clears the population-level cutoff —
             # that's correct, not a bug. But it means the cutoff sits far outside the
             # data range, so Plotly's autorange silently clips the dashed reference
             # line off-screen. Force both axes to start at 0 and extend past the
-            # cutoff so the line â€” the whole point of showing it â€” is actually visible.
+            # cutoff so the line — the whole point of showing it — is actually visible.
             _lev_vals = [_rf(r, "leverage") for r in _top_infl]
             _cd_vals  = [_rf(r, "cooks_d") for r in _top_infl]
             _x_hi = max(_lev_vals + ([float(_lev_cut)] if _lev_cut else [0.001])) * 1.12
@@ -8942,11 +8942,11 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             st.plotly_chart(_theme_fig(_fig_infl), use_container_width=True)
             st.dataframe(pd.DataFrame([
                 {"Respondent": r["obs"], "Cook's D": r["cooks_d"], "Leverage": r["leverage"],
-                 "Flag": "âš ï¸ high influence" if r["high_cooks_d"] else ("high leverage" if r["high_leverage"] else "")}
+                 "Flag": "⚠️ high influence" if r["high_cooks_d"] else ("high leverage" if r["high_leverage"] else "")}
                 for r in _top_infl]), hide_index=True, use_container_width=True)
             _has_dfbeta = any(r.get("dfbeta") for r in _top_infl)
             if _has_dfbeta:
-                with st.expander("DFBeta per predictor â€” top 20 most-influential respondents"):
+                with st.expander("DFBeta per predictor — top 20 most-influential respondents"):
                     _dfb_rows = []
                     for r in _top_infl:
                         _row = {"Respondent": r["obs"]}
@@ -8955,20 +8955,20 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                         _dfb_rows.append(_row)
                     st.dataframe(pd.DataFrame(_dfb_rows), hide_index=True, use_container_width=True)
                     st.caption("DFBeta = how much each coefficient shifts if that respondent were dropped from "
-                              "the model â€” one column per predictor, one row per top-20-by-Cook's-D respondent. "
+                              "the model — one column per predictor, one row per top-20-by-Cook's-D respondent. "
                               "Large |DFBeta| on a specific predictor flags that respondent as disproportionately "
                               "driving that one coefficient, not just the model overall.")
             _lev_cut_txt = f"leverage > {_lev_cut:.3f}" if _lev_cut else "leverage > 2p/n"
             _cd_cut_txt  = f"Cook's D > {_cd_cut:.4f}" if _cd_cut else "Cook's D > 4/n"
             st.caption(f"Leverage = how unusual a respondent's predictor values are; Cook's distance = how much "
                       f"the fitted model would change if that respondent were removed. This panel lists only the "
-                      f"**top 20 by Cook's D** â€” so on a large sample, most or all of them will legitimately clear "
-                      f"XLSTAT's cutoffs (dashed lines: {_lev_cut_txt}, {_cd_cut_txt}) â€” that's expected, not an "
+                      f"**top 20 by Cook's D** — so on a large sample, most or all of them will legitimately clear "
+                      f"XLSTAT's cutoffs (dashed lines: {_lev_cut_txt}, {_cd_cut_txt}) — that's expected, not an "
                       f"error. The number in the expander title ({_n_hc} of {res.get('n', 0):,} respondents) is "
                       f"the real population-wide count worth acting on; the chart below just shows which "
                       f"respondents those are.")
 
-    # â”€â”€ Diagnostic filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Diagnostic filters ────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown("**Diagnostic filters**")
     _df1, _df2, _df3, _df4, _df5 = st.columns(5)
@@ -9015,26 +9015,26 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             out.append(d)
         return out
 
-    # Filtered significant set â€” drives BOTH table and all actionable views.
+    # Filtered significant set — drives BOTH table and all actionable views.
     _sig = _apply_dr_filters(drivers)
     _pos = sorted([d for d in _sig if (d.get("std_coef") or 0) > 0], key=lambda d: -d.get("importance", 0))
     _neg = sorted([d for d in _sig if (d.get("std_coef") or 0) < 0], key=lambda d: -d.get("importance", 0))
 
-    # â”€â”€ Model parameters table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Model parameters table ────────────────────────────────────────────────
     _filter_active = (_sig_thresh != 0.05 or _min_imp > 0 or
                       _dir_filter != "Both" or _theme_filter != "All themes")
-    _tbl_label = (f"**Drivers matching current filters** â€” {len(_sig)} of {len(drivers)} total"
+    _tbl_label = (f"**Drivers matching current filters** — {len(_sig)} of {len(drivers)} total"
                   if _filter_active else
-                  f"**Significant drivers of {_out_lbl}** â€” {len(_sig)} of {len(drivers)} total")
+                  f"**Significant drivers of {_out_lbl}** — {len(_sig)} of {len(drivers)} total")
     st.markdown(_tbl_label)
     st.caption(
         f"We tested all {len(drivers)} imagery attributes as possible drivers. Only **{len(_sig)}** cleared "
-        f"the significance bar (p < {_sig_thresh}) â€” meaning we're confident their effect on {_out_lbl} is real, "
+        f"the significance bar (p < {_sig_thresh}) — meaning we're confident their effect on {_out_lbl} is real, "
         f"not just noise from this sample. The other {len(drivers)-len(_sig)} may still show an 'Importance %' "
         f"number, but it's not reliable enough to act on. Lower the significance threshold above to see more "
         f"(less strict), or raise it to see fewer (more strict).")
 
-    # Flag when a higher-importance driver got excluded purely on significance â€”
+    # Flag when a higher-importance driver got excluded purely on significance —
     # importance % is computed across ALL predictors regardless of p-value, so it
     # does NOT rank the same as the significant-only list. This is expected, but
     # confusing without calling it out.
@@ -9047,11 +9047,11 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         if _bigger_excluded:
             _ex0 = _bigger_excluded[0]
             st.warning(
-                f"âš ï¸ **'{_clean_attr(_ex0['attribute'])}'** has a higher Importance % "
+                f"⚠️ **'{_clean_attr(_ex0['attribute'])}'** has a higher Importance % "
                 f"({_ex0.get('importance',0):.1f}%) than some drivers shown above, but it's **not** in this list "
                 f"because its p-value ({_ex0.get('p_value'):.3f}) didn't clear the significance bar. "
                 f"In plain terms: its estimated effect looks big, but we can't be statistically confident it's "
-                f"real rather than random noise â€” often because it overlaps heavily with other attributes "
+                f"real rather than random noise — often because it overlaps heavily with other attributes "
                 f"(respondents who pick one tend to pick several similar ones, which makes each one's individual "
                 f"effect hard to pin down precisely). Treat its number as unreliable, not as a hidden driver. "
                 + (f"{len(_bigger_excluded)-1} other driver(s) have the same issue." if len(_bigger_excluded) > 1 else ""))
@@ -9059,19 +9059,19 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
     def _prow(d):
         theme = _fmap2.get(_norm_key(d["attribute"]), "Other")
         sc = d.get("std_coef") or 0
-        direction = "â–² raises" if sc > 0 else ("â–¼ lowers" if sc < 0 else "â€” neutral")
+        direction = "▲ raises" if sc > 0 else ("▼ lowers" if sc < 0 else "— neutral")
         r = {"Direction": direction,
              "Driver": _clean_attr(d["attribute"]),
              "Theme": theme,
              "Importance %": d.get("importance", 0),
-             "Std Î²": d.get("std_coef"),
+             "Std β": d.get("std_coef"),
              "Coef (b)": d.get("coef")}
         if _is_logit:
             r["Odds ratio"] = d.get("odds_ratio")
-            r["OR 95% CI"] = (f"{d.get('or_ci_low')}â€“{d.get('or_ci_high')}"
+            r["OR 95% CI"] = (f"{d.get('or_ci_low')}–{d.get('or_ci_high')}"
                               if d.get("or_ci_low") is not None else None)
         else:
-            r["95% CI"] = (f"{d.get('ci_low')}â€“{d.get('ci_high')}"
+            r["95% CI"] = (f"{d.get('ci_low')}–{d.get('ci_high')}"
                            if d.get("ci_low") is not None else None)
             r["t"] = d.get("t_stat")
         r["p"] = d.get("p_value")
@@ -9083,27 +9083,27 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         return r
 
     _TOP_TABLE = 20
-    _pfmt = {"Importance %": "{:.1f}", "Std Î²": "{:+.3f}", "Coef (b)": "{:+.4f}", "p": "{:.4f}"}
+    _pfmt = {"Importance %": "{:.1f}", "Std β": "{:+.3f}", "Coef (b)": "{:+.4f}", "p": "{:.4f}"}
     if _is_logit: _pfmt["Odds ratio"] = "{:.3f}"
     else:         _pfmt["t"] = "{:.2f}"
 
     def _style_ptbl(df):
         # pandas Styler defers background_gradient's matplotlib import until the
         # Styler is actually rendered (st.dataframe -> styler._compute()), well
-        # outside a try/except wrapped around the .background_gradient() call â€”
+        # outside a try/except wrapped around the .background_gradient() call —
         # so check availability upfront instead of relying on try/except here.
         if importlib.util.find_spec("matplotlib") is not None:
             _s = df.style.background_gradient(subset=["Importance %"], cmap="Greens")
         else:
-            _s = df.style  # matplotlib not installed â€” skip gradient
+            _s = df.style  # matplotlib not installed — skip gradient
         _cell = getattr(_s, "map", getattr(_s, "applymap", None))
-        _s = _cell(lambda v: "color:#16a34a;font-weight:700" if v and "â–²" in str(v) else
-                             ("color:#dc2626;font-weight:700" if v and "â–¼" in str(v) else ""),
+        _s = _cell(lambda v: "color:#16a34a;font-weight:700" if v and "▲" in str(v) else
+                             ("color:#dc2626;font-weight:700" if v and "▼" in str(v) else ""),
                    subset=["Direction"])
         _cell = getattr(_s, "map", getattr(_s, "applymap", None))
         _s = _cell(lambda v: "font-weight:700;color:#111827" if v in ("*","**","***") else
                              "color:#9ca3af", subset=["Sig."])
-        return _s.format(_pfmt, na_rep="â€”")
+        return _s.format(_pfmt, na_rep="—")
 
     _ROW_H = 36   # px per row
     _HDR_H = 40   # px header
@@ -9128,13 +9128,13 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                      hide_index=True, use_container_width=True, height=_all_h)
 
     st.caption(
-        "**Direction**: â–² = raises outcome (positive Î²)  â–¼ = lowers outcome (negative Î²)  |  "
-        "**Importance %** = share of total |std Î²| â€” how much this driver explains  |  "
-        "**Std Î²** = standardised effect size (comparable across drivers)  |  "
+        "**Direction**: ▲ = raises outcome (positive β)  ▼ = lowers outcome (negative β)  |  "
+        "**Importance %** = share of total |std β| — how much this driver explains  |  "
+        "**Std β** = standardised effect size (comparable across drivers)  |  "
         + ("**Odds ratio** > 1 = increases top-box probability  |  " if _is_logit else "")
         + "**Sig.**: * p<0.05  ** p<0.01  *** p<0.001  ns = not significant")
 
-    # â”€â”€ Headline: the single biggest lever + biggest drag â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Headline: the single biggest lever + biggest drag ────────────────────
     _h1, _h2 = st.columns(2)
     def _headline(col, title, d, color, arrow):
         with col:
@@ -9152,14 +9152,14 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                 f"color:{color};'>{arrow} {title}</div>"
                 f"<div style='font-size:0.98rem;font-weight:700;color:#111827;margin:6px 0 2px;line-height:1.3;'>"
                 f"{_clean_attr(d['attribute'])}</div>"
-                f"<div style='font-size:0.74rem;color:#6b7280;'>importance {_rf(d,'importance'):.1f}% Â· "
-                f"std Î² {_rf(d,'std_coef'):+.2f}" + (f" Â· OR {_rf(d,'odds_ratio'):.2f}" if _is_logit else "") +
-                f" Â· p={_rf(d,'p_value'):.3f}</div></div>", unsafe_allow_html=True)
-    _headline(_h1, f"Biggest lever (raises {_out_lbl})", _pos[0] if _pos else None, "#16a34a", "â–²")
-    _headline(_h2, f"Biggest drag (lowers {_out_lbl})", _neg[0] if _neg else None, "#dc2626", "â–¼")
+                f"<div style='font-size:0.74rem;color:#6b7280;'>importance {_rf(d,'importance'):.1f}% · "
+                f"std β {_rf(d,'std_coef'):+.2f}" + (f" · OR {_rf(d,'odds_ratio'):.2f}" if _is_logit else "") +
+                f" · p={_rf(d,'p_value'):.3f}</div></div>", unsafe_allow_html=True)
+    _headline(_h1, f"Biggest lever (raises {_out_lbl})", _pos[0] if _pos else None, "#16a34a", "▲")
+    _headline(_h2, f"Biggest drag (lowers {_out_lbl})", _neg[0] if _neg else None, "#dc2626", "▼")
 
-    # â”€â”€ Importance by theme (broad_feature) â€” what TYPE of driver matters â”€â”€â”€â”€
-    # Match via normalized keys â€” R mangles attribute names (spaces/() â†’ dots).
+    # ── Importance by theme (broad_feature) — what TYPE of driver matters ────
+    # Match via normalized keys — R mangles attribute names (spaces/() → dots).
     _fmap = {_norm_key(k): v for k, v in _attr_feature_map().items()}
     _theme_imp = {}
     for d in _sig:
@@ -9173,18 +9173,18 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         _bt = {k: v for k, v in _chart_layout_base(max(240, len(_tt) * 42)).items() if k not in ("xaxis", "yaxis")}
         _fig_t.update_layout(**_bt, xaxis=dict(title="Share of total driver importance (%)"),
                              yaxis=dict(automargin=True),
-                             title=dict(text=f"Which TYPE of driver moves {_out_lbl} most â€” {sel_brand}",
+                             title=dict(text=f"Which TYPE of driver moves {_out_lbl} most — {sel_brand}",
                                         font=dict(size=12)))
         st.plotly_chart(_theme_fig(_fig_t), use_container_width=True)
         st.caption(
             f"These bars sum to 100% across all {len(_sig)} significant drivers combined (grouped into "
-            f"themes) â€” they are **not** a % of respondents and don't need to look like a big number to "
+            f"themes) — they are **not** a % of respondents and don't need to look like a big number to "
             f"matter. E.g. a theme at 5% still means it's the single largest theme if everything else "
-            f"splits the remaining 95% across many attributes. Read this as *relative* weight â€” which "
-            f"theme to prioritize first â€” not an absolute score.")
+            f"splits the remaining 95% across many attributes. Read this as *relative* weight — which "
+            f"theme to prioritize first — not an absolute score.")
 
-    # â”€â”€ Standardized coefficients with 95% CI (XLSTAT "Standardized coefficients
-    # (95% conf. interval)" chart) â€” per-driver, not aggregated by theme.
+    # ── Standardized coefficients with 95% CI (XLSTAT "Standardized coefficients
+    # (95% conf. interval)" chart) — per-driver, not aggregated by theme.
     if _is_logit and _sig:
         _sc_rows = [d for d in _sig[:_top_n_chart] if d.get("std_coef_ci_low") is not None]
         if _sc_rows:
@@ -9200,11 +9200,11 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             ))
             _bsc = {k: v for k, v in _chart_layout_base(max(260, len(_sc_names) * 34)).items()
                     if k not in ("xaxis", "yaxis")}
-            _fig_sc.update_layout(**_bsc, xaxis=dict(title="Standardized coefficient (Î²)"),
+            _fig_sc.update_layout(**_bsc, xaxis=dict(title="Standardized coefficient (β)"),
                                   yaxis=dict(automargin=True),
-                                  title=dict(text=f"Standardized coefficients â€” 95% CI â€” {_out_lbl}",
+                                  title=dict(text=f"Standardized coefficients — 95% CI — {_out_lbl}",
                                              font=dict(size=12)))
-            # Explicit zero-reference line â€” the caption used to just tell the reader to "check
+            # Explicit zero-reference line — the caption used to just tell the reader to "check
             # whether the whisker spans zero" with no visual marker to check it against. A bar
             # whose error whisker crosses this line is directionally uncertain even if it cleared
             # the significance bar shown elsewhere.
@@ -9216,22 +9216,22 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             )
             st.caption(
                 f"The dashed vertical line = zero (no effect). Whiskers = 95% confidence interval on "
-                f"the coefficient (Î²). A bar whose whisker crosses the dashed line is directionally "
-                f"uncertain â€” we can't rule out zero effect â€” even if it's flagged significant "
+                f"the coefficient (β). A bar whose whisker crosses the dashed line is directionally "
+                f"uncertain — we can't rule out zero effect — even if it's flagged significant "
                 f"elsewhere on this page (a different test, e.g. Wald p-value, can disagree with the "
                 f"CI at the margin)."
                 + (f" **{_n_crosses_zero} of {len(_sc_sorted)}** shown here cross zero."
                    if _n_crosses_zero else " None of the drivers shown here cross zero.")
             )
 
-    # â”€â”€ Importance by segment â€” same model re-fit per segment value, with a real
+    # ── Importance by segment — same model re-fit per segment value, with a real
     # significance test flagging when a segment's coefficient differs from the "All"
     # baseline, plus per-segment AUC (XLSTAT-style "Brand Drivers: All / Metro / Non-Metro"
-    # comparison â€” this dataset has no metro/non-metro flag, Zone/Gender are the closest
-    # real segment cuts available). â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # comparison — this dataset has no metro/non-metro flag, Zone/Gender are the closest
+    # real segment cuts available). ──────────────────────────────────────────
     _seg_rows, _seg_dim = None, None  # populated below when the segment fit succeeds; stay None
                                        # otherwise so the Excel export can safely skip the sheet.
-    with st.expander("ðŸ“ Importance by segment â€” compare across Zone or Gender", expanded=False):
+    with st.expander("📐 Importance by segment — compare across Zone or Gender", expanded=False):
         _seg_c1, _seg_c2 = st.columns([1, 1])
         with _seg_c1:
             _seg_dim = st.selectbox("Segment dimension", ["Zone", "Gender"], key="dr_seg_dim")
@@ -9244,7 +9244,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                        else ["Male", "Female"])
         _seg_kwarg = "zone" if _seg_dim == "Zone" else "gender"
 
-        with st.spinner(f"Fitting the model separately for each {_seg_dim.lower()}â€¦"):
+        with st.spinner(f"Fitting the model separately for each {_seg_dim.lower()}…"):
             _seg_results = {}
             for _sv in _seg_values:
                 _kwargs = dict(zone=zone, gender=gender, age_band=age_band, city=city)
@@ -9256,13 +9256,13 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
 
         if not _seg_results:
             st.info(f"Not enough respondents per {_seg_dim.lower()} to fit a separate model "
-                    f"(each cut needs â‰¥30 respondents with {_out_lbl} + imagery data).")
+                    f"(each cut needs ≥30 respondents with {_out_lbl} + imagery data).")
         else:
             def _se_from_ci(d):
                 # std_coef_ci_low/high only exist for logistic models (that's what the "95% CI"
                 # chart above reads). For Linear (the default model choice), the R output only
                 # returns a CI on the RAW coefficient (ci_low/ci_high, used in the driver table's
-                # "95% CI" column) â€” without this fallback, every SE lookup silently returns None
+                # "95% CI" column) — without this fallback, every SE lookup silently returns None
                 # for Linear and the significance flag never fires, with no visible error.
                 lo, hi = d.get("std_coef_ci_low"), d.get("std_coef_ci_high")
                 if lo is not None and hi is not None:
@@ -9275,7 +9275,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                 return None
 
             _all_by_attr = {d["attribute"]: d for d in _sig}
-            # Sort order matches the rest of this page â€” highest-importance driver first
+            # Sort order matches the rest of this page — highest-importance driver first
             # (same "order of importance" convention used throughout this section).
             _seg_drivers_ordered = sorted(_sig, key=lambda d: -d.get("importance", 0))[:_top_n_chart]
 
@@ -9294,7 +9294,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                     _se_sv = _se_from_ci(_sd)
                     if _se_all and _se_sv:
                         _z = (_sd.get("std_coef", 0) - d.get("std_coef", 0)) / ((_se_all**2 + _se_sv**2) ** 0.5)
-                        _row[f"{_sv}_flag"] = ("â†‘" if _z > _Z_CRIT else ("â†“" if _z < -_Z_CRIT else ""))
+                        _row[f"{_sv}_flag"] = ("↑" if _z > _Z_CRIT else ("↓" if _z < -_Z_CRIT else ""))
                     else:
                         _row[f"{_sv}_flag"] = ""
                 _seg_rows.append(_row)
@@ -9319,36 +9319,36 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                                    xaxis=dict(title="Importance % (within that segment's own model)"),
                                    yaxis=dict(automargin=True, categoryorder="array",
                                               categoryarray=[r["Driver"] for r in _seg_rows][::-1]),
-                                   title=dict(text=f"Importance by {_seg_dim} â€” {_out_lbl}", font=dict(size=12)),
+                                   title=dict(text=f"Importance by {_seg_dim} — {_out_lbl}", font=dict(size=12)),
                                    legend=dict(orientation="h", y=-0.12))
             st.plotly_chart(_theme_fig(_fig_seg), use_container_width=True)
 
             if _is_logit:
-                _auc_bits = ["All AUC = " + (f"{res.get('auc',0):.2f}" if res.get('auc') is not None else "â€”")]
+                _auc_bits = ["All AUC = " + (f"{res.get('auc',0):.2f}" if res.get('auc') is not None else "—")]
                 for _sv, _r in _seg_results.items():
-                    _auc_bits.append(f"{_sv} AUC = " + (f"{_r.get('auc',0):.2f}" if _r.get('auc') is not None else "â€”"))
-                st.caption(" Â· ".join(_auc_bits))
+                    _auc_bits.append(f"{_sv} AUC = " + (f"{_r.get('auc',0):.2f}" if _r.get('auc') is not None else "—"))
+                st.caption(" · ".join(_auc_bits))
 
             st.caption(
                 f"Each driver's importance %, refit separately within each {_seg_dim.lower()} "
-                f"(not the same coefficients re-sliced â€” a genuinely separate model per segment, "
-                f"same formula as the main table above). â†‘/â†“ = that segment's coefficient is "
+                f"(not the same coefficients re-sliced — a genuinely separate model per segment, "
+                f"same formula as the main table above). ↑/↓ = that segment's coefficient is "
                 f"significantly higher/lower than the **All** model's coefficient at {_seg_conf:.0%} "
-                f"confidence (two-sample test on the coefficients' own standard errors) â€” not just "
+                f"confidence (two-sample test on the coefficients' own standard errors) — not just "
                 f"a bigger bar, a real statistical difference. Bars ordered by the All model's "
                 f"importance, same as the driver table above."
             )
 
-    # â”€â”€ Ownership matrix â€” which brand uniquely owns each attribute, ranked by THIS
+    # ── Ownership matrix — which brand uniquely owns each attribute, ranked by THIS
     # regression's own importance %, not a fixed/generic ranking. Lives here (not under
     # Attribute Ownership) because "most important" genuinely depends on which outcome (Y)
-    # this regression is explaining â€” switching the DV/topbox/model above changes this order
+    # this regression is explaining — switching the DV/topbox/model above changes this order
     # too, using the exact same `_sig` this tab already computed, no separate DV picker needed.
-    with st.expander("ðŸ§© Ownership matrix â€” who uniquely owns each attribute (ranked by this regression)",
+    with st.expander("🧩 Ownership matrix — who uniquely owns each attribute (ranked by this regression)",
                      expanded=False):
         _mx_top_n = st.slider("Attributes shown", 8, 30, 20, 1, key="dr_matrix_n")
         # R mangles attribute names (spaces/() -> dots), so d["attribute"] doesn't match
-        # dim_bq3_attribute.attr_label directly â€” map back via the same _norm_key() convention
+        # dim_bq3_attribute.attr_label directly — map back via the same _norm_key() convention
         # used everywhere else on this page (_attr_feature_map, _brand_assoc_pct) before handing
         # names to _get_ownership_matrix, which queries the DB by real attr_label.
         _real_label_by_norm = {_norm_key(lbl): lbl for lbl in _attr_feature_map().keys()}
@@ -9395,14 +9395,14 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                 height=min(48 * (len(_disp) + 1), 700),
             )
             st.caption(
-                f"Rows ranked by {sel_brand}'s own {_out_lbl} driver-regression importance â€” "
+                f"Rows ranked by {sel_brand}'s own {_out_lbl} driver-regression importance — "
                 f"same numbers as the driver table above, not a fixed/generic ranking. ++ = "
                 f"significantly ahead of every other brand shown on this statement (pooled "
                 f"two-proportion z-test, 95%). + = leads but doesn't clear every rival. "
                 f"Base: aided-aware respondents per brand, top {len(_mx_brands)} brands shown."
             )
 
-    # â”€â”€ Key Driver Quadrant: importance Ã— brand performance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Key Driver Quadrant: importance × brand performance ──────────────────
     _assoc = {_norm_key(k): v for k, v in _brand_assoc_pct(sel_brand).items()}
     _qd_all = _sig[:_top_n_chart]   # respect top-N filter
     if _qd_all and _assoc:
@@ -9416,7 +9416,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             nm = [_clean_attr(d["attribute"]) for d in lst]
             imp_str = [f"Importance: {_rf(d,'importance'):.1f}%<br>"
                        f"Performance: {_assoc.get(_norm_key(d['attribute']),0):.0f}%<br>"
-                       f"Std Î²: {_rf(d,'std_coef'):+.3f}<br>"
+                       f"Std β: {_rf(d,'std_coef'):+.3f}<br>"
                        f"p = {_rf(d,'p_value',1):.4f}" for d in lst]
             return xi, yi, nm, imp_str
 
@@ -9440,7 +9440,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         _xmed  = float(_np2.median(all_xi)) if all_xi else 0
         _ymed  = float(_np2.median(all_yi)) if all_yi else 0
         _xmax  = max(all_xi) * 1.15 if all_xi else 1
-        # y-axis: zoom to the actual data band instead of always anchoring at 0 â€”
+        # y-axis: zoom to the actual data band instead of always anchoring at 0 —
         # driver association % often clusters tightly (e.g. 45-52%), and forcing
         # the axis to start at 0 compresses those real differences into noise.
         _y_data_min = min(all_yi) if all_yi else 0
@@ -9465,30 +9465,30 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         # positive drivers (green)
         if _pos_qd:
             _qfig.add_trace(go.Scatter(
-                x=_xi_p, y=_yi_p, mode="markers+text", name="â–² Raises outcome",
+                x=_xi_p, y=_yi_p, mode="markers+text", name="▲ Raises outcome",
                 text=_pos_labels,
                 textposition=_pos_pos, textfont=dict(size=9, color="#15803d"),
                 marker=dict(size=14, color="#16a34a", opacity=0.85,
                             line=dict(width=2, color="white")),
                 customdata=_ht_p,
-                hovertemplate="<b>%{text}</b><br>%{customdata}<extra>â–² raises outcome</extra>"))
+                hovertemplate="<b>%{text}</b><br>%{customdata}<extra>▲ raises outcome</extra>"))
         # negative drivers (red)
         if _neg_qd:
             _qfig.add_trace(go.Scatter(
-                x=_xi_n, y=_yi_n, mode="markers+text", name="â–¼ Lowers outcome",
+                x=_xi_n, y=_yi_n, mode="markers+text", name="▼ Lowers outcome",
                 text=_neg_labels,
                 textposition=_neg_pos, textfont=dict(size=9, color="#b91c1c"),
                 marker=dict(size=14, color="#dc2626", opacity=0.85,
                             line=dict(width=2, color="white")),
                 customdata=_ht_n,
-                hovertemplate="<b>%{text}</b><br>%{customdata}<extra>â–¼ lowers outcome</extra>"))
+                hovertemplate="<b>%{text}</b><br>%{customdata}<extra>▼ lowers outcome</extra>"))
         # median lines
         _qfig.add_vline(x=_xmed, line_dash="dot", line_color="#94a3b8", line_width=1)
         _qfig.add_hline(y=_ymed, line_dash="dot", line_color="#94a3b8", line_width=1)
         # quadrant labels
         for ann_x, ann_y, ann_txt, ann_col, ann_xa, ann_ya in [
-            (_xmax, _ymax, "â— STRENGTH (green) / âš  Risky association (red)",  "#16a34a", "right", "top"),
-            (_xmax, _ymin, "PRIORITY GAP â€” important & under-owned",           "#d97706", "right", "bottom"),
+            (_xmax, _ymax, "● STRENGTH (green) / ⚠ Risky association (red)",  "#16a34a", "right", "top"),
+            (_xmax, _ymin, "PRIORITY GAP — important & under-owned",           "#d97706", "right", "bottom"),
             (0,     _ymax, "Low priority (monitor)",                            "#94a3b8", "left",  "top"),
             (0,     _ymin, "Low priority (low relevance)",                      "#94a3b8", "left",  "bottom"),
         ]:
@@ -9500,37 +9500,37 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         _bq = {k: v for k, v in _chart_layout_base(520).items() if k not in ("xaxis", "yaxis", "legend")}
         _qfig.update_layout(
             **_bq,
-            xaxis=dict(title="â† Less important    Driver importance %    More important â†’",
+            xaxis=dict(title="← Less important    Driver importance %    More important →",
                        range=[0, _xmax]),
-            yaxis=dict(title=f"â† Low    {sel_brand} association %    High â†’",
+            yaxis=dict(title=f"← Low    {sel_brand} association %    High →",
                        range=[_ymin, _ymax]),
-            title=dict(text=(f"Key Driver Quadrant â€” {sel_brand}  Â·  outcome: {_out_lbl}  Â·  "
-                             f"top {len(_qd_all)} significant drivers  Â·  only top 5 labelled"),
+            title=dict(text=(f"Key Driver Quadrant — {sel_brand}  ·  outcome: {_out_lbl}  ·  "
+                             f"top {len(_qd_all)} significant drivers  ·  only top 5 labelled"),
                        font=dict(size=12)),
             legend=dict(orientation="h", y=-0.12, x=0.5, xanchor="center",
                         font=dict(size=11), bgcolor="rgba(0,0,0,0)"),
             showlegend=True)
         st.plotly_chart(_theme_fig(_qfig), use_container_width=True)
         st.caption(
-            "**How to read this chart** â€” "
+            "**How to read this chart** — "
             "X = driver importance (how much it shifts the outcome). "
             "Y = brand's association % (how often customers link this to the brand).  "
-            "**Green dot, top-right** = high-importance attribute that *raises* outcome + brand already owns it â†’ **defend**.  "
-            "**Red dot, top-right** = high-importance attribute that *lowers* outcome + brand is strongly associated with it â†’ "
-            "**investigate** (customers link the brand to this but it hurts NPS â€” a reputational risk).  "
-            "**Green dot, bottom-right** = important lever + low ownership â†’ **priority gap to close**.  "
+            "**Green dot, top-right** = high-importance attribute that *raises* outcome + brand already owns it → **defend**.  "
+            "**Red dot, top-right** = high-importance attribute that *lowers* outcome + brand is strongly associated with it → "
+            "**investigate** (customers link the brand to this but it hurts NPS — a reputational risk).  "
+            "**Green dot, bottom-right** = important lever + low ownership → **priority gap to close**.  "
             "**Hover** any dot for full stats. Only top 5 by importance are labelled.")
 
-    # â”€â”€ AI read-out â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── AI read-out ──────────────────────────────────────────────────────────
     _fit = res.get("mcfadden_r2", res.get("r_squared", 0)) if _is_logit else res.get("r_squared", 0)
     _bits = [f"For **{sel_brand}**, imagery attributes explain {_fit:.0%} of {_out_lbl} "
-             f"({'pseudo-RÂ²' if _is_logit else 'RÂ²'}, n={res.get('n',0)})."]
+             f"({'pseudo-R²' if _is_logit else 'R²'}, n={res.get('n',0)})."]
     if _pos:
         _bits.append(f"The strongest positive lever is **{_clean_attr(_pos[0]['attribute'])}** "
                      f"({_pos[0].get('importance',0):.1f}% importance)" +
                      (f", and the top theme is **{_tt[-1][0]}** ({_tt[-1][1]:.2g}%)." if _theme_imp else "."))
     if _neg:
-        _bits.append(f"The biggest drag is **{_clean_attr(_neg[0]['attribute'])}** â€” associations here "
+        _bits.append(f"The biggest drag is **{_clean_attr(_neg[0]['attribute'])}** — associations here "
                      f"coincide with lower {_out_lbl}.")
     # priority gap = high importance, low performance
     if _pos and _assoc:
@@ -9539,10 +9539,10 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
         if _gap:
             _bits.append(f"Clearest opportunity: **{_clean_attr(_gap['attribute'])}** matters "
                          f"({_gap.get('importance',0):.1f}%) but {sel_brand} only owns it at "
-                         f"{_assoc.get(_norm_key(_gap['attribute']),0):.0f}% â€” invest to close the gap.")
+                         f"{_assoc.get(_norm_key(_gap['attribute']),0):.0f}% — invest to close the gap.")
     _ai_card(" ".join(_bits), "AI Driver Read-out", "#1a5d4d")
 
-    # â”€â”€ Logistic diagnostic charts (XLSTAT: ROC Curve / Confusion plot / Probabilities) â”€â”€
+    # ── Logistic diagnostic charts (XLSTAT: ROC Curve / Confusion plot / Probabilities) ──
     if _is_logit:
         _roc = res.get("roc_points") or {}
         _pc  = res.get("prob_chart") or {}
@@ -9569,7 +9569,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             with _rc2:
                 # Replaced the jittered "calibration scatter" (predicted probability vs. actual
                 # class squeezed onto a 0/1 axis with artificial jitter to separate overlapping
-                # dots) with a plain sortable table â€” same underlying per-respondent data
+                # dots) with a plain sortable table — same underlying per-respondent data
                 # (predicted probability + actual outcome + correct/incorrect), but readable
                 # without first understanding what jitter means. Click any column header to
                 # sort; high and low predicted-probability respondents are both visible and
@@ -9580,12 +9580,12 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                         "Respondent": [f"#{i+1}" for i in range(len(_pc["pred"]))],
                         "Predicted probability": _pc["pred"],
                         "Actual outcome": ["Top-box" if a == 1 else "Not top-box" for a in _pc["actual"]],
-                        "Model called it": ["âœ“ correct" if c else "âœ— wrong" for c in _correct],
+                        "Model called it": ["✓ correct" if c else "✗ wrong" for c in _correct],
                     }).sort_values("Predicted probability", ascending=False)
-                    st.markdown("**Predicted probability per respondent** *(sortable â€” click a column header)*")
+                    st.markdown("**Predicted probability per respondent** *(sortable — click a column header)*")
 
                     def _style_prob_row(row):
-                        color = "#16a34a" if row["Model called it"].startswith("âœ“") else "#dc2626"
+                        color = "#16a34a" if row["Model called it"].startswith("✓") else "#dc2626"
                         return [f"color:{color};font-weight:600" if col == "Model called it" else ""
                                 for col in row.index]
 
@@ -9598,14 +9598,14 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
                     )
                     _n_correct = sum(_correct)
                     st.caption(
-                        f"Each row is one respondent â€” predicted probability of being top-box, what they "
+                        f"Each row is one respondent — predicted probability of being top-box, what they "
                         f"actually were, and whether the model's 0.5-cutoff call matched reality "
                         f"({_n_correct} of {len(_correct)} correct, matches the classification table above). "
-                        f"Darker green = higher predicted probability, at either end of the sort â€” nothing "
+                        f"Darker green = higher predicted probability, at either end of the sort — nothing "
                         f"is hidden or averaged away by re-sorting."
                     )
             st.caption("ROC Curve / predicted-probability table reproduce XLSTAT's standard logistic-regression "
-                      "diagnostic set â€” AUC and classification counts here match the goodness-of-fit table above.")
+                      "diagnostic set — AUC and classification counts here match the goodness-of-fit table above.")
 
     # Download a full multi-sheet Excel workbook (XLSTAT-style export, formatted)
     try:
@@ -9613,21 +9613,21 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
             res=res, drivers=drivers, prow_fn=_prow, sel_brand=sel_brand,
             dv_kind=_dv_kind, is_logit=_is_logit,
             segment_rows=_seg_rows, segment_dim=_seg_dim)
-        st.download_button("â¬‡ Download full report (Excel, all tables)",
+        st.download_button("⬇ Download full report (Excel, all tables)",
                            _wb_bytes,
                            file_name=f"driver_regression_{sel_brand}_{_dv_kind}.xlsx",
                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                            key="dr_dl_xlsx")
     except Exception as _wb_err:
-        st.caption(f"âš ï¸ Excel export failed ({_wb_err}) â€” falling back to CSV.")
+        st.caption(f"⚠️ Excel export failed ({_wb_err}) — falling back to CSV.")
         _dl_df = pd.DataFrame([_prow(d) for d in drivers])
-        st.download_button("â¬‡ Download regression table (CSV)",
+        st.download_button("⬇ Download regression table (CSV)",
                            _dl_df.to_csv(index=False).encode("utf-8"),
                            file_name=f"driver_regression_{sel_brand}_{_dv_kind}.csv",
                            mime="text/csv", key="dr_dl")
 
-    # â”€â”€ 2. Cross-brand importance heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    st.markdown(f"**Cross-brand driver importance** â€” how strongly each top driver affects each brand")
+    # ── 2. Cross-brand importance heatmap ────────────────────────────────────
+    st.markdown(f"**Cross-brand driver importance** — how strongly each top driver affects each brand")
     _top_brands = [b["brand_name"] for b in sorted(
         brands_list, key=lambda x: x.get("nps_base", 0) or 0, reverse=True)][:_xbrands]
     if any(b["brand_name"] == sel_brand for b in brands_list) and sel_brand not in _top_brands:
@@ -9638,7 +9638,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
 
     _imp_by_brand = {}
     _signed_by_brand = {}
-    with st.spinner(f"Running regression across {len(_xb)} brandsâ€¦"):
+    with st.spinner(f"Running regression across {len(_xb)} brands…"):
         for _bn in _xb:
             _r = _driver_regression_for_brand(_bn, _dv_kind, _topbox, zone, gender, age_band, city, _model, _dv_attr, project_id=project_id)
             if _r and "error" not in _r:
@@ -9661,7 +9661,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
     _rest = [a for a, _ in sorted(_all_attrs.items(), key=lambda x: -x[1]) if a not in _sel_sig]
     _order = (_sel_sig + _rest)[:12]
     _brand_cols = list(_imp_by_brand.keys())
-    # z = signed importance (importance % carrying the sign of std Î²) for direction-aware reading
+    # z = signed importance (importance % carrying the sign of std β) for direction-aware reading
     _z = []
     for a in _order:
         row = []
@@ -9680,8 +9680,8 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
     _fig_hm.update_layout(
         paper_bgcolor="white", plot_bgcolor="white",
         font=dict(family="Inter, sans-serif", size=11, color="#334155"),
-        title=dict(text=f"Driver importance Ã— brand â€” outcome: {_out_lbl}<br>"
-                        f"<sup>Drivers ordered by overall importance Â· green raises the outcome, red lowers it</sup>",
+        title=dict(text=f"Driver importance × brand — outcome: {_out_lbl}<br>"
+                        f"<sup>Drivers ordered by overall importance · green raises the outcome, red lowers it</sup>",
                    font=dict(size=13), x=0.01, xanchor="left"),
         xaxis=dict(tickangle=-30, tickfont=dict(size=10)),
         yaxis=dict(autorange="reversed", tickfont=dict(size=10)),
@@ -9689,7 +9689,7 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
     )
     st.plotly_chart(_fig_hm, use_container_width=True)
     _hm_note = (" **Note:** When DV = imagery attribute, top rows are the selected brand's positive drivers. "
-                "Red cells = competing attributes (associating a brand with those LOWERS association with this attribute â€” "
+                "Red cells = competing attributes (associating a brand with those LOWERS association with this attribute — "
                 "cross-category interference). Green = attributes that co-occur with this one."
                 if _dv_kind == "ATTR" else "")
     st.caption("Each cell = that driver's signed relative importance for that brand. Compare columns to see "
@@ -9700,10 +9700,10 @@ def _render_driver_regression(sel_brand, brands_list, zone="all", gender="all",
 
 @st.cache_data(ttl=3600)
 def _get_segment_filter_options():
-    """Zone/Gender/Age-band/City options for the Segment Filters bar â€” read from THIS project's
+    """Zone/Gender/Age-band/City options for the Segment Filters bar — read from THIS project's
     own active database, never hardcoded to any one project's real values. Different clients have
     different zones/cities/age-bands (a dairy client's cities are not project_1's electrical-
-    appliance-survey cities) â€” hardcoding one project's list here silently filtered every other
+    appliance-survey cities) — hardcoding one project's list here silently filtered every other
     project's data to nothing whenever a respondent's real city/zone wasn't in the hardcoded list.
     Cached per active DB path so switching projects picks up fresh values.
     """
@@ -9732,10 +9732,10 @@ def _get_segment_filter_options():
 
 def render_brand_health_dashboard():
     inject_pulse_styles()
-    # â”€â”€ Brand Health pageâ€“specific visual overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand Health page–specific visual overrides ───────────────────────────
     st.markdown("""
     <style>
-    /* â”€â”€ Tab bar: bold and spaced â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Tab bar: bold and spaced ─────────────────────────── */
     .stTabs [data-baseweb="tab-list"] {
         gap: 2px;
         background: #f8fafc;
@@ -9764,12 +9764,12 @@ def render_brand_health_dashboard():
         background: #f0fdf4;
         color: #1a5d4d;
     }
-    /* â”€â”€ Container borders: lighter, rounder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Container borders: lighter, rounder ─────────────── */
     [data-testid="stVerticalBlockBorderWrapper"] > div {
         border-radius: 12px !important;
         border-color: #e2e8f0 !important;
     }
-    /* â”€â”€ Metric cards: consistent sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Metric cards: consistent sizing ─────────────────── */
     [data-testid="stMetric"] {
         background: #f8fafc;
         border-radius: 10px;
@@ -9778,23 +9778,23 @@ def render_brand_health_dashboard():
     }
     [data-testid="stMetricValue"] { font-weight: 900; }
     [data-testid="stMetricDelta"] { font-size: 0.72rem; }
-    /* â”€â”€ Selectbox: tighter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Selectbox: tighter ───────────────────────────────── */
     .stSelectbox > div > div { border-radius: 8px; }
-    /* selected option in dropdown list â†’ white text on dark bg */
+    /* selected option in dropdown list → white text on dark bg */
     [data-testid="stSelectbox"] [aria-selected="true"],
     .stSelectbox li[aria-selected="true"] { color: #ffffff !important; }
-    /* selected value shown in the input field â†’ keep readable */
+    /* selected value shown in the input field → keep readable */
     .stSelectbox [data-baseweb="select"] [data-testid="stMarkdownContainer"] p,
     .stSelectbox [data-baseweb="select"] > div > div { color: #111827; }
-    /* â”€â”€ Dataframe: clean header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Dataframe: clean header ──────────────────────────── */
     [data-testid="stDataFrame"] thead th {
         background: #f0fdf4 !important;
         color: #1a5d4d !important;
         font-weight: 700 !important;
     }
-    /* â”€â”€ Caption: softer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Caption: softer ─────────────────────────────────── */
     .stCaption { color: #9ca3af; font-size: 0.68rem; }
-    /* â”€â”€ Expander: subtle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ── Expander: subtle ─────────────────────────────────── */
     [data-testid="stExpander"] summary {
         font-weight: 600;
         font-size: 0.8rem;
@@ -9831,7 +9831,7 @@ def render_brand_health_dashboard():
     _p_raw_ind = _p_meta.get("industry")
     _p_ind = _p_raw_ind.strip() if (_p_raw_ind and _p_raw_ind.strip().lower() not in ("unknown", "(unknown)")) else "Brand Intelligence"
     _p_has_excel = (Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) / "data" / active_project_id / "master_mapping.xlsx").exists()
-    _p_src = "ðŸ“Š master_mapping.xlsx" if _p_has_excel else "ðŸ—„ï¸ SQLite Engine"
+    _p_src = "📊 master_mapping.xlsx" if _p_has_excel else "🗄️ SQLite Engine"
 
     st.markdown(
         f'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;'
@@ -9845,16 +9845,16 @@ def render_brand_health_dashboard():
         unsafe_allow_html=True,
     )
 
-    # â”€â”€ TOP-OF-PAGE FILTER BAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── TOP-OF-PAGE FILTER BAR ────────────────────────────────────────────────
     # Zone/Gender/Age/City apply across funnel, imagery, portfolio, price, journey,
     # demographics & attitudes (via _resp_filter_cte). BEI/IPA/Attribute Ownership
-    # remain All-India by design (composite stability) â€” labelled as such in-tab.
+    # remain All-India by design (composite stability) — labelled as such in-tab.
     with st.container(border=True):
         _fc0, _fc1, _fc2, _fc3, _fc4 = st.columns([2, 1, 1, 1, 2])
         with _fc0:
             st.markdown(
                 '<div style="display:flex;align-items:center;gap:7px;padding-top:4px;">'
-                '<span style="font-size:0.95rem;">ðŸŽ›ï¸</span>'
+                '<span style="font-size:0.95rem;">🎛️</span>'
                 '<div><div style="font-size:0.78rem;font-weight:800;letter-spacing:0.02em;'
                 'color:#1a5d4d;">Segment Filters</div>'
                 '<div style="font-size:0.62rem;color:#9ca3af;margin-top:1px;">'
@@ -9876,7 +9876,7 @@ def render_brand_health_dashboard():
                 "City", ["All"] + _seg_opts["cities"],
                 key="bh_city", label_visibility="collapsed", placeholder="City",
             )
-    sel_months = None  # Single-wave study â€” wave window removed
+    sel_months = None  # Single-wave study — wave window removed
 
     zone_arg     = "all" if sel_zone     == "All" else sel_zone
     gender_arg   = "all" if sel_gender   == "All" else sel_gender
@@ -9884,7 +9884,7 @@ def render_brand_health_dashboard():
     city_arg     = "all" if sel_city     == "All" else sel_city
     cat_arg      = "all"  # Category dimension not available in Wave 1
 
-    # â”€â”€ Active-filter chips + one-click reset â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Active-filter chips + one-click reset ─────────────────────────────────
     _active_segs = [(lbl, val) for lbl, val in
                     [("Zone", sel_zone), ("Gender", sel_gender),
                      ("Age", sel_age_band), ("City", sel_city)] if val != "All"]
@@ -9907,10 +9907,10 @@ def render_brand_health_dashboard():
                 unsafe_allow_html=True,
             )
         with _reset_col:
-            st.button("âœ• Reset", on_click=_reset_bh_filters, use_container_width=True,
+            st.button("✕ Reset", on_click=_reset_bh_filters, use_container_width=True,
                       key="bh_reset_filters", help="Clear all segment filters")
 
-    # â”€â”€ Fetch core data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Fetch core data ───────────────────────────────────────────────────────
     try:
         data = _get_cached_brand_health_data(
             cat_arg, zone_arg, city_arg, sel_months, gender_arg, age_band_arg, project_id=active_project_id
@@ -9928,7 +9928,7 @@ def render_brand_health_dashboard():
 
     brands_list = data.get("brands_list") or data.get("brands") or []
 
-    # â”€â”€ Brand selector + display controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Brand selector + display controls ────────────────────────────────────
     brand_names = [b["brand_name"] for b in brands_list]
     _active_filters = [f for f in [
         sel_zone if sel_zone != "All" else None,
@@ -9936,7 +9936,7 @@ def render_brand_health_dashboard():
         sel_age_band if sel_age_band != "All" else None,
         sel_city if sel_city != "All" else None,
     ] if f]
-    _filter_label = "  Â·  ".join(_active_filters) if _active_filters else "All India"
+    _filter_label = "  ·  ".join(_active_filters) if _active_filters else "All India"
     with st.container(border=True):
         fb1, fb2, fb_info = st.columns([3, 1, 3])
         _default_brand_idx = 0
@@ -9945,7 +9945,7 @@ def render_brand_health_dashboard():
         with fb1:
             sel_brand = st.selectbox(
                 "Focus Brand",
-                brand_names if brand_names else ["â€”"],
+                brand_names if brand_names else ["—"],
                 index=_default_brand_idx,
                 key=f"bh_brand_{active_project_id}",
                 help="Select brand for deep-dive analysis across all tabs",
@@ -9967,9 +9967,9 @@ def render_brand_health_dashboard():
                 unsafe_allow_html=True,
             )
     sel_theme = "All"
-    focus_n   = 10  # reserved for future use â€” not yet wired to any chart
+    focus_n   = 10  # reserved for future use — not yet wired to any chart
 
-    # â”€â”€ Sidebar: advanced chart settings only â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Sidebar: advanced chart settings only ────────────────────────────────
     # Apply persisted theme from session_state BEFORE widgets render
     # (CHART_THEME resets to defaults on every rerun as a module-level dict)
     _palette_keys = list(CHART_THEME["palettes"].keys())
@@ -10001,10 +10001,10 @@ def render_brand_health_dashboard():
                                          key="bh_font_size")
             CHART_THEME["font_size"] = font_size_choice
             ppt_scale = st.slider("Chart Scale (PPT)", 0.8, 1.8, 1.0, 0.1, key="bh_ppt_scale",
-                                   help="Scale > 1.0 â†’ larger charts for PPT export")
+                                   help="Scale > 1.0 → larger charts for PPT export")
             CHART_THEME["ppt_scale"] = ppt_scale
         st.divider()
-        if st.button("ðŸ”„ Clear Cache", use_container_width=True,
+        if st.button("🔄 Clear Cache", use_container_width=True,
                      help="Refreshes AI narratives and all cached data."):
             st.cache_data.clear()
             st.rerun()
@@ -10016,7 +10016,7 @@ def render_brand_health_dashboard():
         st.info("Select a brand from the controls above to begin.")
         return
 
-    # â”€â”€ Deep-dive data (zone, city, rivals) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Deep-dive data (zone, city, rivals) ───────────────────────────────────
     with st.spinner("Loading geographic breakdown..."):
         try:
             zone_data = engine.get_zone_breakdown(sel_brand, base_n)
@@ -10032,12 +10032,12 @@ def render_brand_health_dashboard():
         except Exception as _e:
             rivals = []
 
-    # â”€â”€ Page header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Page header ───────────────────────────────────────────────────────────
     seg_label = sel_zone if sel_zone != "All" else "All India"
 
     _hero_banner(sel_brand, brand_data, base_n, seg_label, brands_list)
 
-    # â”€â”€ Fetch AI Narrative (Cached) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Fetch AI Narrative (Cached) ──────────────────────────────────────────
     import json as _json
     b_all_str = _json.dumps(brands_list, default=str)
     insights = _get_cached_narrative(sel_brand, brand_data, base_n, zone_data, city_nps, rivals, b_all_str, sel_theme, focus_n)
@@ -10051,7 +10051,7 @@ def render_brand_health_dashboard():
         if k not in insights:
             insights[k] = "Analysis pending..."
 
-    # â”€â”€ Secondary KPI row â€” 4 distinct cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Secondary KPI row — 4 distinct cards ────────────────────────────────
     tom_leader   = max(brands_list, key=lambda x: x["tom_pct"])
     total_awa_pct = float(brand_data.get("total_awareness_pct", brand_data.get("aided_pct", 0)) or 0)
     aided_pct    = brand_data.get("aided_pct", 0)
@@ -10064,8 +10064,8 @@ def render_brand_health_dashboard():
 
     # TOM rank among all brands
     tom_sorted = sorted(brands_list, key=lambda x: x["tom_pct"], reverse=True)
-    tom_rank   = next((i + 1 for i, b in enumerate(tom_sorted) if b["brand_name"] == sel_brand), "â€”")
-    tom_rank_label = f"#{tom_rank} of {len(tom_sorted)}" if isinstance(tom_rank, int) else "â€”"
+    tom_rank   = next((i + 1 for i, b in enumerate(tom_sorted) if b["brand_name"] == sel_brand), "—")
+    tom_rank_label = f"#{tom_rank} of {len(tom_sorted)}" if isinstance(tom_rank, int) else "—"
 
     # NPS display
     nps_str     = f"{nps_v:+.0f}" if nps_v is not None else "N/A"
@@ -10075,23 +10075,23 @@ def render_brand_health_dashboard():
                   "#fffbeb" if (nps_v or 0) >= 0 else "#fef2f2"
     nps_border  = "#dcfce7" if (nps_v or 0) >= NPS_INDUSTRY_AVG else \
                   "#fef3c7" if (nps_v or 0) >= 0 else "#fee2e2"
-    nps_verdict = ("Above industry avg âœ“" if (nps_v or 0) >= NPS_INDUSTRY_AVG
+    nps_verdict = ("Above industry avg ✓" if (nps_v or 0) >= NPS_INDUSTRY_AVG
                    else "Below industry avg" if nps_v is not None else "Insufficient data")
 
     kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
     with kpi_c1:
         _metric_card(
-            "ðŸŒ Total Awareness", f"{total_awa_pct:.1f}%", "",
-            subtext=f"TOM {tom_pct}% Â· Spont {round(spont_pct-tom_pct,1)}% Â· Aided {round(total_awa_pct-spont_pct,1)}%",
+            "🌏 Total Awareness", f"{total_awa_pct:.1f}%", "",
+            subtext=f"TOM {tom_pct}% · Spont {round(spont_pct-tom_pct,1)}% · Aided {round(total_awa_pct-spont_pct,1)}%",
         )
     with kpi_c2:
         _metric_card(
-            "ðŸ§  Top of Mind", f"{tom_pct}%", "",
-            subtext=f"{tom_rank_label} Â· Leader: {tom_leader['brand_name']} ({tom_leader['tom_pct']}%)",
+            "🧠 Top of Mind", f"{tom_pct}%", "",
+            subtext=f"{tom_rank_label} · Leader: {tom_leader['brand_name']} ({tom_leader['tom_pct']}%)",
         )
     with kpi_c3:
         _metric_card(
-            "ðŸ’¬ Net Promoter Score", nps_str, "",
+            "💬 Net Promoter Score", nps_str, "",
             subtext=nps_verdict,
             color=nps_color,
         )
@@ -10099,32 +10099,32 @@ def render_brand_health_dashboard():
         _consid_quick = float(brand_data.get("consideration_pct", 0) or 0)
         _ever_quick   = float(brand_data.get("ever_used_pct", 0) or 0)
         _metric_card(
-            "ðŸŽ¯ Consideration Rate", f"{_consid_quick}%", "",
-            subtext=f"Ever Used {_ever_quick}% Â· Aided {aided_n:,} respondents",
+            "🎯 Consideration Rate", f"{_consid_quick}%", "",
+            subtext=f"Ever Used {_ever_quick}% · Aided {aided_n:,} respondents",
         )
 
-    # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    # ══════════════════════════════════════════════════════════════════════════
     # MAIN NAVIGATION TABS
     # st.tabs() would execute EVERY tab's body on every script rerun (Streamlit
-    # only hides inactive tabs client-side, it doesn't skip their Python code) â€”
+    # only hides inactive tabs client-side, it doesn't skip their Python code) —
     # each tab here runs multiple R subprocesses + LLM calls, so a plain st.tabs
     # meant the page paid for Executive+Funnel+BrandEquity+Imagery+Loyalty+Advanced
     # on every single load regardless of which tab the user wanted. Use a radio
     # acting as the tab selector instead so only the active section computes.
-    # See .regression_reference/AUDIT.md Â§5.
-    # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    # See .regression_reference/AUDIT.md §5.
+    # ══════════════════════════════════════════════════════════════════════════
     _BH_PAGE_LABELS = [
-        "ðŸ  Executive",
-        "ðŸ“Š Funnel & Awareness",
-        "ðŸ§ª Imagery & Analytics",
-        "ðŸ’Ž Loyalty & Market",
+        "🏠 Executive",
+        "📊 Funnel & Awareness",
+        "🧪 Imagery & Analytics",
+        "💎 Loyalty & Market",
     ]
     _bh_page = st.radio("Section", _BH_PAGE_LABELS, horizontal=True,
                          label_visibility="collapsed", key="bh_page_selector")
 
-    # â”€â”€ TAB 0: Executive Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── TAB 0: Executive Summary ──────────────────────────────────────────────
     if _bh_page == _BH_PAGE_LABELS[0]:
-        # â”€â”€ Section 0: Executive Command Briefing (C-suite role lenses) â”€â”€â”€â”€â”€â”€
+        # ── Section 0: Executive Command Briefing (C-suite role lenses) ──────
         try:
             _brief = _get_cached_briefing(
                 sel_brand, brand_data, base_n, zone_data, city_nps, rivals,
@@ -10134,7 +10134,7 @@ def render_brand_health_dashboard():
         except Exception as _be:
             print(f"[BH] exec briefing render skipped: {_be}")
 
-        # â”€â”€ Section 1: 6-metric KPI strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Section 1: 6-metric KPI strip ────────────────────────────────────
         _bei_df = _get_brand_equity_scores()
         _bei_row = _bei_df[_bei_df["brand_name"] == sel_brand] if _bei_df is not None and not _bei_df.empty else None
         _raw_bei   = _bei_row["brand_equity_index"].iloc[0] if _bei_row is not None and not _bei_row.empty else None
@@ -10150,8 +10150,8 @@ def render_brand_health_dashboard():
             _csat_v = float(_csat_raw) if pd.notna(_csat_raw) else None
 
         with st.container(border=True):
-            _section_header("ðŸ“Š Executive Scorecard",
-                            f"{sel_brand} â€” key metrics at a glance Â· {_filter_label}")
+            _section_header("📊 Executive Scorecard",
+                            f"{sel_brand} — key metrics at a glance · {_filter_label}")
             _kc = st.columns(6)
             def _exec_kpi(col, label, value, rank_str="", color="#1a5d4d", note=""):
                 with col:
@@ -10173,9 +10173,9 @@ def render_brand_health_dashboard():
             # BEI score
             _exec_kpi(_kc[0], "Brand Equity",
                       f"{_bei_score:.0f}/100" if _bei_score is not None else "N/A",
-                      rank_str=f"#{_bei_rank} of {_bei_n}" if _bei_rank else "â€”",
+                      rank_str=f"#{_bei_rank} of {_bei_n}" if _bei_rank else "—",
                       color="#1a5d4d" if (_bei_score or 0) >= 50 else "#d97706",
-                      note="Composite score â€” internal formula")
+                      note="Composite score — internal formula")
             # Total Awareness
             _exec_kpi(_kc[1], "Total Awareness", f"{_total_aware:.1f}%",
                       rank_str=f"TOM {brand_data.get('tom_pct',0):.1f}%  Spont {round(brand_data.get('spont_pct',0)-brand_data.get('tom_pct',0),1)}%",
@@ -10190,26 +10190,26 @@ def render_brand_health_dashboard():
                       f"{nps_val:+.0f}" if nps_val is not None else "N/A",
                       rank_str=nps_verdict,
                       color="#15803d" if (nps_val or 0) >= 45 else ("#d97706" if (nps_val or 0) >= 0 else "#dc2626"),
-                      note="Promoters âˆ’ Detractors")
+                      note="Promoters − Detractors")
             # Consideration
             _exec_kpi(_kc[4], "Consideration", f"{_consid_pct:.1f}%",
                       rank_str="Would consider brand",
                       color="#0891b2", note="Independent survey Q")
-            # CSAT â€” scale-aware display (5-pt or 10-pt per project_meta["csat_scale"])
+            # CSAT — scale-aware display (5-pt or 10-pt per project_meta["csat_scale"])
             _csat_suffix = f"/{_CSAT_SCALE}"
-            _csat_green  = _CSAT_SCALE * 0.70   # â‰¥70% of scale = good
-            _csat_amber  = _CSAT_SCALE * 0.50   # â‰¥50% of scale = ok
-            _exec_kpi(_kc[5], f"CSAT (0â€“{_CSAT_SCALE})",
+            _csat_green  = _CSAT_SCALE * 0.70   # ≥70% of scale = good
+            _csat_amber  = _CSAT_SCALE * 0.50   # ≥50% of scale = ok
+            _exec_kpi(_kc[5], f"CSAT (0–{_CSAT_SCALE})",
                       f"{_csat_v:.1f}{_csat_suffix}" if _csat_v is not None else "N/A",
                       rank_str="Recent buyers" if _csat_v is not None else "No data",
                       color="#059669" if (_csat_v or 0) >= _csat_green else ("#d97706" if (_csat_v or 0) >= _csat_amber else "#dc2626"),
                       note="Satisfaction score")
 
-        # â”€â”€ Section 2: Funnel quick view + AI Narrative (side by side) â”€â”€â”€â”€â”€â”€â”€
+        # ── Section 2: Funnel quick view + AI Narrative (side by side) ───────
         _s2l, _s2r = st.columns([3, 2])
         with _s2l:
             with st.container(border=True):
-                _section_header("ðŸ”½ Brand Funnel Snapshot",
+                _section_header("🔽 Brand Funnel Snapshot",
                                 "Absolute penetration at each consumer journey stage (% all respondents)")
                 _fu_stages = [
                     ("Total Awareness", _total_aware, "#1a5d4d"),
@@ -10230,7 +10230,7 @@ def render_brand_health_dashboard():
                         _conv_html = (
                             f"<div style='font-size:0.58rem;color:{_conv_col};font-weight:700;"
                             f"min-width:42px;text-align:center;'>"
-                            f"â†“{_conv:.0f}%</div>"
+                            f"↓{_conv:.0f}%</div>"
                         )
                     st.markdown(
                         f"<div style='display:flex;align-items:center;gap:8px;margin-bottom:6px;'>"
@@ -10244,7 +10244,7 @@ def render_brand_health_dashboard():
                         f"{_conv_html}</div>",
                         unsafe_allow_html=True,
                     )
-                st.caption("â†“X% = stage conversion from prior stage. âš ï¸ Awareness & usage stages are independent survey questions.")
+                st.caption("↓X% = stage conversion from prior stage. ⚠️ Awareness & usage stages are independent survey questions.")
                 _funnel_summary = (
                     f"Total Awareness {_total_aware:.1f}%, Ever Used {float(brand_data.get('ever_used_pct',0) or 0):.1f}%, "
                     f"Consideration {_consid_pct:.1f}%, Last Purchased {float(brand_data.get('last_purchased_pct',0) or 0):.1f}%, "
@@ -10255,12 +10255,12 @@ def render_brand_health_dashboard():
 
         with _s2r:
             with st.container(border=True):
-                _section_header("ðŸ¤– AI Strategic Overview", "LLM-generated brand intelligence")
+                _section_header("🤖 AI Strategic Overview", "LLM-generated brand intelligence")
                 _ai_card(insights["overview"], "", "#30a76a")
 
-        # â”€â”€ Section 3: Competitive Position Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Section 3: Competitive Position Table ────────────────────────────
         with st.container(border=True):
-            _section_header("ðŸ† Competitive Position",
+            _section_header("🏆 Competitive Position",
                             f"{sel_brand} rank vs. all tracked brands across 5 dimensions")
             _comp_df = _bei_df if (_bei_df is not None and not _bei_df.empty) else None
             if _comp_df is not None:
@@ -10288,7 +10288,7 @@ def render_brand_health_dashboard():
                     _val = float(_brand_pos[_col].iloc[0])
                     _rank = int(_src2[_src2[_col] > _val].shape[0]) + 1
                     _n_brands = len(_src2)
-                    _leader = _src2.iloc[0]["brand_name"] if not _src2.empty else "â€”"
+                    _leader = _src2.iloc[0]["brand_name"] if not _src2.empty else "—"
                     _leader_val = float(_src2.iloc[0][_col]) if not _src2.empty else 0
                     _suffix = "/100" if _mn == "Brand Equity Index" else ("pts" if _mn == "NPS" else "%")
                     _tbl_rows.append({
@@ -10305,11 +10305,11 @@ def render_brand_health_dashboard():
             else:
                 st.info("BEI data required for competitive position view.")
 
-        # â”€â”€ Section 4: Awareness Landscape (full market view) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Section 4: Awareness Landscape (full market view) ────────────────
         with st.container(border=True):
-            _section_header("ðŸŒ Market Awareness Landscape",
-                            f"Stacked TOM Â· Spontaneous Â· Aided Â· respondent-weighted ALL benchmark Â· {_filter_label}")
-            # â”€â”€ Chart filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            _section_header("🌏 Market Awareness Landscape",
+                            f"Stacked TOM · Spontaneous · Aided · respondent-weighted ALL benchmark · {_filter_label}")
+            # ── Chart filters ───────────────────────────────────────────────
             _SORT_KEYS = {"Total Awareness": "total_awareness_pct", "Top of Mind": "tom_pct",
                           "Spontaneous": "spont_pct", "NPS": "nps"}
             _lc1, _lc2, _lc3 = st.columns([1.2, 1, 2])
@@ -10339,7 +10339,7 @@ def render_brand_health_dashboard():
                 st.info("No brands match this filter.")
             else:
                 # AI headline for landscape: top brand + focus brand position
-                _top_brand = _awa_show[0]["brand_name"] if _awa_show else "â€”"
+                _top_brand = _awa_show[0]["brand_name"] if _awa_show else "—"
                 _top_aware = _awa_show[0].get("total_awareness_pct", _awa_show[0].get("aided_pct", 0)) or 0
                 _focus_rank = next((i+1 for i, b in enumerate(_awa_sorted) if b["brand_name"] == sel_brand), None)
                 _awa_hl_summary = (
@@ -10355,19 +10355,19 @@ def render_brand_health_dashboard():
                                                           top_n=len(_awa_show), all_brands_ref=_awa_sorted)),
                     use_container_width=True,
                 )
-                st.caption("Salience hierarchy: TOM (darkest) â†’ Spontaneous â†’ Aided (lightest). "
-                           "â–²â–¼ = significantly above/below the respondent-weighted ALL benchmark (95%). "
+                st.caption("Salience hierarchy: TOM (darkest) → Spontaneous → Aided (lightest). "
+                           "▲▼ = significantly above/below the respondent-weighted ALL benchmark (95%). "
                            "Use the controls above to rank by a different metric, change Top N, or pick brands.")
 
-    # â”€â”€ Local section closures (capture outer scope, render into tabs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Local section closures (capture outer scope, render into tabs) ───────────────
 
     def _tab_salience():
         with st.container(border=True):
             _section_header(
-                "ðŸ“Š Strategic Salience & Health Decomposition",
-                f"{sel_brand} â€” Aided â†’ Spontaneous â†’ Top of Mind conversion"
+                "📊 Strategic Salience & Health Decomposition",
+                f"{sel_brand} — Aided → Spontaneous → Top of Mind conversion"
             )
-            with st.expander("â„¹ï¸ Analysis Guide", expanded=False):
+            with st.expander("ℹ️ Analysis Guide", expanded=False):
                 st.markdown(f"**Critical Finding:** {insights['salience_finding']}")
                 st.markdown("""
             **How to interpret:**
@@ -10398,7 +10398,7 @@ def render_brand_health_dashboard():
                 cmp_brands_extra = st.multiselect(
                     "Add brands to compare (max 6)",
                     other_brands, default=[], max_selections=6, key="bh_cmp_brands",
-                    placeholder="Select brands to compare side-by-sideâ€¦",
+                    placeholder="Select brands to compare side-by-side…",
                 )
             seg_type = "Overall"
             seg_vals = []
@@ -10445,7 +10445,7 @@ def render_brand_health_dashboard():
             if cmp_brands_extra:
                 cmp_brands_all = [sel_brand] + cmp_brands_extra
                 seg_type_key = seg_type.lower().replace(" ", "_")
-                with st.spinner("Computing comparison funnelsâ€¦"):
+                with st.spinner("Computing comparison funnels…"):
                     try:
                         cmp_data = engine.get_funnel_comparison(
                             brands=cmp_brands_all,
@@ -10462,19 +10462,19 @@ def render_brand_health_dashboard():
                 try:
                     _funnel_png = _funnel_png_bytes(brand_data)
                     st.download_button(
-                        "ðŸ“¥ Download Awareness Funnel PNG", _funnel_png,
+                        "📥 Download Awareness Funnel PNG", _funnel_png,
                         f"{sel_brand}_awareness_funnel.png", "image/png", key="dl_funnel_primary"
                     )
                 except Exception as _e:
-                    st.caption(f"âš ï¸ PNG export failed: {_e}")
+                    st.caption(f"⚠️ PNG export failed: {_e}")
 
                 if cmp_data:
                     cmp_brands_all = [sel_brand] + cmp_brands_extra
                     st.divider()
-                    st.markdown("**âš– Brand Awareness Comparison**")
+                    st.markdown("**⚖ Brand Awareness Comparison**")
                     _render_comparison_funnels_html(cmp_data, sel_brand, alpha=round(1 - _cmp_conf, 2), funnel_type="awareness")
                     st.caption(
-                        f"â–²/â–¼ = significantly higher/lower than {sel_brand} at that stage "
+                        f"▲/▼ = significantly higher/lower than {sel_brand} at that stage "
                         f"(pooled two-proportion z-test, {_cmp_conf:.0%} confidence)."
                     )
                     n_cmp = len(list(cmp_data.keys()))
@@ -10486,11 +10486,11 @@ def render_brand_health_dashboard():
                                              width=max(1000, n_cmp * 280), height=max(540, len(seg_vals) * 220 if seg_vals else 540))
                         _cmp_buf.seek(0)
                         st.download_button(
-                            "ðŸ“¥ Download Awareness Comparison Funnel PNG", _cmp_buf,
+                            "📥 Download Awareness Comparison Funnel PNG", _cmp_buf,
                             f"{sel_brand}_awareness_comparison_funnel.png", "image/png", key="dl_funnel_cmp_aware"
                         )
                     except Exception as _png_err:
-                        st.caption(f"âš ï¸ Comparison PNG export note: {_png_err}")
+                        st.caption(f"⚠️ Comparison PNG export note: {_png_err}")
 
                     cmp_rows = []
                     for brand in cmp_brands_all:
@@ -10505,7 +10505,7 @@ def render_brand_health_dashboard():
                                 "Base N":            d.get("base_n", 0),
                             })
                     if cmp_rows:
-                        with st.expander("ðŸ“‹ View Awareness Comparison Data Table", expanded=False):
+                        with st.expander("📋 View Awareness Comparison Data Table", expanded=False):
                             st.dataframe(pd.DataFrame(cmp_rows), hide_index=True, use_container_width=True)
 
             with _ftab_conv:
@@ -10513,19 +10513,19 @@ def render_brand_health_dashboard():
                 try:
                     _conv_png = _conversion_funnel_png_bytes(brand_data)
                     st.download_button(
-                        "ðŸ“¥ Download Conversion Funnel PNG", _conv_png,
+                        "📥 Download Conversion Funnel PNG", _conv_png,
                         f"{sel_brand}_conversion_funnel.png", "image/png", key="dl_funnel_conversion"
                     )
                 except Exception as _e:
-                    st.caption(f"âš ï¸ PNG export failed: {_e}")
+                    st.caption(f"⚠️ PNG export failed: {_e}")
 
                 if cmp_data:
                     cmp_brands_all = [sel_brand] + cmp_brands_extra
                     st.divider()
-                    st.markdown("**âš– Brand Conversion Comparison**")
+                    st.markdown("**⚖ Brand Conversion Comparison**")
                     _render_comparison_funnels_html(cmp_data, sel_brand, alpha=round(1 - _cmp_conf, 2), funnel_type="conversion")
                     st.caption(
-                        f"â–²/â–¼ = significantly higher/lower than {sel_brand} at that stage "
+                        f"▲/▼ = significantly higher/lower than {sel_brand} at that stage "
                         f"(pooled two-proportion z-test, {_cmp_conf:.0%} confidence)."
                     )
                     n_cmp = len(list(cmp_data.keys()))
@@ -10537,11 +10537,11 @@ def render_brand_health_dashboard():
                                              width=max(1000, n_cmp * 280), height=max(540, len(seg_vals) * 220 if seg_vals else 540))
                         _cmp_buf.seek(0)
                         st.download_button(
-                            "ðŸ“¥ Download Conversion Comparison Funnel PNG", _cmp_buf,
+                            "📥 Download Conversion Comparison Funnel PNG", _cmp_buf,
                             f"{sel_brand}_conversion_comparison_funnel.png", "image/png", key="dl_funnel_cmp_conv"
                         )
                     except Exception as _png_err:
-                        st.caption(f"âš ï¸ Comparison PNG export note: {_png_err}")
+                        st.caption(f"⚠️ Comparison PNG export note: {_png_err}")
 
                     cmp_rows = []
                     for brand in cmp_brands_all:
@@ -10555,7 +10555,7 @@ def render_brand_health_dashboard():
                                 "Base N":            d.get("base_n", 0),
                             })
                     if cmp_rows:
-                        with st.expander("ðŸ“‹ View Conversion Comparison Data Table", expanded=False):
+                        with st.expander("📋 View Conversion Comparison Data Table", expanded=False):
                             st.dataframe(pd.DataFrame(cmp_rows), hide_index=True, use_container_width=True)
 
             st.divider()
@@ -10564,11 +10564,11 @@ def render_brand_health_dashboard():
     def _tab_imagery():
         with st.container(border=True):
             _section_header(
-                "ðŸ§ª Imagery & Driver Analysis",
-                "Key Driver Regression â†’ BIP â†’ CAN MAP: regression output filters the downstream tabs"
+                "🧪 Imagery & Driver Analysis",
+                "Key Driver Regression → BIP → CAN MAP: regression output filters the downstream tabs"
             )
 
-            # â”€â”€ multi-project guard (2026-08-04: H3 fix) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ── multi-project guard (2026-08-04: H3 fix) ─────────────────────
             _active_pid = st.session_state.get("active_project_id", "project_1")
             _has_imagery = False
             try:
@@ -10588,23 +10588,23 @@ def render_brand_health_dashboard():
                     f"**Project `{_active_pid}` does not have Brand Imagery data (BQ3 battery).**  "
                     "Sections below are only available for studies with a brand imagery question battery.  "
                     "Switch to a project that has imagery data, or use **Add Project** to ingest a new study.",
-                    icon="âš ï¸",
+                    icon="⚠️",
                 )
                 return
-            # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ─────────────────────────────────────────────────────────────────
 
-            with st.expander("â„¹ï¸ Analysis Guide", expanded=False):
+            with st.expander("ℹ️ Analysis Guide", expanded=False):
                 st.markdown(f"**Critical Finding:** {insights['imagery_finding']}")
                 st.markdown("""
 **How to use:** Run **Key Driver Regression** first. Significant driver attributes are stored and
-automatically used to filter **BIP** and **CAN MAP** â€” so those tabs show only the attributes that
-actually drive your outcome. Switch tabs in order: Regression â†’ BIP â†’ CAN MAP.
+automatically used to filter **BIP** and **CAN MAP** — so those tabs show only the attributes that
+actually drive your outcome. Switch tabs in order: Regression → BIP → CAN MAP.
 """)
 
-            # â”€â”€ Section 1: Key Driver Regression (always rendered â†’ no widget state loss) â”€
-            with st.expander("ðŸŽ¯ Key Driver Regression", expanded=True):
+            # ── Section 1: Key Driver Regression (always rendered → no widget state loss) ─
+            with st.expander("🎯 Key Driver Regression", expanded=True):
                 st.caption(
-                    f"{sel_brand} â€” pick outcome â†’ rank driver importance â†’ feeds BIP & CAN MAP below."
+                    f"{sel_brand} — pick outcome → rank driver importance → feeds BIP & CAN MAP below."
                 )
                 try:
                     from infoleap.skills.r_bridge import r_available
@@ -10613,23 +10613,23 @@ actually drive your outcome. Switch tabs in order: Regression â†’ BIP â†
                                                   zone_arg, gender_arg, age_band_arg, city_arg,
                                                   project_id=_active_pid)
                     else:
-                        st.info("R is not available on this host â€” Key Driver Regression requires Rscript.")
+                        st.info("R is not available on this host — Key Driver Regression requires Rscript.")
                 except ImportError as _kdr_imp_err:
                     st.error(f"Key Driver Regression failed to load: {_kdr_imp_err}")
                 _cur_dids  = st.session_state.get("driver_flow_attr_ids", [])
                 _cur_brand = st.session_state.get("driver_flow_brand")
                 if _cur_dids and _cur_brand == sel_brand:
-                    st.success(f"âœ“ {len(_cur_dids)} driver attributes captured â€” "
+                    st.success(f"✓ {len(_cur_dids)} driver attributes captured — "
                                "expand **BIP** or **CAN MAP** below to explore them filtered.")
 
-            # â”€â”€ Section 2: BIP (driver-filtered when regression has run, full otherwise) â”€
+            # ── Section 2: BIP (driver-filtered when regression has run, full otherwise) ─
             _bip_dids    = st.session_state.get("driver_flow_attr_ids", [])
             _bip_outcome = st.session_state.get("driver_flow_outcome", "")
             _bip_brand   = st.session_state.get("driver_flow_brand", "")
             _bip_use_filter = bool(_bip_dids) and _bip_brand == sel_brand
             _bip_label = (
-                f"ðŸ“Š Image Profiling (BIP)  â€”  ðŸ”— filtered to {len(_bip_dids)} driver attrs"
-                if _bip_use_filter else "ðŸ“Š Image Profiling (BIP)"
+                f"📊 Image Profiling (BIP)  —  🔗 filtered to {len(_bip_dids)} driver attrs"
+                if _bip_use_filter else "📊 Image Profiling (BIP)"
             )
             with st.expander(_bip_label, expanded=True):
                 if _bip_use_filter:
@@ -10638,22 +10638,22 @@ actually drive your outcome. Switch tabs in order: Regression â†’ BIP â†
                         f"from the {_bip_outcome} regression for {sel_brand}. "
                         "Re-run regression above to update the filter."
                     )
-                with st.spinner("Running BIP Normalizationâ€¦"):
+                with st.spinner("Running BIP Normalization…"):
                     _render_section_14_bip(
                         "All", zone_arg, gender_arg, age_band_arg, city_arg,
                         sel_brand=sel_brand, project_id=_active_pid,
                         attr_ids=_bip_dids if _bip_use_filter else None,
                     )
 
-            # â”€â”€ Section 3: CAN MAP (driver-filtered when regression has run, full otherwise) â”€
+            # ── Section 3: CAN MAP (driver-filtered when regression has run, full otherwise) ─
             _ca_dids    = st.session_state.get("driver_flow_attr_ids", [])
             _ca_outcome = st.session_state.get("driver_flow_outcome", "")
             _ca_brand   = st.session_state.get("driver_flow_brand", "")
             _ca_aware   = st.session_state.get("driver_flow_awareness_stages")
             _ca_use_filter = bool(_ca_dids) and _ca_brand == sel_brand
             _ca_label = (
-                f"ðŸ—ºï¸ Perceptual Mapping (CAN MAP)  â€”  ðŸ”— filtered to {len(_ca_dids)} driver attrs"
-                if _ca_use_filter else "ðŸ—ºï¸ Perceptual Mapping (CAN MAP)"
+                f"🗺️ Perceptual Mapping (CAN MAP)  —  🔗 filtered to {len(_ca_dids)} driver attrs"
+                if _ca_use_filter else "🗺️ Perceptual Mapping (CAN MAP)"
             )
             with st.expander(_ca_label, expanded=False):
                 if _ca_use_filter:
@@ -10662,7 +10662,7 @@ actually drive your outcome. Switch tabs in order: Regression â†’ BIP â†
                         f"from the {_ca_outcome} regression for {sel_brand}. "
                         "Re-run regression above to update the filter."
                     )
-                with st.spinner("Running Correspondence Analysisâ€¦"):
+                with st.spinner("Running Correspondence Analysis…"):
                     _render_section_13_can_map(
                         "All", zone_arg, gender_arg, age_band_arg, city_arg,
                         sel_brand, project_id=_active_pid,
@@ -10673,12 +10673,12 @@ actually drive your outcome. Switch tabs in order: Regression â†’ BIP â†
     def _tab_competitive():
         with st.container(border=True):
             _section_header(
-                "âš”ï¸ Competitive Benchmarking Panel",
+                "⚔️ Competitive Benchmarking Panel",
                 "Side-by-side comparison of all brands across funnel stages, NPS, and CSAT"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
-**What this shows:** Every brand measured on the same yardstick â€” funnel penetration %, NPS, and CSAT.
+**What this shows:** Every brand measured on the same yardstick — funnel penetration %, NPS, and CSAT.
 
 - **Heatmap Table:** Darker green = higher. Quickly spot who leads and who lags each metric.
 - **Metric Rankings:** Pick any single metric and rank all brands. Selected brand highlighted dark green.
@@ -10693,39 +10693,39 @@ actually drive your outcome. Switch tabs in order: Regression â†’ BIP â†
     def _tab_bei():
         with st.container(border=True):
             _section_header(
-                "ðŸ… Brand Equity Index (BEI)",
-                "Composite health score â€” TOM + Consideration + NPS + CSAT combined into single 0â€“100 index"
+                "🏅 Brand Equity Index (BEI)",
+                "Composite health score — TOM + Consideration + NPS + CSAT combined into single 0–100 index"
             )
             st.caption(
-                "âš  **Internal working formula, not an industry-standard index.** The 25/30/25/20 "
+                "⚠ **Internal working formula, not an industry-standard index.** The 25/30/25/20 "
                 "weights below are this team's own judgment call on how to combine these four "
-                "metrics â€” not a cited or externally validated methodology. Useful as a relative "
+                "metrics — not a cited or externally validated methodology. Useful as a relative "
                 "ranking across brands in this dataset; treat the absolute score as directional, "
                 "not authoritative."
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
-**Formula:** BEI = (TOM% norm Ã— 0.25) + (Consideration% norm Ã— 0.30) + (NPS norm Ã— 0.25) + (CSAT norm Ã— 0.20)
+**Formula:** BEI = (TOM% norm × 0.25) + (Consideration% norm × 0.30) + (NPS norm × 0.25) + (CSAT norm × 0.20)
 
-Each metric is normalized 0â€“100 within the dataset before weighting, so all components are on equal footing.
+Each metric is normalized 0–100 within the dataset before weighting, so all components are on equal footing.
 
 - **Score > 66:** Strong brand equity (green zone)
-- **Score 33â€“66:** Average equity (amber zone)
-- **Score < 33:** Weak equity (red zone â€” needs intervention)
+- **Score 33–66:** Average equity (amber zone)
+- **Score < 33:** Weak equity (red zone — needs intervention)
                 """)
             _render_brand_equity_index(sel_brand)
 
     def _tab_ipa():
         with st.container(border=True):
             _section_header(
-                "ðŸ“Š Importance-Performance Grid",
-                f"{sel_brand} â€” which attributes are strengths to maintain vs. opportunities to improve"
+                "📊 Importance-Performance Grid",
+                f"{sel_brand} — which attributes are strengths to maintain vs. opportunities to improve"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
 **Quadrants:**
-- **Top-Right (Strengths â€” Maintain):** High importance + high brand association. Core assets, defend these.
-- **Top-Left (Opportunities â€” Improve):** High importance + low brand association. Priority fix areas.
+- **Top-Right (Strengths — Maintain):** High importance + high brand association. Core assets, defend these.
+- **Top-Left (Opportunities — Improve):** High importance + low brand association. Priority fix areas.
 - **Bottom-Right (Monitor):** Low importance + high association. Not urgent but don't over-invest.
 - **Bottom-Left (Low Priority):** Low importance + low association. De-prioritise.
                 """)
@@ -10734,16 +10734,16 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
     def _tab_funnel_leakage():
         with st.container(border=True):
             _section_header(
-                "ðŸ“‰ Funnel Conversion & Leakage",
-                f"{sel_brand} â€” where consumers drop off, vs. category average at each stage"
+                "📉 Funnel Conversion & Leakage",
+                f"{sel_brand} — where consumers drop off, vs. category average at each stage"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
-**What this shows:** At each funnel transition (e.g. Aided Aware â†’ Ever Used), what % of the previous-stage audience moves forward?
+**What this shows:** At each funnel transition (e.g. Aided Aware → Ever Used), what % of the previous-stage audience moves forward?
 
 - **Above category average:** Brand converts better than peers at that transition.
-- **Below category average:** A leakage point â€” awareness not translating into action.
-- **Biggest leakage = most actionable:** Low EVER_USEDâ†’CONSIDERATION signals product experience gaps.
+- **Below category average:** A leakage point — awareness not translating into action.
+- **Biggest leakage = most actionable:** Low EVER_USED→CONSIDERATION signals product experience gaps.
                 """)
             _render_funnel_leakage(sel_brand, zone=zone_arg, gender=gender_arg,
                                    age_band=age_band_arg, city=city_arg)
@@ -10751,12 +10751,12 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
     def _tab_attribute_ownership():
         with st.container(border=True):
             _section_header(
-                "ðŸ† Attribute Ownership Map",
+                "🏆 Attribute Ownership Map",
                 "Which brand 'owns' each product attribute in the consumer mind?"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
-**Owning an attribute** = highest association % among all brands â€” competitive moat.
+**Owning an attribute** = highest association % among all brands — competitive moat.
 **Lead Margin** = gap over 2nd-place brand. Small margin = vulnerable ownership.
 **"Brand Position" tab:** Shows which attributes the selected brand owns and which are most winnable.
 
@@ -10767,21 +10767,21 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
     def _tab_key_driver():
         with st.container(border=True):
             _section_header(
-                "ðŸ”¬ Key Driver Impact Simulator",
-                f"{sel_brand} â€” simulate NPS impact of improving specific brand attributes"
+                "🔬 Key Driver Impact Simulator",
+                f"{sel_brand} — simulate NPS impact of improving specific brand attributes"
             )
-            # Key Driver Regression now lives in its own tab: Imagery & Analytics â†’
-            # "ðŸŽ¯ Key Driver Regression" (moved out of this expander to avoid duplicate
+            # Key Driver Regression now lives in its own tab: Imagery & Analytics →
+            # "🎯 Key Driver Regression" (moved out of this expander to avoid duplicate
             # widget IDs and give it first-class placement).
-            st.caption("ðŸ“ Driver regression moved to its own tab â†’ **Imagery & Analytics Â· ðŸŽ¯ Key Driver Regression** "
+            st.caption("📐 Driver regression moved to its own tab → **Imagery & Analytics · 🎯 Key Driver Regression** "
                        "(selectable outcome, top-box recode, importance ranking, cross-brand heatmap).")
 
-            # â”€â”€ R Factor Analysis (XLSTAT-style EFA) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            # ── R Factor Analysis (XLSTAT-style EFA) ─────────────────────────
             try:
                 from infoleap.skills.r_bridge import r_available, run_r_stat
                 if r_available():
-                    with st.expander("ðŸ”¬ R Factor Analysis â€” Attribute Dimensions (EFA)", expanded=False):
-                        with st.spinner("Running R factor analysisâ€¦"):
+                    with st.expander("🔬 R Factor Analysis — Attribute Dimensions (EFA)", expanded=False):
+                        with st.spinner("Running R factor analysis…"):
                             import sqlite3
                             from infoleap.db_loader import get_db_path as _get_db_for_r
                             _fconn = sqlite3.connect(_get_db_for_r())
@@ -10836,7 +10836,7 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
                                         **_base_fa,
                                         xaxis=dict(title="Factor"),
                                         yaxis=dict(title="Variance Explained %", range=[0, max(_fa_var_exp) * 120]),
-                                        title=dict(text="EFA â€” Variance Explained per Factor (varimax rotation)", font=dict(size=12)),
+                                        title=dict(text="EFA — Variance Explained per Factor (varimax rotation)", font=dict(size=12)),
                                         showlegend=False,
                                     )
                                     st.plotly_chart(_theme_fig(_fig_fa), use_container_width=True)
@@ -10865,32 +10865,32 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
                                                     f"border-radius:2px;margin-top:1px;opacity:0.6'></div></div>",
                                                     unsafe_allow_html=True,
                                                 )
-                                    st.caption("Loadings â‰¥ |0.40| are typically considered meaningful. Green = positive, Red = negative.")
+                                    st.caption("Loadings ≥ |0.40| are typically considered meaningful. Green = positive, Red = negative.")
                         else:
                             _nfa = len(_fa_df) if _fa_df is not None else 0
                             if _fa_err:
                                 st.warning(f"R factor analysis data error: {_fa_err}")
                             else:
-                                st.info(f"Need â‰¥30 respondents with imagery data for factor analysis "
+                                st.info(f"Need ≥30 respondents with imagery data for factor analysis "
                                         f"(found {_nfa} for {sel_brand}).")
             except ImportError:
                 pass
 
-            # Statistical tests section removed â€” undecided scope, to be redesigned
+            # Statistical tests section removed — undecided scope, to be redesigned
 
     def _tab_advocacy_loyalty():
         with st.container(border=True):
             _section_header(
-                "ðŸ’Ž Advocacy & Loyalty",
+                "💎 Advocacy & Loyalty",
                 "Net Promoter Score decomposition, league ranking, and city-level performance"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown(f"**Critical Finding:** {insights['loyalty_finding']}")
                 st.markdown(f"""
-**NPS Formula:** NPS = % Promoters âˆ’ % Detractors (range: âˆ’100 to +100). Industry avg: **+{NPS_INDUSTRY_AVG}**.
-- **League Table:** Ranked among all tracked brands with â‰¥30 raters.
-- **City Performance:** Zone colour-coded â€” each city bar reflects local brand advocacy.
-- **Zone bands:** Red = detractor zone (<0) Â· Amber = developing (0â€“{NPS_INDUSTRY_AVG}) Â· Green = champion (>{NPS_INDUSTRY_AVG}).
+**NPS Formula:** NPS = % Promoters − % Detractors (range: −100 to +100). Industry avg: **+{NPS_INDUSTRY_AVG}**.
+- **League Table:** Ranked among all tracked brands with ≥30 raters.
+- **City Performance:** Zone colour-coded — each city bar reflects local brand advocacy.
+- **Zone bands:** Red = detractor zone (<0) · Amber = developing (0–{NPS_INDUSTRY_AVG}) · Green = champion (>{NPS_INDUSTRY_AVG}).
                 """)
             l_tabs = st.tabs(["NPS Deep Dive", "Performance League", "City Performance"])
             with l_tabs[0]:
@@ -10922,8 +10922,8 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
                         delta_nps  = round((nps_v or 0) - NPS_INDUSTRY_AVG, 1)
                         delta_sign = "+" if delta_nps >= 0 else ""
                         _rank_line = (
-                            f"#{_nps_lg_rank} of {_nps_lg_n} Â· Top {100-_nps_pctile+1:.0f}%"
-                            if _nps_lg_rank and _nps_pctile else "â€”"
+                            f"#{_nps_lg_rank} of {_nps_lg_n} · Top {100-_nps_pctile+1:.0f}%"
+                            if _nps_lg_rank and _nps_pctile else "—"
                         )
                         nps_html = (
                             f"<div style='background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px;"
@@ -10961,7 +10961,7 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
                 fig_nps_rank = None
                 if _eligible_count < 5:
                     st.info(
-                        f"NPS league unavailable â€” only {_eligible_count} brand(s) have â‰¥30 raters. "
+                        f"NPS league unavailable — only {_eligible_count} brand(s) have ≥30 raters. "
                         "This project's NPS question is asked once overall, not per-brand, so most "
                         "brands have no qualifying rater base."
                     )
@@ -10979,7 +10979,7 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
 
                     with lg_ctl_r:
                         st.caption(
-                            f"Showing top {league_top_n} of {_eligible_count} eligible brands (â‰¥30 raters). "
+                            f"Showing top {league_top_n} of {_eligible_count} eligible brands (≥30 raters). "
                             f"{sel_brand} always included."
                         )
                     fig_nps_rank = _nps_rankings_chart(brands_list, min_raters=30, top_n=league_top_n, highlight=sel_brand)
@@ -11004,7 +11004,7 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
                             _def_val = min(12, _max_val)
                             city_top_n = st.slider("Cities to show", _min_val, _max_val, _def_val, key="city_top_n")
                         with city_ctl_r:
-                            st.caption("Sorted best â†’ worst NPS. Bar colour = Zone. Min 15 raters per city.")
+                            st.caption("Sorted best → worst NPS. Bar colour = Zone. Min 15 raters per city.")
                     cl_col, cr_col = st.columns([2, 1])
                     with cl_col:
                         st.plotly_chart(_theme_fig(_city_nps_chart(city_nps, sel_brand, top_n=city_top_n)), use_container_width=True)
@@ -11017,13 +11017,13 @@ Each metric is normalized 0â€“100 within the dataset before weighting, so a
     def _tab_csat():
         with st.container(border=True):
             _section_header(
-                "â­ Customer Satisfaction (CSAT)",
-                "Satisfaction score (0â€“10) from recent buyers â€” distinct from NPS (would recommend)"
+                "⭐ Customer Satisfaction (CSAT)",
+                "Satisfaction score (0–10) from recent buyers — distinct from NPS (would recommend)"
             )
-            with st.expander("â„¹ï¸ NPS vs CSAT", expanded=False):
+            with st.expander("ℹ️ NPS vs CSAT", expanded=False):
                 st.markdown("""
-**NPS** = "Would you recommend?" (bq2b) â€” measures brand advocacy and word-of-mouth.
-**CSAT** = "How satisfied are you?" (bq5) â€” measures fulfilment of expectations post-purchase.
+**NPS** = "Would you recommend?" (bq2b) — measures brand advocacy and word-of-mouth.
+**CSAT** = "How satisfied are you?" (bq5) — measures fulfilment of expectations post-purchase.
 A brand can have high CSAT but low NPS (satisfied but not enthusiastic enough to recommend).
 Base = recent buyers only (4,704 respondents across categories).
                 """)
@@ -11079,7 +11079,7 @@ Base = recent buyers only (4,704 respondents across categories).
                                 textposition="outside",
                                 hovertemplate="Score %{x}: %{y} respondents<extra></extra>",
                             ))
-                            # Mean score vertical reference line (numeric axis â†’ exact position)
+                            # Mean score vertical reference line (numeric axis → exact position)
                             fig_csat.add_vline(
                                 x=float(avg_csat),
                                 line_dash="dash", line_color="#374151", line_width=1.5,
@@ -11089,9 +11089,9 @@ Base = recent buyers only (4,704 respondents across categories).
                             )
                             # Zone labels (numeric x positions)
                             for _zone_x, _zone_lbl, _zone_col in [
-                                (1.5, "Detractors (0â€“3)", "#ef4444"),
-                                (5.0, "Neutral (4â€“6)", "#f59e0b"),
-                                (8.5, "Satisfied (7â€“10)", "#22c55e"),
+                                (1.5, "Detractors (0–3)", "#ef4444"),
+                                (5.0, "Neutral (4–6)", "#f59e0b"),
+                                (8.5, "Satisfied (7–10)", "#22c55e"),
                             ]:
                                 fig_csat.add_annotation(
                                     x=_zone_x, y=_csat_nmax * 0.92,
@@ -11103,13 +11103,13 @@ Base = recent buyers only (4,704 respondents across categories).
                                            if k not in ("xaxis", "yaxis")}
                             fig_csat.update_layout(
                                 **layout_base,
-                                xaxis=dict(title="Satisfaction Score (0â€“10)", gridcolor="#f1f5f9",
+                                xaxis=dict(title="Satisfaction Score (0–10)", gridcolor="#f1f5f9",
                                            dtick=1, range=[-0.6, 10.6]),
                                 yaxis=dict(title="Respondents", gridcolor="#f1f5f9"),
                                 title=dict(text=f"{sel_brand} CSAT Distribution (Recent Buyers)", font=dict(size=12)),
                             )
                             st.plotly_chart(_theme_fig(fig_csat), use_container_width=True)
-                            st.caption("Red = Dissatisfied (0â€“3) Â· Amber = Neutral (4â€“6) Â· Green = Satisfied (7â€“10). Dashed = mean score.")
+                            st.caption("Red = Dissatisfied (0–3) · Amber = Neutral (4–6) · Green = Satisfied (7–10). Dashed = mean score.")
                     except Exception as _e:
                         st.warning(f"CSAT distribution unavailable: {_e}")
                 with c3:
@@ -11142,12 +11142,12 @@ Base = recent buyers only (4,704 respondents across categories).
     def _tab_portfolio():
         with st.container(border=True):
             _section_header(
-                "ðŸ—‚ï¸ Portfolio Awareness",
+                "🗂️ Portfolio Awareness",
                 "Which product categories do consumers associate with each brand?"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
-Portfolio awareness (bq6) measures **category-brand linkage** â€” beyond just "aware of brand", do consumers know what products they make?
+Portfolio awareness (bq6) measures **category-brand linkage** — beyond just "aware of brand", do consumers know what products they make?
 A brand with high ceiling fan awareness but low water heater association has a portfolio perception gap.
 Base = respondents who are aware of the brand.
                 """)
@@ -11156,10 +11156,10 @@ Base = respondents who are aware of the brand.
     def _tab_price_tier():
         with st.container(border=True):
             _section_header(
-                "ðŸ’° Price Tier Distribution",
+                "💰 Price Tier Distribution",
                 "What price points did buyers actually pay, by category?"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
 Price tier data (bq0b) captures the **actual price range paid** by recent purchasers for each category.
 Useful for: price segment concentration, premium vs. economy splits, comparing across zones.
@@ -11170,40 +11170,40 @@ Base = respondents who recently purchased in that category.
     def _tab_demographics():
         with st.container(border=True):
             _section_header(
-                "ðŸ‘¥ Consumer Demographics Profile",
-                f"{sel_brand} â€” who considers this brand? Gender, age, zone breakdown with index vs. average"
+                "👥 Consumer Demographics Profile",
+                f"{sel_brand} — who considers this brand? Gender, age, zone breakdown with index vs. average"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
 **Index = 100:** This segment considers the brand at exactly the average rate.
-**Index > 110 (green):** Over-index â€” this segment is disproportionately likely to consider the brand.
-**Index < 90 (red):** Under-index â€” the brand is weak in this segment. Growth opportunity.
+**Index > 110 (green):** Over-index — this segment is disproportionately likely to consider the brand.
+**Index < 90 (red):** Under-index — the brand is weak in this segment. Growth opportunity.
                 """)
             _render_demographic_profile(sel_brand, zone_arg, gender_arg, age_band_arg, city_arg)
 
     def _tab_purchase_journey():
         with st.container(border=True):
             _section_header(
-                "ðŸ›’ Purchase Journey",
+                "🛒 Purchase Journey",
                 "Why buyers chose this category, where they researched, and how they decided"
             )
-            with st.expander("â„¹ï¸ About this data", expanded=False):
+            with st.expander("ℹ️ About this data", expanded=False):
                 st.markdown(
                     "Purchase journey data covers **recent buyers** across all tracked categories. "
-                    "Responses are coded (numerical) â€” labels are standardised from the survey codebook."
+                    "Responses are coded (numerical) — labels are standardised from the survey codebook."
                 )
             _render_purchase_journey(zone_arg, gender_arg, age_band_arg, city_arg)
 
     def _tab_consumer_attitudes():
         with st.container(border=True):
             _section_header(
-                "ðŸ’­ Consumer Attitudes",
-                "Category belief statements (AQ4) â€” agree/not sure/disagree. Base = category buyers/owners."
+                "💭 Consumer Attitudes",
+                "Category belief statements (AQ4) — agree/not sure/disagree. Base = category buyers/owners."
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown("""
 **AQ4** = Category attitude statements rated as Agree / Not Sure / Disagree.
-Each category has 5â€“6 statements about usage habits, purchase behaviour, and product beliefs.
+Each category has 5–6 statements about usage habits, purchase behaviour, and product beliefs.
 Use to identify consumer misconceptions, category barriers, and opportunity messaging angles.
 Base = respondents who own or recently purchased in the category.
                 """)
@@ -11220,7 +11220,7 @@ Base = respondents who own or recently purchased in the category.
                     _at_conn.close()
                     return
 
-                # Category code â†’ suffix mapping
+                # Category code → suffix mapping
                 CAT_CODE_TO_SUFFIX = {1: 'cf', 4: 'led', 5: 'wh', 3: 'mg', 2: 'ac', 6: 'wp'}
                 CAT_SUFFIX_TO_NAME = {'cf': 'Ceiling Fans', 'led': 'LED Batten', 'wh': 'Water Heater',
                                       'mg': 'Mixer Grinder', 'ac': 'Air Cooler', 'wp': 'Water Pumps'}
@@ -11290,7 +11290,7 @@ Base = respondents who own or recently purchased in the category.
                         sorted_ids = sorted(stmt_ids, key=lambda s: _pct_lk.get((s, 1), 0), reverse=True)
 
                         def _trunc_lbl(txt, n=68):
-                            return txt[:n - 1] + "â€¦" if len(txt) > n else txt
+                            return txt[:n - 1] + "…" if len(txt) > n else txt
 
                         y_labels     = [_trunc_lbl(labels[sid]) for sid in sorted_ids]
                         agree_vals   = [_pct_lk.get((sid, 1), 0) for sid in sorted_ids]
@@ -11377,7 +11377,7 @@ Base = respondents who own or recently purchased in the category.
                             **_base_at,
                             barmode="relative",
                             xaxis=dict(
-                                title="â† Disagree (%) Â· Agree (%) â†’",
+                                title="← Disagree (%) · Agree (%) →",
                                 range=[-_x_bound, _x_bound],
                                 zeroline=True, zerolinecolor="#9ca3af",
                                 tickformat=".0f",
@@ -11389,14 +11389,14 @@ Base = respondents who own or recently purchased in the category.
                                         traceorder="normal"),
                             margin=dict(l=10, r=60, t=52, b=52),
                             title=dict(
-                                text=f"{CAT_SUFFIX_TO_NAME.get(_cat_suf, '')} â€” Consumer Attitude Statements (Sorted by Agreement)",
+                                text=f"{CAT_SUFFIX_TO_NAME.get(_cat_suf, '')} — Consumer Attitude Statements (Sorted by Agreement)",
                                 font=dict(size=12),
                             ),
                         )
                         st.plotly_chart(_theme_fig(fig_at), use_container_width=True)
                         st.caption(
-                            "Sorted highestâ†’lowest Agreement. "
-                            "Green = Agree Â· Red = Disagree (extending left) Â· Amber = Not Sure. "
+                            "Sorted highest→lowest Agreement. "
+                            "Green = Agree · Red = Disagree (extending left) · Amber = Not Sure. "
                             "AQ4 base = category owners/buyers."
                         )
             except Exception as _e:
@@ -11405,10 +11405,10 @@ Base = respondents who own or recently purchased in the category.
     def _tab_market_dynamics():
         with st.container(border=True):
             _section_header(
-                "ðŸ—ºï¸ Market Dynamics & Positioning",
+                "🗺️ Market Dynamics & Positioning",
                 "Geographic footprint, market landscape clusters, and competitive positioning"
             )
-            with st.expander("â„¹ï¸ How to interpret", expanded=False):
+            with st.expander("ℹ️ How to interpret", expanded=False):
                 st.markdown(f"**Critical Finding:** {insights['dynamics_finding']}")
                 st.markdown("""
 **Geographic Footprint:** Map bubble size = respondent base (market size). Colour intensity = TOM%.
@@ -11416,7 +11416,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
 
 **Market Landscape:** Heatmap = brand co-awareness (% aware of both). Cluster map uses PCA on zone TOM+NPS vectors.
 
-**Competitive & Positioning:** Strategic Map â€” NPS vs TOM positioning, bubble size = Aided awareness.
+**Competitive & Positioning:** Strategic Map — NPS vs TOM positioning, bubble size = Aided awareness.
                 """)
             fig_pos = _brand_positioning_chart(brands_list, sel_brand)
             m_tabs = st.tabs(["Geographic Footprint", "Market Landscape", "Competitive & Positioning"])
@@ -11459,8 +11459,8 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
             with m_tabs[2]:
                 # Rival-vs-metric ranking used to live here as a second "Rival Benchmarks" view
                 # mode, duplicating the Funnel & Awareness tab's Competitive Benchmarking Panel
-                # â†’ Metric Rankings sub-tab (same "rank brands by metric" bar chart, just a
-                # narrower rivals-only subset with fewer metrics). Removed â€” Strategic Map below
+                # → Metric Rankings sub-tab (same "rank brands by metric" bar chart, just a
+                # narrower rivals-only subset with fewer metrics). Removed — Strategic Map below
                 # is the only chart here with no equivalent elsewhere on the page.
                 if fig_pos:
                     p_left, p_right = st.columns([2, 1])
@@ -11468,27 +11468,27 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                         st.plotly_chart(_theme_fig(fig_pos), use_container_width=True)
                     with p_right:
                         _ai_card(insights['positioning'], "AI Positioning Insight", "#1a5d4d")
-                    st.caption("Bubble size = Aided awareness %. â˜… = selected brand.")
+                    st.caption("Bubble size = Aided awareness %. ★ = selected brand.")
                 else:
                     st.info("Positioning map unavailable.")
 
-    # â”€â”€ TAB 5: Driver Flow â€” Regression â†’ BIP â†’ CAN MAP in one connected pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── TAB 5: Driver Flow — Regression → BIP → CAN MAP in one connected pipeline ─────────────────
     def _tab_driver_flow():
         """Unified Driver Analysis Flow.
 
-        Step 1: Choose outcome (NPS / CSAT / imagery attribute) â†’ run regression.
+        Step 1: Choose outcome (NPS / CSAT / imagery attribute) → run regression.
         Step 2: BIP Normalization filtered to the significant driver attributes only.
         Step 3: CAN MAP filtered to the same driver attributes only.
 
         This is the industry-standard approach ('Rahul process'):
-        regression tells you WHAT matters â†’ BIP tells you WHO is strong on it â†’ CAN MAP shows WHERE brands sit.
+        regression tells you WHAT matters → BIP tells you WHO is strong on it → CAN MAP shows WHERE brands sit.
         """
         _active_pid = st.session_state.get("active_project_id", "project_1")
 
         with st.container(border=True):
             _section_header(
-                "ðŸ”— Driver-Linked Analysis Flow",
-                "Regression â†’ BIP â†’ CAN MAP in one connected pipeline. "
+                "🔗 Driver-Linked Analysis Flow",
+                "Regression → BIP → CAN MAP in one connected pipeline. "
                 "Drivers from Step 1 auto-filter Steps 2 and 3."
             )
             st.markdown(
@@ -11501,14 +11501,14 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                 unsafe_allow_html=True,
             )
 
-        # â”€â”€ Step 1: Regression â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 1: Regression ───────────────────────────────────────────────
         with st.container(border=True):
-            _section_header("Step 1 â€” Key Driver Regression",
-                            f"{sel_brand} Â· pick outcome â†’ find which attributes drive it")
+            _section_header("Step 1 — Key Driver Regression",
+                            f"{sel_brand} · pick outcome → find which attributes drive it")
             try:
                 from infoleap.skills.r_bridge import r_available
                 if not r_available():
-                    st.info("R is not available â€” Key Driver Regression requires Rscript.")
+                    st.info("R is not available — Key Driver Regression requires Rscript.")
                     return
             except ImportError as _e:
                 st.error(f"R bridge not available: {_e}")
@@ -11538,10 +11538,10 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                 _df_t2    = _df_max - 1  # e.g. 9 for 10-pt, 4 for 5-pt
                 _df_t3    = _df_max - 2  # e.g. 8 for 10-pt, 3 for 5-pt
                 _DF_TOPBOX = {
-                    f"Top-2 Box ({_df_t2}â€“{_df_max} â†’ 1)": _df_t2,
-                    f"Top-3 Box ({_df_t3}â€“{_df_max} â†’ 1)": _df_t3,
-                    f"Top-1 Box ({_df_max} â†’ 1)":           _df_max,
-                    f"Raw 0â€“{_df_max} score":                0,
+                    f"Top-2 Box ({_df_t2}–{_df_max} → 1)": _df_t2,
+                    f"Top-3 Box ({_df_t3}–{_df_max} → 1)": _df_t3,
+                    f"Top-1 Box ({_df_max} → 1)":           _df_max,
+                    f"Raw 0–{_df_max} score":                0,
                 }
                 with _fc2:
                     _df_tb_lbl = st.selectbox("Scale recode", list(_DF_TOPBOX), index=0,
@@ -11550,7 +11550,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
             with _fc3:
                 _df_model_lbl = st.selectbox("Model", ["Logistic", "Linear (LPM)"],
                                              key="df_model",
-                                             help="Logistic for binary outcomes (top-box). Linear for raw 0â€“10.")
+                                             help="Logistic for binary outcomes (top-box). Linear for raw 0–10.")
             _df_model = "logistic" if _df_model_lbl.startswith("Logistic") else "linear"
             with _fc4:
                 _df_sig_thresh = st.select_slider("Significance", options=[0.01, 0.05, 0.10],
@@ -11563,7 +11563,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                 _df_model = "linear"
                 st.caption("Auto-switched to Linear (raw outcome is not binary).")
 
-            with st.spinner("Running regressionâ€¦"):
+            with st.spinner("Running regression…"):
                 _df_res = _driver_regression_for_brand(
                     sel_brand, _df_dv_kind, _df_topbox,
                     zone_arg, gender_arg, age_band_arg, city_arg,
@@ -11575,7 +11575,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                 return
             if "error" in _df_res:
                 if _df_res.get("error") == "insufficient":
-                    st.info(f"Need â‰¥30 respondents with {_df_dv_kind} + imagery data.")
+                    st.info(f"Need ≥30 respondents with {_df_dv_kind} + imagery data.")
                 else:
                     st.warning(f"Regression: {_df_res['error']}")
                 return
@@ -11590,7 +11590,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                                if d.get("p_value") is None or d.get("p_value", 1.0) <= _df_sig_thresh]
             if not _df_sig_drivers:
                 _df_sig_drivers = sorted(_df_all_drivers, key=lambda d: d.get("importance", 0), reverse=True)[:8]
-                st.caption(f"No drivers met p < {_df_sig_thresh} â€” showing top 8 by importance instead.")
+                st.caption(f"No drivers met p < {_df_sig_thresh} — showing top 8 by importance instead.")
 
             # AI headline from top driver results
             if _df_sig_drivers:
@@ -11598,7 +11598,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                 _r2v  = _df_res.get("mcfadden_r2" if _df_model == "logistic" else "r_squared", 0)
                 _img_summary = (
                     f"Top imagery drivers of {_df_dv_kind} for {sel_brand}: "
-                    f"{', '.join(_top3)}. Model RÂ²={_r2v:.3f}, n={_df_res.get('n',0)} respondent-brand pairs."
+                    f"{', '.join(_top3)}. Model R²={_r2v:.3f}, n={_df_res.get('n',0)} respondent-brand pairs."
                 )
                 _render_ai_headline("imagery_drivers", _img_summary, brand=sel_brand,
                                     project_id=_active_pid)
@@ -11608,7 +11608,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
             _df_metric_cols[0].metric("Significant drivers", len(_df_sig_drivers))
             _r2_key = "mcfadden_r2" if _df_model == "logistic" else "r_squared"
             _df_metric_cols[1].metric(
-                "McFadden RÂ²" if _df_model == "logistic" else "RÂ²",
+                "McFadden R²" if _df_model == "logistic" else "R²",
                 f"{_df_res.get(_r2_key, 0):.3f}"
             )
             _df_metric_cols[2].metric("Respondents", _df_res.get("n", 0))
@@ -11634,11 +11634,11 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                    if k not in ("xaxis", "yaxis")},
                 xaxis=dict(title="Relative Importance %", range=[0, max(d.get("importance", 0) for d in _df_import_sorted) * 1.25]),
                 yaxis=dict(autorange="reversed"),
-                title=dict(text=f"Driver Importance â€” {sel_brand} ({_df_dv_kind} outcome)", font=dict(size=12)),
+                title=dict(text=f"Driver Importance — {sel_brand} ({_df_dv_kind} outcome)", font=dict(size=12)),
                 showlegend=False,
             )
             st.plotly_chart(_theme_fig(_df_bar_fig), use_container_width=True)
-            st.caption("Green = positive driver (more association â†’ better outcome). Red = negative driver.")
+            st.caption("Green = positive driver (more association → better outcome). Red = negative driver.")
 
             # Resolve attr_ids for significant drivers using DB lookup
             _df_driver_labels = [d["attribute"] for d in _df_sig_drivers]
@@ -11672,16 +11672,16 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                 _df_aware_stages = ["TOM", "SPONT", "AIDED"]
             st.session_state["driver_flow_awareness_stages"] = _df_aware_stages
 
-        # â”€â”€ Step 2: BIP filtered to driver attributes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 2: BIP filtered to driver attributes ────────────────────────
         with st.container(border=True):
-            _section_header("Step 2 â€” Brand Image Profiling (Driver Attributes Only)",
+            _section_header("Step 2 — Brand Image Profiling (Driver Attributes Only)",
                             "Which brands are STRONG on the attributes that actually drive your outcome?")
 
             _df_attr_ids_for_bip = st.session_state.get("driver_flow_attr_ids", [])
             if not _df_attr_ids_for_bip:
                 st.info("Run Step 1 first to identify driver attributes.")
             else:
-                with st.spinner("Running BIP on driver attributesâ€¦"):
+                with st.spinner("Running BIP on driver attributes…"):
                     try:
                         from infoleap.analytics.bip_engine import BIPNormalizationEngine as _BIPEng
                         _df_bip_eng = _BIPEng(project_id=_active_pid)
@@ -11724,7 +11724,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                         )
 
                     with _bip_dtabs[0]:
-                        st.caption("Association % (raw) â€” share of each brand's aware respondents who associate this attribute.")
+                        st.caption("Association % (raw) — share of each brand's aware respondents who associate this attribute.")
                         _df_show_matrix(_df_raw_m, "raw")
                     with _bip_dtabs[1]:
                         st.caption("Normalised vs market average (norm dev). Positive = brand over-indexes.")
@@ -11736,7 +11736,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                         st.caption("Significance: YES = brand's association % is statistically above market average.")
                         _df_show_matrix(_df_sig_m, "significance")
 
-                    # Visual: stacked bar â€” brand strength per driver attribute
+                    # Visual: stacked bar — brand strength per driver attribute
                     if _df_raw_m is not None and not _df_raw_m.empty:
                         _df_brands_bip = list(_df_raw_m.columns)
                         _df_attrs_bip  = list(_df_raw_m.index)
@@ -11765,14 +11765,14 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                             xaxis=dict(title="Driver Attribute", tickangle=-35),
                             yaxis=dict(title="Association %", range=[0, 100]),
                             legend=dict(orientation="h", yanchor="bottom", y=1.01, xanchor="right", x=1),
-                            title=dict(text=f"Brand Strength on Driver Attributes Â· {sel_brand} highlighted",
+                            title=dict(text=f"Brand Strength on Driver Attributes · {sel_brand} highlighted",
                                        font=dict(size=12)),
                         )
                         st.plotly_chart(_theme_fig(_bip_vis_fig), use_container_width=True)
 
-        # â”€â”€ Step 3: CAN MAP filtered to driver attributes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Step 3: CAN MAP filtered to driver attributes ────────────────────
         with st.container(border=True):
-            _section_header("Step 3 â€” Brand Perceptual Map (Driver Attributes Only)",
+            _section_header("Step 3 — Brand Perceptual Map (Driver Attributes Only)",
                             "Where do brands sit relative to each other on the dimensions that matter?")
 
             _df_attr_ids_for_ca = st.session_state.get("driver_flow_attr_ids", [])
@@ -11786,7 +11786,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                 with _dfc2:
                     _df_ca_min_n = st.slider("Min respondents per brand", 5, 50, 10, key="df_ca_min_n")
 
-                with st.spinner("Running Correspondence Analysis on driver attributesâ€¦"):
+                with st.spinner("Running Correspondence Analysis on driver attributes…"):
                     try:
                         from infoleap.analytics.can_map_engine import run_ca_pipeline as _df_run_ca
                         _df_ca_res = _df_run_ca(
@@ -11822,7 +11822,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                             _bc_syms = ["star" if n == sel_brand else "circle" for n in _bc_names]
                             _df_ca_simple.add_trace(go.Scatter(
                                 x=_bc_x, y=_bc_y, mode="markers+text",
-                                text=[f"â˜… {n}" if n == sel_brand else n for n in _bc_names],
+                                text=[f"★ {n}" if n == sel_brand else n for n in _bc_names],
                                 textposition="top center",
                                 marker=dict(size=_bc_sizes, color=_bc_cols, symbol=_bc_syms),
                                 name="Brands",
@@ -11848,7 +11848,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                                 xaxis=dict(title=f"F1 ({_df_ca_res.get('explained_inertia', [0,0])[0]*100:.1f}%)"),
                                 yaxis=dict(title=f"F2 ({_df_ca_res.get('explained_inertia', [0,0])[1]*100:.1f}%)"),
                                 legend=dict(orientation="h", yanchor="bottom", y=1.01),
-                                title=dict(text=f"Perceptual Map â€” Driver Attributes Â· {sel_brand} â˜…",
+                                title=dict(text=f"Perceptual Map — Driver Attributes · {sel_brand} ★",
                                            font=dict(size=12)),
                             )
                             st.plotly_chart(_theme_fig(_df_ca_simple), use_container_width=True)
@@ -11860,11 +11860,11 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                     if len(_df_ei) >= 2:
                         st.caption(
                             f"F1 explains {_df_ei[0]*100:.1f}%, F2 explains {_df_ei[1]*100:.1f}% of variation "
-                            f"among driver attributes. â˜… = {sel_brand}. Diamonds = driver attributes. "
+                            f"among driver attributes. ★ = {sel_brand}. Diamonds = driver attributes. "
                             "Brands close to an attribute have a stronger-than-average association with it."
                         )
 
-    # â”€â”€ Assemble tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Assemble tabs ─────────────────────────────────────────────────────────────────────────────
     if _bh_page == _BH_PAGE_LABELS[1]:
         _tab_salience()
         _tab_competitive()
@@ -11886,21 +11886,21 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
         _tab_portfolio()
         _tab_price_tier()
 
-    # _tab_driver_flow() merged into _tab_imagery() (Step 1â†’2 connected pipeline)
+    # _tab_driver_flow() merged into _tab_imagery() (Step 1→2 connected pipeline)
 
     with st.container(border=True):
-        st.subheader("ðŸ› ï¸ Data Workbench")
+        st.subheader("🛠️ Data Workbench")
         with st.expander("Full Segment Data & Export", expanded=False):
             df_all = pd.DataFrame(brands_list)
             show_cols = ["brand_name", "aided_pct", "spont_pct", "tom_pct", "nps", "nps_base", "strat_score"]
             st.dataframe(df_all[show_cols], hide_index=True, use_container_width=True)
 
-        with st.expander("ðŸ¤– Ask AI about this data", expanded=False):
+        with st.expander("🤖 Ask AI about this data", expanded=False):
             _wb_ctx = st.session_state.get("_wb_active_section_data")
             if _wb_ctx:
-                st.caption(f"Scope: **{_wb_ctx['section']}** Â· captured {_wb_ctx['captured_at']}")
+                st.caption(f"Scope: **{_wb_ctx['section']}** · captured {_wb_ctx['captured_at']}")
             else:
-                st.caption("Scope: no section captured yet â€” open a Driver Regression, Kano, "
+                st.caption("Scope: no section captured yet — open a Driver Regression, Kano, "
                           "MaxDiff, or TURF panel above first, then come back here.")
             _wb_c1, _wb_c2 = st.columns([1, 2.2])
             with _wb_c1:
@@ -11913,7 +11913,7 @@ Zone bars: grouped by TOM / Spont / Aided per zone; dashed lines = all-zone aver
                     "Question (leave blank for a general analysis of this section)",
                     key="wb_question", placeholder="e.g. Which attributes should we prioritize and why?")
             if st.button("Ask AI", key="wb_ask_btn", type="primary", disabled=(_wb_ctx is None)):
-                with st.spinner(f"Asking {_wb_model_choice}â€¦"):
+                with st.spinner(f"Asking {_wb_model_choice}…"):
                     _wb_text, _wb_used_model, _wb_err = _wb_ask(_wb_question, _wb_model_choice)
                 if _wb_text:
                     if _wb_err:  # fallback happened but still got an answer

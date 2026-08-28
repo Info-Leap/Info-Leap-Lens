@@ -1,5 +1,5 @@
-﻿"""
-analytics_tools.py â€” Streamlit-free compute wrappers exposing the Brand Health
+"""
+analytics_tools.py — Streamlit-free compute wrappers exposing the Brand Health
 Python+R analytics suite to the Ask Pulse agent (researcher_agent.py).
 
 Each function returns a concise, agent-readable TEXT summary (not a Streamlit
@@ -40,11 +40,11 @@ def _cat_codes(category: str | None):
     return _PRODUCT_CODES.get(str(category).strip().lower())
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # 1. Column-proportion significance (XLSTAT / pValue sig-letter table)
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 def _sig_letters(items, alpha=0.05):
-    """items: list[(label, count, base)] â†’ (letters, beats, pct). Excel-style labels."""
+    """items: list[(label, count, base)] → (letters, beats, pct). Excel-style labels."""
     from scipy.stats import norm as _norm
 
     def _col_letter(i):
@@ -101,13 +101,13 @@ def significance_test(metric: str = "CONSIDERATION", confidence: float = 0.95,
         conn.close()
     items = [(r["brand_name"], int(r["n"]), base) for _, r in counts.iterrows() if int(r["n"]) >= min_n]
     if len(items) < 2:
-        return f"Not enough brands with â‰¥{min_n} respondents on {metric}."
+        return f"Not enough brands with ≥{min_n} respondents on {metric}."
     letters, beats, pct = _sig_letters(items, alpha=alpha)
     rows = sorted(pct, key=lambda x: -pct[x])[:top]
-    lines = [f"SIGNIFICANCE TEST â€” {metric} (pooled two-proportion z, {confidence:.0%} conf, base N={base:,}):"]
+    lines = [f"SIGNIFICANCE TEST — {metric} (pooled two-proportion z, {confidence:.0%} conf, base N={base:,}):"]
     for b in rows:
-        beat = " ".join(beats[b]) or "â€”"
-        lines.append(f"  {letters[b]}  {b}: {pct[b]:.1f}%  Â· sig. higher than: {beat}")
+        beat = " ".join(beats[b]) or "—"
+        lines.append(f"  {letters[b]}  {b}: {pct[b]:.1f}%  · sig. higher than: {beat}")
     leader = rows[0]
     lines.append(f"Leader: {leader} ({letters[leader]}) at {pct[leader]:.1f}%, "
                  f"significantly ahead of {len(beats[leader])} of {len(items)-1} rivals. "
@@ -115,11 +115,11 @@ def significance_test(metric: str = "CONSIDERATION", confidence: float = 0.95,
     return "\n".join(lines)
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # 2. Correspondence Analysis (CAN MAP perceptual positioning)
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 def correspondence_analysis(category: str = "all", top_brands: int = 12) -> str:
-    """Run Correspondence Analysis on brandÃ—attribute imagery; summarise the
+    """Run Correspondence Analysis on brand×attribute imagery; summarise the
     perceptual map: inertia explained, axis poles, and each brand's quadrant."""
     try:
         from infoleap.analytics.can_map_engine import run_ca_pipeline
@@ -134,14 +134,14 @@ def correspondence_analysis(category: str = "all", top_brands: int = 12) -> str:
     attrs = md.get("attrs", [])
     def _poles(idx):
         s = sorted(attrs, key=lambda a: a.get(f"F{idx+1}", a.get("F1", 0)) if idx == 0 else a.get("F2", 0))
-        neg = ", ".join(a["name"][:22] for a in s[:2]) if s else "â€”"
-        pos = ", ".join(a["name"][:22] for a in s[-2:][::-1]) if s else "â€”"
+        neg = ", ".join(a["name"][:22] for a in s[:2]) if s else "—"
+        pos = ", ".join(a["name"][:22] for a in s[-2:][::-1]) if s else "—"
         return neg, pos
     n1, p1 = _poles(0); n2, p2 = _poles(1)
     lines = [
-        f"CORRESPONDENCE ANALYSIS (CAN MAP) â€” {category}, {len(brands)} brands Ã— {len(attrs)} attributes.",
-        f"F1 explains {ev[0]:.1f}% inertia (â—€ {n1}  |  {p1} â–¶).",
-        f"F2 explains {ev[1]:.1f}% inertia (â—€ {n2}  |  {p2} â–¶).",
+        f"CORRESPONDENCE ANALYSIS (CAN MAP) — {category}, {len(brands)} brands × {len(attrs)} attributes.",
+        f"F1 explains {ev[0]:.1f}% inertia (◀ {n1}  |  {p1} ▶).",
+        f"F2 explains {ev[1]:.1f}% inertia (◀ {n2}  |  {p2} ▶).",
         "Brand positions (F1, F2):",
     ]
     for b in brands[:top_brands]:
@@ -153,9 +153,9 @@ def correspondence_analysis(category: str = "all", top_brands: int = 12) -> str:
     return "\n".join(lines)
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # 3. Brand Image Profiling (BIP normalized strengths)
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 def brand_imagery_profile(brand: str, category: str = "all", top: int = 8) -> str:
     """BIP normalized deviation: which attributes a brand over/under-indexes on
     vs the category, with significance."""
@@ -175,7 +175,7 @@ def brand_imagery_profile(brand: str, category: str = "all", top: int = 8) -> st
     except Exception as e:
         return f"BIP failed: {e}"
     if t3 is None or brand not in t3.index:
-        avail = ", ".join(list(t3.index)[:10]) if t3 is not None else "â€”"
+        avail = ", ".join(list(t3.index)[:10]) if t3 is not None else "—"
         return f"Brand '{brand}' not in BIP matrix. Available: {avail}."
     row = t3.loc[brand].sort_values(ascending=False)
     sig = t14.loc[brand] if (t14 is not None and brand in t14.index) else None
@@ -183,7 +183,7 @@ def brand_imagery_profile(brand: str, category: str = "all", top: int = 8) -> st
         return " (sig)" if sig is not None and str(sig.get(attr, "")).upper() == "YES" else ""
     strengths = [(a, row[a]) for a in row.index if row[a] > 0][:top]
     weaks = [(a, row[a]) for a in row.index if row[a] < 0][-top:]
-    lines = [f"BRAND IMAGE PROFILING â€” {brand} ({category}). Normalized deviation vs category average:"]
+    lines = [f"BRAND IMAGE PROFILING — {brand} ({category}). Normalized deviation vs category average:"]
     lines.append("  Over-indexes on (owns):")
     for a, v in strengths:
         lines.append(f"    +{v:.1f}  {a}{_mark(a)}")
@@ -194,9 +194,9 @@ def brand_imagery_profile(brand: str, category: str = "all", top: int = 8) -> st
     return "\n".join(lines)
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # 4. Key Driver Regression (configurable DV + top-box recode + importance)
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 def key_driver_regression(brand: str, outcome: str = "NPS", topbox_min: int = 9, top: int = 8) -> str:
     """Linear key-driver regression: which imagery attributes most drive the
     outcome (NPS/CSAT, optionally top-box recoded). Returns ranked standardized
@@ -206,7 +206,7 @@ def key_driver_regression(brand: str, outcome: str = "NPS", topbox_min: int = 9,
     except Exception as e:
         return f"R bridge unavailable: {e}"
     if not r_available():
-        return "R is not available on this host â€” key driver regression requires Rscript."
+        return "R is not available on this host — key driver regression requires Rscript."
     outcome = (outcome or "NPS").upper()
     conn = _ro_conn()
     try:
@@ -260,30 +260,30 @@ def key_driver_regression(brand: str, outcome: str = "NPS", topbox_min: int = 9,
         piv = bi.pivot_table(index="respondent_id", columns="attr_label", values="value", aggfunc="max", fill_value=0)
         rdf = dv.set_index("respondent_id")[["dv"]].join(piv, how="inner").reset_index().rename(columns={"dv": "nps_score"})
     if len(rdf) < 30:
-        return f"Need â‰¥30 respondents with {outcome}+imagery for {brand} (found {len(rdf)})."
-    # Binary outcome â†’ logistic regression; continuous â†’ OLS (XLSTAT convention)
+        return f"Need ≥30 respondents with {outcome}+imagery for {brand} (found {len(rdf)})."
+    # Binary outcome → logistic regression; continuous → OLS (XLSTAT convention)
     r_script = "logistic_regression" if (_is_ever_tried or (topbox_min and topbox_min > 0)) else "driver_regression"
     res = run_r_stat(r_script, rdf)
     if "error" in res:
         return f"Regression error: {res['error']}"
-    recode = "" if not topbox_min else f" top-box (â‰¥{topbox_min})"
+    recode = "" if not topbox_min else f" top-box (≥{topbox_min})"
     model_type = "Logistic" if r_script == "logistic_regression" else "OLS"
-    r2_label = "McFadden RÂ²" if r_script == "logistic_regression" else "RÂ²"
-    lines = [f"KEY DRIVER REGRESSION ({model_type}) â€” {brand}, outcome={outcome}{recode}. "
+    r2_label = "McFadden R²" if r_script == "logistic_regression" else "R²"
+    lines = [f"KEY DRIVER REGRESSION ({model_type}) — {brand}, outcome={outcome}{recode}. "
              f"{r2_label}={res.get('r_squared',0):.3f} over {res.get('n',0)} respondents.",
-             "Top drivers by relative importance (standardized Î²):"]
+             "Top drivers by relative importance (standardized β):"]
     for d in res.get("significant_drivers", [])[:top]:
         direction = "raises" if (d.get("std_coef") or 0) >= 0 else "lowers"
         sig = "*" if d.get("significant") else " "
-        lines.append(f"  {d.get('importance',0):5.1f}%  Î²={d.get('std_coef')}  {direction} {outcome}{sig}  "
+        lines.append(f"  {d.get('importance',0):5.1f}%  β={d.get('std_coef')}  {direction} {outcome}{sig}  "
                      f"{d['attribute'].replace('.', ' ')[:42]}")
-    lines.append("* = p<0.05. Importance = share of total |standardized Î²|.")
+    lines.append("* = p<0.05. Importance = share of total |standardized β|.")
     return "\n".join(lines)
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 # 5. R statistical tests (ANOVA / Cronbach) on NPS by segment
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─────────────────────────────────────────────────────────────────────────────
 def segment_anova(brand: str, segment: str = "zone") -> str:
     """One-way ANOVA: does the brand's NPS score differ across a segment
     (zone/gender/age_band)? R-powered, with group means."""
@@ -292,7 +292,7 @@ def segment_anova(brand: str, segment: str = "zone") -> str:
     except Exception as e:
         return f"R bridge unavailable: {e}"
     if not r_available():
-        return "R not available â€” ANOVA requires Rscript."
+        return "R not available — ANOVA requires Rscript."
     col = {"zone": "zone_name", "gender": "gender", "age": "age_band", "age_band": "age_band"}.get(
         str(segment).lower(), "zone_name")
     conn = _ro_conn()
@@ -308,17 +308,17 @@ def segment_anova(brand: str, segment: str = "zone") -> str:
     df["score"] = pd.to_numeric(df["score"], errors="coerce")
     df = df.dropna(subset=["score"])
     if df["segment"].nunique() < 2 or len(df) < 30:
-        return f"Need â‰¥2 {segment} groups and â‰¥30 scored respondents for {brand}."
+        return f"Need ≥2 {segment} groups and ≥30 scored respondents for {brand}."
     res = run_r_stat("anova_analysis", df)
     if "error" in res:
         return f"ANOVA error: {res['error']}"
     sig = res.get("significant")
-    lines = [f"ONE-WAY ANOVA â€” {brand} NPS score by {segment}. "
+    lines = [f"ONE-WAY ANOVA — {brand} NPS score by {segment}. "
              f"F={res.get('f_stat',0):.2f}, p={res.get('p_value',1):.4f} "
              f"({'significant' if sig else 'not significant'})."]
     for g in sorted(res.get("group_means", []), key=lambda x: -x.get("mean", 0)):
         lines.append(f"  {g.get('segment')}: mean={g.get('mean'):.2f} (n={g.get('n')})")
-    lines.append("Significant â‡’ NPS differs by segment; tailor strategy. Not significant â‡’ one approach fits all.")
+    lines.append("Significant ⇒ NPS differs by segment; tailor strategy. Not significant ⇒ one approach fits all.")
     return "\n".join(lines)
 
 

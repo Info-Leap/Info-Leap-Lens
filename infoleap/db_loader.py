@@ -1,12 +1,12 @@
-﻿"""
+"""
 OxData - External Database Loader (Optimized for LENS 3.0)
 ========================================================
 Ensures the database is found regardless of where the script is run from.
 
-Project-aware (2026-07-27, Phase 3 of multi-project ingestion â€” see
+Project-aware (2026-07-27, Phase 3 of multi-project ingestion — see
 .planning/MULTIPROJECT_INGESTION_LOG_2026-07-27.md): pass project_id explicitly, or omit it and
 this reads st.session_state["active_project_id"] when running inside Streamlit. Every existing
-call site in the codebase calls get_db_path() with no arguments â€” those are UNCHANGED: no
+call site in the codebase calls get_db_path() with no arguments — those are UNCHANGED: no
 active_project_id in session_state (or not running under Streamlit at all, e.g. a CLI script)
 means project_id defaults to "project_1", producing the exact same search_paths as before this
 change. Nothing needs to be touched at any of the ~30 existing call sites for this to be additive.
@@ -21,8 +21,8 @@ import sqlite3
 from pathlib import Path
 from typing import Optional
 
-# â”€â”€ Drive project folder name mapping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# Maps project_id â†’ Drive folder name under Quantitative/
+# ── Drive project folder name mapping ─────────────────────────────────────────
+# Maps project_id → Drive folder name under Quantitative/
 _DRIVE_FOLDER_MAP: dict[str, str] = {
     "project_1":    "project_1__elec_appliances",
     "akshayakalpa": "akshayakalpa__dairy",
@@ -47,7 +47,7 @@ def _drive_download_db(project_id: str, dest: Path) -> bool:
 
 
 def list_available_projects() -> list[str]:
-    """Project ids available â€” from Drive (if STORAGE_BACKEND=gdrive) or local data/."""
+    """Project ids available — from Drive (if STORAGE_BACKEND=gdrive) or local data/."""
     if os.environ.get("STORAGE_BACKEND", "local") == "gdrive":
         try:
             import sys
@@ -68,7 +68,7 @@ def list_available_projects() -> list[str]:
     return sorted(
         p.name for p in data_dir.iterdir()
         if p.is_dir() and (
-            (p / "oxdata.db").exists() or
+            (p / "infoleap.db").exists() or
             (p / "master_mapping.xlsx").exists() or
             (p / "raw_data.xlsx").exists() or
             (p / "project_meta.json").exists()
@@ -87,7 +87,7 @@ def sync_from_drive_if_needed(project_id: str) -> bool:
         return False
     oxdata_dir = Path(__file__).resolve().parent
     local_dir = oxdata_dir / "data" / project_id
-    if (local_dir / "master_mapping.xlsx").exists() or (local_dir / "oxdata.db").exists():
+    if (local_dir / "master_mapping.xlsx").exists() or (local_dir / "infoleap.db").exists():
         return False
     try:
         import sys
@@ -117,26 +117,26 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
             import streamlit as st
             project_id = st.session_state.get("active_project_id", "project_1")
         except Exception:
-            pass  # not running under Streamlit (CLI script, test) â€” stays "project_1"
+            pass  # not running under Streamlit (CLI script, test) — stays "project_1"
 
     oxdata_dir = Path(__file__).resolve().parent
     project_root = oxdata_dir.parent
 
-    # â”€â”€ Drive backend: pull files if not cached locally â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Drive backend: pull files if not cached locally ────────────────────────
     sync_from_drive_if_needed(project_id)
     if os.environ.get("STORAGE_BACKEND", "local") == "gdrive":
-        local_cache = oxdata_dir / "data" / project_id / "oxdata.db"
+        local_cache = oxdata_dir / "data" / project_id / "infoleap.db"
         if not local_cache.exists():
-            print(f"[db_loader] Downloading {project_id}/oxdata.db from Driveâ€¦")
+            print(f"[db_loader] Downloading {project_id}/oxdata.db from Drive…")
             _drive_download_db(project_id, local_cache)
         if local_cache.exists():
             return local_cache
 
     search_paths = [
-        # 1. Package Root (canonical production DB â€” newest schema with BQ3/funnel data)
-        oxdata_dir / "data" / project_id / "oxdata.db",
-        # 2. Project Root (legacy location â€” older schema, kept as fallback)
-        project_root / "data" / project_id / "oxdata.db",
+        # 1. Package Root (canonical production DB — newest schema with BQ3/funnel data)
+        oxdata_dir / "data" / project_id / "infoleap.db",
+        # 2. Project Root (legacy location — older schema, kept as fallback)
+        project_root / "data" / project_id / "infoleap.db",
     ]
     if project_id == "project_1":
         search_paths += [
@@ -212,6 +212,6 @@ def get_project_meta(project_id: Optional[str] = None) -> dict:
 if __name__ == "__main__":
     path = get_db_path()
     if path:
-        print(f"âœ… Database found at: {path}")
+        print(f"✅ Database found at: {path}")
     else:
-        print("âŒ Database NOT FOUND in search paths.")
+        print("❌ Database NOT FOUND in search paths.")

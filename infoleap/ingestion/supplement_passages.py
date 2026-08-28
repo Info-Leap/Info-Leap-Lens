@@ -1,6 +1,6 @@
-﻿"""
+"""
 Supplements existing matrices with raw-extracted respondent passages.
-NO LLM calls â€” purely deterministic. Free to run any time.
+NO LLM calls — purely deterministic. Free to run any time.
 Reads raw MD files, extracts all R: turns, merges into existing matrices.
 
 Run:

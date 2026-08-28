@@ -1,5 +1,5 @@
-﻿"""
-Chart Adapter â€” bridges qual-analysis data shapes (Counter/dict/list-of-dict)
+"""
+Chart Adapter — bridges qual-analysis data shapes (Counter/dict/list-of-dict)
 to chart_renderer.py's DataFrame-based render_result(), so qual_generic_renderer.py
 and ethnographic_renderer.py stop hand-building Plotly figures and use the same
 registry Ask Pulse uses.

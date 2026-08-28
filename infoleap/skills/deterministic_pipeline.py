@@ -1,23 +1,23 @@
-﻿"""
-Deterministic Pipeline â€” LENS 4.0
+"""
+Deterministic Pipeline — LENS 4.0
 ===================================
 Handles structured survey queries with exactly 2 LLM calls:
 
   Call 1 (MODEL_MINI):  Intent + parameter extraction
   Python:               SQL via capability REGISTRY + ExampleStore few-shot
-  Python:               Execute SQL â†’ DataFrame
+  Python:               Execute SQL → DataFrame
   Python:               chart_renderer selects chart type (called in chat.py)
   Call 2 (MODEL_MINI):  Narrate result in 2-3 sentences
 
 Fast path: brand health chart requests bypass SQL entirely and call
 chart_tools.get_brand_chart() directly.
 
-Returns FinalReport (same structure as researcher_agent) â€” chat.py renders
+Returns FinalReport (same structure as researcher_agent) — chat.py renders
 without changes.
 
 Public API:
-    is_qualitative(question) â†’ bool
-    run_deterministic_async(question, ...) â†’ AsyncGenerator[dict, None]
+    is_qualitative(question) → bool
+    run_deterministic_async(question, ...) → AsyncGenerator[dict, None]
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from typing import AsyncGenerator, Optional
 import pandas as pd
 from openai import AsyncOpenAI
 
-# â”€â”€ Project imports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Project imports ──────────────────────────────────────────────────────────
 import os
 import sys
 from pathlib import Path
@@ -55,7 +55,7 @@ from infoleap.skills.schema_registry import get_registry
 from infoleap.skills.capabilities import REGISTRY as SKILL_REGISTRY
 from infoleap.researcher_agent import FinalReport
 
-# â”€â”€ Qualitative signal words (route to pydantic_ai agent instead) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Qualitative signal words (route to pydantic_ai agent instead) ────────────
 _QUAL_WORDS = frozenset([
     "why", "prefer", "reason", "reasons", "feedback", "sentiment", "opinion",
     "opinions", "think", "feel", "say", "saying", "interview", "interviews",
@@ -64,7 +64,7 @@ _QUAL_WORDS = frozenset([
     "complaints", "suggest", "suggestion", "experience", "perception",
 ])
 
-# â”€â”€ Brand health chart fast-path triggers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Brand health chart fast-path triggers ────────────────────────────────────
 _BRAND_HEALTH_TRIGGERS: dict[str, list[str]] = {
     "awareness_funnel":    [
         "awareness funnel", "funnel", "tom spont aided", "conversion awareness",
@@ -101,7 +101,7 @@ _BRAND_HEALTH_TRIGGERS: dict[str, list[str]] = {
     ],
 }
 
-# â”€â”€ Known brand names for extraction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Known brand names for extraction ─────────────────────────────────────────
 _KNOWN_BRANDS = [
     "bajaj", "crompton", "havells", "orient", "polycab", "usha", "philips",
     "syska", "luminous", "panasonic", "voltas", "blue star", "khaitan",
@@ -119,7 +119,7 @@ _KNOWN_CITIES = [
 ]
 
 
-# â”€â”€â”€ Helper: single LLM call â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Helper: single LLM call ─────────────────────────────────────────────────
 
 async def _llm(prompt: str, system: str = "", model: str = MODEL_MINI) -> str:
     try:
@@ -141,7 +141,7 @@ async def _llm(prompt: str, system: str = "", model: str = MODEL_MINI) -> str:
         return f"Error: {e}"
 
 
-# â”€â”€â”€ Public routing helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Public routing helper ────────────────────────────────────────────────────
 
 def is_qualitative(question: str) -> bool:
     """Return True if question should route to pydantic_ai agent (qual/open-ended)."""
@@ -149,7 +149,7 @@ def is_qualitative(question: str) -> bool:
     return any(w in q for w in _QUAL_WORDS)
 
 
-# â”€â”€â”€ Brand health fast-path detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Brand health fast-path detection ────────────────────────────────────────
 
 def _detect_brand_health(question: str) -> tuple[Optional[str], Optional[str]]:
     """
@@ -185,7 +185,7 @@ def _extract_city(q: str) -> str:
     return "all"
 
 
-# â”€â”€â”€ Intent extraction (LLM Call 1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Intent extraction (LLM Call 1) ──────────────────────────────────────────
 
 _INTENT_SYSTEM = """\
 You are a query classifier for a consumer survey database about electrical appliances in India.
@@ -270,7 +270,7 @@ def _keyword_intent(question: str) -> dict:
     }
 
 
-# â”€â”€â”€ SQL execution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── SQL execution ────────────────────────────────────────────────────────────
 
 def _build_instruction(question: str, intent: dict) -> str:
     """Build a deterministic instruction string for capability get_sql()."""
@@ -294,7 +294,7 @@ def _run_sql(sql: str, db_path: str) -> pd.DataFrame:
         conn.close()
 
 
-# â”€â”€â”€ Narration (LLM Call 2) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Narration (LLM Call 2) ──────────────────────────────────────────────────
 
 _NARRATE_SYSTEM = """\
 You are a senior market research analyst. Given a question and data table, write a rich analytical response:
@@ -302,11 +302,11 @@ You are a senior market research analyst. Given a question and data table, write
 1. **Headline** (1-2 sentences): Direct answer with exact numbers from the data.
 2. **Context** (1-2 sentences): How does this compare to the overall dataset, or what pattern is notable?
 3. **Breakdown** (1-2 sentences): Note the most significant segment, outlier, or trend in the data.
-4. **Pulse Insight** (1 sentence, MANDATORY): Start with "Pulse Insight: " â€” give a strategic implication.
+4. **Pulse Insight** (1 sentence, MANDATORY): Start with "Pulse Insight: " — give a strategic implication.
 
 Rules:
 - Cite EXACT numbers. No approximations unless data is unavailable.
-- Be decisive â€” you are the authority on this data. No "it appears", "seems", "suggests".
+- Be decisive — you are the authority on this data. No "it appears", "seems", "suggests".
 - 4-6 sentences total minimum. Match depth to the complexity of the question.
 """
 
@@ -322,7 +322,7 @@ async def _narrate(question: str, df: pd.DataFrame) -> str:
     return result
 
 
-# â”€â”€â”€ Main pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Main pipeline ────────────────────────────────────────────────────────────
 
 async def run_deterministic_async(
     question: str,
@@ -340,7 +340,7 @@ async def run_deterministic_async(
 
     t0 = time.time()
 
-    # â”€â”€ Step 0: Brand health fast path check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 0: Brand health fast path check ─────────────────────────────────
     chart_type_bh, brand_bh = _detect_brand_health(question)
     if chart_type_bh:
         yield {"type": "thought", "content": f"Brand health fast path: {chart_type_bh} for {brand_bh or 'all brands'}"}
@@ -373,7 +373,7 @@ async def run_deterministic_async(
         except Exception as e:
             yield {"type": "thought", "content": f"Brand health fast path failed ({e}), falling back to SQL path"}
 
-    # â”€â”€ Step 1: Intent extraction (LLM Call 1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 1: Intent extraction (LLM Call 1) ────────────────────────────────
     yield {"type": "thought", "content": "Analysing question..."}
     intent = await _extract_intent(question)
     metric = intent.get("metric", "awareness")
@@ -382,7 +382,7 @@ async def run_deterministic_async(
     city   = intent.get("city")
     yield {"type": "thought", "content": f"Intent: metric={metric} | brand={brand} | zone={zone} | city={city}"}
 
-    # â”€â”€ Step 2: SQL via capability template â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 2: SQL via capability template ───────────────────────────────────
     instruction = _build_instruction(question, intent)
     capability  = SKILL_REGISTRY.get(metric)
     sql = None
@@ -414,12 +414,12 @@ async def run_deterministic_async(
         examples = example_store.retrieve(question, k=2)
         yield {"type": "thought", "content": f"Retrieved {len(examples)} similar SQL examples for validation context"}
 
-    # â”€â”€ Step 3: Execute SQL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 3: Execute SQL ───────────────────────────────────────────────────
     try:
         df = await asyncio.to_thread(_run_sql, sql, db_path)
         yield {"type": "thought", "content": f"SQL returned {len(df)} rows"}
     except Exception as e:
-        # SQL failed â€” try once with schema-grounded fix via LLM
+        # SQL failed — try once with schema-grounded fix via LLM
         yield {"type": "thought", "content": f"SQL error: {e}. Attempting fix..."}
         registry = get_registry(db_path)
         fix_prompt = (
@@ -440,11 +440,11 @@ async def run_deterministic_async(
         yield {"type": "error", "content": "Query returned no data for the specified filters. Try broader filters."}
         return
 
-    # â”€â”€ Step 4: Narrate result (LLM Call 2) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 4: Narrate result (LLM Call 2) ───────────────────────────────────
     yield {"type": "thought", "content": "Generating insight..."}
     summary = await _narrate(question, df)
 
-    # â”€â”€ Step 5: Assemble FinalReport â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Step 5: Assemble FinalReport ──────────────────────────────────────────
     chart_hint = intent.get("chart_type", "auto")
     chart_spec = {"type": chart_hint} if chart_hint != "auto" else None
 
