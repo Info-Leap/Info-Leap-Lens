@@ -97,7 +97,11 @@ _active_proj_meta = _pm.get_project(_active_project) or {}
 _study_type = _active_proj_meta.get("study_type", "ethnographic")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-DB            = str(get_db_path(required_table="fact_respondents"))
+try:
+    _found_db = get_db_path(required_table="fact_respondents")
+    DB = str(_found_db) if _found_db else ""
+except (FileNotFoundError, Exception):
+    DB = ""
 _BASE         = Path(__file__).resolve().parent.parent
 _TREES_DIR    = _BASE / "data" / "pageindex_trees"
 _IDX_DB       = _BASE / "data" / "qual_index.db"

@@ -72,30 +72,36 @@ def _filter_junk_brands(df: pd.DataFrame, col: str = "brand_name") -> pd.DataFra
 # Path helpers
 # ---------------------------------------------------------------------------
 
+_DATA_DIR = Path(__file__).resolve().parent / "data"
+_ROOT_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+
 def get_raw_data_path(project_id: str) -> Optional[Path]:
     """Return path to raw_data.xlsx if it exists, else None.
     Also checks project_meta.json for a 'raw_data_path' override.
     """
     # Check project_meta.json override first
-    meta_p = Path(f"oxdata/data/{project_id}/project_meta.json")
-    if meta_p.exists():
-        try:
-            import json
-            with open(meta_p, encoding="utf-8") as _f:
-                _meta = json.load(_f)
-            override = _meta.get("raw_data_path")
-            if override:
-                op = Path(override)
-                if op.exists():
-                    return op
-        except Exception:
-            pass
+    for base in (_DATA_DIR, _ROOT_DATA_DIR):
+        meta_p = base / project_id / "project_meta.json"
+        if meta_p.exists():
+            try:
+                import json
+                with open(meta_p, encoding="utf-8") as _f:
+                    _meta = json.load(_f)
+                override = _meta.get("raw_data_path")
+                if override:
+                    op = Path(override)
+                    if op.exists():
+                        return op
+            except Exception:
+                pass
 
     candidates = [
-        Path(f"oxdata/data/{project_id}/raw_data.xlsx"),
-        Path(f"oxdata/data/{project_id}/raw_data.csv"),
-        Path(f"oxdata/data/{project_id}/master_mapping.xlsx"),
-        Path(f"data/{project_id}/raw_data.xlsx"),
+        _DATA_DIR / project_id / "raw_data.xlsx",
+        _DATA_DIR / project_id / "raw_data.csv",
+        _DATA_DIR / project_id / "master_mapping.xlsx",
+        _ROOT_DATA_DIR / project_id / "raw_data.xlsx",
+        _ROOT_DATA_DIR / project_id / "raw_data.csv",
+        _ROOT_DATA_DIR / project_id / "master_mapping.xlsx",
     ]
     for p in candidates:
         if p.exists():
@@ -105,14 +111,20 @@ def get_raw_data_path(project_id: str) -> Optional[Path]:
 
 def get_master_excel_path(project_id: str) -> Optional[Path]:
     """Return path to master_mapping.xlsx if it exists (preferred schema source)."""
-    p = Path(f"oxdata/data/{project_id}/master_mapping.xlsx")
-    return p if p.exists() else None
+    for base in (_DATA_DIR, _ROOT_DATA_DIR):
+        p = base / project_id / "master_mapping.xlsx"
+        if p.exists():
+            return p
+    return None
 
 
 def get_schema_doc_path(project_id: str) -> Optional[Path]:
     """Return path to llm_mapping_raw.json fallback."""
-    p = Path(f"oxdata/data/{project_id}/llm_mapping_raw.json")
-    return p if p.exists() else None
+    for base in (_DATA_DIR, _ROOT_DATA_DIR):
+        p = base / project_id / "llm_mapping_raw.json"
+        if p.exists():
+            return p
+    return None
 
 
 def project_has_raw_layer(project_id: str) -> bool:

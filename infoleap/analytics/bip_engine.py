@@ -56,7 +56,7 @@ except ImportError:
     _HAS_DB_LOADER = False
 
 # Canonical DB location (fallback if db_loader unavailable)
-_DEFAULT_DB = _PROJ_ROOT / "oxdata" / "data" / "project_1" / "infoleap.db"
+_DEFAULT_DB = _PROJ_ROOT / "infoleap" / "data" / "project_1" / "oxdata.db"
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────

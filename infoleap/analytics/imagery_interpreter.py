@@ -35,13 +35,14 @@ if str(_PROJ_ROOT) not in sys.path:
 
 
 def _load_env():
-    env_file = _PROJ_ROOT / "oxdata" / ".env"
-    if env_file.exists():
-        try:
-            from dotenv import load_dotenv
-            load_dotenv(str(env_file), override=False)
-        except ImportError:
-            pass
+    for env_file in (_PROJ_ROOT / "infoleap" / ".env", _PROJ_ROOT / ".env", _PROJ_ROOT / "oxdata" / ".env"):
+        if env_file.exists():
+            try:
+                from dotenv import load_dotenv
+                load_dotenv(str(env_file), override=False)
+                break
+            except ImportError:
+                pass
 
 _load_env()
 

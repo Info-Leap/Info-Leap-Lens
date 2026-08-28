@@ -74,7 +74,7 @@ class DriveClient:
         # 3. File path (local dev)
         cred_path = os.environ.get(
             "GOOGLE_APPLICATION_CREDENTIALS",
-            str(Path(__file__).parent.parent / "oxdata" / "config" / "infoleap_service_account.json"),
+            str(Path(__file__).parent.parent / "config" / "infoleap_service_account.json"),
         )
         if cred_path and Path(cred_path).exists():
             return service_account.Credentials.from_service_account_file(cred_path, scopes=SCOPES)

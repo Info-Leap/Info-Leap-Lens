@@ -12,6 +12,7 @@ that is not yet ingested. This version uses what is actually in the DB.
 import sqlite3
 import pandas as pd
 from datetime import datetime, timedelta
+from pathlib import Path
 import os
 import sys
 
@@ -27,8 +28,11 @@ class BrandImageryEngine:
     def __init__(self, db_path=None, project_id=None):
         self.project_id = project_id or "project_1"
         if db_path is None:
-            found = get_db_path(project_id=self.project_id, required_table="fact_respondents")
-            self.db_path = str(found) if found else "oxdata/data/project_1/oxdata.db"
+            try:
+                found = get_db_path(project_id=self.project_id, required_table="fact_respondents")
+                self.db_path = str(found) if found else str(Path(__file__).resolve().parent.parent / "data" / self.project_id / "oxdata.db")
+            except FileNotFoundError:
+                self.db_path = str(Path(__file__).resolve().parent.parent / "data" / self.project_id / "oxdata.db")
         else:
             self.db_path = db_path
 

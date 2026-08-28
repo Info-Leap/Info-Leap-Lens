@@ -43,6 +43,9 @@ def _cl(**overrides) -> dict:
 def show_dashboard():
     project_id = st.session_state.get("active_project_id", "project_1")
     dash_data = get_cached_dashboard_data("All", project_id=project_id)
+    if dash_data.get("db_missing"):
+        st.warning("⚠️ No database configured. See Manage Projects to connect a data source.")
+        st.stop()
     stats     = dash_data["stats"]
 
     sidebar_context_block(brand="All Brands", respondents=stats["respondents"])

@@ -28,7 +28,18 @@ def get_dashboard_stats(project_id: str = "project_1") -> dict:
     Returns real survey metrics for dashboard display.
     Full survey, no wave split.
     """
-    conn = _conn(project_id)
+    try:
+        conn = _conn(project_id)
+    except (FileNotFoundError, Exception):
+        return {
+            "db_missing": True,
+            "base_n": 0,
+            "hero_insight": "No database configured.",
+            "nps": [],
+            "aided": [],
+            "tom": [],
+            "timestamp": time.strftime("%d %B %Y"),
+        }
 
     base_n = pd.read_sql("SELECT COUNT(*) n FROM v_respondents", conn).iloc[0]["n"]
 
@@ -298,6 +309,18 @@ def get_home_headline_stats(project_id: str = "project_1") -> dict:
 def get_cached_dashboard_data(category: str = "All", project_id: str = "project_1") -> dict:
     """Legacy alias used by dashboard.py."""
     stats = get_dashboard_stats(project_id)
+    if stats.get("db_missing"):
+        return {
+            "db_missing": True,
+            "stats": {
+                "respondents": 0,
+                "nps": [],
+                "share": [],
+                "awareness": [],
+            },
+            "hero_insight": "",
+            "timestamp": "",
+        }
     return {
         "stats": {
             "respondents": stats["base_n"],

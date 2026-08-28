@@ -29,12 +29,14 @@ repo_root = os.path.dirname(project_root)
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 
-from infoleap.db_loader import get_db_path
-DB_PATH = get_db_path()
+try:
+    from infoleap.db_loader import get_db_path
+    DB_PATH = get_db_path()
+except FileNotFoundError:
+    DB_PATH = None
 
 if not DB_PATH or not DB_PATH.exists():
-    empty_state(f"Database not available — {DB_PATH}", icon="✗",
-                action_hint="Check oxdata/data/project_1/oxdata.db exists.")
+    st.warning("⚠️ No database configured. See Manage Projects to connect a data source.")
     st.stop()
 
 # ── live row counts from DB ────────────────────────────────────────────────────

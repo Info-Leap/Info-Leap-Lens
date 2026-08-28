@@ -9804,11 +9804,14 @@ def render_brand_health_dashboard():
     """, unsafe_allow_html=True)
 
     active_project_id = st.session_state.get("active_project_id", "project_1")
-    engine = BrandImageryEngine(project_id=active_project_id)
-    if not os.path.exists(engine.db_path):
-        show_error_card("Database Not Found",
-                        f"Cannot reach survey database at <code>{engine.db_path}</code>.")
-        return
+    try:
+        engine = BrandImageryEngine(project_id=active_project_id)
+        if not engine.db_path or not os.path.exists(engine.db_path):
+            st.warning("⚠️ No database configured for this project. See Manage Projects to connect a data source.")
+            st.stop()
+    except (FileNotFoundError, Exception):
+        st.warning("⚠️ No database configured for this project. See Manage Projects to connect a data source.")
+        st.stop()
 
     # Override NPS benchmark from project_meta so AK dairy gets correct colour-coding (not appliance avg)
     global NPS_INDUSTRY_AVG

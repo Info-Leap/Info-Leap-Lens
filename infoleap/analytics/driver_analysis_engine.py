@@ -42,7 +42,7 @@ if str(_ROOT) not in sys.path:
 from infoleap.analytics.bip_engine import BIPNormalizationEngine
 from infoleap.analytics.can_map_engine import run_ca_pipeline, PRODUCT_CODES
 
-_DEFAULT_DB = _ROOT / "oxdata" / "data" / "project_1" / "infoleap.db"
+_DEFAULT_DB = _ROOT / "infoleap" / "data" / "project_1" / "oxdata.db"
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────

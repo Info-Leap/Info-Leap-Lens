@@ -49,7 +49,7 @@ if str(_PROJ_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJ_ROOT))
 
 # Default DB path (same pattern as BrandImageryEngine)
-_DEFAULT_DB = _PROJ_ROOT / "oxdata" / "data" / "project_1" / "infoleap.db"
+_DEFAULT_DB = _PROJ_ROOT / "infoleap" / "data" / "project_1" / "oxdata.db"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

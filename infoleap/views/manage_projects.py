@@ -29,15 +29,39 @@ from infoleap.db_loader import list_available_projects, get_project_meta, _DRIVE
 inject_pulse_styles()
 st.title("🗂️ Manage Projects")
 st.caption(
-    "Every project ingested via Add Project lives at its own `oxdata/data/<project id>/oxdata.db` "
+    "Every project ingested via Add Project lives at its own `infoleap/data/<project id>/oxdata.db` "
     "— project_1 (this project's own real data) is never deletable from here."
 )
+
+with st.expander("☁️ Drive Setup for Streamlit Cloud & Remote Storage", expanded=False):
+    st.markdown("""
+    **To connect Google Drive storage in Streamlit Cloud:**
+    1. Open your Streamlit Cloud App Settings → **Secrets**.
+    2. Set `STORAGE_BACKEND = "gdrive"`.
+    3. Add your GCP Service Account credentials under `[gcp_service_account]`:
+    ```toml
+    STORAGE_BACKEND = "gdrive"
+
+    [gcp_service_account]
+    type = "service_account"
+    project_id = "your-gcp-project"
+    private_key_id = "..."
+    private_key = "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"
+    client_email = "...@your-gcp-project.iam.gserviceaccount.com"
+    client_id = "..."
+    auth_uri = "https://accounts.google.com/o/oauth2/auth"
+    token_uri = "https://oauth2.googleapis.com/token"
+    ```
+    When configured, InfoLeap automatically pulls `oxdata.db` and project files on demand.
+    """)
 
 DATA_DIR = Path(oxdata_dir) / "data"
 
 
 def _respondent_count(pid: str, data_dir: Path) -> int | None:
-    db_path = data_dir / pid / "infoleap.db"
+    db_path = data_dir / pid / "oxdata.db"
+    if not db_path.exists():
+        db_path = data_dir / pid / "infoleap.db"
     if db_path.exists():
         try:
             conn = sqlite3.connect(str(db_path))
@@ -88,7 +112,9 @@ active_project = st.session_state.get("active_project_id", "project_1")
 st.divider()
 
 for pid in projects:
-    db_path = DATA_DIR / pid / "infoleap.db"
+    db_path = DATA_DIR / pid / "oxdata.db"
+    if not db_path.exists():
+        db_path = DATA_DIR / pid / "infoleap.db"
     excel_path = DATA_DIR / pid / "master_mapping.xlsx"
     n_resp = _respondent_count(pid, DATA_DIR)
     is_active = pid == active_project

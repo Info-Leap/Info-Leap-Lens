@@ -29,6 +29,17 @@ _DRIVE_FOLDER_MAP: dict[str, str] = {
 }
 
 
+def _get_storage_backend() -> str:
+    backend = os.environ.get("STORAGE_BACKEND", "local")
+    if backend == "local":
+        try:
+            import streamlit as st
+            backend = st.secrets.get("STORAGE_BACKEND", backend)
+        except Exception:
+            pass
+    return backend
+
+
 def _drive_download_db(project_id: str, dest: Path) -> bool:
     """Download oxdata.db from Drive to dest. Returns True on success."""
     try:
@@ -48,7 +59,7 @@ def _drive_download_db(project_id: str, dest: Path) -> bool:
 
 def list_available_projects() -> list[str]:
     """Project ids available — from Drive (if STORAGE_BACKEND=gdrive) or local data/."""
-    if os.environ.get("STORAGE_BACKEND", "local") == "gdrive":
+    if _get_storage_backend() == "gdrive":
         try:
             import sys
             repo_root = Path(__file__).resolve().parent.parent
@@ -68,6 +79,7 @@ def list_available_projects() -> list[str]:
     return sorted(
         p.name for p in data_dir.iterdir()
         if p.is_dir() and (
+            (p / "oxdata.db").exists() or
             (p / "infoleap.db").exists() or
             (p / "master_mapping.xlsx").exists() or
             (p / "raw_data.xlsx").exists() or
@@ -78,16 +90,16 @@ def list_available_projects() -> list[str]:
 
 def sync_from_drive_if_needed(project_id: str) -> bool:
     """
-    If STORAGE_BACKEND=gdrive env var is set AND local project folder is missing 
-    master_mapping.xlsx AND oxdata.db, try to download from Drive.
+    If STORAGE_BACKEND=gdrive env var/secret is set AND local project folder is missing 
+    master_mapping.xlsx AND oxdata.db/infoleap.db, try to download from Drive.
     Returns True if synced, False otherwise.
     Called by get_db_path() before checking local files.
     """
-    if os.environ.get("STORAGE_BACKEND", "local") != "gdrive":
+    if _get_storage_backend() != "gdrive":
         return False
     oxdata_dir = Path(__file__).resolve().parent
     local_dir = oxdata_dir / "data" / project_id
-    if (local_dir / "master_mapping.xlsx").exists() or (local_dir / "infoleap.db").exists():
+    if (local_dir / "master_mapping.xlsx").exists() or (local_dir / "oxdata.db").exists() or (local_dir / "infoleap.db").exists():
         return False
     try:
         import sys
@@ -124,9 +136,12 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
 
     # ── Drive backend: pull files if not cached locally ────────────────────────
     sync_from_drive_if_needed(project_id)
-    if os.environ.get("STORAGE_BACKEND", "local") == "gdrive":
-        local_cache = oxdata_dir / "data" / project_id / "infoleap.db"
+    if _get_storage_backend() == "gdrive":
+        local_cache = oxdata_dir / "data" / project_id / "oxdata.db"
         if not local_cache.exists():
+            local_cache = oxdata_dir / "data" / project_id / "infoleap.db"
+        if not local_cache.exists():
+            local_cache = oxdata_dir / "data" / project_id / "oxdata.db"
             print(f"[db_loader] Downloading {project_id}/oxdata.db from Drive…")
             _drive_download_db(project_id, local_cache)
         if local_cache.exists():
@@ -134,8 +149,10 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
 
     search_paths = [
         # 1. Package Root (canonical production DB — newest schema with BQ3/funnel data)
+        oxdata_dir / "data" / project_id / "oxdata.db",
         oxdata_dir / "data" / project_id / "infoleap.db",
         # 2. Project Root (legacy location — older schema, kept as fallback)
+        project_root / "data" / project_id / "oxdata.db",
         project_root / "data" / project_id / "infoleap.db",
     ]
     if project_id == "project_1":
