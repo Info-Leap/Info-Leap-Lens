@@ -15,10 +15,6 @@ will automatically work without adding UI code.
 
 from __future__ import annotations
 from typing import Any
-try:
-    from .brand_imagery_renderer import BrandImageryRenderer
-except ImportError:
-    from analytics.brand_imagery_renderer import BrandImageryRenderer
 
 #  Key field recognisers 
 # (priority ordered  first match wins)
@@ -224,10 +220,6 @@ def build_render_payload(tool_name: str, description: str, result: dict) -> dict
             "error": result["error"],
         }
 
-    # Special handling for Brand Imagery Dashboard
-    if tool_name == "brand_imagery":
-        bi_renderer = BrandImageryRenderer()
-        return bi_renderer.build_imagery_dashboard(result)
 
     payload: dict[str, Any] = {
         "tool": tool_name,

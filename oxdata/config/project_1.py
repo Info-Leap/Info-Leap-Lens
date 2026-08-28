@@ -599,14 +599,4 @@ COMMON TERM MAPPINGS (user says → use this):
   """
 
 
-# ── Analysis presets (config-driven regression + CAN MAP pipeline) ─────────────
-try:
-    from lens.analytics.analysis_spec import AnalysisSpec  # noqa: E402
-    REGRESSION_CONFIGS = {
-        "nps_drivers":    AnalysisSpec.nps_drivers(),
-        "trial_drivers":  AnalysisSpec.trial_drivers(),
-        "csat_drivers":   AnalysisSpec.csat_drivers(),
-        "perception_map": AnalysisSpec.perception_map_only(top_n=30),
-    }
-except ImportError:
-    REGRESSION_CONFIGS = {}
+REGRESSION_CONFIGS = {}

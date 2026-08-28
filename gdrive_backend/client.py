@@ -284,7 +284,7 @@ class DriveClient:
         except Exception:
             pass
 
-        sync_targets = ["oxdata.db", "master_mapping.xlsx", "raw_data.xlsx", "raw_data.csv", "project_meta.json"]
+        sync_targets = ["master_mapping.xlsx", "raw_data.xlsx", "raw_data.csv", "project_meta.json"]
         uploaded = {}
         for target in sync_targets:
             fpath = ld / target
