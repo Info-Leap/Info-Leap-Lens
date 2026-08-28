@@ -50,15 +50,35 @@ class DriveClient:
         if not _GDRIVE_LIBS_AVAILABLE:
             return
         try:
-            cred_path = os.environ.get(
-                "GOOGLE_APPLICATION_CREDENTIALS",
-                str(Path(__file__).parent.parent / "oxdata" / "config" / "infoleap_service_account.json"),
-            )
-            if cred_path and Path(cred_path).exists():
-                creds = service_account.Credentials.from_service_account_file(cred_path, scopes=SCOPES)
+            creds = self._load_creds()
+            if creds:
                 self._svc = build("drive", "v3", credentials=creds)
         except Exception:
             self._svc = None
+
+    @staticmethod
+    def _load_creds():
+        """Load service account creds from st.secrets, env JSON string, or file path."""
+        # 1. Streamlit Cloud: [gcp_service_account] section in secrets.toml
+        try:
+            import streamlit as st
+            info = dict(st.secrets["gcp_service_account"])
+            return service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
+        except Exception:
+            pass
+        # 2. Env var with raw JSON string
+        raw = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+        if raw:
+            info = json.loads(raw)
+            return service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
+        # 3. File path (local dev)
+        cred_path = os.environ.get(
+            "GOOGLE_APPLICATION_CREDENTIALS",
+            str(Path(__file__).parent.parent / "oxdata" / "config" / "infoleap_service_account.json"),
+        )
+        if cred_path and Path(cred_path).exists():
+            return service_account.Credentials.from_service_account_file(cred_path, scopes=SCOPES)
+        return None
 
     # ── Internal helpers ───────────────────────────────────────────────────────
 
