@@ -1,5 +1,5 @@
 [build]
-  base = "oxdata/frontend"
+  base = "infoleap/frontend"
   publish = "dist"
   command = "npm run build"
 

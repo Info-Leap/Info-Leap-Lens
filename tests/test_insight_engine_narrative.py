@@ -1,6 +1,6 @@
-from unittest.mock import patch, MagicMock
+﻿from unittest.mock import patch, MagicMock
 import pytest
-from lens.analytics.insight_engine import InsightEngine
+from infoleap.analytics.insight_engine import InsightEngine
 
 def test_generate_balanced_narrative_raw():
     engine = InsightEngine()

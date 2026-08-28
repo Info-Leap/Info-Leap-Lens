@@ -21,7 +21,8 @@ build/
 # ── Data / DB (never commit raw survey data) ──────────────────────────────────
 data/
 oxdata/data/
-lens/lens.db
+infoleap/data/
+lens/
 *.db
 *.sqlite
 *.sqlite3

@@ -1,6 +1,6 @@
-import os
+﻿import os
 import sqlite3
-from lens.analytics.brand_imagery_engine import BrandImageryEngine
+from infoleap.analytics.brand_imagery_engine import BrandImageryEngine
 
 def test_engine_uses_correct_db():
     engine = BrandImageryEngine()

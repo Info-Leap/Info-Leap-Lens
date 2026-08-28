@@ -1,5 +1,5 @@
-import pandas as pd
-from oxdata.views.chart_renderer import _CHART_REGISTRY, parse_chart_spec
+﻿import pandas as pd
+from infoleap.views.chart_renderer import _CHART_REGISTRY, parse_chart_spec
 
 def test_radar_and_quadrant_in_registry():
     assert "radar" in _CHART_REGISTRY, "Radar renderer missing"
@@ -12,9 +12,9 @@ def test_parse_radar_spec():
 
 def test_render_result_calls_radar():
     from unittest.mock import patch
-    from oxdata.views.chart_renderer import render_result
+    from infoleap.views.chart_renderer import render_result
     
-    with patch("oxdata.views.chart_renderer.st") as mock_st:
+    with patch("infoleap.views.chart_renderer.st") as mock_st:
         df = pd.DataFrame({"dummy": [1]})
         spec = {
             "type": "radar",
@@ -30,9 +30,9 @@ def test_render_result_calls_radar():
 
 def test_render_result_calls_quadrant():
     from unittest.mock import patch
-    from oxdata.views.chart_renderer import render_result
+    from infoleap.views.chart_renderer import render_result
     
-    with patch("oxdata.views.chart_renderer.st") as mock_st:
+    with patch("infoleap.views.chart_renderer.st") as mock_st:
         df = pd.DataFrame({"dummy": [1]})
         spec = {
             "type": "quadrant",
