@@ -13,6 +13,7 @@ import streamlit as st
 import pandas as pd
 import os
 import sys
+from pathlib import Path
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -9828,7 +9829,7 @@ def render_brand_health_dashboard():
         pass
     _p_disp = _p_meta.get("display_name") or active_project_id.replace("_", " ").title()
     _p_ind = _p_meta.get("industry") or "Brand Intelligence"
-    _p_has_excel = (Path(oxdata_dir) / "data" / active_project_id / "master_mapping.xlsx").exists()
+    _p_has_excel = (Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) / "data" / active_project_id / "master_mapping.xlsx").exists()
     _p_src = "📊 master_mapping.xlsx" if _p_has_excel else "🗄️ SQLite Engine"
 
     st.markdown(
@@ -9945,7 +9946,7 @@ def render_brand_health_dashboard():
                 "Focus Brand",
                 brand_names if brand_names else ["—"],
                 index=_default_brand_idx,
-                key="bh_brand",
+                key=f"bh_brand_{active_project_id}",
                 help="Select brand for deep-dive analysis across all tabs",
             )
 
