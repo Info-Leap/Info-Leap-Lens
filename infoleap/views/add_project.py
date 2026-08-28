@@ -55,21 +55,14 @@ from infoleap.ingestion.mapping_workbook import (build_mapping_workbook, read_ma
 
 
 def _auto_sync_to_drive(project_id: str, local_dir: Path) -> None:
-    """Upload project DB + mapping + meta to Drive. No-op if Drive not configured."""
+    """Upload Excel files (master_mapping, raw_data, meta) to Drive. No SQLite. No-op if Drive not configured."""
     try:
         from infoleap.gdrive.client import DriveClient
         client = DriveClient()
         if client._svc is None:
             return
         uploaded = []
-        for db_name in ("oxdata.db", "infoleap.db"):
-            db_path = local_dir / db_name
-            if db_path.exists():
-                fid = client.upload_file(project_id, str(db_path), db_name)
-                if fid:
-                    uploaded.append(db_name)
-                break
-        for fname in ("master_mapping.xlsx", "project_meta.json"):
+        for fname in ("master_mapping.xlsx", "raw_data.xlsx", "raw_data.csv", "project_meta.json"):
             fpath = local_dir / fname
             if fpath.exists():
                 fid = client.upload_file(project_id, str(fpath), fname)

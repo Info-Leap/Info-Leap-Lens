@@ -90,17 +90,16 @@ def list_available_projects() -> list[str]:
 
 def sync_from_drive_if_needed(project_id: str) -> bool:
     """
-    If STORAGE_BACKEND=gdrive env var/secret is set AND local project folder is missing 
-    master_mapping.xlsx AND oxdata.db/infoleap.db, try to download from Drive.
-    Returns True if synced, False otherwise.
-    Called by get_db_path() before checking local files.
+    If STORAGE_BACKEND=gdrive set AND local master_mapping.xlsx missing, download all
+    project Excel files from Drive (master_mapping.xlsx, raw_data.xlsx, project_meta.json).
+    No SQLite involved. Returns True if synced.
     """
     if _get_storage_backend() != "gdrive":
         return False
     oxdata_dir = Path(__file__).resolve().parent
     local_dir = oxdata_dir / "data" / project_id
-    if (local_dir / "master_mapping.xlsx").exists() or (local_dir / "oxdata.db").exists() or (local_dir / "infoleap.db").exists():
-        return False
+    if (local_dir / "master_mapping.xlsx").exists():
+        return False  # already cached locally
     try:
         import sys
         repo_root = oxdata_dir.parent
@@ -134,18 +133,9 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
     oxdata_dir = Path(__file__).resolve().parent
     project_root = oxdata_dir.parent
 
-    # ── Drive backend: pull files if not cached locally ────────────────────────
+    # ── Drive backend: sync Excel files from Drive (no SQLite in this mode) ──────
     sync_from_drive_if_needed(project_id)
-    if _get_storage_backend() == "gdrive":
-        local_cache = oxdata_dir / "data" / project_id / "oxdata.db"
-        if not local_cache.exists():
-            local_cache = oxdata_dir / "data" / project_id / "infoleap.db"
-        if not local_cache.exists():
-            local_cache = oxdata_dir / "data" / project_id / "oxdata.db"
-            print(f"[db_loader] Downloading {project_id}/oxdata.db from Drive…")
-            _drive_download_db(project_id, local_cache)
-        if local_cache.exists():
-            return local_cache
+    # In gdrive mode there is no SQLite — callers handle db_missing sentinel
 
     search_paths = [
         # 1. Package Root (canonical production DB — newest schema with BQ3/funnel data)
@@ -193,6 +183,24 @@ _PROJECT_META_DEFAULTS = {
     "category_names": [],
     "attribute_themes": ["All"],
 }
+
+
+def get_excel_path(project_id: Optional[str] = None, filename: str = "master_mapping.xlsx") -> Optional[Path]:
+    """Return local path to a project Excel file, triggering Drive sync if needed.
+    Returns None if file not found locally or from Drive.
+    """
+    if project_id is None:
+        project_id = "project_1"
+        try:
+            import streamlit as st
+            project_id = st.session_state.get("active_project_id", "project_1")
+        except Exception:
+            pass
+    oxdata_dir = Path(__file__).resolve().parent
+    local_path = oxdata_dir / "data" / project_id / filename
+    if not local_path.exists():
+        sync_from_drive_if_needed(project_id)
+    return local_path if local_path.exists() else None
 
 
 def get_project_meta(project_id: Optional[str] = None) -> dict:

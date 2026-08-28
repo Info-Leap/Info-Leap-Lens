@@ -285,7 +285,6 @@ class DriveClient:
             pass
 
         sync_targets = [
-            "oxdata.db", "infoleap.db",
             "master_mapping.xlsx", "raw_data.xlsx", "raw_data.csv", "project_meta.json",
         ]
         uploaded = {}
