@@ -54,6 +54,33 @@ from infoleap.ingestion.mapping_workbook import (build_mapping_workbook, read_ma
                                               apply_overrides_to_schema)
 
 
+def _auto_sync_to_drive(project_id: str, local_dir: Path) -> None:
+    """Upload project DB + mapping + meta to Drive. No-op if Drive not configured."""
+    try:
+        from infoleap.gdrive.client import DriveClient
+        client = DriveClient()
+        if client._svc is None:
+            return
+        uploaded = []
+        for db_name in ("oxdata.db", "infoleap.db"):
+            db_path = local_dir / db_name
+            if db_path.exists():
+                fid = client.upload_file(project_id, str(db_path), db_name)
+                if fid:
+                    uploaded.append(db_name)
+                break
+        for fname in ("master_mapping.xlsx", "project_meta.json"):
+            fpath = local_dir / fname
+            if fpath.exists():
+                fid = client.upload_file(project_id, str(fpath), fname)
+                if fid:
+                    uploaded.append(fname)
+        if uploaded:
+            st.info(f"☁️ Synced to Drive: {', '.join(uploaded)}")
+    except Exception:
+        pass  # Drive sync optional — silently skip
+
+
 # ── OpenRouter model catalogue (used for model dropdown) ──────────────────────
 # Curated list of models available on OpenRouter that work well for structured
 # JSON classification. User can override via dropdown; .env defaults still apply
@@ -642,6 +669,7 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
                         f"✅ Done in **{elapsed:.1f}s** — Project `{clean_pid}` created with master Excel mapping "
                         f"and {len(ingest_df):,} respondent(s)."
                     )
+                    _auto_sync_to_drive(clean_pid, out_dir)
                     _master_out = str(out_dir / "master_mapping.xlsx")
                     if os.path.exists(_master_out):
                         with open(_master_out, "rb") as _fh:
@@ -1730,6 +1758,7 @@ if st.session_state.get("ap_schema_doc") is not None:
                     f"✅ Done in **{elapsed_ingest:.1f}s** — Project `{clean_new_pid}` created with master Excel mapping "
                     f"and {len(ingest_df):,} respondent(s)."
                 )
+                _auto_sync_to_drive(clean_new_pid, out_dir)
                 _master_out = str(out_dir / "master_mapping.xlsx")
                 if os.path.exists(_master_out):
                     with open(_master_out, "rb") as _fh:
@@ -1835,7 +1864,8 @@ with st.expander("📋 Re-ingest from Corrected Mapping Workbook", expanded=Fals
                                 brand_names=_rb_brand_names,
                                 delimiter_by_code=_rb_pieces.get("delimiter_by_code", {}),
                             )
-                        st.success(f"✅ Re-ingested into oxdata/data/{_rb_pid}/oxdata.db with your corrections.")
+                        st.success(f"✅ Re-ingested into {_rb_pid}/infoleap.db with your corrections.")
+                        _auto_sync_to_drive(_rb_pid, _rb_out_dir)
                         if _rb_result.get("warnings"):
                             for _w in _rb_result["warnings"]:
                                 st.warning(_w)

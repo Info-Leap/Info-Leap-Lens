@@ -212,6 +212,8 @@ def get_project_meta(project_id: Optional[str] = None) -> dict:
 
     oxdata_dir = Path(__file__).resolve().parent
     meta_path = oxdata_dir / "data" / project_id / "project_meta.json"
+    if not meta_path.exists():
+        sync_from_drive_if_needed(project_id)
     meta = dict(_PROJECT_META_DEFAULTS)
     meta["project_id"] = project_id
     if meta_path.exists():

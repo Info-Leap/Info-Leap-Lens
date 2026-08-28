@@ -21,9 +21,9 @@ build/
 # ── Data / DB (never commit raw survey data) ──────────────────────────────────
 data/
 oxdata/data/
-infoleap/data/
 lens/
-*.db
+# infoleap/data/ — all data served from Google Drive (STORAGE_BACKEND=gdrive), never committed
+infoleap/data/
 *.sqlite
 *.sqlite3
 
