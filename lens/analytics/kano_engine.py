@@ -67,7 +67,7 @@ _PRODUCT_CODES: dict[str, list[int]] = {
 # Kano classification thresholds (tunable)
 # ─────────────────────────────────────────────────────────────────────────────
 # Indices below this magnitude are "negligible" → indifferent class
-_INDIFFERENT_THRESHOLD: float = 0.10   # CSAT points (0-10 scale)
+_INDIFFERENT_THRESHOLD: float = 0.05   # CSAT points (0-10 scale)
 
 # Asymmetry ratio threshold for must-be / attractive split
 # ratio = penalty / reward  ≥ _ASYMMETRY_RATIO  → must_be
@@ -82,11 +82,11 @@ _MIN_N_DEFAULT: int = 30
 # Internal helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _ro_conn() -> sqlite3.Connection:
+def _ro_conn(project_id: str | None = None) -> sqlite3.Connection:
     """Open the project DB in read-only mode."""
     try:
         from oxdata.db_loader import get_db_path
-        db_path = get_db_path(required_table="fact_satisfaction")
+        db_path = get_db_path(required_table="fact_satisfaction", project_id=project_id)
         if db_path is None:
             raise FileNotFoundError("get_db_path() returned None")
         return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
@@ -94,13 +94,21 @@ def _ro_conn() -> sqlite3.Connection:
         raise RuntimeError(f"Cannot open DB: {exc}") from exc
 
 
-def _cat_filter_clause(category: str | None, table_alias: str = "bi") -> tuple[str, list]:
+def _cat_filter_clause(conn: sqlite3.Connection, category: str | None, table_alias: str = "bi") -> tuple[str, list]:
     """Return (WHERE-fragment, params) for category_code filtering on fact_brand_imagery."""
     if not category:
         return "", []
     key = str(category).strip().lower()
     codes = _PRODUCT_CODES.get(key)
-    if not codes:
+    if not codes or key == "all":
+        return "", []
+    try:
+        has_cat = conn.execute(
+            "SELECT 1 FROM fact_brand_imagery WHERE category_code IS NOT NULL LIMIT 1"
+        ).fetchone()
+        if not has_cat:
+            return "", []
+    except Exception:
         return "", []
     placeholders = ",".join("?" * len(codes))
     return f"AND {table_alias}.category_code IN ({placeholders})", list(codes)
@@ -116,6 +124,9 @@ def _classify_kano(reward: float, penalty: float) -> str:
       - attractive  : reward >> penalty  (reward/penalty ≥ _ASYMMETRY_RATIO)
       - performance : roughly symmetric (both meaningful, ratio within bounds)
     """
+    if reward < -_INDIFFERENT_THRESHOLD and penalty < -_INDIFFERENT_THRESHOLD:
+        return "reverse"
+
     abs_r = abs(reward)
     abs_p = abs(penalty)
 
@@ -159,7 +170,7 @@ def _load_base_data(
     #    and the respondent is in the CSAT cohort.
     csat_ids_str = ",".join(str(int(r)) for r in df_csat["respondent_id"].tolist())
 
-    cat_clause, cat_params = _cat_filter_clause(category, table_alias="bi")
+    cat_clause, cat_params = _cat_filter_clause(conn, category, table_alias="bi")
 
     # Join: get (respondent_id, attr_id) for their own last-purchased brand only
     imagery_sql = f"""
@@ -177,9 +188,11 @@ def _load_base_data(
     df_img = pd.read_sql_query(imagery_sql, conn, params=cat_params)
 
     # 3. Mean importance per attribute (bq3a, all respondents)
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(fact_need_importance)")}
+    score_col = "importance_score" if "importance_score" in cols else "score"
     df_imp = pd.read_sql_query(
-        """
-        SELECT attr_id, AVG(score) AS mean_importance
+        f"""
+        SELECT attr_id, AVG({score_col}) AS mean_importance
         FROM fact_need_importance
         GROUP BY attr_id
         """,
@@ -329,6 +342,7 @@ def _compute_prca(
 def compute_kano(
     category: str | None = None,
     min_n: int = _MIN_N_DEFAULT,
+    project_id: str | None = None,
 ) -> dict:
     """
     Compute derived Kano analysis via Penalty-Reward Contrast Analysis (PRCA).
@@ -346,6 +360,8 @@ def compute_kano(
         Minimum respondents with attribute present AND absent to include an
         attribute in the analysis (default 30). Lower values give more
         attributes but less stable estimates.
+    project_id : str | None
+        Optional project ID to load database for.
 
     Returns
     -------
@@ -373,7 +389,7 @@ def compute_kano(
     }
 
     try:
-        conn = _ro_conn()
+        conn = _ro_conn(project_id=project_id)
     except Exception as exc:
         _empty["error"] = f"DB connection failed: {exc}"
         return _empty
@@ -566,7 +582,7 @@ if __name__ == "__main__":
                     key=lambda x: -abs(x["reward_index"]))[:3]:
         print(f"    {a['attr_label']:40s}  reward={a['reward_index']:+.3f}  penalty={a['penalty_index']:+.3f}")
 
-    print(f"\n  Top 3 performance (closest reward≈penalty):")
+    print(f"\n  Top 3 performance (closest reward~=penalty):")
     for a in sorted([x for x in attrs if x["kano_category"] == "performance"],
                     key=lambda x: abs(x["reward_index"] - x["penalty_index"]))[:3]:
         print(f"    {a['attr_label']:40s}  reward={a['reward_index']:+.3f}  penalty={a['penalty_index']:+.3f}")

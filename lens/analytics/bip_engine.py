@@ -246,7 +246,9 @@ class BIPNormalizationEngine:
                                 .nunique().reset_index()
                             )
                             assoc.columns = ["brand_name", "attr_label", "assoc_n"]
-                            assoc["pct"] = assoc["assoc_n"] / total_n * 100.0
+                            attr_base = img.groupby("attr_label")["respondent_id"].nunique().rename("attr_total")
+                            assoc = assoc.merge(attr_base, on="attr_label")
+                            assoc["pct"] = assoc["assoc_n"] / assoc["attr_total"] * 100.0
                             matrix = assoc.pivot_table(
                                 index="brand_name", columns="attr_label",
                                 values="pct", fill_value=0.0

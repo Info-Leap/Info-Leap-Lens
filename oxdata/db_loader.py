@@ -67,8 +67,42 @@ def list_available_projects() -> list[str]:
         return []
     return sorted(
         p.name for p in data_dir.iterdir()
-        if p.is_dir() and (p / "oxdata.db").exists()
+        if p.is_dir() and (
+            (p / "oxdata.db").exists() or
+            (p / "master_mapping.xlsx").exists() or
+            (p / "raw_data.xlsx").exists() or
+            (p / "project_meta.json").exists()
+        )
     )
+
+
+def sync_from_drive_if_needed(project_id: str) -> bool:
+    """
+    If STORAGE_BACKEND=gdrive env var is set AND local project folder is missing 
+    master_mapping.xlsx AND oxdata.db, try to download from Drive.
+    Returns True if synced, False otherwise.
+    Called by get_db_path() before checking local files.
+    """
+    if os.environ.get("STORAGE_BACKEND", "local") != "gdrive":
+        return False
+    oxdata_dir = Path(__file__).resolve().parent
+    local_dir = oxdata_dir / "data" / project_id
+    if (local_dir / "master_mapping.xlsx").exists() or (local_dir / "oxdata.db").exists():
+        return False
+    try:
+        import sys
+        repo_root = oxdata_dir.parent
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
+        from gdrive_backend.client import DriveClient
+        client = DriveClient()
+        folder_name = _DRIVE_FOLDER_MAP.get(project_id, project_id)
+        local_dir.mkdir(parents=True, exist_ok=True)
+        res = client.sync_project_from_drive(folder_name, str(local_dir))
+        return any(res.values())
+    except Exception as e:
+        print(f"[db_loader] sync_from_drive_if_needed failed for {project_id}: {e}")
+        return False
 
 
 def get_db_path(required_table: str = "fact_respondents", project_id: Optional[str] = None) -> Path:
@@ -88,7 +122,8 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
     oxdata_dir = Path(__file__).resolve().parent
     project_root = oxdata_dir.parent
 
-    # ── Drive backend: pull DB if not cached locally ───────────────────────────
+    # ── Drive backend: pull files if not cached locally ────────────────────────
+    sync_from_drive_if_needed(project_id)
     if os.environ.get("STORAGE_BACKEND", "local") == "gdrive":
         local_cache = oxdata_dir / "data" / project_id / "oxdata.db"
         if not local_cache.exists():
@@ -103,20 +138,13 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
         # 2. Project Root (legacy location — older schema, kept as fallback)
         project_root / "data" / project_id / "oxdata.db",
     ]
-    if project_id != "project_1":
-        # A selected non-default project's DB might not exist yet (mid-ingestion, or the
-        # selector is stale after a project was removed) — fall back to the canonical project
-        # rather than returning None and breaking every page that assumes a DB always resolves.
+    if project_id == "project_1":
         search_paths += [
-            oxdata_dir / "data" / "project_1" / "oxdata.db",
-            project_root / "data" / "project_1" / "oxdata.db",
+            # 3. Lens Database
+            project_root / "lens" / "lens.db",
+            # 4. Root fallback
+            project_root / "lens.db",
         ]
-    search_paths += [
-        # 3. Lens Database
-        project_root / "lens" / "lens.db",
-        # 4. Root fallback
-        project_root / "lens.db",
-    ]
 
     for p in search_paths:
         if p.exists():
@@ -135,7 +163,7 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
         if p.exists():
             return p
                 
-    return None
+    raise FileNotFoundError(f"No database found for project '{project_id}'")
 
 _PROJECT_META_DEFAULTS = {
     "display_name": "",

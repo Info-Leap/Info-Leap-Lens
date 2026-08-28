@@ -3920,13 +3920,34 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
                                      value=0, step=50, key="bip_min_n",
                                      help="Exclude brands with fewer respondents than this threshold")
 
+    # Resolve dynamic brand count for BIP (project_1 has ~56, AK has ~15)
+    _actual_brand_count = 19
+    try:
+        from oxdata.db_loader import get_db_path as _bip_get_dbp
+        _dbp = _bip_get_dbp(required_table="dim_brand", project_id=project_id)
+        if _dbp and _dbp.exists():
+            import sqlite3
+            _c = sqlite3.connect(str(_dbp))
+            _cnt = _c.execute("SELECT COUNT(*) FROM dim_brand").fetchone()[0]
+            _c.close()
+            if _cnt > 0:
+                _actual_brand_count = _cnt
+        else:
+            from lens.data_layer import get_project_layer as _bip_get_lyr
+            _lyr = _bip_get_lyr(project_id)
+            if _lyr is not None and len(_lyr.all_brands) > 0:
+                _actual_brand_count = len(_lyr.all_brands)
+    except Exception:
+        pass
+    _bip_top_brands = min(_actual_brand_count, 19)
+
     if attr_ids:
         # Driver-filtered mode: bypass cache, call engine directly with attr_ids
         from lens.analytics.bip_engine import BIPNormalizationEngine as _BIPFiltered
         from lens.analytics.can_map_engine import PRODUCT_CODES as _PC_BIP
         _cats_bip = _PC_BIP.get(bip_cat, [1, 2, 3, 4, 5, 6])
         _bip_f_eng = _BIPFiltered(
-            category_codes=_cats_bip, percentile_threshold=float(bip_pctile), top_brands=19,
+            category_codes=_cats_bip, percentile_threshold=float(bip_pctile), top_brands=_bip_top_brands,
             zone=zone_arg, gender=gender_arg, age_band=age_band_arg, city=city_arg,
             project_id=project_id,
         )
@@ -3934,13 +3955,13 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
         bip_res = _bip_f_eng.run(matrix=_bip_filt_mat)
     else:
         bip_res       = _run_bip(bip_cat, None if bip_section == "All" else bip_section, bip_pctile,
-                                  zone_arg, gender_arg, age_band_arg, city_arg, top_brands=19,
+                                  zone_arg, gender_arg, age_band_arg, city_arg, top_brands=_bip_top_brands,
                                   project_id=project_id)
     if attr_ids:
         from lens.analytics.can_map_engine import run_ca_pipeline as _ca_bip_filt, PRODUCT_CODES as _PC_CA_BIP
         _cats_ca_bip = _PC_CA_BIP.get(bip_cat, [1, 2, 3, 4, 5, 6])
         ca_res_for_bip = _ca_bip_filt(
-            category_codes=_cats_ca_bip, top_brands=19,
+            category_codes=_cats_ca_bip, top_brands=_bip_top_brands,
             top_attrs=len(attr_ids), attr_ids=attr_ids,
             zone=None if zone_arg == "all" else zone_arg,
             gender=None if gender_arg == "all" else gender_arg,
@@ -3949,10 +3970,10 @@ def _render_section_14_bip(sel_cat, zone_arg="all", gender_arg="all", age_band_a
             project_id=project_id,
         )
     else:
-        ca_res_for_bip = _run_can_map(bip_cat, None if bip_section == "All" else bip_section, 19,
+        ca_res_for_bip = _run_can_map(bip_cat, None if bip_section == "All" else bip_section, _bip_top_brands,
                                        zone_arg, gender_arg, age_band_arg, city_arg, project_id=project_id)
     bip_interps   = _get_cached_imagery_interpretations(
-        ca_res_for_bip, bip_res, bip_cat, bip_section, bip_pctile, 19,
+        ca_res_for_bip, bip_res, bip_cat, bip_section, bip_pctile, _bip_top_brands,
         zone_arg, gender_arg, age_band_arg, city_arg,
     )
 
@@ -6003,10 +6024,12 @@ def _competitive_benchmarking_from_layer(_layer: "ProjectDataLayer", zone="all",
         return pd.DataFrame()
     df = pd.DataFrame(rows)
 
+    n_threshold = 5 if len(getattr(layer, "all_brands", [])) < 50 else 20
+
     if not nps_df.empty:
         def _nps_score(g):
             n = len(g)
-            if n < 20: return None
+            if n < n_threshold: return None
             return round((g >= 9).sum() / n * 100 - (g <= 6).sum() / n * 100, 1)
         nps_agg = nps_df.groupby("brand_name")["nps_score"].apply(_nps_score).reset_index(name="nps")
         df = df.merge(nps_agg, on="brand_name", how="left")
@@ -6015,7 +6038,7 @@ def _competitive_benchmarking_from_layer(_layer: "ProjectDataLayer", zone="all",
 
     if not csat_df.empty:
         def _csat_score(g):
-            if len(g) < 20: return None
+            if len(g) < n_threshold: return None
             raw = g.mean()
             return round(raw / 2 if raw > 5.5 else raw, 2)
         csat_agg = csat_df.groupby("brand_name")["csat_score"].apply(_csat_score).reset_index(name="csat")
@@ -6092,16 +6115,25 @@ def _get_competitive_benchmarking(zone="all", gender="all", age_band="all", city
     stage_df["LAST_PURCHASED"] = (stage_df["last_n"] * 100.0 / total).round(1)
     stage_df["aided_n"] = stage_df["total_aware_n"]
 
-    nps_restrict = " WHERE n.respondent_id IN (SELECT respondent_id FROM _base)" if is_filtered else ""
+    # Dynamic threshold: 5 if project has <50 brands, 20 otherwise
+    try:
+        b_count = int(pd.read_sql("SELECT COUNT(*) FROM dim_brand", conn).iloc[0, 0])
+    except Exception:
+        b_count = 56
+    nps_min_threshold = 5 if b_count < 50 else 20
+
+    nps_where_clause = " WHERE n.nps_score IS NOT NULL"
+    if is_filtered:
+        nps_where_clause += " AND n.respondent_id IN (SELECT respondent_id FROM _base)"
     nps_df = pd.read_sql(f"""
         {cte_prefix}
         SELECT b.brand_name,
-               ROUND(SUM(CASE WHEN n.nps_score>=9 THEN 1.0 ELSE 0 END)*100/COUNT(*) -
-                     SUM(CASE WHEN n.nps_score<=6 THEN 1.0 ELSE 0 END)*100/COUNT(*), 1) AS nps,
-               COUNT(*) AS nps_n
+               ROUND(SUM(CASE WHEN n.nps_score>=9 THEN 1.0 ELSE 0 END)*100.0/COUNT(n.nps_score) -
+                     SUM(CASE WHEN n.nps_score<=6 THEN 1.0 ELSE 0 END)*100.0/COUNT(n.nps_score), 1) AS nps,
+               COUNT(n.nps_score) AS nps_n
         FROM fact_brand_nps n JOIN dim_brand b ON n.brand_id = b.brand_id
-        {nps_restrict}
-        GROUP BY b.brand_name HAVING nps_n >= 20
+        {nps_where_clause}
+        GROUP BY b.brand_name HAVING nps_n >= {nps_min_threshold}
     """, conn, params=fparams)
 
     csat_restrict = " AND s.respondent_id IN (SELECT respondent_id FROM _base)" if is_filtered else ""
@@ -6113,7 +6145,7 @@ def _get_competitive_benchmarking(zone="all", gender="all", age_band="all", city
         JOIN dim_brand b ON ba.brand_id = b.brand_id
         WHERE b.brand_name NOT IN ('Don''t Know / None')
           {csat_restrict}
-        GROUP BY b.brand_name HAVING csat_n >= 20
+        GROUP BY b.brand_name HAVING csat_n >= {nps_min_threshold}
     """, conn, params=fparams)
     conn.close()
 
@@ -7437,7 +7469,6 @@ def _render_attribute_ownership(sel_brand: str):
             st.plotly_chart(_theme_fig(owned_fig), use_container_width=True)
 
         # Attributes brand could challenge (it's in top 3 but doesn't own it)
-        all_assoc = pd.read_sql if False else None  # placeholder; use precomputed data
         st.markdown(f"**Attributes NOT owned by {sel_brand} (competitor owns them):**")
         # Show top 10 attributes owned by others with highest brand's own association (competitive gaps)
         # For this we need per-brand association for sel_brand on all attributes
@@ -9788,6 +9819,29 @@ def render_brand_health_dashboard():
         pass
 
     _seg_opts = _get_segment_filter_options()
+
+    _p_meta = {}
+    try:
+        from oxdata.db_loader import get_project_meta as _bh_get_meta_top
+        _p_meta = _bh_get_meta_top(active_project_id)
+    except Exception:
+        pass
+    _p_disp = _p_meta.get("display_name") or active_project_id.replace("_", " ").title()
+    _p_ind = _p_meta.get("industry") or "Brand Intelligence"
+    _p_has_excel = (Path(oxdata_dir) / "data" / active_project_id / "master_mapping.xlsx").exists()
+    _p_src = "📊 master_mapping.xlsx" if _p_has_excel else "🗄️ SQLite Engine"
+
+    st.markdown(
+        f'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;'
+        f'background:linear-gradient(135deg, rgba(26,93,77,0.08) 0%, rgba(14,165,233,0.05) 100%);'
+        f'border:1px solid rgba(26,93,77,0.2);border-radius:10px;margin-bottom:12px;">'
+        f'<div><span style="font-size:0.65rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1a5d4d;">Active Project</span>'
+        f'<div style="font-size:1.05rem;font-weight:900;color:#0f172a;letter-spacing:-0.01em;">{_p_disp} <span style="font-size:0.78rem;font-weight:500;color:#64748b;">({_p_ind})</span></div></div>'
+        f'<div style="display:flex;gap:10px;align-items:center;">'
+        f'<span style="background:rgba(26,93,77,0.1);border:1px solid rgba(26,93,77,0.25);border-radius:20px;padding:3px 12px;font-size:0.75rem;font-weight:700;color:#1a5d4d;">{_p_src}</span>'
+        f'</div></div>',
+        unsafe_allow_html=True,
+    )
 
     # ── TOP-OF-PAGE FILTER BAR ────────────────────────────────────────────────
     # Zone/Gender/Age/City apply across funnel, imagery, portfolio, price, journey,

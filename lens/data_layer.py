@@ -94,6 +94,7 @@ def get_raw_data_path(project_id: str) -> Optional[Path]:
     candidates = [
         Path(f"oxdata/data/{project_id}/raw_data.xlsx"),
         Path(f"oxdata/data/{project_id}/raw_data.csv"),
+        Path(f"oxdata/data/{project_id}/master_mapping.xlsx"),
         Path(f"data/{project_id}/raw_data.xlsx"),
     ]
     for p in candidates:
@@ -145,6 +146,8 @@ def load_raw_df(project_id: str) -> pd.DataFrame:
         raise FileNotFoundError(f"No raw_data file found for project '{project_id}'")
     if str(p).endswith(".csv"):
         df = pd.read_csv(p, low_memory=False)
+    elif str(p).endswith("master_mapping.xlsx"):
+        df = pd.read_excel(p, sheet_name="RAW_DATA")
     else:
         df = pd.read_excel(p)
     df.columns = [str(c).strip() for c in df.columns]
@@ -1105,6 +1108,10 @@ class ProjectDataLayer:
         if self._raw_df is None:
             self._raw_df = load_raw_df(self.project_id)
         return self._raw_df
+
+    @property
+    def n_respondents(self) -> int:
+        return len(self.raw_df)
 
     @property
     def schema_doc(self) -> dict:

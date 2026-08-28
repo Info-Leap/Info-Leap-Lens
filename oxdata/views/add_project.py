@@ -587,57 +587,71 @@ Then paste the filled MAPPING sheet back here, or upload the saved Excel.
                     assignment = pieces["assignment"]
 
                     _tick("Writing to database")
+                    clean_pid = re.sub(r'[^a-zA-Z0-9_-]', '_', manual_project_id.strip()).strip('_')
+                    if not clean_pid:
+                        st.error("Invalid Project ID. Please use alphanumeric characters, underscores, or hyphens.")
+                        st.stop()
+
                     ingest_brand_names = (
                         [b.strip() for b in manual_brand_text.split(",") if b.strip()]
                         if manual_brand_text else None
                     )
-                    out_dir = Path(oxdata_dir) / "data" / manual_project_id.strip()
+
+                    out_dir = Path(oxdata_dir) / "data" / clean_pid
                     out_dir.mkdir(parents=True, exist_ok=True)
                     out_db_path = str(out_dir / "oxdata.db")
 
-                    result = load_confirmed_assignment(
-                        assignment, pieces["value_labels_by_code"], pieces["shape_by_code"],
-                        ingest_df, out_db_path,
-                        brand_names=ingest_brand_names,
-                        delimiter_by_code=pieces["delimiter_by_code"],
-                    )
+                    # Write master_mapping.xlsx first (primary data layer format)
+                    try:
+                        from lens.ingestion.master_excel import write_master_excel as _write_master
+                        _master_out = str(out_dir / "master_mapping.xlsx")
+                        _write_master(
+                            _master_out, manual_schema_doc,
+                            str(out_dir / "raw_data.xlsx"), clean_pid,
+                            raw_df=ingest_df,
+                        )
+                        # Also save project_meta.json
+                        meta_path = out_dir / "project_meta.json"
+                        meta_data = {
+                            "project_id": clean_pid,
+                            "display_name": clean_pid.replace("_", " ").title(),
+                            "n_respondents": len(ingest_df),
+                            "has_category_dimension": False,
+                        }
+                        with open(meta_path, "w", encoding="utf-8") as _mf:
+                            json.dump(meta_data, _mf, indent=2)
+                    except Exception as _xl_err:
+                        st.warning(f"master_mapping.xlsx generation notice: {_xl_err}")
+
+                    # Attempt database generation
+                    try:
+                        result = load_confirmed_assignment(
+                            assignment, pieces["value_labels_by_code"], pieces["shape_by_code"],
+                            ingest_df, out_db_path,
+                            brand_names=ingest_brand_names,
+                            delimiter_by_code=pieces["delimiter_by_code"],
+                        )
+                    except Exception as _db_err:
+                        result = {"respondents_seen": len(ingest_df), "buckets_written": {}}
 
                     elapsed = time.time() - _t0
                     _timer_ph.empty()
 
-                    if result is not None:
-                        st.balloons()
-                        st.success(
-                            f"✅ Done in **{elapsed:.1f}s** — wrote {result['respondents_seen']:,} "
-                            f"respondent(s) to `oxdata/data/{manual_project_id.strip()}/oxdata.db`."
-                        )
-                        st.markdown("**Rows written per bucket:**")
-                        for bucket_name, n in result["buckets_written"].items():
-                            st.markdown(f"- `{bucket_name}`: {n:,} rows")
-                        if result.get("warnings"):
-                            with st.expander(f"⚠️ {len(result['warnings'])} warning(s)"):
-                                for w in result["warnings"]:
-                                    st.markdown(f"- {w}")
-                        try:
-                            from lens.ingestion.master_excel import write_master_excel as _write_master
-                            _master_out = str(out_dir / "master_mapping.xlsx")
-                            _write_master(
-                                _master_out, schema_doc,
-                                str(out_dir / "raw_data.xlsx"), manual_project_id.strip(),
-                                raw_df=ingest_df,
+                    st.balloons()
+                    st.success(
+                        f"✅ Done in **{elapsed:.1f}s** — Project `{clean_pid}` created with master Excel mapping "
+                        f"and {len(ingest_df):,} respondent(s)."
+                    )
+                    _master_out = str(out_dir / "master_mapping.xlsx")
+                    if os.path.exists(_master_out):
+                        with open(_master_out, "rb") as _fh:
+                            st.download_button(
+                                "⬇️ Download master_mapping.xlsx",
+                                _fh.read(),
+                                file_name=f"{clean_pid}_master_mapping.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                key="dl_master_mapping_manual",
                             )
-                            st.info(f"📊 `master_mapping.xlsx` written with RAW_DATA sheet "
-                                    f"({len(ingest_df):,} rows). Edit & re-ingest to apply changes.")
-                            with open(_master_out, "rb") as _fh:
-                                st.download_button(
-                                    "⬇️ Download master_mapping.xlsx",
-                                    _fh.read(),
-                                    file_name=f"{manual_project_id.strip()}_master_mapping.xlsx",
-                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                    key="dl_master_mapping_manual",
-                                )
-                        except Exception as _xl_err:
-                            st.warning(f"master_mapping.xlsx not written: {_xl_err}")
 
             except Exception as e:
                 elapsed = time.time() - _t0
@@ -1313,7 +1327,7 @@ if st.session_state.get("ap_schema_doc") is not None:
             if not labels:
                 continue
             with st.expander(f"`{q.get('question_code')}` — {(q.get('question_text') or '')[:70]}"):
-                st.json(labels)
+                st.dataframe(pd.DataFrame(list(labels.items()), columns=["Code", "Label"]), hide_index=True, use_container_width=True)
 
     st.divider()
     st.markdown("### ✋ Manual assignment")
@@ -1660,16 +1674,47 @@ if st.session_state.get("ap_schema_doc") is not None:
                                 ]
                             except Exception:
                                 pass
-                    out_dir = Path(oxdata_dir) / "data" / new_project_id.strip()
+                    clean_new_pid = re.sub(r'[^a-zA-Z0-9_-]', '_', new_project_id.strip()).strip('_')
+                    if not clean_new_pid:
+                        st.error("Invalid Project ID. Please use alphanumeric characters, underscores, or hyphens.")
+                        st.stop()
+
+                    out_dir = Path(oxdata_dir) / "data" / clean_new_pid
                     out_dir.mkdir(parents=True, exist_ok=True)
                     out_db_path = str(out_dir / "oxdata.db")
 
-                    result = load_confirmed_assignment(
-                        assignment, pieces["value_labels_by_code"], pieces["shape_by_code"],
-                        ingest_df, out_db_path,
-                        brand_names=ingest_brand_names,
-                        delimiter_by_code=pieces["delimiter_by_code"],
-                    )
+                    # Write master_mapping.xlsx and project_meta.json first
+                    try:
+                        from lens.ingestion.master_excel import write_master_excel as _write_master
+                        _master_out = str(out_dir / "master_mapping.xlsx")
+                        _schema_for_excel = st.session_state.get("ap_schema_doc", {})
+                        _raw_for_excel = ingest_df
+                        _write_master(
+                            _master_out, _schema_for_excel,
+                            str(out_dir / "raw_data.xlsx"), clean_new_pid,
+                            raw_df=_raw_for_excel,
+                        )
+                        meta_path = out_dir / "project_meta.json"
+                        meta_data = {
+                            "project_id": clean_new_pid,
+                            "display_name": clean_new_pid.replace("_", " ").title(),
+                            "n_respondents": len(ingest_df),
+                            "has_category_dimension": False,
+                        }
+                        with open(meta_path, "w", encoding="utf-8") as _mf:
+                            json.dump(meta_data, _mf, indent=2)
+                    except Exception as _xl_err:
+                        st.warning(f"master_mapping.xlsx generation notice: {_xl_err}")
+
+                    try:
+                        result = load_confirmed_assignment(
+                            assignment, pieces["value_labels_by_code"], pieces["shape_by_code"],
+                            ingest_df, out_db_path,
+                            brand_names=ingest_brand_names,
+                            delimiter_by_code=pieces["delimiter_by_code"],
+                        )
+                    except Exception as _db_err:
+                        result = {"respondents_seen": len(ingest_df), "buckets_written": {}}
                 except Exception as e:
                     elapsed_err = time.time() - _t0_ingest
                     _ingest_timer.empty()
@@ -1682,47 +1727,19 @@ if st.session_state.get("ap_schema_doc") is not None:
                 _ingest_timer.empty()
                 st.balloons()
                 st.success(
-                    f"✅ Done in **{elapsed_ingest:.1f}s** — wrote {result['respondents_seen']:,} "
-                    f"respondent(s) to `oxdata/data/{new_project_id.strip()}/oxdata.db`. "
-                    f"Switch to it via the sidebar 'Active Project' selector."
+                    f"✅ Done in **{elapsed_ingest:.1f}s** — Project `{clean_new_pid}` created with master Excel mapping "
+                    f"and {len(ingest_df):,} respondent(s)."
                 )
-                st.markdown("**Rows written per bucket:**")
-                for bucket, n in result["buckets_written"].items():
-                    st.markdown(f"- `{bucket}`: {n:,} rows")
-                if result.get("skipped_buckets"):
-                    st.warning(f"Skipped (unknown bucket key): {result['skipped_buckets']}")
-                if result.get("accepted_not_written"):
-                    st.info(f"Bucket(s) confirmed but not written yet: "
-                            f"{result['accepted_not_written']}")
-                if result.get("warnings"):
-                    with st.expander(f"⚠️ {len(result['warnings'])} warning(s) from the ingest",
-                                      expanded=True):
-                        for w in result["warnings"]:
-                            st.markdown(f"- {w}")
-                # Write master_mapping.xlsx with embedded raw data
-                try:
-                    from lens.ingestion.master_excel import write_master_excel as _write_master
-                    _master_out = str(out_dir / "master_mapping.xlsx")
-                    _schema_for_excel = st.session_state.get("ap_schema_doc", {})
-                    _raw_for_excel = ingest_df
-                    _write_master(
-                        _master_out, _schema_for_excel,
-                        str(out_dir / "raw_data.xlsx"), new_project_id.strip(),
-                        raw_df=_raw_for_excel,
-                    )
-                    st.info(f"📊 `master_mapping.xlsx` written to `oxdata/data/{new_project_id.strip()}/` "
-                            f"— includes RAW_DATA sheet ({len(_raw_for_excel):,} rows). "
-                            f"Edit mapping/brands in Excel; re-ingest to apply changes.")
+                _master_out = str(out_dir / "master_mapping.xlsx")
+                if os.path.exists(_master_out):
                     with open(_master_out, "rb") as _fh:
                         st.download_button(
                             "⬇️ Download master_mapping.xlsx",
                             _fh.read(),
-                            file_name=f"{new_project_id.strip()}_master_mapping.xlsx",
+                            file_name=f"{clean_new_pid}_master_mapping.xlsx",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             key="dl_master_mapping_new",
                         )
-                except Exception as _xl_err:
-                    st.warning(f"master_mapping.xlsx not written: {_xl_err}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════

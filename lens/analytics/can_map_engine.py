@@ -193,7 +193,9 @@ class CorrespondenceAnalysis:
                 .nunique().reset_index()
             )
             assoc.columns = ["brand_name", "attr_label", "assoc_n"]
-            assoc["pct"] = assoc["assoc_n"] / total_n * 100.0
+            attr_base = img.groupby("attr_label")["respondent_id"].nunique().rename("attr_total")
+            assoc = assoc.merge(attr_base, on="attr_label")
+            assoc["pct"] = assoc["assoc_n"] / assoc["attr_total"] * 100.0
             matrix = assoc.pivot_table(
                 index="brand_name", columns="attr_label", values="pct", fill_value=0.0
             )
@@ -209,6 +211,7 @@ class CorrespondenceAnalysis:
             ]
             if matrix.empty:
                 return matrix
+            self._total_respondents = total_n
             return matrix.loc[:, matrix.std(axis=0) > 0]
         except Exception:
             return pd.DataFrame()
@@ -426,6 +429,8 @@ class CorrespondenceAnalysis:
         if assoc_df.empty:
             return pd.DataFrame()
 
+        self._total_respondents = int(denom_df["total_n"].max()) if not denom_df.empty else None
+
         # Merge on attr_id ONLY (denom is per-attribute, not per brand×attr)
         merged = assoc_df.merge(
             denom_df, on="attr_id", how="left"
@@ -549,7 +554,18 @@ class CorrespondenceAnalysis:
         total_inertia = float(eigenvalues.sum())
 
         # ── 2. Chi-square test ───────────────────────────────────────────
-        grand_total = N.sum()
+        total_resp = getattr(self, "_total_respondents", None)
+        if total_resp is None:
+            import warnings
+            warnings.warn(
+                "CAN-MAP chi2 calculation: _total_respondents is not set; falling back to N.sum(). "
+                "Chi-square test may not reflect actual respondent sample size.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            grand_total = float(N.sum())
+        else:
+            grand_total = float(total_resp)
         chi2_stat   = grand_total * total_inertia
         dof         = (n_rows - 1) * (n_cols - 1)
         p_val       = float(1.0 - stats.chi2.cdf(chi2_stat, dof)) if dof > 0 else 1.0

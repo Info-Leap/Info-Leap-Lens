@@ -369,11 +369,11 @@ class BrandImageryEngine:
 
             # NPS in this zone
             nps_row = pd.read_sql_query("""
-                SELECT COUNT(*) n,
+                SELECT COUNT(nps_score) n,
                        SUM(CASE WHEN nps_score>=9 THEN 1 ELSE 0 END) p,
                        SUM(CASE WHEN nps_score<=6 THEN 1 ELSE 0 END) d
                 FROM v_brand_nps
-                WHERE brand_name = ? AND zone_name = ?
+                WHERE brand_name = ? AND zone_name = ? AND nps_score IS NOT NULL
             """, conn, params=[brand_name, zone]).iloc[0]
 
             nps_base = int(nps_row["n"])
@@ -402,14 +402,14 @@ class BrandImageryEngine:
         conn = self._get_conn()
         df = pd.read_sql_query("""
             SELECT city_name, zone_name,
-                   COUNT(*) raters,
+                   COUNT(nps_score) raters,
                    ROUND((SUM(CASE WHEN nps_score>=9 THEN 1.0 ELSE 0 END) -
                           SUM(CASE WHEN nps_score<=6 THEN 1.0 ELSE 0 END))
-                         * 100.0 / COUNT(*), 1) nps
+                         * 100.0 / COUNT(nps_score), 1) nps
             FROM v_brand_nps
-            WHERE brand_name = ?
+            WHERE brand_name = ? AND nps_score IS NOT NULL
             GROUP BY city_name, zone_name
-            HAVING COUNT(*) >= ?
+            HAVING COUNT(nps_score) >= ?
             ORDER BY nps DESC
         """, conn, params=[brand_name, min_raters])
         conn.close()
@@ -450,10 +450,10 @@ class BrandImageryEngine:
 
             # NPS
             nps_row = pd.read_sql_query("""
-                SELECT COUNT(*) n,
+                SELECT COUNT(nps_score) n,
                        SUM(CASE WHEN nps_score>=9 THEN 1 ELSE 0 END) p,
                        SUM(CASE WHEN nps_score<=6 THEN 1 ELSE 0 END) d
-                FROM v_brand_nps WHERE brand_name = ?
+                FROM v_brand_nps WHERE brand_name = ? AND nps_score IS NOT NULL
             """, conn, params=[rival]).iloc[0]
             nps_base = int(nps_row["n"])
             nps_val = (
