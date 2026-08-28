@@ -6510,7 +6510,7 @@ def _get_ownership_matrix(top_attrs: int = 20, top_brands: int = 8, attr_order: 
         imp_df = pd.DataFrame({"attr_label": list(attr_order)})
     else:
         imp_df = pd.read_sql("""
-            SELECT da.attr_label, ROUND(AVG(ni.score), 2) AS mean_importance
+            SELECT da.attr_label, ROUND(AVG(ni.importance_score), 2) AS mean_importance
             FROM fact_need_importance ni
             JOIN dim_bq3_attribute da ON ni.attr_id = da.attr_id
             GROUP BY da.attr_label
