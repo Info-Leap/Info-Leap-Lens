@@ -167,7 +167,7 @@ def get_db_path(required_table: str = "fact_respondents", project_id: Optional[s
 
 _PROJECT_META_DEFAULTS = {
     "display_name": "",
-    "industry": "Unknown",
+    "industry": "Brand Intelligence",
     "description": "",
     "n_respondents": 0,
     "wave": "",

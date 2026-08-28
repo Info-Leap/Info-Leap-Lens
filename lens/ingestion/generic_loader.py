@@ -389,6 +389,15 @@ def create_minimal_schema(conn: sqlite3.Connection) -> None:
                    pj.question_code, pj.question_text, pj.answer
             FROM fact_purchase_journey pj
             JOIN fact_respondents r ON r.respondent_id = pj.respondent_id;
+
+        -- ── Indexes for query performance ──────────────────────────────────────────
+        CREATE INDEX IF NOT EXISTS idx_fbi_brand_attr ON fact_brand_imagery(brand_id, attr_id);
+        CREATE INDEX IF NOT EXISTS idx_fbi_brand ON fact_brand_imagery(brand_id);
+        CREATE INDEX IF NOT EXISTS idx_fbi_resp ON fact_brand_imagery(respondent_id);
+        CREATE INDEX IF NOT EXISTS idx_fba_brand_stage ON fact_brand_awareness(brand_id, stage);
+        CREATE INDEX IF NOT EXISTS idx_fba_resp ON fact_brand_awareness(respondent_id);
+        CREATE INDEX IF NOT EXISTS idx_fbn_brand ON fact_brand_nps(brand_id);
+        CREATE INDEX IF NOT EXISTS idx_fbn_resp ON fact_brand_nps(respondent_id);
     """)
     conn.commit()
 

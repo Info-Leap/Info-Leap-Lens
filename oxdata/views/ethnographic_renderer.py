@@ -1152,7 +1152,7 @@ def render_ethnographic(proj: dict, base_path: Path,
 
     matrices_all = _load_matrices(str(matrices_dir))
     if not matrices_all:
-        empty_state(f"No matrices found at {matrices_dir}. Run extraction pipeline first.")
+        empty_state("No interview data extracted yet for this project. Upload transcripts and run the extraction pipeline to see quotes here.")
         return
 
     # Quality gate: "critical"-quality extractions (verbatim fidelity check failed badly) are

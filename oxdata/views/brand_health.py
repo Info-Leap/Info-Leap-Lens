@@ -9828,7 +9828,8 @@ def render_brand_health_dashboard():
     except Exception:
         pass
     _p_disp = _p_meta.get("display_name") or active_project_id.replace("_", " ").title()
-    _p_ind = _p_meta.get("industry") or "Brand Intelligence"
+    _p_raw_ind = _p_meta.get("industry")
+    _p_ind = _p_raw_ind.strip() if (_p_raw_ind and _p_raw_ind.strip().lower() not in ("unknown", "(unknown)")) else "Brand Intelligence"
     _p_has_excel = (Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) / "data" / active_project_id / "master_mapping.xlsx").exists()
     _p_src = "📊 master_mapping.xlsx" if _p_has_excel else "🗄️ SQLite Engine"
 
