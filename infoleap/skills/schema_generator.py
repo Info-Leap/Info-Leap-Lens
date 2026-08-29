@@ -989,10 +989,35 @@ _CONCEPT_TESTING_TAB_TAXONOMY = [
              "adopt or purchase."},
 ]
 
+# Standard tab taxonomy for an ethnographic study — stable across ANY in-home IDI or observational
+# research project regardless of product category (kitchen appliances, automotive, FMCG, etc.).
+# The stages describe the STRUCTURE of ethnographic inquiry, not any one study's subject matter.
+_ETHNOGRAPHIC_TAB_TAXONOMY = [
+    {"id": "respondent_profile", "label": "Respondent Profiles",
+     "desc": "Demographic and psychographic fields describing WHO the respondent is — ownership, "
+             "life stage, household context, self-identity. Not brand opinions or product experiences."},
+    {"id": "brand_landscape", "label": "Brand Landscape",
+     "desc": "Fields about brand relationships: current brand owned/used, NPS signals, "
+             "loyalty, advocacy, sentiment, blame attribution, and competitive displacement risk."},
+    {"id": "pain_points", "label": "Pain Points & Barriers",
+     "desc": "Fields about problems, frustrations, workarounds, unresolved needs, and "
+             "failure moments with products or the category. Severity-rated issues and "
+             "specific friction events."},
+    {"id": "aspiration_need", "label": "Aspiration & Unmet Need",
+     "desc": "Fields about what respondents WANT but don't have — aspiration gaps, latent unmet "
+             "needs, JTBD (jobs-to-be-done), peak moments, ideal product vision, emotional "
+             "resolution, and desired future state."},
+    {"id": "purchase_journey", "label": "Purchase Journey",
+     "desc": "Fields about how the respondent researched, evaluated, decided, and purchased — "
+             "information sources, influencers, trigger events, channel, price sensitivity, "
+             "and post-purchase adjustment."},
+]
+
 
 def _derive_topic_clusters(candidates: list[dict], layer2_fields: dict,
                             project_name: str, study_summary: str,
-                            numeric_fields: list[dict] | None = None) -> list[dict]:
+                            numeric_fields: list[dict] | None = None,
+                            study_type: str = "concept_testing") -> list[dict]:
     """Maps THIS project's real top-level schema fields onto the standard concept-testing tab
     taxonomy via one LLM call, instead of the fixed field-name-prefix routing
     generate_ui_config_tabs() used to hardcode (gold_behavior.*/route1_evaluation.*/
@@ -1053,11 +1078,14 @@ def _derive_topic_clusters(candidates: list[dict], layer2_fields: dict,
         prefix_lines.append(f"- {top} ({info['count']} field(s), e.g. {sample_paths}): {desc}")
     prefix_block = "\n".join(prefix_lines)
 
+    _taxonomy = (_ETHNOGRAPHIC_TAB_TAXONOMY if study_type == "ethnographic"
+                 else _CONCEPT_TESTING_TAB_TAXONOMY)
     taxonomy_block = "\n".join(
-        f'- id "{t["id"]}", label "{t["label"]}" — {t["desc"]}' for t in _CONCEPT_TESTING_TAB_TAXONOMY
+        f'- id "{t["id"]}", label "{t["label"]}" — {t["desc"]}' for t in _taxonomy
     )
+    _study_type_label = "ethnographic in-home IDI" if study_type == "ethnographic" else "concept-testing"
 
-    prompt = f"""Route the top-level schema fields below onto a STANDARD set of concept-testing
+    prompt = f"""Route the top-level schema fields below onto a STANDARD set of {_study_type_label}
 dashboard tabs for a qualitative research study.
 
 PROJECT: {project_name}
@@ -1123,8 +1151,8 @@ Return ONLY valid JSON matching: {{"clusters": [{{"id": "one_of_the_taxonomy_ids
     return _final
 
 
-def generate_ui_config_tabs(project_id: str, schema: dict, structure_data: dict, pj: dict) -> dict | None:
-    """Generate a "tabs"-shaped ui_config.json for concept_testing study_type. Unlike
+def generate_ui_config_tabs(project_id: str, schema: dict, structure_data: dict, pj: dict, study_type: str | None = None) -> dict | None:
+    """Generate a "tabs"-shaped ui_config.json for concept_testing or ethnographic study types. Unlike
     generate_ui_config() (the older tab4_sections/kpi_fields shape consumed by
     qual_generic_renderer.py), this is schema-navigated: the LLM is given TabsUIConfig's real
     JSON Schema to fill, not just prose instructions, and validated + retried against that model
@@ -1135,6 +1163,7 @@ def generate_ui_config_tabs(project_id: str, schema: dict, structure_data: dict,
     project_name = pj.get("display_name", project_id)
     study_summary = structure_data.get("study_summary", "")
     layer2_fields = schema.get("layer2", {}).get("fields", {})
+    _stype = study_type or structure_data.get("study_type", "concept_testing")
 
     candidates = scan_chartable_fields(project_id)
     if not candidates:
@@ -1163,7 +1192,7 @@ def generate_ui_config_tabs(project_id: str, schema: dict, structure_data: dict,
 
     try:
         clusters = _derive_topic_clusters(candidates, layer2_fields, project_name, study_summary,
-                                           numeric_fields=numeric_fields)
+                                           numeric_fields=numeric_fields, study_type=_stype)
     except (LLMCallError, ValidationError) as e:
         print(f"  generate_ui_config_tabs: topic clustering failed ({e}) — "
               f"falling back to a single respondent_profiles + single content tab")
@@ -2966,12 +2995,12 @@ TRANSCRIPT:
     # no routing changes needed. Previously concept_testing was skipped entirely here because
     # no "tabs"-shaped generator existed; generate_ui_config_tabs() closes that gap.
     _study_type_now = structure_data.get("study_type", study_type)
-    _is_concept_testing = _study_type_now == "concept_testing"
-    print(f"Step 5: Generating UI config ({'tabs' if _is_concept_testing else 'tab4_sections'} shape)...")
+    _is_tabs = _study_type_now in ("concept_testing", "ethnographic")
+    print(f"Step 5: Generating UI config ({'tabs' if _is_tabs else 'tab4_sections'} shape, study_type={_study_type_now})...")
     ui_config_out = schema_dir / "ui_config.json"
     if not ui_config_out.exists() or force:
-        ui_cfg = (generate_ui_config_tabs(project_id, schema, structure_data, pj)
-                  if _is_concept_testing else
+        ui_cfg = (generate_ui_config_tabs(project_id, schema, structure_data, pj, study_type=_study_type_now)
+                  if _is_tabs else
                   generate_ui_config(project_id, schema, structure_data, pj, client))
         if ui_cfg:
             # Same merge-protection as layer2 fields (§Step 2): each run's LLM call only sees
@@ -3118,8 +3147,8 @@ def generate_ui_from_master_prompt(project_id: str, force: bool = False):
 
     client = _get_client()
     print(f"Regenerating UI config for {project_id} from master_prompt.txt...")
-    ui_cfg = (generate_ui_config_tabs(project_id, schema, structure_data, pj)
-              if study_type == "concept_testing" else
+    ui_cfg = (generate_ui_config_tabs(project_id, schema, structure_data, pj, study_type=study_type)
+              if study_type in ("concept_testing", "ethnographic") else
               generate_ui_config(project_id, schema, structure_data, pj, client))
 
     if ui_cfg:

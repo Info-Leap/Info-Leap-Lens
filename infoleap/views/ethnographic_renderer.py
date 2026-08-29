@@ -1173,6 +1173,33 @@ def render_ethnographic(proj: dict, base_path: Path,
 
     call_or = call_openrouter_fn
 
+    # ── Config-driven path: delegate to concept_testing_renderer's engine if ui_config has tabs ──
+    # When schema_generator.py produces a ui_config.json with a "tabs" array (for ethnographic
+    # study_type, just as it does for concept_testing), use the same _render_from_config engine —
+    # it's already fully generic across chart types and study topics. Fall through to the hardcoded
+    # ethnographic render below only when no tabs-shaped config exists (legacy / mixer pre-schema).
+    _schema_dir = base_path / "data" / "projects" / proj_id / "schema"
+    _ui_cfg_path = _schema_dir / "ui_config.json"
+    if _ui_cfg_path.exists():
+        try:
+            _ui_cfg = json.loads(_ui_cfg_path.read_text(encoding="utf-8"))
+            if _ui_cfg.get("tabs"):
+                from infoleap.views.concept_testing_renderer import _render_from_config
+                _active_filters: dict = {}
+                _render_from_config(
+                    {"name": proj.get("display_name", proj_id), "id": proj_id},
+                    _ui_cfg,
+                    matrices_all,
+                    matrices_all,
+                    str(findings_dir),
+                    call_or,
+                    _active_filters,
+                )
+                return
+        except Exception as _cfg_err:
+            st.warning(f"⚠ ui_config.json found but failed to load ({_cfg_err}) — "
+                       "falling back to legacy render.")
+
     # ── Global filters ─────────────────────────────────────────────────────────
     with st.expander("**Filters**", expanded=False):
         all_brands = sorted({_get(m, "respondent.brand_owned") for m in matrices_all
