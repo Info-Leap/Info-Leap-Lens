@@ -353,6 +353,27 @@ class DriveClient:
             Path(tmp_path).unlink(missing_ok=True)
         return fid
 
+    def upload_qual_schema(self, project_id: str, schema_dir: str) -> Optional[str]:
+        """Zip schema files (extraction_schema.json, master_prompt.txt, ui_config.json, etc.)
+        from schema_dir and upload as schema.zip to Drive qual/{project_id}/.
+        Returns Drive file ID on success, None on failure."""
+        sd = Path(schema_dir)
+        if not sd.exists():
+            return None
+        schema_files = [f for f in sd.iterdir() if f.is_file() and not f.name.startswith(".")]
+        if not schema_files:
+            return None
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            tmp_path = tmp.name
+        try:
+            with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                for f in schema_files:
+                    zf.write(f, f.name)
+            fid = self.upload_file(project_id, tmp_path, "schema.zip", kind="qual")
+        finally:
+            Path(tmp_path).unlink(missing_ok=True)
+        return fid
+
     def sync_qual_schema_if_needed(self, project_id: str, schema_dir: str) -> bool:
         """Download and extract schema.zip from Drive if schema_dir has no ui_config.json.
         Returns True if ui_config.json is available locally after the call."""

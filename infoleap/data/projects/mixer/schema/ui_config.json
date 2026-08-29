@@ -1,0 +1,860 @@
+{
+  "tabs": [
+    {
+      "id": "respondent_profile",
+      "label": "Respondent Profiles",
+      "sections": [
+        {
+          "type": "kpi_row",
+          "kpis": [
+            {
+              "label": "Total Respondents",
+              "field": "",
+              "value_type": "total_n",
+              "suffix": "",
+              "eq_val": "",
+              "contains_val": "",
+              "color": "blue"
+            },
+            {
+              "label": "Promoters",
+              "field": "nps_signal",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "promoter",
+              "contains_val": "",
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "multi_distribution",
+          "columns": 3,
+          "fields": [
+            {
+              "field": "cultural_context.family_food_values",
+              "title": "Family Food Values",
+              "label": "Family Food Values",
+              "subtitle": "Primary food values that guide meal preparation decisions in the household",
+              "caption": "Convenience-first households dominate (102/233, 44%), with health-first (72/233, 31%) and taste-first (48/233, 21%) trailing — appliance messaging should prioritize time-saving over health claims for broadest relevance.",
+              "how_to_read": "A dominant bar signals the most common meal-prep priority this audience balances against other values.",
+              "calc_note": "AI-classified from how the respondent described their family's meal priorities in the transcript.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Convenience First",
+                  "color": "blue",
+                  "description": "Prioritizes quick/easy meal prep over other values — likely to value appliances that save time."
+                },
+                {
+                  "label": "Health First",
+                  "color": "green",
+                  "description": "Chooses ingredients and prep methods perceived as healthier, even if less convenient."
+                },
+                {
+                  "label": "Taste First",
+                  "color": "orange",
+                  "description": "Prefers traditional flavors and textures, even if preparation is more labor-intensive."
+                },
+                {
+                  "label": "Mixed",
+                  "color": "gray",
+                  "description": "No single dominant value — balances multiple priorities situationally."
+                }
+              ],
+              "group": "Cultural Context"
+            },
+            {
+              "field": "cultural_context.time_pressure_type",
+              "title": "Time Pressure Type",
+              "label": "Time Pressure Type",
+              "subtitle": "Primary time constraints shaping daily meal preparation routines",
+              "caption": "Morning rush dominates (156/233, 67%) — appliances that excel at quick breakfast prep (chutneys, smoothies) will resonate more than those optimized for elaborate meals.",
+              "how_to_read": "The tallest bar shows the most acute time pressure point this audience needs appliances to solve.",
+              "calc_note": "AI-classified from descriptions of daily routines and pain points around meal timing.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Morning Rush",
+                  "color": "blue",
+                  "description": "Most time pressure occurs at breakfast — needs appliances that prep quickly with minimal cleanup."
+                },
+                {
+                  "label": "Working Woman Schedule",
+                  "color": "green",
+                  "description": "Juggles job demands with meal prep — values appliances that can multitask or operate unattended."
+                },
+                {
+                  "label": "None",
+                  "color": "gray",
+                  "description": "Reports no particular time pressure — may prioritize appliance features unrelated to speed."
+                },
+                {
+                  "label": "Business Volume",
+                  "color": "orange",
+                  "description": "Prepares food in large quantities for commercial purposes — needs heavy-duty capacity."
+                },
+                {
+                  "label": "Working Professional Schedule",
+                  "color": "purple",
+                  "description": "Irregular hours make meal timing unpredictable — values appliances with quick on-demand use."
+                }
+              ],
+              "group": "Cultural Context"
+            },
+            {
+              "field": "cultural_context.regional_food_culture",
+              "title": "Regional Food Culture",
+              "label": "Regional Food Culture",
+              "subtitle": "Dominant regional cuisine styles influencing appliance usage patterns",
+              "caption": "South Indian cuisine dominates (114/233, 49%) — appliances optimized for wet grinding (idli/dosa batter) will see heavier use than dry choppers in this sample.",
+              "how_to_read": "The tallest bar indicates the most common regional cuisine driving appliance feature needs.",
+              "calc_note": "AI-classified from descriptions of staple dishes and preparation methods.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "South Indian",
+                  "color": "blue",
+                  "description": "Regularly prepares rice-based dishes, chutneys, and wet batters requiring fine grinding."
+                },
+                {
+                  "label": "Mixed",
+                  "color": "gray",
+                  "description": "Cooks diverse regional cuisines without a single dominant style."
+                },
+                {
+                  "label": "North Indian",
+                  "color": "green",
+                  "description": "Focuses on wheat-based dishes, dry masalas, and occasional wet grinding."
+                },
+                {
+                  "label": "East India",
+                  "color": "orange",
+                  "description": "Prepares fish-based dishes and fermented foods with specialized prep needs."
+                },
+                {
+                  "label": "Western India",
+                  "color": "purple",
+                  "description": "Emphasizes quick snacks and fried items requiring rapid batch processing."
+                },
+                {
+                  "label": "West Indian",
+                  "color": "red",
+                  "description": "Outlier in sample — likely Caribbean-influenced cuisine with distinct appliance needs."
+                }
+              ],
+              "group": "Cultural Context"
+            },
+            {
+              "field": "cultural_context.event_cooking",
+              "title": "Event Cooking Frequency",
+              "label": "Event Cooking Frequency",
+              "subtitle": "Whether the respondent regularly prepares food for large gatherings",
+              "caption": "Only 19/233 (8%) regularly cook for events — most appliance usage is for daily household meals, not occasional large batches.",
+              "how_to_read": "A dominant 'False' bar signals most usage is for routine meal prep, not occasional capacity-heavy events.",
+              "calc_note": "Directly reported by the respondent when describing their cooking habits.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "False",
+                  "color": "blue",
+                  "description": "Primarily cooks for immediate household, not large gatherings."
+                },
+                {
+                  "label": "True",
+                  "color": "orange",
+                  "description": "Regularly prepares food for events or large groups beyond the household."
+                }
+              ],
+              "group": "Cultural Context"
+            },
+            {
+              "field": "cultural_context.traditional_vs_modern",
+              "title": "Traditional vs Modern Lean",
+              "label": "Traditional vs Modern Lean",
+              "subtitle": "Whether meal preparation skews toward traditional methods or modern conveniences",
+              "caption": "Overwhelmingly mixed (219/233, 94%) — this audience selectively adopts modern appliances while retaining traditional techniques, rejecting a binary choice.",
+              "how_to_read": "A dominant 'mixed' bar signals pragmatic blending of old and new methods rather than ideological purity.",
+              "calc_note": "AI-classified from how the respondent described their balance of traditional and modern cooking approaches.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Mixed",
+                  "color": "blue",
+                  "description": "Uses modern appliances for some tasks while retaining traditional methods for others."
+                },
+                {
+                  "label": "Modern Lean",
+                  "color": "green",
+                  "description": "Prefers full modernization of kitchen tools with minimal retention of traditional techniques."
+                }
+              ],
+              "group": "Cultural Context"
+            },
+            {
+              "field": "social_dynamics.generational_knowledge",
+              "title": "Generational Knowledge Transfer",
+              "label": "Generational Knowledge Transfer",
+              "subtitle": "Whether cooking knowledge is actively passed between generations",
+              "caption": "Rare (6/233, 3%) — appliance use is largely self-taught rather than handed down, creating openings for beginner-friendly onboarding.",
+              "how_to_read": "A near-unanimous 'False' indicates most users aren't inheriting appliance skills from elders.",
+              "calc_note": "AI-classified from descriptions of how cooking/appliance skills were acquired.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "False",
+                  "color": "blue",
+                  "description": "Learned appliance use independently, not through intergenerational teaching."
+                },
+                {
+                  "label": "True",
+                  "color": "orange",
+                  "description": "Received explicit instruction on appliance use from older family members."
+                }
+              ],
+              "group": "Social Dynamics"
+            },
+            {
+              "field": "social_dynamics.social_proof_reliance",
+              "title": "Social Proof Reliance",
+              "label": "Social Proof Reliance",
+              "subtitle": "Degree to which appliance choices are influenced by others' opinions",
+              "caption": "Medium reliance dominates (136/232, 59%) — testimonials and visible peer usage matter, but aren't absolute purchase drivers.",
+              "how_to_read": "A central tendency toward 'medium' signals balanced evaluation between personal needs and social validation.",
+              "calc_note": "AI-classified from how the respondent described the role of peer/family opinions in appliance choices.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Medium",
+                  "color": "blue",
+                  "description": "Considers others' experiences but ultimately decides based on personal needs."
+                },
+                {
+                  "label": "High",
+                  "color": "green",
+                  "description": "Heavily influenced by what peers/family use or recommend."
+                },
+                {
+                  "label": "Low",
+                  "color": "orange",
+                  "description": "Makes appliance choices independently with minimal social input."
+                }
+              ],
+              "group": "Social Dynamics"
+            },
+            {
+              "field": "social_dynamics.purchase_decision_maker",
+              "title": "Purchase Decision Maker",
+              "label": "Purchase Decision Maker",
+              "subtitle": "Primary decision authority for appliance purchases",
+              "caption": "Self-driven decisions dominate (213/231, 92%) — marketing should target primary cooks directly, not through husbands or family committees.",
+              "how_to_read": "A dominant 'self' bar signals women are empowered to choose appliances without requiring male approval.",
+              "calc_note": "Directly reported by the respondent when describing purchase processes.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Self",
+                  "color": "blue",
+                  "description": "Primary cook makes appliance decisions independently."
+                },
+                {
+                  "label": "Joint",
+                  "color": "green",
+                  "description": "Appliance choices are made collaboratively with spouse/family."
+                },
+                {
+                  "label": "Husband",
+                  "color": "orange",
+                  "description": "Male head of household has final say on appliance purchases."
+                }
+              ],
+              "group": "Social Dynamics"
+            },
+            {
+              "field": "social_dynamics.household_type",
+              "title": "Household Type",
+              "label": "Household Type",
+              "subtitle": "Family structure shaping appliance usage patterns",
+              "caption": "Nuclear households prevail (144/231, 62%) — appliances are serving smaller, immediate families more than extended kin networks.",
+              "how_to_read": "A dominant 'nuclear' bar signals usage is concentrated among parents and children, not shared across generations.",
+              "calc_note": "Directly reported by the respondent when describing their living situation.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Nuclear",
+                  "color": "blue",
+                  "description": "Parents and children living independently of extended family."
+                },
+                {
+                  "label": "Joint",
+                  "color": "green",
+                  "description": "Multiple generations or family units sharing a single household."
+                }
+              ],
+              "group": "Social Dynamics"
+            },
+            {
+              "field": "identity_signals.kitchen_role",
+              "title": "Kitchen Role",
+              "label": "Kitchen Role",
+              "subtitle": "Primary identity in meal preparation responsibilities",
+              "caption": "Overwhelmingly primary caregivers (221/232, 95%) — appliances are tools for fulfilling care duties, not optional hobbies.",
+              "how_to_read": "A near-unanimous 'primary_caregiver' signals meal prep is a non-negotiable responsibility, not a choice.",
+              "calc_note": "AI-classified from how the respondent described their relationship to cooking responsibilities.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Primary Caregiver",
+                  "color": "blue",
+                  "description": "Meal preparation is a core caregiving duty, not a discretionary activity."
+                },
+                {
+                  "label": "Shared Responsibility",
+                  "color": "green",
+                  "description": "Cooking duties are distributed among household members."
+                },
+                {
+                  "label": "Working Professional",
+                  "color": "orange",
+                  "description": "Approaches cooking as a time-constrained necessity between work demands."
+                },
+                {
+                  "label": "Business Cook",
+                  "color": "purple",
+                  "description": "Prepares food commercially — appliance needs are revenue-driven."
+                }
+              ],
+              "group": "Identity Signals"
+            },
+            {
+              "field": "identity_signals.cook_self_image",
+              "title": "Cook Self-Image",
+              "label": "Cook Self-Image",
+              "subtitle": "How the respondent perceives their own cooking competence",
+              "caption": "Nearly universal competence (229/232, 99%) — messaging should avoid beginner framing and respect established skills.",
+              "how_to_read": "A dominant 'competent' bar signals confidence in cooking abilities, not insecurity needing remediation.",
+              "calc_note": "AI-classified from self-descriptions of cooking skills and kitchen confidence.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Competent",
+                  "color": "blue",
+                  "description": "Views self as skilled and capable in meal preparation."
+                },
+                {
+                  "label": "Mixed",
+                  "color": "green",
+                  "description": "Has areas of confidence and insecurity in cooking abilities."
+                },
+                {
+                  "label": "Struggling",
+                  "color": "orange",
+                  "description": "Lacks confidence in cooking skills and seeks support."
+                },
+                {
+                  "label": "Efficient",
+                  "color": "purple",
+                  "description": "Prioritizes speed/systemization over culinary artistry."
+                }
+              ],
+              "group": "Identity Signals"
+            },
+            {
+              "field": "identity_signals.appliance_as_identity",
+              "title": "Appliance as Identity",
+              "label": "Appliance as Identity",
+              "subtitle": "Degree to which appliances reflect personal identity",
+              "caption": "Mostly medium (225/232, 97%) — appliances are practical tools, not strong identity markers or status symbols.",
+              "how_to_read": "A central 'medium' tendency signals functional rather than expressive appliance relationships.",
+              "calc_note": "AI-classified from how the respondent described the role of appliances in self-presentation.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Medium",
+                  "color": "blue",
+                  "description": "Appliance choices reflect practical needs more than personal identity."
+                },
+                {
+                  "label": "High",
+                  "color": "green",
+                  "description": "Views appliances as extensions of personal style or values."
+                },
+                {
+                  "label": "Low",
+                  "color": "orange",
+                  "description": "Treats appliances as purely utilitarian with no identity component."
+                }
+              ],
+              "group": "Identity Signals"
+            }
+          ]
+        },
+        {
+          "type": "ai_insight",
+          "title": "AI Research Finding",
+          "section_id": "respondent_insight_1",
+          "prompt": "Synthesize the strongest theme from verbatim responses about how cultural_context.regional_food_culture shapes actual appliance usage patterns, quoting 2-3 representative phrases.",
+          "regen_key": "",
+          "context_fields": [
+            "cultural_context.regional_food_culture",
+            "identity_signals.kitchen_role"
+          ]
+        },
+        {
+          "type": "verbatim_wall_section",
+          "title": "Voice of the Respondent — Respondent Profiles",
+          "topics": [],
+          "key_prefix": "vb_respondent_profile",
+          "pain_only": false
+        }
+      ]
+    },
+    {
+      "id": "brand_landscape",
+      "label": "Brand Landscape",
+      "sections": [
+        {
+          "type": "kpi_row",
+          "kpis": [
+            {
+              "label": "Promoters",
+              "field": "nps_signal",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "promoter",
+              "contains_val": "",
+              "color": "green"
+            },
+            {
+              "label": "Detractors",
+              "field": "nps_signal",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "detractor",
+              "contains_val": "",
+              "color": "red"
+            },
+            {
+              "label": "Will Recommend",
+              "field": "brand_relationship.advocacy_likelihood",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "will_recommend",
+              "contains_val": "",
+              "color": "blue"
+            }
+          ]
+        },
+        {
+          "type": "multi_distribution",
+          "columns": 3,
+          "fields": [
+            {
+              "field": "brand_relationship.switching_consideration",
+              "title": "Switching Consideration",
+              "label": "Switching Consideration",
+              "subtitle": "Whether the respondent is actively considering switching brands",
+              "caption": "Only 13/233 (6%) are considering switching — most are locked into current brands, making share-stealing difficult without breakthrough innovation.",
+              "how_to_read": "A dominant 'False' signals strong brand inertia where minor improvements won't drive switching.",
+              "calc_note": "AI-classified from expressions of openness to alternative brands.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "False",
+                  "color": "blue",
+                  "description": "Not actively considering switching appliance brands."
+                },
+                {
+                  "label": "True",
+                  "color": "orange",
+                  "description": "Open to or actively evaluating alternative appliance brands."
+                }
+              ],
+              "group": "Brand Relationship"
+            },
+            {
+              "field": "brand_relationship.relationship_stage",
+              "title": "Relationship Stage",
+              "label": "Relationship Stage",
+              "subtitle": "Current phase in the brand-appliance ownership lifecycle",
+              "caption": "Most are settled/satisfied (169/233, 73%) — the market is mature with few new adopters or dissatisfied users to recruit.",
+              "how_to_read": "A dominant 'settled_satisfied' signals contentment that requires significant pain points to disrupt.",
+              "calc_note": "AI-classified from descriptions of satisfaction and future purchase intent.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Settled Satisfied",
+                  "color": "blue",
+                  "description": "Content with current appliance and not seeking alternatives."
+                },
+                {
+                  "label": "Strained",
+                  "color": "orange",
+                  "description": "Experiencing appliance frustrations but hasn't yet decided to replace."
+                },
+                {
+                  "label": "Honeymoon",
+                  "color": "green",
+                  "description": "Recently purchased and still in enthusiastic early use phase."
+                },
+                {
+                  "label": "At Risk",
+                  "color": "red",
+                  "description": "Actively dissatisfied and likely to switch brands soon."
+                },
+                {
+                  "label": "Resigned Acceptance",
+                  "color": "gray",
+                  "description": "Keeps appliance despite dissatisfaction due to lack of better options."
+                }
+              ],
+              "group": "Brand Relationship"
+            },
+            {
+              "field": "brand_relationship.loyalty_depth",
+              "title": "Loyalty Depth",
+              "label": "Loyalty Depth",
+              "subtitle": "Nature of attachment to current appliance brands",
+              "caption": "Overwhelmingly functional loyalty (218/232, 94%) — few feel emotional connections, leaving brands vulnerable to better-performing alternatives.",
+              "how_to_read": "A dominant 'functional' signals rational rather than emotional bonds that features/performance could disrupt.",
+              "calc_note": "AI-classified from how the respondent described their reasons for sticking with current brands.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Functional",
+                  "color": "blue",
+                  "description": "Stays with brand for practical performance reasons, not emotional attachment."
+                },
+                {
+                  "label": "Emotional",
+                  "color": "green",
+                  "description": "Feels genuine affection or identity alignment with the brand."
+                },
+                {
+                  "label": "Surface",
+                  "color": "orange",
+                  "description": "No particular loyalty — would switch for minor conveniences."
+                }
+              ],
+              "group": "Brand Relationship"
+            },
+            {
+              "field": "brand_relationship.advocacy_likelihood",
+              "title": "Advocacy Likelihood",
+              "label": "Advocacy Likelihood",
+              "subtitle": "Probability the respondent would recommend their current appliance brand",
+              "caption": "Strong advocacy intent (201/232, 87%) — most users are willing brand promoters if given opportunities to share experiences.",
+              "how_to_read": "A dominant 'will_recommend' signals a receptive base for referral programs or testimonial campaigns.",
+              "calc_note": "AI-classified from expressions of willingness to recommend the brand to others.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Will Recommend",
+                  "color": "blue",
+                  "description": "Likely to proactively recommend the brand to friends/family."
+                },
+                {
+                  "label": "Might Recommend",
+                  "color": "orange",
+                  "description": "Would answer if asked but won't initiate recommendations."
+                }
+              ],
+              "group": "Brand Relationship"
+            },
+            {
+              "field": "nps_signal",
+              "title": "NPS Signal",
+              "label": "NPS Signal",
+              "subtitle": "Net Promoter Score classification based on advocacy behavior",
+              "caption": "Promoters dominate (132/233, 57%) but passives (64/233, 27%) represent untapped potential — improving their experience could significantly boost NPS.",
+              "how_to_read": "The gap between promoters and passives shows room to elevate satisfied-but-not-enthusiastic users.",
+              "calc_note": "Calculated from advocacy likelihood and satisfaction expressions in transcript.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Promoter",
+                  "color": "green",
+                  "description": "Enthusiastic advocate likely to drive positive word-of-mouth."
+                },
+                {
+                  "label": "Passive",
+                  "color": "gray",
+                  "description": "Satisfied but unenthusiastic — won't actively promote the brand."
+                },
+                {
+                  "label": "Detractor",
+                  "color": "red",
+                  "description": "Unhappy user likely to share negative experiences."
+                },
+                {
+                  "label": "Unclear",
+                  "color": "blue",
+                  "description": "Insufficient evidence to classify advocacy tendency."
+                }
+              ],
+              "group": "Brand Performance"
+            },
+            {
+              "field": "filename_meta.filename_brand",
+              "title": "Brand Distribution",
+              "label": "Brand Distribution",
+              "subtitle": "Brand representation in the respondent sample",
+              "caption": "Preethi overrepresents (25/55, 45%) while other brands have ≤20% share — findings may skew toward premium-segment needs given Preethi's price positioning.",
+              "how_to_read": "The tallest bar indicates potential sampling bias toward certain brand experiences.",
+              "calc_note": "Derived from respondent recruitment source tracking.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Preethi",
+                  "color": "blue",
+                  "description": "Premium Indian brand known for heavy-duty grinding performance."
+                },
+                {
+                  "label": "Philips",
+                  "color": "green",
+                  "description": "Global brand emphasizing safety features and sleek design."
+                },
+                {
+                  "label": "Sujata",
+                  "color": "orange",
+                  "description": "Value-focused brand popular in commercial settings."
+                },
+                {
+                  "label": "Bajaj",
+                  "color": "purple",
+                  "description": "Budget segment player with basic functionality."
+                },
+                {
+                  "label": "Usha",
+                  "color": "red",
+                  "description": "Heritage Indian brand balancing tradition and modernity."
+                },
+                {
+                  "label": "Prestige",
+                  "color": "gray",
+                  "description": "Mid-range brand with strong retail distribution."
+                }
+              ],
+              "group": "Brand Performance"
+            }
+          ]
+        },
+        {
+          "type": "verbatim_wall_section",
+          "title": "Brand Experience Verbatims",
+          "topics": [],
+          "key_prefix": "brand_verbatims",
+          "pain_only": false
+        }
+      ]
+    },
+    {
+      "id": "aspiration_need",
+      "label": "Aspiration & Unmet Need",
+      "sections": [
+        {
+          "type": "kpi_row",
+          "kpis": [
+            {
+              "label": "Positive Resolution",
+              "field": "emotional_resolution",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "positive",
+              "contains_val": "",
+              "color": "green"
+            },
+            {
+              "label": "Negative Resolution",
+              "field": "emotional_resolution",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "negative",
+              "contains_val": "",
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "field": "emotional_resolution",
+          "title": "Emotional Resolution",
+          "label": "Emotional Resolution",
+          "subtitle": "Overall sentiment toward appliance ownership experience",
+          "caption": "Strong positive skew (210/232, 91%) — most users feel good about their appliances, making 'fixing pain points' less urgent than 'enabling new possibilities'.",
+          "how_to_read": "A dominant 'positive' bar signals satisfaction where innovation should focus on aspiration rather than remediation.",
+          "calc_note": "AI-classified from emotional tone when describing appliance experiences.",
+          "chart": "h_bar",
+          "color": "blue",
+          "limit": 20,
+          "list_field": false,
+          "legend": [
+            {
+              "label": "Positive",
+              "color": "green",
+              "description": "Expresses satisfaction and pleasure with appliance performance."
+            },
+            {
+              "label": "Negative",
+              "color": "red",
+              "description": "Frustrated or disappointed with appliance shortcomings."
+            },
+            {
+              "label": "Neutral",
+              "color": "gray",
+              "description": "No strong emotional engagement with the appliance."
+            }
+          ],
+          "group": "",
+          "type": "distribution"
+        },
+        {
+          "type": "ai_insight",
+          "title": "AI Research Finding",
+          "section_id": "aspiration_insight_1",
+          "prompt": "Extract the top 3 aspirational desires mentioned in verbatims that current appliances don't fully satisfy, quoting vivid respondent language.",
+          "regen_key": "",
+          "context_fields": [
+            "emotional_resolution"
+          ]
+        },
+        {
+          "type": "verbatim_wall_section",
+          "title": "Unmet Need Verbatims",
+          "topics": [],
+          "key_prefix": "aspiration_verbatims",
+          "pain_only": false
+        }
+      ]
+    },
+    {
+      "id": "purchase_journey",
+      "label": "Purchase Journey",
+      "sections": [
+        {
+          "type": "kpi_row",
+          "kpis": [
+            {
+              "label": "Medium Price Sensitivity",
+              "field": "price_sensitivity",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "medium",
+              "contains_val": "",
+              "color": "blue"
+            },
+            {
+              "label": "High Price Sensitivity",
+              "field": "price_sensitivity",
+              "value_type": "count_eq",
+              "suffix": "",
+              "eq_val": "high",
+              "contains_val": "",
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "field": "price_sensitivity",
+          "title": "Price Sensitivity",
+          "label": "Price Sensitivity",
+          "subtitle": "Degree to which price influences appliance purchase decisions",
+          "caption": "Most are medium sensitivity (171/194, 88%) — willing to pay for quality but need clear value justification over budget options.",
+          "how_to_read": "A central 'medium' tendency signals balanced value-seeking rather than pure price minimization.",
+          "calc_note": "AI-classified from descriptions of purchase decision criteria and tradeoffs.",
+          "chart": "h_bar",
+          "color": "blue",
+          "limit": 20,
+          "list_field": false,
+          "legend": [
+            {
+              "label": "Medium",
+              "color": "blue",
+              "description": "Seeks value balance between price and perceived quality."
+            },
+            {
+              "label": "High",
+              "color": "red",
+              "description": "Prioritizes lowest price above other considerations."
+            },
+            {
+              "label": "Low",
+              "color": "green",
+              "description": "Willing to pay premium prices for desired features/brand."
+            }
+          ],
+          "group": "",
+          "type": "distribution"
+        },
+        {
+          "type": "verbatim_wall_section",
+          "title": "Purchase Decision Verbatims",
+          "topics": [],
+          "key_prefix": "purchase_verbatims",
+          "pain_only": false
+        },
+        {
+          "type": "theme_clusters",
+          "title": "Cross-Interview Themes",
+          "top_n": 8,
+          "llm_labels": true
+        }
+      ]
+    }
+  ],
+  "generated_at": "2026-08-29T03:13:37.005644+00:00",
+  "project_id": "mixer"
+}

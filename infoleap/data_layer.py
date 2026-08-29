@@ -128,9 +128,20 @@ def get_schema_doc_path(project_id: str) -> Optional[Path]:
 
 
 def project_has_raw_layer(project_id: str) -> bool:
-    """True if both raw_data + some schema source exist for this project."""
+    """True if both raw_data + some schema source exist for this project.
+    Old-format master_mapping.xlsx (no RAW_DATA sheet) = False; those projects use SQLite path."""
     has_schema = get_master_excel_path(project_id) is not None or get_schema_doc_path(project_id) is not None
-    return get_raw_data_path(project_id) is not None and has_schema
+    raw_path = get_raw_data_path(project_id)
+    if raw_path is None or not has_schema:
+        return False
+    if str(raw_path).endswith("master_mapping.xlsx"):
+        try:
+            xl = pd.ExcelFile(raw_path)
+            if "RAW_DATA" not in xl.sheet_names:
+                return False
+        except Exception:
+            return False
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -159,7 +170,13 @@ def load_raw_df(project_id: str) -> pd.DataFrame:
     if str(p).endswith(".csv"):
         df = pd.read_csv(p, low_memory=False)
     elif str(p).endswith("master_mapping.xlsx"):
-        df = pd.read_excel(p, sheet_name="RAW_DATA")
+        _xl = pd.ExcelFile(p)
+        if "RAW_DATA" not in _xl.sheet_names:
+            raise ValueError(
+                f"master_mapping.xlsx for '{project_id}' is old format (no RAW_DATA sheet). "
+                "Use SQLite path or migrate to new 6-sheet format."
+            )
+        df = pd.read_excel(_xl, sheet_name="RAW_DATA")
     else:
         df = pd.read_excel(p)
     df.columns = [str(c).strip() for c in df.columns]

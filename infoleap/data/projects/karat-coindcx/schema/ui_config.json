@@ -15,24 +15,6 @@
               "eq_val": "",
               "contains_val": "",
               "color": "blue"
-            },
-            {
-              "label": "Positive Emotional Resolution",
-              "field": "emotional_resolution",
-              "value_type": "count_eq",
-              "suffix": "",
-              "eq_val": "positive",
-              "contains_val": "",
-              "color": "blue"
-            },
-            {
-              "label": "Average Adoption Likelihood",
-              "field": "adoption_likelihood",
-              "value_type": "avg_score",
-              "suffix": "",
-              "eq_val": "",
-              "contains_val": "",
-              "color": "blue"
             }
           ]
         },
@@ -41,127 +23,91 @@
           "columns": 3,
           "fields": [
             {
-              "field": "demographics.city",
-              "title": "City",
-              "label": "City",
-              "subtitle": "Geographic distribution of respondents across major Indian cities.",
-              "caption": "Mumbai and Delhi lead with 5 respondents each (22%), followed by Ahmedabad (22%), Lucknow (17%), and Bangalore (17%).",
-              "how_to_read": "A balanced geographic spread ensures regional biases don't skew the findings.",
-              "calc_note": "Directly reported by the respondent.",
-              "chart": "h_bar",
+              "field": "risk_orientation",
+              "title": "Risk Orientation",
+              "label": "Risk Orientation",
+              "subtitle": "Respondent's attitude towards financial risk.",
+              "caption": "21/23 respondents (91%) are risk-averse — this audience overwhelmingly prioritizes safety over potential returns.",
+              "how_to_read": "A skew toward 'risk_seeking' would signal a mismatch with the product's safety positioning.",
+              "calc_note": "AI-classified from how the respondent talked about risk in the transcript.",
+              "chart": "donut",
               "color": "blue",
               "limit": 20,
               "list_field": false,
               "legend": [
                 {
-                  "label": "Mumbai",
+                  "label": "Risk Averse",
                   "color": "blue",
-                  "description": "Financial capital with high exposure to investment products."
+                  "description": "Prioritizes safety and capital protection over potential returns."
                 },
                 {
-                  "label": "Delhi",
-                  "color": "blue",
-                  "description": "Political and business hub with diverse investor profiles."
+                  "label": "Risk Seeking",
+                  "color": "green",
+                  "description": "Willing to accept higher risk for potential higher returns."
                 },
                 {
-                  "label": "Ahmedabad",
-                  "color": "blue",
-                  "description": "Traditional business community with strong gold affinity."
-                },
-                {
-                  "label": "Lucknow",
-                  "color": "blue",
-                  "description": "Emerging market with conservative investment tendencies."
-                },
-                {
-                  "label": "Bangalore",
-                  "color": "blue",
-                  "description": "Tech-savvy population open to digital investment platforms."
+                  "label": "Risk Neutral",
+                  "color": "orange",
+                  "description": "Balances risk and return without strong preference."
                 }
               ],
-              "group": "Demographics"
+              "group": "Risk & Behavior"
             },
             {
               "field": "respondent_archetype",
               "title": "Respondent Archetype",
               "label": "Respondent Archetype",
-              "subtitle": "Behavioral segments derived from transcript analysis, not pre-set categories.",
-              "caption": "Cautious investors dominate (18/23, 78%) — split evenly between gold-focused (9) and growth-focused (9). Only 4 methodical stock investors and 1 growth-oriented outlier.",
-              "how_to_read": "High cautious-investor share signals need for safety-first messaging.",
-              "calc_note": "AI-classified from how the respondent talked about investments in the transcript.",
-              "chart": "h_bar",
+              "subtitle": "Inductive respondent type observed across sample transcripts.",
+              "caption": "19/23 respondents (83%) are pragmatic cautious investors — they need clear safety proofs before considering yield.",
+              "how_to_read": "Dominance of 'pragmatic_cautious_investor' signals a need for safety-first messaging.",
+              "calc_note": "AI-classified from thematic patterns across the respondent's transcript.",
+              "chart": "donut",
               "color": "blue",
               "limit": 20,
               "list_field": false,
               "legend": [
                 {
-                  "label": "Cautious Gold Investor",
+                  "label": "Pragmatic Cautious Investor",
                   "color": "blue",
-                  "description": "Prefers gold as a safe haven, skeptical of volatile assets."
+                  "description": "Seeks safety but open to yield if proofs are ironclad."
                 },
                 {
-                  "label": "Cautious Growth Investor",
-                  "color": "blue",
-                  "description": "Seeks moderate returns but prioritizes capital protection."
+                  "label": "Cautious Detail Oriented Investor",
+                  "color": "green",
+                  "description": "Requires exhaustive detail before trusting any investment."
                 },
                 {
-                  "label": "Methodical Stock Investor",
-                  "color": "blue",
-                  "description": "Disciplined equity investor with structured portfolio approach."
-                },
-                {
-                  "label": "Growth Oriented",
-                  "color": "blue",
-                  "description": "High-risk tolerance focused on aggressive returns."
+                  "label": "Proactive Cautious Investor",
+                  "color": "orange",
+                  "description": "Actively seeks safe investments but moves decisively when convinced."
                 }
               ],
-              "group": "Behavioral Segments"
+              "group": "Risk & Behavior"
             },
             {
-              "field": "risk_orientation",
-              "title": "Risk Orientation",
-              "label": "Risk Orientation",
-              "subtitle": "Self-described attitude toward financial risk-taking.",
-              "caption": "Risk-neutral dominates (13/23, 57%), with 7 risk-averse (30%) and only 3 risk-seeking (13%). Confirms conservative audience.",
-              "how_to_read": "Neutral/averse majority needs proof of stability before yield claims.",
+              "field": "demographics.city",
+              "title": "City",
+              "label": "City",
+              "subtitle": "Geographic distribution of respondents.",
+              "caption": "Mumbai (5), Lucknow (4), Bangalore (4), Delhi (4), Ahmedabad (4) — balanced urban representation.",
+              "how_to_read": "Overrepresentation of one city could signal sampling bias.",
               "calc_note": "Directly reported by the respondent.",
               "chart": "h_bar",
               "color": "blue",
               "limit": 20,
               "list_field": false,
-              "legend": [
-                {
-                  "label": "Risk Neutral",
-                  "color": "blue",
-                  "description": "Balances risk and return, avoids extremes."
-                },
-                {
-                  "label": "Risk Averse",
-                  "color": "blue",
-                  "description": "Prefers safety over potential returns."
-                },
-                {
-                  "label": "Risk Seeking",
-                  "color": "blue",
-                  "description": "Actively pursues high-risk, high-reward opportunities."
-                },
-                {
-                  "label": "High",
-                  "color": "blue",
-                  "description": "Extreme risk tolerance, uncommon in this sample."
-                }
-              ],
-              "group": "Behavioral Segments"
+              "legend": [],
+              "group": "Demographics"
             },
             {
               "field": "life_stage",
               "title": "Life Stage",
               "label": "Life Stage",
-              "subtitle": "Professional and personal phase influencing financial priorities.",
-              "caption": "Growing phase dominates (12/21, 57%) — early/mid-career respondents building wealth. Only 7 settled (33%) and 2 transitioning (10%).",
-              "how_to_read": "Growth-stage majority may prioritize liquidity over legacy.",
-              "calc_note": "Directly reported by the respondent.",
-              "chart": "h_bar",
+              "subtitle": "Professional phase the respondent identifies with.",
+              "caption": "4/8 respondents (50%) are in 'growing' phase — early-career investors with accumulating but not yet secure assets.",
+              "how_to_read": "A 'settled' majority would signal different financial needs than a 'growing' one.",
+              "calc_note": "AI-classified from how the respondent described their career and family status.",
+              "chart": "donut",
               "color": "blue",
               "limit": 20,
               "list_field": false,
@@ -169,22 +115,66 @@
                 {
                   "label": "Growing",
                   "color": "blue",
-                  "description": "Early/mid-career, actively accumulating assets."
+                  "description": "Early-career, building assets but not yet financially secure."
                 },
                 {
                   "label": "Settled",
-                  "color": "blue",
-                  "description": "Established professionals with stable portfolios."
+                  "color": "green",
+                  "description": "Established in career with stable financial footing."
                 },
                 {
                   "label": "Transitioning",
-                  "color": "blue",
-                  "description": "Undergoing career or lifestyle changes affecting finances."
+                  "color": "orange",
+                  "description": "Mid-career shift or family change altering financial priorities."
                 }
               ],
               "group": "Demographics"
+            },
+            {
+              "field": "job_security_concern_level",
+              "title": "Job Security Concern",
+              "label": "Job Security Concern",
+              "subtitle": "Degree of anxiety about job security affecting financial decisions.",
+              "caption": "2/4 respondents (50%) report medium job security concern — even this small sample shows real anxiety about income stability.",
+              "how_to_read": "High concern here would amplify the need for safety messaging.",
+              "calc_note": "AI-classified from how the respondent talked about job stability.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Medium",
+                  "color": "blue",
+                  "description": "Moderate anxiety about job security affecting financial choices."
+                },
+                {
+                  "label": "High",
+                  "color": "green",
+                  "description": "Strong fear of job loss driving conservative financial behavior."
+                },
+                {
+                  "label": "Low",
+                  "color": "orange",
+                  "description": "Minimal concern about job security impacting decisions."
+                }
+              ],
+              "group": "Risk & Behavior"
             }
           ]
+        },
+        {
+          "type": "score_distribution",
+          "field": "word_count",
+          "title": "Word Count",
+          "subtitle": "Length of respondent transcripts as proxy for engagement depth.",
+          "color": "blue",
+          "min": 0.0,
+          "max": 20000.0,
+          "how_to_read": "Higher counts signal more detailed feedback to mine for insights.",
+          "calc_note": "Directly measured from transcript length.",
+          "legend": [],
+          "bands": []
         }
       ]
     },
@@ -196,22 +186,22 @@
           "type": "kpi_row",
           "kpis": [
             {
-              "label": "Average Gold Allocation",
-              "field": "portfolio_split.gold_percentage",
-              "value_type": "avg_score",
-              "suffix": "%",
+              "label": "Total Respondents",
+              "field": "",
+              "value_type": "total_n",
+              "suffix": "",
               "eq_val": "",
               "contains_val": "",
               "color": "blue"
             },
             {
-              "label": "High SGB Awareness",
-              "field": "gold_behavior.sgb_awareness",
-              "value_type": "count_eq",
-              "suffix": "",
-              "eq_val": "high",
+              "label": "Avg Gold Allocation",
+              "field": "portfolio_split.gold_percentage",
+              "value_type": "avg_score",
+              "suffix": "%",
+              "eq_val": "",
               "contains_val": "",
-              "color": "blue"
+              "color": "green"
             }
           ]
         },
@@ -220,27 +210,120 @@
           "columns": 3,
           "fields": [
             {
-              "field": "portfolio_split.gold_percentage",
-              "title": "Gold Allocation",
-              "label": "Gold Allocation",
-              "subtitle": "Current percentage of portfolio allocated to gold products.",
-              "caption": "Average 26% allocation (range 1-70%) — gold is non-trivial but rarely dominant. 5/22 (23%) allocate 40%+, suggesting niche heavy users.",
-              "how_to_read": "High allocations indicate gold-centric investors needing tailored messaging.",
+              "field": "digital_transformation_attitude",
+              "title": "Digital Transformation Attitude",
+              "label": "Digital Transformation Attitude",
+              "subtitle": "Respondents' attitudes toward digital transformation in investments.",
+              "caption": "3/8 respondents (38%) are positive — digital adoption isn't a given even in this tech-aware sample.",
+              "how_to_read": "Strong 'mixed' or 'limited' signals require education on digital gold's benefits.",
+              "calc_note": "AI-classified from how the respondent talked about digital tools.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Positive",
+                  "color": "blue",
+                  "description": "Embraces digital tools for investment management."
+                },
+                {
+                  "label": "Mixed",
+                  "color": "green",
+                  "description": "Uses digital tools but with reservations or selective adoption."
+                },
+                {
+                  "label": "Limited",
+                  "color": "orange",
+                  "description": "Prefers traditional methods over digital solutions."
+                },
+                {
+                  "label": "Strong",
+                  "color": "purple",
+                  "description": "Very enthusiastic about digital investment tools."
+                },
+                {
+                  "label": "STRONG",
+                  "color": "red",
+                  "description": "Extremely vocal advocate for digital transformation."
+                }
+              ],
+              "group": "Digital Behavior"
+            },
+            {
+              "field": "gold_behavior.gold_role",
+              "title": "Gold Role in Portfolio",
+              "label": "Gold Role in Portfolio",
+              "subtitle": "Current gold investment behaviour and role of gold in portfolio.",
+              "caption": "13/23 respondents (57%) use gold as a safety store — aligns with broader risk aversion.",
+              "how_to_read": "A 'return_vehicle' minority may need different messaging than the safety-focused majority.",
+              "calc_note": "AI-classified from how the respondent described their gold holdings.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Safety Store",
+                  "color": "blue",
+                  "description": "Holds gold primarily as a safe haven asset."
+                },
+                {
+                  "label": "Diversifier",
+                  "color": "green",
+                  "description": "Uses gold to diversify portfolio risk."
+                },
+                {
+                  "label": "Return Vehicle",
+                  "color": "orange",
+                  "description": "Seeks gold specifically for appreciation potential."
+                }
+              ],
+              "group": "Gold Behavior"
+            },
+            {
+              "field": "gold_behavior.sgb_awareness",
+              "title": "SGB Awareness",
+              "label": "SGB Awareness",
+              "subtitle": "Awareness level of Sovereign Gold Bonds.",
+              "caption": "9/20 respondents (45%) have medium awareness — significant room for education even on established products.",
+              "how_to_read": "High 'none' signals a need for basic category education before product specifics.",
               "calc_note": "Directly reported by the respondent.",
               "chart": "h_bar",
               "color": "blue",
               "limit": 20,
               "list_field": false,
-              "legend": [],
-              "group": "Portfolio Composition"
+              "legend": [
+                {
+                  "label": "Medium",
+                  "color": "blue",
+                  "description": "Some familiarity with SGBs but not detailed knowledge."
+                },
+                {
+                  "label": "None",
+                  "color": "green",
+                  "description": "No awareness of SGBs as an investment option."
+                },
+                {
+                  "label": "Low",
+                  "color": "orange",
+                  "description": "Minimal awareness of SGBs without understanding details."
+                },
+                {
+                  "label": "High",
+                  "color": "purple",
+                  "description": "Detailed understanding of SGB features and benefits."
+                }
+              ],
+              "group": "Gold Behavior"
             },
             {
-              "field": "gold_behavior.gold_role",
-              "title": "Gold's Portfolio Role",
-              "label": "Gold's Portfolio Role",
-              "subtitle": "Primary function gold serves in the respondent's investment strategy.",
-              "caption": "Growth asset (9/23, 39%) and emotional insurance (6/23, 26%) dominate — gold isn't just a diversifier (3/23, 13%).",
-              "how_to_read": "Growth-focused roles may align better with yield messaging.",
+              "field": "gold_role_framing",
+              "title": "Gold Role Framing",
+              "label": "Gold Role Framing",
+              "subtitle": "How respondents frame gold's role in their portfolio.",
+              "caption": "8/19 respondents (42%) see gold as a safety store, 7/19 (37%) as a return asset — strategic tension in how to position digital gold.",
+              "how_to_read": "Dual peaks suggest messaging must bridge safety and growth framings.",
               "calc_note": "AI-classified from how the respondent described gold's purpose.",
               "chart": "h_bar",
               "color": "blue",
@@ -248,39 +331,29 @@
               "list_field": false,
               "legend": [
                 {
-                  "label": "Growth Asset",
+                  "label": "Safety Store",
                   "color": "blue",
-                  "description": "Holds gold primarily for price appreciation potential."
+                  "description": "Views gold primarily as a protective asset."
                 },
                 {
-                  "label": "Emotional Insurance",
-                  "color": "blue",
-                  "description": "Values gold's psychological safety during market stress."
+                  "label": "Return Asset",
+                  "color": "green",
+                  "description": "Focuses on gold's potential for price appreciation."
                 },
                 {
                   "label": "Diversifier",
-                  "color": "blue",
-                  "description": "Uses gold to reduce overall portfolio volatility."
+                  "color": "orange",
+                  "description": "Values gold for portfolio risk reduction."
                 },
                 {
-                  "label": "Return Vehicle",
-                  "color": "blue",
-                  "description": "Actively trades gold for short-term profits."
-                },
-                {
-                  "label": "Safety Store",
-                  "color": "blue",
-                  "description": "Treats gold as a crisis hedge outside the financial system."
-                },
-                {
-                  "label": "Hedge",
-                  "color": "blue",
-                  "description": "Counters specific risks like inflation or currency weakness."
+                  "label": "Emotional Insurance",
+                  "color": "purple",
+                  "description": "Holds gold for psychological comfort during volatility."
                 },
                 {
                   "label": "Family Tradition",
-                  "color": "blue",
-                  "description": "Buys gold due to cultural/familial habits, not strategy."
+                  "color": "red",
+                  "description": "Invests in gold due to generational habits."
                 }
               ],
               "group": "Gold Behavior"
@@ -290,98 +363,70 @@
               "title": "Investment Motivation",
               "label": "Investment Motivation",
               "subtitle": "Primary driver behind choosing gold investments.",
-              "caption": "Yield-seeking leads (11/22, 50%), outweighing diversification (5/22, 23%) and family security (4/22, 18%).",
-              "how_to_read": "Yield-focused majority aligns with product's value proposition.",
-              "calc_note": "AI-classified from respondent's stated priorities.",
+              "caption": "11/23 respondents (48%) cite long-term stability — reinforces safety-first positioning.",
+              "how_to_read": "A 'yield_seeking' minority may respond to different messaging than the stability-focused majority.",
+              "calc_note": "AI-classified from the respondent's stated reasons for gold investment.",
               "chart": "h_bar",
               "color": "blue",
               "limit": 20,
               "list_field": false,
               "legend": [
-                {
-                  "label": "Yield Seeking",
-                  "color": "blue",
-                  "description": "Prioritizes returns over other attributes."
-                },
-                {
-                  "label": "Diversification",
-                  "color": "blue",
-                  "description": "Seeks uncorrelated assets to balance risk."
-                },
-                {
-                  "label": "Family Security",
-                  "color": "blue",
-                  "description": "Views gold as intergenerational wealth transfer."
-                },
                 {
                   "label": "Long Term Stability",
                   "color": "blue",
-                  "description": "Values gold's historical preservation of purchasing power."
+                  "description": "Seeks gold for wealth preservation over decades."
+                },
+                {
+                  "label": "Diversification",
+                  "color": "green",
+                  "description": "Uses gold to reduce overall portfolio risk."
+                },
+                {
+                  "label": "Family Security",
+                  "color": "orange",
+                  "description": "Invests in gold as legacy or family safety net."
+                },
+                {
+                  "label": "Yield Seeking",
+                  "color": "purple",
+                  "description": "Targets gold specifically for return potential."
                 }
               ],
-              "group": "Gold Behavior"
-            },
-            {
-              "field": "gold_behavior.sgb_awareness",
-              "title": "Gold Behavior — SGB Awareness",
-              "label": "Gold Behavior — SGB Awareness",
-              "subtitle": "Measures awareness of Sovereign Gold Bonds (SGBs) among respondents to gauge market penetration and education gaps.",
-              "caption": "Only 10% (2/22) show high SGB awareness, while 36% (8/22) have medium awareness — weak adoption signals poor marketing or product complexity risks.",
-              "how_to_read": "If 'low' or 'none' dominate, it indicates urgent need for awareness campaigns to drive SGB uptake.",
-              "calc_note": "Value derived from self-reported awareness levels in survey responses, categorized by researchers.",
-              "chart": "h_bar",
-              "color": "blue",
-              "limit": 20,
-              "list_field": false,
-              "legend": [
-                {
-                  "label": "Medium",
-                  "color": "blue",
-                  "description": "Recognizes SGBs but lacks detailed knowledge — may need nudges to convert to buyers."
-                },
-                {
-                  "label": "Low",
-                  "color": "blue",
-                  "description": "Vaguely aware of SGBs but unclear on mechanics — high education barrier exists."
-                },
-                {
-                  "label": "None",
-                  "color": "blue",
-                  "description": "No awareness of SGBs — represents untapped market segment requiring foundational outreach."
-                },
-                {
-                  "label": "Partial",
-                  "color": "blue",
-                  "description": "Knows some SGB features (e.g., gold-linked) but misses key benefits like interest payouts."
-                },
-                {
-                  "label": "High",
-                  "color": "blue",
-                  "description": "Fully understands SGB features and advantages — prime targets for immediate conversion."
-                }
-              ],
-              "group": ""
+              "group": "Investment Drivers"
             }
           ]
         },
         {
           "type": "score_distribution",
           "field": "portfolio_split.gold_percentage",
-          "title": "Gold Allocation Distribution",
-          "subtitle": "Current percentage of portfolio allocated to gold products.",
+          "title": "Gold Allocation %",
+          "subtitle": "Current gold allocation as percentage of total portfolio.",
+          "color": "green",
+          "min": 0.0,
+          "max": 100.0,
+          "how_to_read": "Higher averages signal stronger category engagement.",
+          "calc_note": "Directly reported by the respondent.",
+          "legend": [],
+          "bands": []
+        },
+        {
+          "type": "score_distribution",
+          "field": "portfolio_split.equities_percentage",
+          "title": "Equities Allocation %",
+          "subtitle": "Current equities allocation as percentage of total portfolio.",
           "color": "blue",
           "min": 0.0,
           "max": 100.0,
-          "how_to_read": "Right-skewed distribution indicates most allocate under 30%, with a few heavy users at 50%+.",
+          "how_to_read": "High equity allocations may compete with gold for investment dollars.",
           "calc_note": "Directly reported by the respondent.",
           "legend": [],
           "bands": []
         },
         {
           "type": "verbatim_wall_section",
-          "title": "Gold Investment Rationales",
+          "title": "Gold Investment Rationale",
           "topics": [],
-          "key_prefix": "gold_behavior.verbatim",
+          "key_prefix": "investment_motivation.verbatim",
           "pain_only": false
         }
       ]
@@ -394,22 +439,22 @@
           "type": "kpi_row",
           "kpis": [
             {
-              "label": "Average Comprehension Score",
-              "field": "concept_understanding.comprehension_score",
-              "value_type": "avg_score",
+              "label": "Total Respondents",
+              "field": "",
+              "value_type": "total_n",
               "suffix": "",
               "eq_val": "",
               "contains_val": "",
               "color": "blue"
             },
             {
-              "label": "Clear Yield Understanding",
-              "field": "yield_comprehension_level",
-              "value_type": "count_eq",
+              "label": "Avg Concept Appeal",
+              "field": "concept_appeal_score",
+              "value_type": "avg_score",
               "suffix": "",
-              "eq_val": "clear",
+              "eq_val": "",
               "contains_val": "",
-              "color": "blue"
+              "color": "green"
             }
           ]
         },
@@ -418,39 +463,13 @@
           "columns": 3,
           "fields": [
             {
-              "field": "concept_understanding.route_shown",
-              "title": "Route Comprehension",
-              "label": "Route Comprehension",
-              "subtitle": "Which product explanation route the respondent understood better.",
-              "caption": "21/22 (95%) grasped both routes — only 1 understood Route1 alone. Demonstrates effective dual-path communication.",
-              "how_to_read": "Near-universal dual comprehension reduces need for route-specific education.",
-              "calc_note": "AI-assessed from transcript probing.",
-              "chart": "donut",
-              "color": "blue",
-              "limit": 20,
-              "list_field": false,
-              "legend": [
-                {
-                  "label": "Both",
-                  "color": "blue",
-                  "description": "Understood ownership-led and yield-led explanations equally."
-                },
-                {
-                  "label": "Route1",
-                  "color": "blue",
-                  "description": "Only comprehended the ownership-focused narrative."
-                }
-              ],
-              "group": "Concept Clarity"
-            },
-            {
-              "field": "yield_comprehension_level",
-              "title": "Yield Understanding",
-              "label": "Yield Understanding",
-              "subtitle": "Depth of grasp on the digital gold yield mechanism.",
-              "caption": "Only 7/22 (32%) achieved clear understanding — 15 (68%) partially grasped it. Yield mechanics need simplification.",
-              "how_to_read": "Majority partial comprehension risks misaligned expectations post-purchase.",
-              "calc_note": "AI-classified from explanation attempts in transcript.",
+              "field": "message_comprehension",
+              "title": "Message Comprehension",
+              "label": "Message Comprehension",
+              "subtitle": "Level of respondent's understanding of the product's main message.",
+              "caption": "12/16 respondents (75%) have partial comprehension — core messaging isn't landing clearly.",
+              "how_to_read": "High 'confused' counts signal urgent messaging redesign needs.",
+              "calc_note": "AI-classified from the respondent's ability to restate the concept.",
               "chart": "donut",
               "color": "blue",
               "limit": 20,
@@ -459,56 +478,61 @@
                 {
                   "label": "Partial",
                   "color": "blue",
-                  "description": "Understood basic yield premise but missed operational details."
+                  "description": "Grasps some elements but not the full product proposition."
                 },
                 {
                   "label": "Clear",
-                  "color": "blue",
-                  "description": "Could accurately explain how yields are generated and paid."
+                  "color": "green",
+                  "description": "Accurately understands the core product message."
+                },
+                {
+                  "label": "Confused",
+                  "color": "orange",
+                  "description": "Fundamentally misunderstands key aspects of the offer."
                 }
               ],
               "group": "Concept Clarity"
             },
             {
-              "field": "t1_liquidity_understood",
-              "title": "Liquidity Perception",
-              "label": "Liquidity Perception",
-              "subtitle": "How respondents perceived the product's liquidity features.",
-              "caption": "18/22 (82%) recognized liquidity as a key feature — only 3 (14%) miscast it as long-term investment. Strong liquidity positioning.",
-              "how_to_read": "High liquidity awareness supports positioning as a flexible holding.",
-              "calc_note": "AI-classified from discussion of redemption timelines.",
-              "chart": "h_bar",
+              "field": "yield_comprehension_level",
+              "title": "Yield Comprehension",
+              "label": "Yield Comprehension",
+              "subtitle": "Level of understanding of the yield mechanic.",
+              "caption": "12/16 respondents (75%) have partial comprehension — yield mechanics need simplification.",
+              "how_to_read": "Low 'clear' counts suggest the yield story isn't communicable as-is.",
+              "calc_note": "AI-classified from the respondent's ability to explain the yield.",
+              "chart": "donut",
               "color": "blue",
               "limit": 20,
               "list_field": false,
               "legend": [
                 {
-                  "label": "Liquid",
+                  "label": "Partial",
                   "color": "blue",
-                  "description": "Correctly identified easy redemption as a feature."
+                  "description": "Understands yield exists but not how it's generated."
                 },
                 {
-                  "label": "Investment",
-                  "color": "blue",
-                  "description": "Mistakenly viewed product as long-term locked holding."
+                  "label": "Clear",
+                  "color": "green",
+                  "description": "Accurately explains the yield mechanism."
                 },
                 {
-                  "label": "Yes",
-                  "color": "blue",
-                  "description": "Affirmed liquidity but without nuanced understanding."
+                  "label": "Confused",
+                  "color": "orange",
+                  "description": "Misunderstands how yield is calculated or paid."
                 }
               ],
-              "group": "Feature Perception"
+              "group": "Concept Clarity"
             },
             {
               "field": "emotional_resolution",
-              "title": "Emotional Response",
-              "label": "Emotional Response",
-              "subtitle": "Affective reaction to the digital gold concept.",
-              "caption": "Neutral dominates (14/22, 64%) with 7 positive (32%) and only 1 negative (5%). No strong aversion, but limited excitement.",
-              "how_to_read": "Neutral majority suggests need for more emotionally compelling hooks.",
-              "calc_note": "AI-classified from tone and language used discussing the concept.",
-              "chart": "h_bar",
+              "title": "Emotional Reaction",
+              "label": "Emotional Reaction",
+              "subtitle": "Overall emotional response to the concept.",
+              "caption": "13/15 respondents (87%) are neutral — the concept isn't eliciting strong positive feelings.",
+              "how_to_read": "High 'negative' counts would signal active dislike, not just indifference.",
+              "calc_note": "AI-classified from the respondent's tone and word choices.",
+              "chart": "donut",
               "color": "blue",
               "limit": 20,
               "list_field": false,
@@ -516,72 +540,106 @@
                 {
                   "label": "Neutral",
                   "color": "blue",
-                  "description": "No strong positive or negative feelings about the concept."
-                },
-                {
-                  "label": "Positive",
-                  "color": "blue",
-                  "description": "Expressed enthusiasm or excitement about features."
+                  "description": "No strong positive or negative emotional reaction."
                 },
                 {
                   "label": "Negative",
-                  "color": "blue",
-                  "description": "Raised concerns or skepticism about viability."
+                  "color": "green",
+                  "description": "Actively dislikes aspects of the concept."
+                },
+                {
+                  "label": "Positive",
+                  "color": "orange",
+                  "description": "Enthusiastic or excited about the proposition."
                 }
               ],
-              "group": "Feature Perception"
+              "group": "Emotional Response"
             },
             {
               "field": "nps_signal",
-              "title": "Advocacy Potential",
-              "label": "Advocacy Potential",
-              "subtitle": "Likelihood to recommend based on initial concept reaction.",
-              "caption": "13/22 (59%) passive, 5 (23%) promoters, 4 (18%) unclear. Weak organic advocacy — needs stronger differentiators.",
-              "how_to_read": "High passive share indicates 'nice-to-have' not 'must-have' perception.",
-              "calc_note": "AI-inferred from language used describing the product to others.",
-              "chart": "h_bar",
+              "title": "NPS Signal",
+              "label": "NPS Signal",
+              "subtitle": "Implied Net Promoter Score from respondent language.",
+              "caption": "10/15 respondents (67%) give unclear NPS signals — the concept isn't generating strong advocacy.",
+              "how_to_read": "High 'passive' counts suggest the concept is acceptable but not remarkable.",
+              "calc_note": "AI-classified from the respondent's likelihood to recommend the product.",
+              "chart": "donut",
               "color": "blue",
               "limit": 20,
               "list_field": false,
               "legend": [
                 {
-                  "label": "Passive",
-                  "color": "blue",
-                  "description": "Would use but not actively recommend — lacks compelling hooks."
-                },
-                {
-                  "label": "Promoter",
-                  "color": "blue",
-                  "description": "Enthusiastic enough to tell peers — sees clear advantages."
-                },
-                {
                   "label": "Unclear",
                   "color": "blue",
-                  "description": "Insufficient signal to classify advocacy stance."
+                  "description": "No clear signal of likelihood to recommend."
+                },
+                {
+                  "label": "Passive",
+                  "color": "green",
+                  "description": "Would use but not actively promote the product."
                 }
               ],
-              "group": "Feature Perception"
+              "group": "Emotional Response"
+            },
+            {
+              "field": "t1_liquidity_understood",
+              "title": "Liquidity Understanding",
+              "label": "Liquidity Understanding",
+              "subtitle": "Captures understanding of liquidity in gold investments.",
+              "caption": "12/13 respondents (92%) correctly grasp liquidity — one strength in an otherwise mixed comprehension picture.",
+              "how_to_read": "High 'liquid' counts signal this aspect is communicating well.",
+              "calc_note": "AI-classified from the respondent's description of liquidity terms.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Liquid",
+                  "color": "blue",
+                  "description": "Correctly understands the product's liquidity features."
+                },
+                {
+                  "label": "Investment",
+                  "color": "green",
+                  "description": "Misunderstands liquidity as a long-term lock-in."
+                }
+              ],
+              "group": "Concept Clarity"
             }
           ]
         },
         {
           "type": "score_distribution",
-          "field": "concept_understanding.comprehension_score",
-          "title": "Comprehension Score Distribution",
-          "subtitle": "Numeric assessment of how well respondents understood the product.",
+          "field": "concept_appeal_score",
+          "title": "Concept Appeal Score",
+          "subtitle": "Numeric rating of overall concept appeal.",
+          "color": "green",
+          "min": 0.0,
+          "max": 10.0,
+          "how_to_read": "Scores below 7 signal need for concept refinement.",
+          "calc_note": "Directly reported by the respondent.",
+          "legend": [],
+          "bands": []
+        },
+        {
+          "type": "score_distribution",
+          "field": "concept_comprehension_score",
+          "title": "Concept Comprehension Score",
+          "subtitle": "Numeric rating of how well the concept was understood.",
           "color": "blue",
           "min": 0.0,
           "max": 10.0,
-          "how_to_read": "Scores cluster around 7-8 — decent but not deep understanding.",
-          "calc_note": "AI-rated from explanation accuracy in transcript.",
+          "how_to_read": "Scores below 7 signal communication gaps to address.",
+          "calc_note": "Directly reported by the respondent.",
           "legend": [],
           "bands": []
         },
         {
           "type": "verbatim_wall_section",
-          "title": "Concept Reaction Verbatims",
+          "title": "Concept Feedback",
           "topics": [],
-          "key_prefix": "concept_understanding.verbatim",
+          "key_prefix": "concept_reaction.verbatim",
           "pain_only": false
         }
       ]
@@ -594,22 +652,31 @@
           "type": "kpi_row",
           "kpis": [
             {
-              "label": "Route 1 Appeal",
-              "field": "route1_evaluation.appeal_rating",
-              "value_type": "avg_score",
+              "label": "Total Respondents",
+              "field": "",
+              "value_type": "total_n",
               "suffix": "",
               "eq_val": "",
               "contains_val": "",
               "color": "blue"
             },
             {
-              "label": "Route 2 Appeal",
+              "label": "Route 1 Avg Appeal",
+              "field": "route1_evaluation.appeal_rating",
+              "value_type": "avg_score",
+              "suffix": "",
+              "eq_val": "",
+              "contains_val": "",
+              "color": "green"
+            },
+            {
+              "label": "Route 2 Avg Appeal",
               "field": "route2_evaluation.appeal_rating",
               "value_type": "avg_score",
               "suffix": "",
               "eq_val": "",
               "contains_val": "",
-              "color": "blue"
+              "color": "orange"
             }
           ]
         },
@@ -619,61 +686,61 @@
           "fields": [
             {
               "field": "preferred_route",
-              "title": "Route Preference",
-              "label": "Route Preference",
-              "subtitle": "Which communication route resonated more strongly.",
-              "caption": "Near-even split — 11 Route1 (52%), 10 Route2 (48%). No clear winner; audience segments may drive preference.",
-              "how_to_read": "Balanced split suggests need for both routes in market materials.",
-              "calc_note": "Directly reported when forced to choose.",
+              "title": "Preferred Route",
+              "label": "Preferred Route",
+              "subtitle": "Preferred communication route for the product.",
+              "caption": "4/7 respondents (57%) prefer route2 — slight edge but sample too small for confidence.",
+              "how_to_read": "A 60%+ preference would signal clear winner between routes.",
+              "calc_note": "Directly reported by the respondent.",
               "chart": "donut",
               "color": "blue",
               "limit": 20,
               "list_field": false,
               "legend": [
                 {
-                  "label": "Route1",
-                  "color": "blue",
-                  "description": "Preferred the ownership-led narrative emphasizing safety."
-                },
-                {
                   "label": "Route2",
                   "color": "blue",
-                  "description": "Preferred the yield-led narrative emphasizing returns."
+                  "description": "Prefers the safety and ownership-led communication route."
+                },
+                {
+                  "label": "Route1",
+                  "color": "green",
+                  "description": "Prefers the yield and growth-led communication route."
                 }
               ],
-              "group": "Route Comparison"
+              "group": "Route Preference"
             }
           ]
         },
         {
           "type": "score_distribution",
           "field": "route1_evaluation.appeal_rating",
-          "title": "Route 1 Appeal Distribution",
-          "subtitle": "Rating of how appealing the safety/ownership narrative was.",
-          "color": "blue",
+          "title": "Route 1 Appeal Rating",
+          "subtitle": "Numeric rating of appeal for the yield-led communication route.",
+          "color": "green",
           "min": 0.0,
           "max": 10.0,
-          "how_to_read": "7-8 scores dominate — solid but not exceptional resonance.",
-          "calc_note": "Directly rated by respondent post-explanation.",
+          "how_to_read": "Scores below 7 suggest the route needs refinement.",
+          "calc_note": "Directly reported by the respondent.",
           "legend": [],
           "bands": []
         },
         {
           "type": "score_distribution",
           "field": "route2_evaluation.appeal_rating",
-          "title": "Route 2 Appeal Distribution",
-          "subtitle": "Rating of how appealing the yield/returns narrative was.",
-          "color": "blue",
+          "title": "Route 2 Appeal Rating",
+          "subtitle": "Numeric rating of appeal for the safety-led communication route.",
+          "color": "orange",
           "min": 0.0,
           "max": 10.0,
-          "how_to_read": "Similar to Route1 but slightly tighter clustering around 7-8.",
-          "calc_note": "Directly rated by respondent post-explanation.",
+          "how_to_read": "More 9s than route1 suggests higher ceiling but lower floor.",
+          "calc_note": "Directly reported by the respondent.",
           "legend": [],
           "bands": []
         },
         {
           "type": "verbatim_wall_section",
-          "title": "Route Preference Reasons",
+          "title": "Route Feedback",
           "topics": [],
           "key_prefix": "route_comparison.verbatim",
           "pain_only": false
@@ -688,22 +755,22 @@
           "type": "kpi_row",
           "kpis": [
             {
-              "label": "Average Adoption Likelihood",
-              "field": "adoption_likelihood",
-              "value_type": "avg_score",
+              "label": "Total Respondents",
+              "field": "",
+              "value_type": "total_n",
               "suffix": "",
               "eq_val": "",
               "contains_val": "",
               "color": "blue"
             },
             {
-              "label": "High CoinDCX Trust",
-              "field": "coindcx_trust",
-              "value_type": "count_eq",
+              "label": "Avg Adoption Likelihood",
+              "field": "adoption_likelihood.likelihood_score",
+              "value_type": "avg_score",
               "suffix": "",
-              "eq_val": "high",
+              "eq_val": "",
               "contains_val": "",
-              "color": "blue"
+              "color": "green"
             }
           ]
         },
@@ -712,49 +779,13 @@
           "columns": 3,
           "fields": [
             {
-              "field": "crypto_association_effect",
-              "title": "Crypto Association Impact",
-              "label": "Crypto Association Impact",
-              "subtitle": "How CoinDCX's crypto background affects trust in this gold product.",
-              "caption": "14/22 (64%) see conditional impact — depends on safeguards. Only 6 (27%) outright negative. Crypto ties aren't a universal trust barrier.",
-              "how_to_read": "Majority open to crypto affiliation if proper safeguards are proven.",
-              "calc_note": "AI-classified from discussion of platform credibility.",
-              "chart": "h_bar",
-              "color": "blue",
-              "limit": 20,
-              "list_field": false,
-              "legend": [
-                {
-                  "label": "Conditional",
-                  "color": "blue",
-                  "description": "Willing to trust if gold operations are ring-fenced from crypto."
-                },
-                {
-                  "label": "Negative",
-                  "color": "blue",
-                  "description": "Crypto association reduces trust in gold product integrity."
-                },
-                {
-                  "label": "Neutral",
-                  "color": "blue",
-                  "description": "No effect — evaluates gold product on standalone merits."
-                },
-                {
-                  "label": "Positive",
-                  "color": "blue",
-                  "description": "Crypto expertise increases confidence in digital product execution."
-                }
-              ],
-              "group": "Trust Factors"
-            },
-            {
               "field": "coindcx_trust",
               "title": "CoinDCX Trust Level",
               "label": "CoinDCX Trust Level",
-              "subtitle": "Baseline trust in CoinDCX as a platform provider.",
-              "caption": "14/22 (64%) medium trust, 7 (32%) low, only 1 (5%) high. Trust deficit is real but not absolute.",
-              "how_to_read": "Medium-trust majority needs proof points to overcome skepticism.",
-              "calc_note": "AI-classified from language used discussing the platform.",
+              "subtitle": "Trust in CoinDCX as a crypto platform.",
+              "caption": "8/16 respondents (50%) have medium trust — significant skepticism to overcome.",
+              "how_to_read": "High 'low' counts signal a foundational trust gap to address.",
+              "calc_note": "AI-classified from the respondent's statements about the platform.",
               "chart": "h_bar",
               "color": "blue",
               "limit": 20,
@@ -763,54 +794,145 @@
                 {
                   "label": "Medium",
                   "color": "blue",
-                  "description": "Some confidence but needs more proof of reliability."
+                  "description": "Some trust but with reservations or conditions."
                 },
                 {
                   "label": "Low",
-                  "color": "blue",
-                  "description": "Significant doubts about platform security or longevity."
+                  "color": "green",
+                  "description": "Minimal trust in the platform's reliability."
                 },
                 {
                   "label": "High",
-                  "color": "blue",
-                  "description": "Strong pre-existing confidence in CoinDCX's operations."
+                  "color": "orange",
+                  "description": "Strong confidence in the platform's trustworthiness."
                 }
               ],
               "group": "Trust Factors"
+            },
+            {
+              "field": "crypto_association_effect",
+              "title": "Crypto Association Effect",
+              "label": "Crypto Association Effect",
+              "subtitle": "Effect of CoinDCX's crypto association on trust.",
+              "caption": "6/11 respondents (55%) see negative effect — crypto link is a net trust drain for this audience.",
+              "how_to_read": "High 'negative' signals need to decouple gold product from crypto perceptions.",
+              "calc_note": "AI-classified from how the respondent talked about crypto links.",
+              "chart": "donut",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Negative",
+                  "color": "blue",
+                  "description": "Crypto association reduces trust in the gold product."
+                },
+                {
+                  "label": "Conditional",
+                  "color": "green",
+                  "description": "Accepts crypto link if gold product is ring-fenced."
+                }
+              ],
+              "group": "Trust Factors"
+            },
+            {
+              "field": "government_affiliation_preference",
+              "title": "Govt Affiliation Preference",
+              "label": "Govt Affiliation Preference",
+              "subtitle": "Whether respondents prioritize government affiliation in their investments.",
+              "caption": "7/12 respondents (58%) prefer government affiliation — strong regulatory trust signal.",
+              "how_to_read": "High 'True' counts signal need for regulatory endorsements.",
+              "calc_note": "AI-classified from the respondent's statements about regulation.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "True",
+                  "color": "blue",
+                  "description": "Strongly prefers government-backed investment products."
+                },
+                {
+                  "label": "Strong",
+                  "color": "green",
+                  "description": "Seeks strong regulatory oversight but not necessarily government backing."
+                },
+                {
+                  "label": "Government norms… yes, it is.",
+                  "color": "orange",
+                  "description": "Explicitly cites government standards as important."
+                },
+                {
+                  "label": "Government of India norms… confidence level",
+                  "color": "purple",
+                  "description": "Links confidence directly to Indian government standards."
+                },
+                {
+                  "label": "STRONG EVIDENCE",
+                  "color": "red",
+                  "description": "Extremely vocal about requiring regulatory proof."
+                },
+                {
+                  "label": "high",
+                  "color": "pink",
+                  "description": "High priority on regulatory oversight."
+                }
+              ],
+              "group": "Trust Factors"
+            },
+            {
+              "field": "trial_motivation",
+              "title": "Trial Motivation",
+              "label": "Trial Motivation",
+              "subtitle": "Whether a trial is framed as testing the platform versus product conviction.",
+              "caption": "6/13 respondents (46%) would trial the platform, not the product — need to convert platform triers into product believers.",
+              "how_to_read": "High 'platform_trial' signals messaging must bridge from app to product trust.",
+              "calc_note": "AI-classified from the respondent's framing of trial intent.",
+              "chart": "h_bar",
+              "color": "blue",
+              "limit": 20,
+              "list_field": false,
+              "legend": [
+                {
+                  "label": "Not Applicable",
+                  "color": "blue",
+                  "description": "No stated interest in trialing the product."
+                },
+                {
+                  "label": "Platform Trial",
+                  "color": "green",
+                  "description": "Would trial to test the app/platform, not the gold product itself."
+                },
+                {
+                  "label": "Product Conviction",
+                  "color": "orange",
+                  "description": "Interested in the gold product specifically, not just the platform."
+                }
+              ],
+              "group": "Adoption Drivers"
             }
           ]
         },
         {
           "type": "score_distribution",
-          "field": "adoption_likelihood",
-          "title": "Adoption Likelihood Distribution",
-          "subtitle": "Self-reported likelihood to adopt the product in current form.",
-          "color": "blue",
+          "field": "adoption_likelihood.likelihood_score",
+          "title": "Adoption Likelihood Score",
+          "subtitle": "Numeric rating of likelihood to adopt the product.",
+          "color": "green",
           "min": 0.0,
           "max": 10.0,
-          "how_to_read": "Clustered around 6-7 — decent intent but room to improve appeal.",
-          "calc_note": "Directly rated by respondent post-concept exposure.",
+          "how_to_read": "Scores below 8 signal need for stronger conversion drivers.",
+          "calc_note": "Directly reported by the respondent.",
           "legend": [],
           "bands": []
         },
         {
-          "type": "ai_insight",
-          "title": "AI Research Finding",
-          "section_id": "trust_insight",
-          "prompt": "Summarize the key trust barriers and adoption drivers from respondent transcripts, citing specific verbatims.",
-          "regen_key": "",
-          "context_fields": [
-            "crypto_association_effect",
-            "coindcx_trust",
-            "adoption_likelihood"
-          ]
-        },
-        {
           "type": "verbatim_wall_section",
-          "title": "Trust Concerns & Adoption Drivers",
+          "title": "Trust Concerns",
           "topics": [],
-          "key_prefix": "trust_verbatim",
-          "pain_only": false
+          "key_prefix": "trust_concerns.verbatim",
+          "pain_only": true
         },
         {
           "type": "theme_clusters",
@@ -821,6 +943,6 @@
       ]
     }
   ],
-  "generated_at": "2026-07-23T03:40:12.620733+00:00",
+  "generated_at": "2026-08-29T03:32:47.677011+00:00",
   "project_id": "karat-coindcx"
 }
