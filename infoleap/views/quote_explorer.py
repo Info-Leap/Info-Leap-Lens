@@ -1857,9 +1857,14 @@ _STATUS_ICONS = {
 
 # ── Combined header + project selector ────────────────────────────────────────
 _aproj_meta = _active_proj_meta
-_aproj_n    = _aproj_meta.get("transcript_count", 0)
-_aproj_mn   = _aproj_meta.get("matrix_count", 0)
 _aproj_stat = _pm.get_status(_active_project)
+# Live disk scan for active project — registry values go stale after ZIP install
+_aproj_t_dir = _BASE / "data" / "projects" / _active_project / "transcripts"
+_aproj_m_dir = _BASE / "data" / "projects" / _active_project / "matrices"
+_aproj_t_fmt = _aproj_meta.get("transcript_format", "md")
+_aproj_t_ext = "*.docx" if _aproj_t_fmt == "docx" else "*.md"
+_aproj_n  = (len(list(_aproj_t_dir.glob(_aproj_t_ext))) if _aproj_t_dir.exists() else 0) or _aproj_meta.get("transcript_count", 0)
+_aproj_mn = (len(list(_aproj_m_dir.glob("*_matrix.json"))) if _aproj_m_dir.exists() else 0) or _aproj_meta.get("matrix_count", 0)
 _aproj_sc   = _STATUS_COLORS.get(_aproj_stat, "#94a3b8")
 _aproj_dn   = _aproj_meta.get("display_name", _active_project)
 _aproj_desc = _aproj_meta.get("description","")[:90]
@@ -1871,8 +1876,12 @@ for _pp in _all_projects:
     _pp_stat  = _pm.get_status(_pp_id)
     _pp_sc    = _STATUS_COLORS.get(_pp_stat, "#94a3b8")
     _pp_si    = _STATUS_ICONS.get(_pp_stat, "○")
-    _pp_n     = _pp.get("transcript_count", 0)
-    _pp_mn    = _pp.get("matrix_count", 0)
+    _pp_t_dir = _BASE / "data" / "projects" / _pp_id / "transcripts"
+    _pp_m_dir = _BASE / "data" / "projects" / _pp_id / "matrices"
+    _pp_t_fmt = _pp.get("transcript_format", "md")
+    _pp_t_ext = "*.docx" if _pp_t_fmt == "docx" else "*.md"
+    _pp_n     = (len(list(_pp_t_dir.glob(_pp_t_ext))) if _pp_t_dir.exists() else 0) or _pp.get("transcript_count", 0)
+    _pp_mn    = (len(list(_pp_m_dir.glob("*_matrix.json"))) if _pp_m_dir.exists() else 0) or _pp.get("matrix_count", 0)
     _pp_sn    = _pp["display_name"].split("—")[0].strip() if "—" in _pp["display_name"] else _pp["display_name"][:22]
     _is_a     = (_pp_id == _active_project)
     _pill_bg  = "white" if _is_a else "rgba(255,255,255,0.12)"
@@ -2405,9 +2414,9 @@ def _render_project_setup(proj_id: str, proj: dict):
     _ex_c1, _ex_c2 = st.columns([2, 1])
     with _ex_c1:
         st.info(
-            f"**Manual trigger (recommended):**\n```bash\n"
-            f"python oxdata/skills/project_extractor.py --project {proj_id}\n```\n"
-            f"Saves per-transcript matrices to `projects/{proj_id}/matrices/`."
+            f"**Full pipeline:** schema → docx→md → extraction → verification → findings.\n"
+            f"Saves matrices to `projects/{proj_id}/matrices/`.\n"
+            f"Manual: `python infoleap/skills/project_extractor.py --project {proj_id}`"
         )
     with _ex_c2:
         _confirm_key = f"_{proj_id}_extraction_confirmed"
@@ -2417,24 +2426,19 @@ def _render_project_setup(proj_id: str, proj: dict):
             disabled=(not _master_txt),
         ):
             if st.session_state.get(_confirm_key):
-                import subprocess as _subp, sys as _sys
-                _script = Path(__file__).resolve().parent.parent / "skills" / "project_extractor.py"
                 t_count = proj.get("transcript_count", "?")
-                with st.spinner(f"Extracting {t_count} transcripts… keep this tab open."):
+                with st.spinner(f"Running full pipeline for {t_count} transcripts… keep this tab open."):
                     try:
-                        _xr = _subp.run(
-                            [_sys.executable, str(_script), "--project", proj_id],
-                            capture_output=True, text=True, timeout=3600,
-                            cwd=str(Path(__file__).resolve().parent.parent.parent),
-                        )
-                        if _xr.returncode == 0:
-                            st.success("Extraction complete! Refresh page to see results.")
-                            st.code(_xr.stdout[-800:] if _xr.stdout else "No output")
+                        _results = _pm.trigger_processing(proj_id)
+                        if _results.get("ok"):
+                            st.success("Pipeline complete! Refresh page to see results.")
                         else:
-                            st.error("Extraction failed.")
-                            st.code(_xr.stderr[-600:] if _xr.stderr else "No stderr")
-                    except _subp.TimeoutExpired:
-                        st.error("Timed out after 60 min.")
+                            st.error("Pipeline finished with errors.")
+                        for _step in _results.get("steps", []):
+                            _icon = "✓" if _step["ok"] else "✗"
+                            st.markdown(f"`{_icon} {_step['step']}`")
+                            if not _step["ok"] and _step.get("error"):
+                                st.code(_step["error"][-400:])
                     except Exception as _xe:
                         st.error(f"Error: {_xe}")
                 st.session_state.pop(_confirm_key, None)
