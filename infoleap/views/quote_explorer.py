@@ -4009,11 +4009,16 @@ if _study_type == "concept_testing":
 
     _render_pipeline_sync_banner(_active_project)
 
-    # Drive backend: download matrices.zip + schema.zip if not present locally
+    # Drive backend: download matrices.zip + schema.zip if not present locally.
+    # After a successful download, clear cache + rerun so _load_matrices (cached) picks up new files.
     _ct_matrices_path = _BASE / "data" / "projects" / _active_project / "matrices"
-    if not list(_ct_matrices_path.glob("*_matrix.json")) if _ct_matrices_path.exists() else True:
+    _ct_matrices_missing = not list(_ct_matrices_path.glob("*_matrix.json")) if _ct_matrices_path.exists() else True
+    if _ct_matrices_missing:
         with st.spinner("Syncing project matrices from Drive…"):
-            _pm.ensure_matrices_local(_active_project)
+            _ct_synced = _pm.ensure_matrices_local(_active_project)
+        if _ct_synced:
+            st.cache_data.clear()
+            st.rerun()
     _ct_schema_path = _BASE / "data" / "projects" / _active_project / "schema"
     if not (_ct_schema_path / "ui_config.json").exists():
         with st.spinner("Syncing project schema from Drive…"):
@@ -4074,11 +4079,16 @@ if _study_type == "ethnographic":
 
     _render_pipeline_sync_banner(_active_project)
 
-    # On Drive backend, download matrices.zip and schema.zip from Drive if not present locally
+    # On Drive backend, download matrices.zip and schema.zip from Drive if not present locally.
+    # After a successful download, clear cache + rerun so _load_matrices (cached) picks up new files.
     _matrices_local_path = _BASE / "data" / "projects" / _active_project / "matrices"
-    if not list(_matrices_local_path.glob("*_matrix.json")) if _matrices_local_path.exists() else True:
+    _eth_matrices_missing = not list(_matrices_local_path.glob("*_matrix.json")) if _matrices_local_path.exists() else True
+    if _eth_matrices_missing:
         with st.spinner("Syncing project matrices from Drive…"):
-            _pm.ensure_matrices_local(_active_project)
+            _eth_synced = _pm.ensure_matrices_local(_active_project)
+        if _eth_synced:
+            st.cache_data.clear()
+            st.rerun()
     _schema_local_path = _BASE / "data" / "projects" / _active_project / "schema"
     if not (_schema_local_path / "ui_config.json").exists():
         with st.spinner("Syncing project schema from Drive…"):
