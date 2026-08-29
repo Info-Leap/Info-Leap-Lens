@@ -78,16 +78,6 @@ class ProjectManager:
         if existing:
             return True
         try:
-            import os
-            backend = os.environ.get("STORAGE_BACKEND", "")
-            if not backend:
-                try:
-                    import streamlit as st
-                    backend = st.secrets.get("STORAGE_BACKEND", "")
-                except Exception:
-                    pass
-            if backend != "gdrive":
-                return False
             from infoleap.gdrive.client import DriveClient
             client = DriveClient()
             return client.sync_qual_matrices_if_needed(project_id, str(matrices_dir))
