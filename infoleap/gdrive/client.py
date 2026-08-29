@@ -381,6 +381,14 @@ class DriveClient:
             with zipfile.ZipFile(tmp_path, "r") as zf:
                 zf.extractall(str(md))
             Path(tmp_path).unlink(missing_ok=True)
+            # Backdate extracted matrix files so mtime-based stale checks don't
+            # fire spuriously: ui_config.json (written after extraction pipeline)
+            # must appear newer than the matrices.
+            ui_cfg = md.parent / "schema" / "ui_config.json"
+            if ui_cfg.exists():
+                ref_mtime = ui_cfg.stat().st_mtime - 1
+                for mf in md.glob("*_matrix.json"):
+                    os.utime(mf, (ref_mtime, ref_mtime))
             return True
         except Exception:
             return False
