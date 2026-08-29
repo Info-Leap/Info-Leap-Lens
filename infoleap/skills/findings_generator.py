@@ -595,6 +595,20 @@ def run_generation(project_id: str, section_id: str | None = None, force: bool =
     ok = sum(1 for r in results if r.get("finding_text"))
     print(f"\nDone: {ok}/{len(results)} findings generated -> {findings_dir}")
 
+    # Auto-upload findings + schema to Drive
+    try:
+        from infoleap.gdrive.client import DriveClient
+        _dc = DriveClient()
+        if _dc._svc is not None:
+            _fid = _dc.upload_qual_findings(project_id, str(findings_dir))
+            if _fid:
+                print(f"Drive: findings.zip uploaded ({_fid})")
+            _sfid = _dc.upload_qual_schema(project_id, str(project_dir / "schema"))
+            if _sfid:
+                print(f"Drive: schema.zip uploaded ({_sfid})")
+    except Exception as _e:
+        print(f"Drive upload skipped: {_e}")
+
 
 def main():
     parser = argparse.ArgumentParser()

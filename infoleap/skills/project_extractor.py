@@ -1329,6 +1329,17 @@ def run_extraction(project_id: str, force: bool = False, single_file: str | None
     print(f"\nExtraction complete: {ok} OK, {skipped} skipped, {errors} errors")
     print(f"Report: {report_path}")
 
+    # Auto-upload matrices to Drive so cloud can sync them
+    try:
+        from infoleap.gdrive.client import DriveClient
+        _dc = DriveClient()
+        if _dc._svc is not None:
+            _fid = _dc.upload_qual_matrices(project_id, str(project_dir / "matrices"))
+            if _fid:
+                print(f"Drive: matrices.zip uploaded ({_fid})")
+    except Exception as _e:
+        print(f"Drive upload skipped: {_e}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Run LLM extraction pipeline on transcripts")

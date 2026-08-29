@@ -3091,6 +3091,17 @@ TRANSCRIPT:
     print("\nNext: review the schema, then run:")
     print(f"  python project_extractor.py --project {project_id}")
 
+    # Auto-upload schema to Drive
+    try:
+        from infoleap.gdrive.client import DriveClient
+        _dc = DriveClient()
+        if _dc._svc is not None:
+            _fid = _dc.upload_qual_schema(project_id, str(schema_dir))
+            if _fid:
+                print(f"Drive: schema.zip uploaded ({_fid})")
+    except Exception as _e:
+        print(f"Drive schema upload skipped: {_e}")
+
 
 def generate_ui_from_master_prompt(project_id: str, force: bool = False):
     """Regenerate ui_config.json using existing master_prompt.txt as context."""
@@ -3154,6 +3165,16 @@ def generate_ui_from_master_prompt(project_id: str, force: bool = False):
     if ui_cfg:
         ui_out.write_text(json.dumps(ui_cfg, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"  Saved: {ui_out.name}")
+        # Auto-upload schema to Drive
+        try:
+            from infoleap.gdrive.client import DriveClient
+            _dc = DriveClient()
+            if _dc._svc is not None:
+                _fid = _dc.upload_qual_schema(project_id, str(schema_dir))
+                if _fid:
+                    print(f"Drive: schema.zip uploaded ({_fid})")
+        except Exception as _e:
+            print(f"Drive schema upload skipped: {_e}")
     else:
         print("  FAILED to generate UI config.")
 

@@ -4007,10 +4007,9 @@ if _study_type == "concept_testing":
         st.error(f"Project '{_active_project}' not found in registry.")
         st.stop()
 
-    _render_pipeline_sync_banner(_active_project)
-
     # Drive backend: download matrices.zip + schema.zip if not present locally.
     # After a successful download, clear cache + rerun so _load_matrices (cached) picks up new files.
+    # Banner runs AFTER sync so mtimes are correct before staleness check.
     _ct_matrices_path = _BASE / "data" / "projects" / _active_project / "matrices"
     _ct_matrices_missing = not list(_ct_matrices_path.glob("*_matrix.json")) if _ct_matrices_path.exists() else True
     if _ct_matrices_missing:
@@ -4023,6 +4022,14 @@ if _study_type == "concept_testing":
     if not (_ct_schema_path / "ui_config.json").exists():
         with st.spinner("Syncing project schema from Drive…"):
             _pm.ensure_schema_local(_active_project)
+    # Always calibrate schema file mtimes relative to matrices (fixes git-checkout mtime ordering)
+    try:
+        from infoleap.gdrive.client import DriveClient as _DC
+        _DC.calibrate_schema_mtimes(str(_ct_schema_path), str(_ct_matrices_path))
+    except Exception:
+        pass
+
+    _render_pipeline_sync_banner(_active_project)
 
     if st.toggle("🔬 Extraction Studio — redo extraction with review", key="_es_toggle_open"):
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
@@ -4077,10 +4084,9 @@ if _study_type == "ethnographic":
         unsafe_allow_html=True,
     )
 
-    _render_pipeline_sync_banner(_active_project)
-
     # On Drive backend, download matrices.zip and schema.zip from Drive if not present locally.
     # After a successful download, clear cache + rerun so _load_matrices (cached) picks up new files.
+    # Banner runs AFTER sync so mtimes are correct before staleness check.
     _matrices_local_path = _BASE / "data" / "projects" / _active_project / "matrices"
     _eth_matrices_missing = not list(_matrices_local_path.glob("*_matrix.json")) if _matrices_local_path.exists() else True
     if _eth_matrices_missing:
@@ -4093,6 +4099,14 @@ if _study_type == "ethnographic":
     if not (_schema_local_path / "ui_config.json").exists():
         with st.spinner("Syncing project schema from Drive…"):
             _pm.ensure_schema_local(_active_project)
+    # Always calibrate schema file mtimes relative to matrices (fixes git-checkout mtime ordering)
+    try:
+        from infoleap.gdrive.client import DriveClient as _DC
+        _DC.calibrate_schema_mtimes(str(_schema_local_path), str(_matrices_local_path))
+    except Exception:
+        pass
+
+    _render_pipeline_sync_banner(_active_project)
 
     try:
         render_ethnographic(

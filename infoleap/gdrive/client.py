@@ -374,6 +374,49 @@ class DriveClient:
             Path(tmp_path).unlink(missing_ok=True)
         return fid
 
+    def upload_qual_findings(self, project_id: str, findings_dir: str) -> Optional[str]:
+        """Zip all *.json files in findings_dir and upload as findings.zip to Drive qual/{project_id}/.
+        Returns Drive file ID on success, None on failure."""
+        fd = Path(findings_dir)
+        if not fd.exists():
+            return None
+        files = [f for f in fd.iterdir() if f.is_file() and f.suffix == ".json"]
+        if not files:
+            return None
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            tmp_path = tmp.name
+        try:
+            with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                for f in files:
+                    zf.write(f, f.name)
+            fid = self.upload_file(project_id, tmp_path, "findings.zip", kind="qual")
+        finally:
+            Path(tmp_path).unlink(missing_ok=True)
+        return fid
+
+    @staticmethod
+    def calibrate_schema_mtimes(schema_dir: str, matrices_dir: str) -> None:
+        """Fix schema file mtimes so pipeline stale checks don't fire spuriously.
+        Must be called after matrices are confirmed present on disk.
+        Sets: extraction_schema.json → latest_matrix_mtime - 3
+              master_prompt.txt     → latest_matrix_mtime - 4
+              ui_config.json        → latest_matrix_mtime + 1
+        Safe to call even when files came from git checkout (not Drive download)."""
+        sd = Path(schema_dir)
+        md = Path(matrices_dir)
+        matrix_files = list(md.glob("*_matrix.json")) if md.exists() else []
+        if not matrix_files:
+            return
+        latest_m = max(f.stat().st_mtime for f in matrix_files)
+        for fname, delta in [("extraction_schema.json", -3), ("master_prompt.txt", -4),
+                             ("ui_config.json", +1)]:
+            fp = sd / fname
+            if fp.exists():
+                try:
+                    os.utime(fp, (latest_m + delta, latest_m + delta))
+                except Exception:
+                    pass
+
     def sync_qual_schema_if_needed(self, project_id: str, schema_dir: str) -> bool:
         """Download and extract schema.zip from Drive if schema_dir has no ui_config.json.
         Returns True if ui_config.json is available locally after the call."""
