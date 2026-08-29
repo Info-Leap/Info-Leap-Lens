@@ -4398,8 +4398,12 @@ def _sec_theme_clusters(sec, matrices, findings_dir, call_or, active_filters, al
     schema_dir = Path(findings_dir).parent / "schema"
     cache_path = schema_dir / "theme_clusters.json"
 
-    with st.spinner("Clustering respondent quotes across interviews..."):
-        result = compute_theme_clusters(matrices, min_cluster_size=3, cache_path=cache_path)
+    try:
+        with st.spinner("Clustering respondent quotes across interviews..."):
+            result = compute_theme_clusters(matrices, min_cluster_size=3, cache_path=cache_path)
+    except (ImportError, ModuleNotFoundError) as _e:
+        st.caption(f"Theme clustering unavailable — `sentence_transformers` not installed ({_e}).")
+        return
 
     themes = result.get("themes", [])
     if not themes:

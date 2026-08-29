@@ -380,6 +380,18 @@ class DriveClient:
             with zipfile.ZipFile(tmp_path, "r") as zf:
                 zf.extractall(str(sd))
             Path(tmp_path).unlink(missing_ok=True)
+            # Set schema file mtimes so pipeline stale checks don't fire spuriously:
+            # extraction_schema + master_prompt must appear OLDER than matrices (used to generate
+            # them), ui_config must appear NEWER (generated in Step 5 after extraction).
+            matrices_dir = sd.parent / "matrices"
+            matrix_files = list(matrices_dir.glob("*_matrix.json")) if matrices_dir.exists() else []
+            if matrix_files:
+                latest_m = max(f.stat().st_mtime for f in matrix_files)
+                for fname, delta in [("extraction_schema.json", -3), ("master_prompt.txt", -4),
+                                     ("ui_config.json", +1)]:
+                    fp = sd / fname
+                    if fp.exists():
+                        os.utime(fp, (latest_m + delta, latest_m + delta))
             return (sd / "ui_config.json").exists()
         except Exception:
             return False
