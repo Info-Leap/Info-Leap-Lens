@@ -1,0 +1,152 @@
+{
+  "segment_key": "respondent_archetype",
+  "entity_label": "Respondent Type",
+  "study_context": "This study explores the need for convenience in kitchen preparation work and how multiple appliances are used in the kitchen.",
+  "kpi_fields": [
+    {
+      "path": "convenience_level",
+      "label": "Convenience Level",
+      "format": "high_count",
+      "ai_suggested": true
+    },
+    {
+      "path": "research_extent",
+      "label": "Research Extent",
+      "format": "high_count",
+      "ai_suggested": true
+    },
+    {
+      "path": "family_involvement",
+      "label": "Family Involvement",
+      "format": "positive_pct",
+      "ai_suggested": true
+    },
+    {
+      "path": "convenience_level",
+      "label": "Convenience Level Expectation",
+      "format": "/10",
+      "ai_suggested": false
+    },
+    {
+      "path": "research_extent",
+      "label": "Research Extent Before Purchase",
+      "format": "/10",
+      "ai_suggested": false
+    }
+  ],
+  "signal_scores": [
+    {
+      "type": "field_avg_scaled",
+      "field": "convenience_level",
+      "scale": "high",
+      "label": "Convenience Signal",
+      "ai_suggested": true
+    },
+    {
+      "type": "pain_severity",
+      "label": "Pain Points",
+      "ai_suggested": true
+    },
+    {
+      "type": "aspiration_score",
+      "label": "Aspiration Score",
+      "ai_suggested": true
+    }
+  ],
+  "tab1_distributions": [
+    {
+      "path": "convenience_level",
+      "label": "Convenience Level"
+    },
+    {
+      "path": "research_extent",
+      "label": "Research Extent"
+    },
+    {
+      "path": "respondent_archetype",
+      "label": "Respondent Type"
+    }
+  ],
+  "tab1_verbatim_fields": [
+    {
+      "path": "verbatim_field",
+      "label": "Verbatim Quotes"
+    }
+  ],
+  "filter_fields": [
+    {
+      "key": "respondent.segment",
+      "label": "Segment"
+    },
+    {
+      "key": "respondent.city",
+      "label": "City"
+    },
+    {
+      "key": "respondent_archetype",
+      "label": "Respondent Type"
+    }
+  ],
+  "ai_insight_keys": [
+    "wants/loves",
+    "PAIN POINTS",
+    "trust/signal",
+    "STRATEGIC SIGNAL"
+  ],
+  "tab3_reference_tags": [
+    "convenience",
+    "kitchen preparation",
+    "multiple appliances",
+    "consumer preferences",
+    "behaviors"
+  ],
+  "tab4_label": "Kitchen Appliance Evaluation",
+  "tab4_sections": [
+    {
+      "type": "distribution",
+      "fields": [
+        {
+          "path": "convenience_level",
+          "label": "Convenience Level"
+        },
+        {
+          "path": "research_extent",
+          "label": "Research Extent"
+        },
+        {
+          "path": "respondent_archetype",
+          "label": "Respondent Type"
+        }
+      ]
+    },
+    {
+      "type": "score_grid",
+      "fields": [
+        {
+          "path": "convenience_level",
+          "label": "Convenience Level"
+        },
+        {
+          "path": "research_extent",
+          "label": "Research Extent"
+        }
+      ]
+    },
+    {
+      "type": "verbatim_list",
+      "field": "verbatim_field",
+      "max_items": 10
+    }
+  ],
+  "tab5_trust_field": "convenience_level",
+  "tab5_trust_verbatim": "verbatim_field",
+  "tab5_trust_builders": null,
+  "tab5_distributions": [
+    {
+      "path": "family_involvement",
+      "label": "Family Involvement"
+    }
+  ],
+  "generated_at": "2026-07-09T09:43:28.393389+00:00",
+  "project_id": "pilot-fpmg-test2"
+}

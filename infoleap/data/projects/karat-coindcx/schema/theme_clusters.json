@@ -1,0 +1,792 @@
+{
+  "themes": [
+    {
+      "cluster_id": 13,
+      "label": "Gold's enduring value and demand",
+      "size": 12,
+      "respondent_coverage": 9,
+      "doc_ids": [
+        "DI_10",
+        "DI_16",
+        "DI_20",
+        "DI_23",
+        "DI_24",
+        "DI_25",
+        "DI_4",
+        "DI_7",
+        "DI_8"
+      ],
+      "sentiment_mix": {
+        "positive": 8,
+        "negative": 2,
+        "neutral": 2
+      },
+      "pain_point_share": 0.17,
+      "sample_quotes": [
+        {
+          "content": "Gold\u2026 if you wait for one day, one week, one year, it will rise again, because demand is unlimited and supply limited by nature itself.",
+          "doc_id": "DI_10",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Gold price fluctuations create hesitation (e.g., war impacts).",
+          "doc_id": "DI_10",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"Gold always has power to be liquid. In all ways, history shows it keeps increasing. One thing is returns, the other is safe investment.\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"gold will always give you liquidity option when war happens\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"No difference in liquidity, but physical gold feels more secure.\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 10,
+      "label": "Balanced digital and traditional investments",
+      "size": 7,
+      "respondent_coverage": 6,
+      "doc_ids": [
+        "DI_10",
+        "DI_13",
+        "DI_17",
+        "DI_20",
+        "DI_25",
+        "DI_4"
+      ],
+      "sentiment_mix": {
+        "neutral": 7
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "50-50 Split: 50% savings, 50% investments (70% long-term stocks, 30% short-term trading/digital gold).",
+          "doc_id": "DI_10",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Gold Allocation: Digital gold (~3% of portfolio), opportunistic buying (e.g., buys more when prices dip).",
+          "doc_id": "DI_10",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Current Portfolio: 61% equity, 1% digital gold, 5% crypto, 5% mutual funds.",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "I have investments in mutual funds, digital gold, real estate, FD, RD, and equity instruments.",
+          "doc_id": "DI_17",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "70% of investible surplus in gold (digital > physical due to security concerns).",
+          "doc_id": "DI_20",
+          "segment": "Digital Gold"
+        }
+      ]
+    },
+    {
+      "cluster_id": 3,
+      "label": "Trust through transparency and oversight",
+      "size": 7,
+      "respondent_coverage": 6,
+      "doc_ids": [
+        "DI_10",
+        "DI_11",
+        "DI_20",
+        "DI_25",
+        "DI_3",
+        "DI_6"
+      ],
+      "sentiment_mix": {
+        "positive": 3,
+        "negative": 4
+      },
+      "pain_point_share": 0.71,
+      "sample_quotes": [
+        {
+          "content": "Now: Trusts due to transparency ('every gram is being located, ring-fenced').",
+          "doc_id": "DI_10",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "I\u2019m not 100% trusting",
+          "doc_id": "DI_11",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Trust hinges on regulatory oversight. Government bodies monitoring things.",
+          "doc_id": "DI_20",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "It\u2019s new, so trusting it is a different matter... First, build trust.",
+          "doc_id": "DI_25",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Lack of prior trust.",
+          "doc_id": "DI_25",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 6,
+      "label": "Safety over high returns",
+      "size": 8,
+      "respondent_coverage": 6,
+      "doc_ids": [
+        "DI_11",
+        "DI_12",
+        "DI_13",
+        "DI_16",
+        "DI_17",
+        "DI_7"
+      ],
+      "sentiment_mix": {
+        "negative": 2,
+        "positive": 5,
+        "neutral": 1
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "I\u2019m an aggressive investor\u2026 I don\u2019t think I\u2019ll be in this for these returns. But for the older generation looking for safety, this is okay.",
+          "doc_id": "DI_11",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Five percent return is nothing\u2026 safety is more important.",
+          "doc_id": "DI_12",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Very attractive\u2026 can hold or utilize returns",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Attractive: Likes returns converted to gold grams (Very attractive\u2026 can hold or utilize returns).",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"T+1 exit and compounding yield appeal to long-term investors.\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 7,
+      "label": "Concerns about gold storage",
+      "size": 6,
+      "respondent_coverage": 5,
+      "doc_ids": [
+        "DI_13",
+        "DI_16",
+        "DI_23",
+        "DI_25",
+        "DI_5"
+      ],
+      "sentiment_mix": {
+        "negative": 5,
+        "positive": 1
+      },
+      "pain_point_share": 0.83,
+      "sample_quotes": [
+        {
+          "content": "Where exactly is gold stored?",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Barriers: Needs clarity on custody, audits, and platform legitimacy (insurance audit\u2026 existence of gold).",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"where is the gold stored? Show me audit reports\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "If someone invests in gold, the first thing they'll consider is its custody... auditing matters most.",
+          "doc_id": "DI_23",
+          "segment": "FDMF"
+        },
+        {
+          "content": "Where is the gold kept? If the ETF closes tomorrow, what happens to my money?",
+          "doc_id": "DI_25",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 4,
+      "label": "Demand for proof of reserves",
+      "size": 5,
+      "respondent_coverage": 5,
+      "doc_ids": [
+        "DI_16",
+        "DI_18",
+        "DI_20",
+        "DI_25",
+        "DI_8"
+      ],
+      "sentiment_mix": {
+        "positive": 4,
+        "neutral": 1
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "\"Demonstrable proof of reserves (e.g., \"show me the vault\").\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "100% transparency... audited by RBI... very good idea.",
+          "doc_id": "DI_18",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Demands proof of reserves, SEBI-like oversight.",
+          "doc_id": "DI_20",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "100% proof of reserve published quarterly... will be completely transparent.",
+          "doc_id": "DI_25",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Proof of reserves and audits matter.",
+          "doc_id": "DI_8",
+          "segment": "FDMF"
+        }
+      ]
+    },
+    {
+      "cluster_id": 18,
+      "label": "Preference for digital gold security",
+      "size": 4,
+      "respondent_coverage": 4,
+      "doc_ids": [
+        "DI_11",
+        "DI_17",
+        "DI_20",
+        "DI_3"
+      ],
+      "sentiment_mix": {
+        "positive": 4
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "prefers digital over physical gold",
+          "doc_id": "DI_11",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Digital gold is more safe and secure. Not taking it means if it is digital then it can be bought anytime. You can also liquidate it.",
+          "doc_id": "DI_17",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Prefers digital gold over physical due to theft risk. Security\u2026 no happening around house.",
+          "doc_id": "DI_20",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Physical gold is at home; digital is in Demat\u2014both feel safe.",
+          "doc_id": "DI_3",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 8,
+      "label": "Gold as traditional safe haven",
+      "size": 3,
+      "respondent_coverage": 3,
+      "doc_ids": [
+        "DI_1",
+        "DI_12",
+        "DI_6"
+      ],
+      "sentiment_mix": {
+        "positive": 2,
+        "negative": 1
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "Gold always gold\u2026 it is maximum my savings.",
+          "doc_id": "DI_12",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Gold is safe for me. Since childhood, I have been hearing since old times that if you have gold, you will never get beaten, someone or the other will buy it.",
+          "doc_id": "DI_1",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Gold as Cash Preference: Frustration with gold-unit payouts (I want money, not gold).",
+          "doc_id": "DI_6",
+          "segment": "FDMF"
+        }
+      ]
+    },
+    {
+      "cluster_id": 9,
+      "label": "Conservative gold-inclusive diversification",
+      "size": 3,
+      "respondent_coverage": 3,
+      "doc_ids": [
+        "DI_12",
+        "DI_19",
+        "DI_22"
+      ],
+      "sentiment_mix": {
+        "positive": 2,
+        "neutral": 1
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "His investment strategy is conservative, favoring traditional assets like gold and fixed deposits (FDs). He values safety and long-term returns over high-risk, high-reward investments.",
+          "doc_id": "DI_12",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Investment_diversification: STRONG EVIDENCE \u2013 He actively diversifies his investments across gold, mutual funds, shares, and government schemes.",
+          "doc_id": "DI_19",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Chetan diversifies his investments across equities (60-70%), gold (10%), mutual funds (10%), and fixed deposits/LIC/PPF (5-10%). He emphasizes high-risk, high-return investments like equities but balances them with safer options like gold and fixed deposits.",
+          "doc_id": "DI_22",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 17,
+      "label": "Digital gold safety concerns",
+      "size": 4,
+      "respondent_coverage": 3,
+      "doc_ids": [
+        "DI_13",
+        "DI_2",
+        "DI_3"
+      ],
+      "sentiment_mix": {
+        "ambivalent": 1,
+        "positive": 3
+      },
+      "pain_point_share": 0.25,
+      "sample_quotes": [
+        {
+          "content": "Digital gold safe. Because of documentation\u2026 but hallmark concern, purity certification must be clear.",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Digital gold safe\u2026 peaceful returns",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Gold is not going to become zero. It\u2019s in our tradition\u2014Indians and foreigners both love it. But digital gold? I need to know it\u2019s as safe as physical, with audits and a government stamp.",
+          "doc_id": "DI_2",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Digital gold offers 5% more units than physical gold... no lock-in, audited\u2014this is safe.",
+          "doc_id": "DI_3",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 2,
+      "label": "Need for SEBI/RBI regulation",
+      "size": 4,
+      "respondent_coverage": 3,
+      "doc_ids": [
+        "DI_13",
+        "DI_16",
+        "DI_17"
+      ],
+      "sentiment_mix": {
+        "positive": 3,
+        "negative": 1
+      },
+      "pain_point_share": 0.25,
+      "sample_quotes": [
+        {
+          "content": "Government of India norms\u2026 confidence level",
+          "doc_id": "DI_13",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"no SEBI regulation mentioned\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"Clear regulatory backing (SEBI/RBI).\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "It's FIU compliant and is also complying with RBI norms.",
+          "doc_id": "DI_17",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 0,
+      "label": "Skepticism about high returns",
+      "size": 5,
+      "respondent_coverage": 3,
+      "doc_ids": [
+        "DI_2",
+        "DI_20",
+        "DI_3"
+      ],
+      "sentiment_mix": {
+        "negative": 4,
+        "positive": 1
+      },
+      "pain_point_share": 0.8,
+      "sample_quotes": [
+        {
+          "content": "I can\u2019t believe this 5% thing. Otherwise, this platform is just like Paytm. No difference.",
+          "doc_id": "DI_20",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "How will they give 40-50%? Calls it too good to be true.",
+          "doc_id": "DI_20",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Route 2 is intriguing but doubtful. How will they give 40-50%?",
+          "doc_id": "DI_20",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "If I invest \u20b9100 and get \u20b910 extra, it\u2019s engaging. Paytm doesn\u2019t offer this.",
+          "doc_id": "DI_2",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "They should explain how the 5-7% works. Else, it feels too good to be true.",
+          "doc_id": "DI_3",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 12,
+      "label": "Government oversight ensures security",
+      "size": 3,
+      "respondent_coverage": 2,
+      "doc_ids": [
+        "DI_12",
+        "DI_19"
+      ],
+      "sentiment_mix": {
+        "neutral": 1,
+        "positive": 2
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "Pulkit represents a cautious, security-focused investor who values transparency and government affiliation.",
+          "doc_id": "DI_12",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Security: STRONG EVIDENCE \u2013 Pulkit values secure investments and mentions the importance of government oversight and certification.",
+          "doc_id": "DI_19",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Government_affiliation: STRONG EVIDENCE \u2013 Pulkit emphasizes the importance of government compliance and oversight in investment platforms.",
+          "doc_id": "DI_19",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 15,
+      "label": "Pulkit's cautious investment approach",
+      "size": 13,
+      "respondent_coverage": 2,
+      "doc_ids": [
+        "DI_12",
+        "DI_19"
+      ],
+      "sentiment_mix": {
+        "positive": 7,
+        "neutral": 4,
+        "negative": 2
+      },
+      "pain_point_share": 0.23,
+      "sample_quotes": [
+        {
+          "content": "Pulkit is pragmatic and cautious in his financial decisions. He seeks financial freedom, security, and stability for his family.",
+          "doc_id": "DI_12",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Pulkit\u2019s responses are genuine, reflecting his cautious and practical approach to investments. He expresses concerns about transparency and safety, especially with digital gold, indicating his true priorities.",
+          "doc_id": "DI_12",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Pulkit is a 30-something professional working in the biomedical sector, holding a Master\u2019s degree in Biotechnology. He is married, with his wife employed at Maruti Suzuki, and his father is retired. Pulkit describes himself as calculative, perfectionist, and research-oriented. He is financially literate, having started investing early in life, and currently holds a diversified portfolio including gold, mutual funds, shares, and government schemes. His mindset is pragmatic, cautious, and focused on long-term financial security.",
+          "doc_id": "DI_19",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Pulkit is driven by a desire for financial stability and growth. He values diversification in investments to mitigate risks and ensure steady returns. His approach to investing is methodical and informed by research, as evidenced by his early start in investing and his reliance on platforms like Zerodha and Amazon Pay for digital gold. He is motivated by tangible benefits such as cashback offers and tax savings, which align with his calculative nature.",
+          "doc_id": "DI_19",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Pulkit actively manages his investments across various asset classes, including physical gold, digital gold, sovereign gold bonds, mutual funds, and shares. He uses platforms like Zerodha, Amazon Pay, and Paytm for digital investments. His investment strategy is driven by a need for liquidity, tax benefits, and returns. He is cautious about new investment opportunities and seeks clarity on how returns are generated before committing funds.",
+          "doc_id": "DI_19",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 5,
+      "label": "Trust via audits and compliance",
+      "size": 3,
+      "respondent_coverage": 2,
+      "doc_ids": [
+        "DI_16",
+        "DI_6"
+      ],
+      "sentiment_mix": {
+        "positive": 3
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "\"FIU compliance, audited reserves\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"Quarterly audits and FIU compliance would build trust.\"",
+          "doc_id": "DI_16",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Government-backed certification (FIU, audits).",
+          "doc_id": "DI_6",
+          "segment": "FDMF"
+        }
+      ]
+    },
+    {
+      "cluster_id": 16,
+      "label": "Digital gold as secure investment",
+      "size": 3,
+      "respondent_coverage": 2,
+      "doc_ids": [
+        "DI_18",
+        "DI_6"
+      ],
+      "sentiment_mix": {
+        "positive": 2,
+        "neutral": 1
+      },
+      "pain_point_share": 0.0,
+      "sample_quotes": [
+        {
+          "content": "Gold is very very secure... digital gold private players are giving... interest rate... you don\u2019t worry about it being lost.",
+          "doc_id": "DI_18",
+          "segment": "Digital Gold"
+        },
+        {
+          "content": "Digital gold is very secure\u2026 I can get good profits",
+          "doc_id": "DI_6",
+          "segment": "FDMF"
+        },
+        {
+          "content": "I don\u2019t want to trade security for returns. With digital gold, I want both.",
+          "doc_id": "DI_6",
+          "segment": "FDMF"
+        }
+      ]
+    },
+    {
+      "cluster_id": 1,
+      "label": "Tax efficiency and returns",
+      "size": 3,
+      "respondent_coverage": 2,
+      "doc_ids": [
+        "DI_25",
+        "DI_7"
+      ],
+      "sentiment_mix": {
+        "positive": 2,
+        "negative": 1
+      },
+      "pain_point_share": 0.33,
+      "sample_quotes": [
+        {
+          "content": "Five percent more returns not in cash but in gold points... No slab tax.",
+          "doc_id": "DI_25",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Prefers this for compounding and tax efficiency.",
+          "doc_id": "DI_25",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "How will the 50% higher return work?",
+          "doc_id": "DI_7",
+          "segment": "FDMF"
+        }
+      ]
+    }
+  ],
+  "single_respondent_signals": [
+    {
+      "cluster_id": 11,
+      "label": "crypto / gold / trust",
+      "size": 3,
+      "respondent_coverage": 1,
+      "doc_ids": [
+        "DI_21"
+      ],
+      "sentiment_mix": {
+        "negative": 1,
+        "positive": 2
+      },
+      "pain_point_share": 0.33,
+      "sample_quotes": [
+        {
+          "content": "\"Pain Points and Barriers: Trust Deficit: Distrusts fintechs (Paytm bank failure). Crypto platforms seen as volatile (\"CoinDCX deals in crypto\u2014risk factor\"). Transparency Gaps: Unclear custody (\"gold held in audit vaults\" \u2260 tangible assurance). Taxation: GST on digital gold vs. unbillled physical gold purchases.\"",
+          "doc_id": "DI_21",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"Signals and Motivations: Adoption Drivers: Government/SEBI Backing: Stronger than brand trust (\"if Kotak offered this, I\u2019d trust more\"). Guaranteed Gram-Based Returns: \"Hold 10g even if price falls\" appeals more than cash returns. Rejection Triggers: Crypto-linked platforms (\"CoinDCX = risk\").\"",
+          "doc_id": "DI_21",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "\"Strategic Implications for CoinDCX Karat: Trust Building: Highlight SEBI compliance + RBI-grade audits (e.g., \"Gold stored in SBI-vaulted facilities\"). Compare to SGBs (\"Like sovereign bonds, but with liquidity\"). Positioning: Avoid crypto association (separate branding from CoinDCX\u2019s crypto arm). Emphasize gram-growth (\"Your 10g becomes 11g, not \u20b9X\"). UX Fixes: Show gram-based growth visuals (e.g., \"Your gold pile grows yearly\"). Simplify custody proof (\"Live vault footage\" > \"blockchain\").\"",
+          "doc_id": "DI_21",
+          "segment": "Stock Investor"
+        }
+      ]
+    },
+    {
+      "cluster_id": 14,
+      "label": "gold / digital / ownership",
+      "size": 4,
+      "respondent_coverage": 1,
+      "doc_ids": [
+        "DI_22"
+      ],
+      "sentiment_mix": {
+        "neutral": 2,
+        "positive": 1,
+        "negative": 1
+      },
+      "pain_point_share": 0.25,
+      "sample_quotes": [
+        {
+          "content": "Chetan sees digital gold as a safe investment but lacks clarity on its security and ownership. He prefers Sovereign Gold Bonds (SGBs) due to government backing and fixed interest.",
+          "doc_id": "DI_22",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "He finds CoinDCX\u2019s digital gold concept appealing, especially the 5-7% additional gold units and government affiliation. However, he seeks clarity on ownership, insurance, and returns.",
+          "doc_id": "DI_22",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Chetan is unsure about the ownership and security of digital gold. He questions, \u201cHow will I know whether the particular one that is showing to us is mine or someone else's?\u201d",
+          "doc_id": "DI_22",
+          "segment": "Stock Investor"
+        },
+        {
+          "content": "Chetan is a pragmatic investor who prioritizes security, diversification, and government-backed schemes. He finds CoinDCX\u2019s digital gold concept appealing but seeks clarity on ownership, insurance, and returns.",
+          "doc_id": "DI_22",
+          "segment": "Stock Investor"
+        }
+      ]
+    }
+  ],
+  "unclustered_count": 115,
+  "unclustered_sample": [
+    {
+      "content": "If 10 digital gold was not happening now, we will go to [physical] shop\u2026 but in digital gold, you can decide your amount.",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "This transparency that the company is going to build is a very good thing\u2026 with the government also.",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "Parents distrust digital gold ('one day your money will be gone').",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "Concept 2 (comparison board) was confusing vs. Concept 1 (simpler, consumer-friendly).",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "Started via Instagram ads, tested with small amounts, now trusts due to app updates and transparency.",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "Buys gold opportunistically, especially during price dips.",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "Research-Driven: Relies on YouTube (e.g., 'R Singh\u2019s oil prices'), influencers, and Google for risk analysis.",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "Digital Gold Usage: Started via Instagram ads, tested with small amounts, now trusts due to app updates and transparency.",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "Prefers digital gold for liquidity and fractional ownership ('you can decide your amount').",
+      "doc_id": "DI_10"
+    },
+    {
+      "content": "First Reaction: Skeptical initially ('super station also what will happen, you will get it or not').",
+      "doc_id": "DI_10"
+    }
+  ],
+  "total_passages": 215,
+  "_content_hash": "cf32a24242a96bfa",
+  "_min_cluster_size": 3,
+  "_llm_labeled": true
+}

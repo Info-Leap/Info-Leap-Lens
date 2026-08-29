@@ -1,0 +1,337 @@
+{
+  "schema_version": "1.0",
+  "project_id": "pilot-fpmg-test2",
+  "project_type": "usage_context",
+  "study_summary": "This study explores the need for convenience in kitchen preparation work and how multiple appliances are used in the kitchen, with a focus on understanding consumer preferences and behaviors. The study aims to gather insights on the role of mixer grinders and other kitchen appliances in making cooking easier and more efficient.",
+  "generated_at": "2026-07-09T09:42:45.374324+00:00",
+  "source_documents": {
+    "dg": "DISCUSSION_GUIDE-Sujatha_MG_Food_Processors_KYC.docx",
+    "ai_prompt": null
+  },
+  "discovery": {
+    "study_domain_observed": "This study is about understanding the need for convenience in kitchen preparation work and how multiple appliances are used in the kitchen. The observations suggest that respondents value convenience, efficiency, and durability in kitchen appliances. They also prioritize their family's needs and health-consciousness.",
+    "respondent_types": [
+      {
+        "type_name": "busy_working_mother",
+        "definition": "A respondent who manages household and cooking responsibilities efficiently",
+        "doc_id": "Sindhu_Preethi_FP_Chennai",
+        "distinguishing_quote": "Yes, all the household work is done by me."
+      },
+      {
+        "type_name": "detail_oriented_researcher",
+        "definition": "A respondent who conducts thorough research before making a purchase",
+        "doc_id": "Pooja_Preethi_FP_Bangalore",
+        "distinguishing_quote": "paisa vasool"
+      },
+      {
+        "type_name": "hands_on_decision_maker",
+        "definition": "A respondent who relies on personal research and friend recommendations",
+        "doc_id": "Satvinder_Bajaj_FP_Mumbai",
+        "distinguishing_quote": "he doesn't understand all the situations"
+      },
+      {
+        "type_name": "health_conscious_planner",
+        "definition": "A respondent who prioritizes home-cooked meals and plans ahead",
+        "doc_id": "Srividya_Preethi_FP_Bangalore",
+        "distinguishing_quote": "I need to plan ahead very well in advance"
+      },
+      {
+        "type_name": "family_oriented_habitual",
+        "definition": "A respondent who prioritizes their family's needs and has habitual kitchen routines",
+        "doc_id": "Payal_Preeti_FP_Pune",
+        "distinguishing_quote": "Mainly we need it for chopping"
+      }
+    ],
+    "emergent_topics": [
+      {
+        "topic": "family_and_health",
+        "doc_id": "Payal_Preeti_FP_Pune",
+        "example_quote": "Mainly we need it for chopping"
+      },
+      {
+        "topic": "time_management",
+        "doc_id": "Srividya_Preethi_FP_Bangalore",
+        "example_quote": "My day starts very early"
+      },
+      {
+        "topic": "personal_interests",
+        "doc_id": "Payal_Preeti_FP_Pune",
+        "example_quote": "I have a passion for dancing"
+      }
+    ],
+    "suggested_dimensions": [
+      {
+        "field_name": "convenience_level",
+        "type": "enum",
+        "description": "Level of convenience expected in kitchen appliances",
+        "enum_values": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "scoring_rule": "based on quotes like 'paisa vasool'",
+        "verbatim_field": false
+      },
+      {
+        "field_name": "research_extent",
+        "type": "enum",
+        "description": "Extent of research conducted before purchasing kitchen appliances",
+        "enum_values": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "scoring_rule": "based on quotes like 'it is like investment'",
+        "verbatim_field": false
+      },
+      {
+        "field_name": "family_involvement",
+        "type": "boolean",
+        "description": "Whether family members are involved in kitchen tasks",
+        "enum_values": null,
+        "scoring_rule": "based on quotes like 'Yes, all the household work is done by me.'",
+        "verbatim_field": false
+      }
+    ],
+    "brief_dg_mismatch": [],
+    "_sample_docs": [
+      "Pooja_Preethi_FP_Bangalore.docx",
+      "Sindhu_Preethi_FP_Chennai.docx",
+      "Satvinder_Bajaj_FP_Mumbai.docx",
+      "Payal_Preeti_FP_Pune.docx",
+      "Srividya_Preethi_FP_Bangalore.docx"
+    ],
+    "_observations": [
+      {
+        "doc_id": "Pooja_Preethi_FP_Bangalore",
+        "filename": "Pooja_Preethi_FP_Bangalore.docx",
+        "characterization": "The respondent is detail-oriented and values convenience in their kitchen tasks. They also conduct thorough research before making a purchase.",
+        "quotes": [
+          "paisa vasool",
+          "like 100%",
+          "it is like investment",
+          "like a new company, they will bring like lot of features"
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "Sindhu_Preethi_FP_Chennai",
+        "filename": "Sindhu_Preethi_FP_Chennai.docx",
+        "characterization": "The respondent is a busy working mother who manages her household and cooking responsibilities efficiently. She is also open to trying new recipes and experimenting with different ingredients.",
+        "quotes": [
+          "Yes, all the household work is done by me.",
+          "I have set boundaries for the kids so they know the value of money.",
+          "It is a main role.",
+          "What is going to be good in this, but once we do it was so awesome."
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "Satvinder_Bajaj_FP_Mumbai",
+        "filename": "Satvinder_Bajaj_FP_Mumbai.docx",
+        "characterization": "The respondent is a hands-on decision maker, often relying on personal research and friend recommendations. She values efficiency and durability in kitchen appliances.",
+        "quotes": [
+          "he doesn't understand all the situations",
+          "he doesn't even know how to make tea",
+          "I make spices at home",
+          "Put it on pulse mode and it will be done"
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "Payal_Preeti_FP_Pune",
+        "filename": "Payal_Preeti_FP_Pune.docx",
+        "characterization": "The respondent appears to be detail-oriented and habitual in their kitchen routines. They also seem to prioritize their family's needs, particularly their husband's health.",
+        "quotes": [
+          "I have a passion for dancing",
+          "I use this food processor",
+          "Mainly we need it for chopping"
+        ],
+        "_dropped_unverified": [
+          "I don't have to cry while chopping the onions"
+        ]
+      },
+      {
+        "doc_id": "Srividya_Preethi_FP_Bangalore",
+        "filename": "Srividya_Preethi_FP_Bangalore.docx",
+        "characterization": "The respondent is a meticulous planner and values convenience in the kitchen. She is also health-conscious and prioritizes home-cooked meals for her family.",
+        "quotes": [
+          "I manage myself",
+          "My day starts very early",
+          "It's too much of traffic basically to Whitefield",
+          "I need to plan ahead very well in advance"
+        ],
+        "_dropped_unverified": []
+      }
+    ]
+  },
+  "layer1": {
+    "description": "Universal fields present in all project matrices",
+    "fields": {
+      "doc_id": {
+        "type": "string",
+        "required": true
+      },
+      "filename": {
+        "type": "string",
+        "required": true
+      },
+      "word_count": {
+        "type": "integer"
+      },
+      "respondent": {
+        "city": {
+          "type": "string"
+        },
+        "segment": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "age_band": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        }
+      },
+      "pain_points": {
+        "type": "array",
+        "items": {
+          "severity": {
+            "type": "enum",
+            "values": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ],
+            "scoring_rules": {
+              "critical": "Explicit deal-breaker, 3+ reinforcing statements",
+              "high": "Strong hesitation requiring resolution, 2+ statements",
+              "medium": "Conditional acceptance, 1-2 mentions",
+              "low": "Single passive mention"
+            }
+          },
+          "issue_description": {
+            "type": "string"
+          },
+          "verbatim_quote": {
+            "type": "string",
+            "rule": "exact copy — never paraphrase"
+          },
+          "product_area": {
+            "type": "string"
+          },
+          "dg_section": {
+            "type": "string"
+          }
+        }
+      },
+      "nps_signal": {
+        "type": "enum",
+        "values": [
+          "promoter",
+          "passive",
+          "detractor",
+          "unclear"
+        ]
+      },
+      "emotional_resolution": {
+        "type": "enum",
+        "values": [
+          "positive",
+          "negative",
+          "neutral"
+        ]
+      },
+      "narrative_tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "note": "Reference themes with STRONG/MIXED evidence + any emerging themes"
+      },
+      "most_powerful_verbatim": {
+        "type": "string",
+        "note": "Single most insight-carrying quote — exact copy from transcript"
+      },
+      "all_passages": {
+        "type": "array",
+        "items": {
+          "content": {
+            "type": "string",
+            "rule": "30+ words verbatim from transcript"
+          },
+          "sentiment": {
+            "type": "enum",
+            "values": [
+              "positive",
+              "negative",
+              "neutral",
+              "ambivalent"
+            ]
+          },
+          "topic": {
+            "type": "string"
+          },
+          "pain_point": {
+            "type": "boolean"
+          },
+          "decision_signal": {
+            "type": "boolean"
+          },
+          "section": {
+            "type": "string"
+          },
+          "paragraph_index": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "layer2": {
+    "description": "pilot-fpmg-test2 — project-specific extraction dimensions",
+    "fields": {
+      "convenience_level": {
+        "type": "enum",
+        "description": "Level of convenience expected in kitchen appliances",
+        "values": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "scoring_rule": "based on quotes like 'paisa vasool'"
+      },
+      "research_extent": {
+        "type": "enum",
+        "description": "Extent of research conducted before purchasing kitchen appliances",
+        "values": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "scoring_rule": "based on quotes like 'it is like investment'"
+      },
+      "family_involvement": {
+        "type": "boolean",
+        "description": "Whether family members are involved in kitchen tasks",
+        "scoring_rule": "based on quotes like 'Yes, all the household work is done by me.'"
+      },
+      "respondent_archetype": {
+        "type": "enum",
+        "description": "Respondent type as inductively observed across sample transcripts, not a stock category.",
+        "values": [
+          "busy_working_mother",
+          "detail_oriented_researcher",
+          "hands_on_decision_maker",
+          "health_conscious_planner",
+          "family_oriented_habitual"
+        ],
+        "scoring_rule": "Assign the closest-matching observed type; note in narrative_tags if a respondent doesn't fit any cleanly."
+      }
+    }
+  }
+}

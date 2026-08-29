@@ -20,10 +20,15 @@ __pycache__/
 .idea/
 *.swp
 
-# Data files - database downloaded from external source
-data/
+# Data files - survey data served from Google Drive, never committed
+# Use ** (not trailing /) so !-exceptions can unblock metadata files
+data/**
+# Keep qual project metadata (no transcripts, no matrices, no survey data)
 !data/projects/
-!data/projects/**
+!data/projects/registry.json
+!data/projects/*/
+!data/projects/*/schema/
+!data/projects/*/schema/*.json
 *.db
 *.sqlite
 *.sqlite3

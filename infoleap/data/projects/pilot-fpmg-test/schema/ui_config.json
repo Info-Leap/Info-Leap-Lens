@@ -1,0 +1,118 @@
+{
+  "segment_key": "segment",
+  "entity_label": "Segment",
+  "study_context": "Qualitative study exploring appliance usage patterns and decision drivers among diverse household respondents.",
+  "kpi_fields": [],
+  "signal_scores": [
+    {
+      "type": "pain_severity",
+      "ai_suggested": true
+    },
+    {
+      "type": "aspiration_score",
+      "ai_suggested": true
+    },
+    {
+      "type": "field_avg_scaled",
+      "field": "family_size",
+      "scale": 1,
+      "ai_suggested": true
+    }
+  ],
+  "tab1_distributions": [
+    {
+      "path": "respondent_archetype",
+      "label": "Respondent Archetype"
+    },
+    {
+      "path": "decision_influence",
+      "label": "Decision Influence"
+    },
+    {
+      "path": "cooking_routine_time",
+      "label": "Cooking Routine Time"
+    }
+  ],
+  "tab1_verbatim_fields": [],
+  "filter_fields": [
+    {
+      "key": "respondent.segment",
+      "label": "Segment"
+    },
+    {
+      "key": "respondent.city",
+      "label": "City"
+    },
+    {
+      "key": "respondent_archetype",
+      "label": "Respondent Archetype"
+    }
+  ],
+  "ai_insight_keys": [
+    "wants/loves",
+    "PAIN POINTS",
+    "TRUST SIGNAL",
+    "STRATEGIC SIGNAL"
+  ],
+  "tab3_reference_tags": [],
+  "tab4_label": "Respondent Insights",
+  "tab4_sections": [
+    {
+      "type": "distribution",
+      "config": {
+        "fields": [
+          {
+            "path": "respondent_archetype",
+            "label": "Respondent Archetype"
+          },
+          {
+            "path": "decision_influence",
+            "label": "Decision Influence"
+          },
+          {
+            "path": "cooking_routine_time",
+            "label": "Cooking Routine Time"
+          },
+          {
+            "path": "kitchen_layout",
+            "label": "Kitchen Layout"
+          },
+          {
+            "path": "appliance_noise",
+            "label": "Appliance Noise"
+          },
+          {
+            "path": "social_media_influence",
+            "label": "Social Media Influence"
+          },
+          {
+            "path": "ready_made_food_usage",
+            "label": "Ready-Made Food Usage"
+          },
+          {
+            "path": "cooking_time_constraints",
+            "label": "Cooking Time Constraints"
+          },
+          {
+            "path": "appliance_brand_variety",
+            "label": "Appliance Brand Variety"
+          },
+          {
+            "path": "appliance_maintenance",
+            "label": "Appliance Maintenance"
+          }
+        ]
+      }
+    }
+  ],
+  "tab5_trust_field": null,
+  "tab5_trust_verbatim": null,
+  "tab5_trust_builders": null,
+  "tab5_distributions": [
+    "decision_influence",
+    "cooking_routine_time",
+    "kitchen_layout"
+  ],
+  "generated_at": "2026-07-09T08:33:29.017716+00:00",
+  "project_id": "pilot-fpmg-test"
+}

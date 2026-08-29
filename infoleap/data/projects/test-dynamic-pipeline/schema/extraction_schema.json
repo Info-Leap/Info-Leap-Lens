@@ -1,0 +1,356 @@
+{
+  "schema_version": "1.0",
+  "project_id": "test-dynamic-pipeline",
+  "project_type": "concept_testing",
+  "study_summary": "This study is measuring consumer reactions to a meal-kit subscription service, specifically the FreshBox concept, and identifying key adoption drivers and barriers. The study covers current cooking and meal-planning routines, reactions to the meal-kit subscription concept, and factors influencing adoption, such as price, trust, and sustainability.",
+  "generated_at": "2026-07-10T07:38:13.331635+00:00",
+  "source_documents": {
+    "dg": "DG_MealKit_Test.docx",
+    "ai_prompt": "AI_Prompt_MealKit_Test.docx"
+  },
+  "discovery": {
+    "study_domain_observed": "This study is about understanding consumer reactions to a meal-kit subscription service, specifically the FreshBox concept, and identifying key adoption drivers and barriers. The observations reveal concerns around convenience, trust, price, and sustainability. The study also touches on the mental load of meal planning and the importance of flexibility in meal solutions.",
+    "respondent_types": [
+      {
+        "type_name": "convenience_seeker",
+        "definition": "Prioritizes convenience in their cooking routine and is hesitant to commit to new services without trying them first.",
+        "doc_id": "DI 1_Female_Convenience Seeker_Mumbai",
+        "distinguishing_quote": "I'm tempted but worried it's expensive"
+      },
+      {
+        "type_name": "family_planner",
+        "definition": "Values practicality and seeks reliability in meal solutions, often overwhelmed by dinner decisions.",
+        "doc_id": "DI 3_Female_Family Planner_Delhi",
+        "distinguishing_quote": "It's chaos honestly"
+      },
+      {
+        "type_name": "budget_conscious",
+        "definition": "Prioritizes saving money and is skeptical about paying extra for convenience, valuing transparency in pricing and cost comparisons.",
+        "doc_id": "DI 4_Male_Budget Conscious_Pune",
+        "distinguishing_quote": "I have time, just not much money"
+      },
+      {
+        "type_name": "health_optimizer",
+        "definition": "Carefully plans and controls their meals, prioritizing specific nutritional information and willing to spend money on groceries if the quality meets their standards.",
+        "doc_id": "DI 2_Male_Health Optimizer_Bangalore",
+        "distinguishing_quote": "I track macros closely",
+        "_unverified": true
+      }
+    ],
+    "emergent_topics": [
+      {
+        "topic": "mental_load",
+        "doc_id": "DI 3_Female_Family Planner_Delhi",
+        "example_quote": "that mental load is real"
+      },
+      {
+        "topic": "packaging_waste",
+        "doc_id": "DI 1_Female_Convenience Seeker_Mumbai",
+        "example_quote": "Packaging waste worries me a bit"
+      },
+      {
+        "topic": "flexibility_in_meal_solutions",
+        "doc_id": "DI 2_Male_Health Optimizer_Bangalore",
+        "example_quote": "no fixed recipes, some flexibility"
+      }
+    ],
+    "suggested_dimensions": [
+      {
+        "field_name": "cooking_frequency",
+        "type": "enum",
+        "description": "How often the respondent cooks",
+        "enum_values": [
+          "daily",
+          "weekly",
+          "rarely"
+        ],
+        "scoring_rule": "based on quotes like 'I cook most nights' or 'I barely cook on weekdays'",
+        "verbatim_field": false
+      },
+      {
+        "field_name": "meal_planning_effort",
+        "type": "integer",
+        "description": "The amount of effort the respondent puts into meal planning",
+        "enum_values": null,
+        "scoring_rule": "based on quotes like 'that mental load is real' or 'I meal-prep on Sundays'",
+        "verbatim_field": false
+      }
+    ],
+    "brief_dg_mismatch": [],
+    "_sample_docs": [
+      "DI 1_Female_Convenience Seeker_Mumbai.docx",
+      "DI 3_Female_Family Planner_Delhi.docx",
+      "DI 4_Male_Budget Conscious_Pune.docx",
+      "DI 2_Male_Health Optimizer_Bangalore.docx"
+    ],
+    "_observations": [
+      {
+        "doc_id": "DI 1_Female_Convenience Seeker_Mumbai",
+        "filename": "DI 1_Female_Convenience Seeker_Mumbai.docx",
+        "characterization": "This respondent has a busy schedule and prioritizes convenience in their cooking routine. They are hesitant to commit to new services without trying them first.",
+        "quotes": [
+          "I barely cook on weekdays",
+          "I'm tempted but worried it's expensive",
+          "A trial box at a low price",
+          "Packaging waste worries me a bit",
+          "I don't want to commit to a monthly plan blind"
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "DI 3_Female_Family Planner_Delhi",
+        "filename": "DI 3_Female_Family Planner_Delhi.docx",
+        "characterization": "The respondent appears to be overwhelmed by dinner decisions and values practicality. She is cautious and seeks reliability in meal solutions.",
+        "quotes": [
+          "It's chaos honestly",
+          "My kids are picky",
+          "I don't know these brands",
+          "that mental load is real",
+          "Trust, mostly"
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "DI 4_Male_Budget Conscious_Pune",
+        "filename": "DI 4_Male_Budget Conscious_Pune.docx",
+        "characterization": "This respondent prioritizes saving money and is skeptical about paying extra for convenience. They value transparency in pricing and cost comparisons.",
+        "quotes": [
+          "I cook most nights",
+          "Sounds like something for people with more money than time",
+          "I have time, just not much money",
+          "like a bulk discount passed to me",
+          "A real side-by-side cost comparison",
+          "Not marketing math"
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "DI 2_Male_Health Optimizer_Bangalore",
+        "filename": "DI 2_Male_Health Optimizer_Bangalore.docx",
+        "characterization": "This respondent carefully plans and controls their meals, prioritizing specific nutritional information. They are willing to spend money on groceries if the quality meets their standards.",
+        "quotes": [
+          "I meal-prep on Sundays",
+          "It's boring but I track macros closely",
+          "that's a dealbreaker for me",
+          "A 'high-protein' or 'fitness' line",
+          "no fixed recipes, some flexibility",
+          "I already spend a lot on groceries"
+        ],
+        "_dropped_unverified": []
+      }
+    ]
+  },
+  "objective_coverage": [
+    {
+      "objective": "Examine current cooking and meal-planning routines and pain points",
+      "covered_by": "warm_up_current_routine"
+    },
+    {
+      "objective": "Understand reactions to the meal-kit subscription concept",
+      "covered_by": "concept_introduction"
+    },
+    {
+      "objective": "Identify key adoption drivers, price sensitivity, and barriers to trial",
+      "covered_by": "barriers_and_drivers"
+    },
+    {
+      "objective": "Understand how different consumer segments react differently",
+      "covered_by": "dg_sections"
+    },
+    {
+      "objective": "Track how much mental load meal planning creates",
+      "covered_by": "meal_planning_effort"
+    },
+    {
+      "objective": "Examine whether respondents trust a new, unfamiliar meal-kit brand",
+      "covered_by": "barriers_to_trial"
+    },
+    {
+      "objective": "Track whether respondents see this as premium/worth it or overpriced convenience",
+      "covered_by": "price_value_perception"
+    },
+    {
+      "objective": "Note any sustainability objections",
+      "covered_by": "packaging_and_sustainability_concerns"
+    }
+  ],
+  "layer1": {
+    "description": "Universal fields present in all project matrices",
+    "fields": {
+      "doc_id": {
+        "type": "string",
+        "required": true
+      },
+      "filename": {
+        "type": "string",
+        "required": true
+      },
+      "word_count": {
+        "type": "integer"
+      },
+      "respondent": {
+        "city": {
+          "type": "string"
+        },
+        "segment": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "age_band": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        }
+      },
+      "pain_points": {
+        "type": "array",
+        "items": {
+          "severity": {
+            "type": "enum",
+            "values": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ],
+            "scoring_rules": {
+              "critical": "Explicit deal-breaker, 3+ reinforcing statements",
+              "high": "Strong hesitation requiring resolution, 2+ statements",
+              "medium": "Conditional acceptance, 1-2 mentions",
+              "low": "Single passive mention"
+            }
+          },
+          "issue_description": {
+            "type": "string"
+          },
+          "verbatim_quote": {
+            "type": "string",
+            "rule": "exact copy — never paraphrase"
+          },
+          "product_area": {
+            "type": "string"
+          },
+          "dg_section": {
+            "type": "string"
+          }
+        }
+      },
+      "nps_signal": {
+        "type": "enum",
+        "values": [
+          "promoter",
+          "passive",
+          "detractor",
+          "unclear"
+        ]
+      },
+      "emotional_resolution": {
+        "type": "enum",
+        "values": [
+          "positive",
+          "negative",
+          "neutral"
+        ]
+      },
+      "narrative_tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "note": "Reference themes with STRONG/MIXED evidence + any emerging themes"
+      },
+      "most_powerful_verbatim": {
+        "type": "string",
+        "rule": "exact copy — never paraphrase",
+        "note": "Single most insight-carrying quote — exact copy from transcript"
+      },
+      "all_passages": {
+        "type": "array",
+        "items": {
+          "content": {
+            "type": "string",
+            "rule": "30+ words verbatim from transcript"
+          },
+          "sentiment": {
+            "type": "enum",
+            "values": [
+              "positive",
+              "negative",
+              "neutral",
+              "ambivalent"
+            ]
+          },
+          "topic": {
+            "type": "string"
+          },
+          "pain_point": {
+            "type": "boolean"
+          },
+          "decision_signal": {
+            "type": "boolean"
+          },
+          "section": {
+            "type": "string"
+          },
+          "paragraph_index": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "layer2": {
+    "description": "SYNTHETIC TEST — Meal-Kit Subscription Concept Study — project-specific extraction dimensions",
+    "fields": {
+      "cooking_frequency": {
+        "type": "enum",
+        "description": "How often the respondent cooks",
+        "values": [
+          "daily",
+          "weekly",
+          "rarely"
+        ],
+        "scoring_rule": "based on quotes like 'I cook most nights' or 'I barely cook on weekdays'"
+      },
+      "meal_planning_effort": {
+        "type": "integer",
+        "description": "The amount of effort the respondent puts into meal planning",
+        "scoring_rule": "based on quotes like 'that mental load is real' or 'I meal-prep on Sundays'"
+      },
+      "initial_reaction": {
+        "type": "string",
+        "description": "The respondent's initial reaction to the FreshBox concept",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "barriers_to_trial": {
+        "type": "array",
+        "description": "The factors that would stop the respondent from trying the FreshBox service",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "drivers_to_subscribe": {
+        "type": "array",
+        "description": "The factors that would convince the respondent to subscribe to the FreshBox service",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "price_value_perception": {
+        "type": "string",
+        "description": "The respondent's perception of the price and value of the FreshBox service",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "respondent_archetype": {
+        "type": "enum",
+        "description": "Respondent type as inductively observed across sample transcripts, not a stock category.",
+        "values": [
+          "convenience_seeker",
+          "family_planner",
+          "budget_conscious",
+          "health_optimizer"
+        ],
+        "scoring_rule": "Assign the closest-matching observed type; note in narrative_tags if a respondent doesn't fit any cleanly."
+      }
+    }
+  }
+}

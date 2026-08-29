@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0",
+  "project_type": "ethnographic_appliance",
+  "study_description": "In-home ethnographic IDIs — kitchen appliance buyers, FMCD category (mixer-grinder, food processor, blender, juicer). No formal DG available; Layer 2 derived from study context and actual extracted data patterns.",
+  "layer1": {
+    "description": "Universal fields — identical across all projects",
+    "fields": {
+      "doc_id":    { "type": "string", "required": true },
+      "filename":  { "type": "string", "required": true },
+      "word_count": { "type": "integer" },
+      "respondent": {
+        "city":       { "type": "string" },
+        "segment":    { "type": "string", "note": "maps to brand_owned for Mixer" },
+        "gender":     { "type": "string" },
+        "age_band":   { "type": "string" },
+        "occupation": { "type": "string" }
+      },
+      "pain_points": {
+        "type": "array",
+        "items": {
+          "severity": {
+            "type": "enum",
+            "values": ["critical", "high", "medium", "low"],
+            "scoring_rules": {
+              "critical": "Explicit deal-breaker — product abandoned, brand never considered again. 3+ reinforcing statements.",
+              "high": "Strong unresolved frustration. Required workaround or near-replacement decision. 2+ statements.",
+              "medium": "Noted complaint, conditional tolerance. 1-2 mentions, did not trigger switch.",
+              "low": "Minor inconvenience. Single passive mention. Does not affect usage or loyalty."
+            }
+          },
+          "issue_description": { "type": "string" },
+          "product_area":      { "type": "string" },
+          "workaround_used":   { "type": "string" },
+          "verbatim_quote":    { "type": "string", "rule": "exact copy — never paraphrase" },
+          "dg_section":        { "type": "string" }
+        }
+      },
+      "nps_signal": {
+        "type": "enum",
+        "values": ["promoter", "passive", "detractor", "unclear"],
+        "scoring_rules": {
+          "promoter":  "Unprompted recommendation to others, repeat purchase intent, emotionally attached. 'I told everyone to buy this brand.'",
+          "passive":   "Happy but not enthusiastic. Would not proactively recommend. No negative statements.",
+          "detractor": "Would warn others against brand. Expresses distrust, disappointment, or active complaint. Considering switch.",
+          "unclear":   "Insufficient evidence to classify."
+        }
+      },
+      "emotional_resolution": {
+        "type": "enum",
+        "values": ["positive", "negative", "neutral"],
+        "scoring_rules": {
+          "positive": "Interview ends on satisfaction, pride, or contentment with product/brand.",
+          "negative": "Interview ends on frustration, disappointment, or unresolved issue.",
+          "neutral":  "Mixed or no strong emotional close."
+        }
+      },
+      "all_passages": {
+        "type": "array",
+        "items": {
+          "content":          { "type": "string" },
+          "sentiment":        { "type": "enum", "values": ["positive", "negative", "neutral", "ambivalent"] },
+          "topic":            { "type": "string" },
+          "pain_point":       { "type": "boolean" },
+          "decision_signal":  { "type": "boolean" },
+          "section":          { "type": "string" },
+          "paragraph_index":  { "type": "integer" }
+        }
+      }
+    }
+  },
+  "layer2": {
+    "description": "FMCD ethnographic — kitchen appliance in-home immersion. Layer 2 derived from study context (no formal DG). Based on 233 actual interviews and observed data patterns.",
+    "fields": {
+      "respondent_extended": {
+        "journey_stage": {
+          "type": "enum",
+          "values": ["recent_buyer", "intender", "longtime_user", "lapsed"],
+          "scoring_rules": {
+            "recent_buyer":    "Purchased within last 12 months. Purchase decision still salient.",
+            "intender":        "Planning to buy in next 3-6 months. Actively comparing.",
+            "longtime_user":   "Using same brand 3+ years. Habitual, low active consideration.",
+            "lapsed":          "Previously used brand, switched away."
+          }
+        },
+        "usage_context": {
+          "type": "enum",
+          "values": ["homemaker", "working_professional", "student", "other"]
+        },
+        "household_size": {
+          "type": "enum",
+          "values": ["small_1_3", "medium_4_5", "large_6_plus"]
+        }
+      },
+      "brand_owned": { "type": "string", "note": "primary appliance brand owned" },
+      "appliance_category": {
+        "type": "enum",
+        "values": ["mixer_grinder", "food_processor", "blender", "juicer", "smoothie_maker", "multiple"]
+      },
+      "cook_identity": {
+        "type": "enum",
+        "values": ["skilled_cook", "practical_cook", "aspiring_cook", "reluctant_cook"],
+        "scoring_rules": {
+          "skilled_cook":    "Describes cooking with pride. Uses appliance for complex/varied tasks. Identity tied to cooking well.",
+          "practical_cook":  "Cooking is a daily duty. Uses appliance for efficiency, not joy. No emotional language about cooking.",
+          "aspiring_cook":   "Wants to cook more ambitiously. Appliance is enabler for aspirations. Follows recipes, new dishes.",
+          "reluctant_cook":  "Minimal use. Cooking is obligation. Simple tasks only. Appliance underutilised."
+        }
+      },
+      "brand_relationship": {
+        "relationship_stage": {
+          "type": "enum",
+          "values": ["loyal", "satisfied", "strained", "at_risk", "new"],
+          "scoring_rules": {
+            "loyal":     "Repeat purchase intent. Recommends unprompted. Emotional attachment. Multiple years.",
+            "satisfied": "No active complaint. Passive recommender. Would likely repurchase.",
+            "strained":  "One+ unresolved issues. Expressing doubt or frustration. Not actively switching yet.",
+            "at_risk":   "Considering switch. Significant disappointment. Would not recommend.",
+            "new":       "First brand purchase. Forming first impressions."
+          }
+        }
+      },
+      "brand_loyalty_type": {
+        "type": "enum",
+        "values": ["inherited", "researched", "recommended", "price_driven", "aspirational"],
+        "scoring_rules": {
+          "inherited":    "Using brand because family always used it. No independent evaluation.",
+          "researched":   "Actively compared brands, features, price. Made informed independent choice.",
+          "recommended":  "Chose based on peer, family, or neighbour advice. Trusted word-of-mouth.",
+          "price_driven": "Selected on price, offer, or deal. No strong brand pull.",
+          "aspirational": "Chose brand for perceived status, modernity, or upgrade aspiration."
+        }
+      },
+      "kitchen_dynamics": {
+        "type": "enum",
+        "values": ["sole_decision_maker", "joint_decision", "deferred_to_family", "influenced_by_family"]
+      },
+      "usage_occasions": {
+        "type": "array",
+        "items": { "type": "string" },
+        "examples": ["daily_grinding", "weekly_batch", "festive", "dosa_batter", "chutney", "dal_grinding", "tomato_puree", "juice", "smoothie", "dry_masala"]
+      },
+      "aspiration_reality_gaps": {
+        "type": "array",
+        "items": {
+          "aspiration":             { "type": "string" },
+          "current_reality":        { "type": "string" },
+          "workaround":             { "type": "string" },
+          "commercial_opportunity": {
+            "type": "enum",
+            "values": ["high", "medium", "low"],
+            "scoring_rules": {
+              "high":   "Respondent would pay more or switch brand for this. Explicit desire stated.",
+              "medium": "Mentioned as desirable, not a blocker or dealmaker.",
+              "low":    "Passive observation. Would not affect purchase decision."
+            }
+          },
+          "emotional_charge": {
+            "type": "enum",
+            "values": ["high", "medium", "low"],
+            "scoring_rules": {
+              "high":   "Frustration, disappointment, or longing expressed. Vocal about the gap.",
+              "medium": "Noted calmly. No strong emotion.",
+              "low":    "Casual mention. Accepted as normal."
+            }
+          },
+          "verbatim_quote": { "type": "string" }
+        }
+      },
+      "unspoken_needs": {
+        "type": "array",
+        "items": { "type": "string" },
+        "note": "Inferred from workarounds and frustrations not directly stated as product requests. E.g., 'rinses jar 3 times before use' → unspoken need: odour-resistant materials"
+      },
+      "jobs_to_be_done": {
+        "type": "array",
+        "items": { "type": "string" },
+        "note": "Specific tasks the appliance is hired to do, in respondent's own words"
+      },
+      "peak_emotional_moment": {
+        "emotion":       { "type": "string" },
+        "trigger":       { "type": "string" },
+        "verbatim_quote": { "type": "string" }
+      },
+      "identity_signals": {
+        "cook_self_image": {
+          "type": "string",
+          "note": "How respondent describes themselves as a cook — direct quote preferred"
+        }
+      },
+      "cultural_context": {
+        "primary_use_cases": { "type": "array", "items": { "type": "string" } },
+        "regional_cooking_patterns": { "type": "string" }
+      },
+      "blame_attribution": {
+        "self_blame_instances": {
+          "type": "array",
+          "note": "Respondent attributes product failure to own misuse. E.g., 'I didn't clean it properly'"
+        },
+        "product_blame_instances": {
+          "type": "array",
+          "note": "Respondent attributes failure to product or brand. E.g., 'The motor was weak'"
+        }
+      },
+      "feature_priorities": {
+        "type": "array",
+        "items": {
+          "feature":    { "type": "string" },
+          "importance": {
+            "type": "enum",
+            "values": ["high", "medium", "low"],
+            "scoring_rules": {
+              "high":   "Mentioned as reason for purchase, switch, or strong praise. Non-negotiable.",
+              "medium": "Noted as desirable, not deciding factor.",
+              "low":    "Casual mention. Background consideration."
+            }
+          }
+        }
+      },
+      "decision_drivers": {
+        "type": "array",
+        "items": {
+          "driver":      { "type": "string" },
+          "info_source": {
+            "type": "enum",
+            "values": ["family", "word_of_mouth", "online_review", "showroom", "advertisement", "influencer", "self_research", "brand_loyalty"]
+          }
+        }
+      },
+      "brand_mentions": {
+        "type": "array",
+        "items": {
+          "brand":                  { "type": "string" },
+          "sentiment":              { "type": "enum", "values": ["positive", "negative", "neutral"] },
+          "attributes_mentioned":   { "type": "array", "items": { "type": "string" } },
+          "verbatim_quote":         { "type": "string" }
+        }
+      },
+      "narrative_tags": {
+        "type": "array",
+        "items": { "type": "string" },
+        "possible_values": [
+          "loyal_heritage_brand",
+          "aspirational_upgrade",
+          "price_compromised",
+          "service_trauma",
+          "workaround_habituated",
+          "noise_sensitive",
+          "multi_appliance_household",
+          "gifted_appliance",
+          "post_breakage_switch",
+          "identity_cook",
+          "family_approval_purchase",
+          "regional_cuisine_specific_need"
+        ],
+        "note": "Applied in second-pass synthesis, not per-transcript extraction"
+      }
+    }
+  }
+}

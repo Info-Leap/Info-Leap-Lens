@@ -1,0 +1,428 @@
+{
+  "schema_version": "1.0",
+  "project_id": "pilot-fpmg-test",
+  "project_type": "qualitative",
+  "study_summary": "pilot-fpmg-test qualitative study",
+  "generated_at": "2026-07-09T08:32:30.591894+00:00",
+  "source_documents": {
+    "dg": "DISCUSSION_GUIDE-Sujatha_MG_Food_Processors_KYC.docx",
+    "ai_prompt": null
+  },
+  "discovery": {
+    "study_domain_observed": "The study investigates how households use and decide on kitchen appliances—particularly mixer grinders and food processors—to achieve convenience in cooking. It explores usage patterns, brand preferences, pain points, and the influence of family and social media on purchase decisions. This confirms the pilot‑fpmg‑test label but clarifies that the focus is on consumer use of kitchen appliances rather than a broader product category.",
+    "respondent_types": [
+      {
+        "type_name": "self_reliant_decision_maker",
+        "definition": "Respondent who makes appliance purchases independently, influenced mainly by friends and online reviews, with minimal family involvement.",
+        "distinguishing_quote": "\"Finally, it's mine because he doesn't understand all the situations.\""
+      },
+      {
+        "type_name": "brand_loyal_multitasker",
+        "definition": "Respondent who uses a single brand’s mixer grinder for a wide range of tasks, cooks all meals, and shows strong brand loyalty.",
+        "distinguishing_quote": "\"My mixer makes cooking easy for me.\""
+      },
+      {
+        "type_name": "selective_attachment_user",
+        "definition": "Respondent who owns a food processor but uses only a subset of attachments regularly, and supplements with other appliances.",
+        "distinguishing_quote": "\"I use it 2-3 times a day. To make a milkshake in the morning, or to grind spices, or for wet grinding.\""
+      },
+      {
+        "type_name": "social_media_influenced_cook",
+        "definition": "Respondent who relies on cooking reels and online content for recipe ideas and appliance choices, and actively shares cooking experiences.",
+        "distinguishing_quote": "\"Mostly, I get it recommended by my friends or by searching online.\""
+      }
+    ],
+    "emergent_topics": [
+      {
+        "topic": "family_involvement_in_decision",
+        "example_quote": "\"They get excited when I bring some kitchen household items.\""
+      },
+      {
+        "topic": "attachment_usage_frequency",
+        "example_quote": "\"I use it 2-3 times a day.\""
+      },
+      {
+        "topic": "juicer_wastage_pain_point",
+        "example_quote": "\"There is a lot of juice left in the pulp.\""
+      },
+      {
+        "topic": "mixer_grinder_for_paste_preparation",
+        "example_quote": "\"My mixer makes cooking easy for me.\""
+      },
+      {
+        "topic": "voltage_and_power_preference",
+        "example_quote": "\"I want a stronger or higher voltage as I am already using a 750 voltage mixer.\""
+      },
+      {
+        "topic": "online_and_friends_influence",
+        "example_quote": "\"Mostly, I get it recommended by my friends or by searching online.\""
+      },
+      {
+        "topic": "time_constrained_cooking",
+        "example_quote": "\"I quickly picked up the mixer.\""
+      },
+      {
+        "topic": "ready_made_food_usage",
+        "example_quote": "\"We use very less ready-made food.\""
+      },
+      {
+        "topic": "appliance_noise_and_vibration",
+        "example_quote": "\"There is noise. It is closed now, there is work going on.\""
+      },
+      {
+        "topic": "maintenance_and_repair_frequency",
+        "example_quote": "\"Every 3-4 months, its blade gets damaged.\""
+      },
+      {
+        "topic": "kitchen_layout_and_fixed_appliances",
+        "example_quote": "\"The kitchen is fixed.\""
+      },
+      {
+        "topic": "cooking_style_diversity",
+        "example_quote": "\"All Indian food, Punjabi, South Indian, Chinese, etc.\""
+      },
+      {
+        "topic": "social_media_recipe_influence",
+        "example_quote": "\"I also made Chicken Kufu. I also made Malai Kofta.\""
+      }
+    ],
+    "suggested_dimensions": [
+      {
+        "field_name": "family_size",
+        "type": "integer",
+        "description": "Number of people living in the respondent's household.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "decision_influence",
+        "type": "enum",
+        "description": "Primary source influencing appliance purchase decisions.",
+        "enum_values": [
+          "self",
+          "family",
+          "friends",
+          "online",
+          "brand",
+          "others"
+        ],
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "cooking_routine_time",
+        "type": "string",
+        "description": "Typical time of day when cooking occurs (e.g., morning, evening).",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "cooking_style",
+        "type": "array",
+        "description": "Types of cuisine prepared by the respondent.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "appliance_noise",
+        "type": "boolean",
+        "description": "Whether the respondent reports noise or vibration from appliances.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "appliance_repair_frequency_months",
+        "type": "integer",
+        "description": "Average number of months between appliance repairs or maintenance.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "appliance_capacity",
+        "type": "string",
+        "description": "Electrical capacity or power rating of the primary appliance (e.g., 750W).",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "appliance_attachments_used",
+        "type": "array",
+        "description": "List of attachments or functions used on the primary appliance.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "social_media_influence",
+        "type": "boolean",
+        "description": "Whether the respondent uses social media for cooking ideas or appliance recommendations.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "ready_made_food_usage",
+        "type": "boolean",
+        "description": "Whether the respondent frequently uses ready-made food items.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "kitchen_layout",
+        "type": "string",
+        "description": "Physical layout of the kitchen (e.g., fixed, open).",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "cooking_time_constraints",
+        "type": "boolean",
+        "description": "Whether the respondent experiences time pressure during cooking.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "appliance_brand_variety",
+        "type": "boolean",
+        "description": "Whether the respondent uses multiple brands of the same appliance type.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      },
+      {
+        "field_name": "appliance_maintenance",
+        "type": "boolean",
+        "description": "Whether the respondent performs regular maintenance on appliances.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false
+      }
+    ],
+    "brief_dg_mismatch": [
+      "The discussion guide implies that respondents will discuss all kitchen appliances, but transcripts show focus mainly on mixer grinders and food processors, with limited mention of other appliances.",
+      "The guide assumes a single brand focus, yet respondents mention multiple brands (Bajaj, Sujata, Samsung, LG) and compare them.",
+      "The guide suggests that noise and vibration are common concerns, but only one respondent reports this issue."
+    ],
+    "_sample_docs": [
+      "Satvinder_Bajaj_FP_Mumbai.docx",
+      "Ridhi_Bajaj_FP_Mumbai.docx",
+      "Dimple_Bajaj_FP_Mumbai.docx"
+    ]
+  },
+  "layer1": {
+    "description": "Universal fields present in all project matrices",
+    "fields": {
+      "doc_id": {
+        "type": "string",
+        "required": true
+      },
+      "filename": {
+        "type": "string",
+        "required": true
+      },
+      "word_count": {
+        "type": "integer"
+      },
+      "respondent": {
+        "city": {
+          "type": "string"
+        },
+        "segment": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "age_band": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        }
+      },
+      "pain_points": {
+        "type": "array",
+        "items": {
+          "severity": {
+            "type": "enum",
+            "values": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ],
+            "scoring_rules": {
+              "critical": "Explicit deal-breaker, 3+ reinforcing statements",
+              "high": "Strong hesitation requiring resolution, 2+ statements",
+              "medium": "Conditional acceptance, 1-2 mentions",
+              "low": "Single passive mention"
+            }
+          },
+          "issue_description": {
+            "type": "string"
+          },
+          "verbatim_quote": {
+            "type": "string",
+            "rule": "exact copy — never paraphrase"
+          },
+          "product_area": {
+            "type": "string"
+          },
+          "dg_section": {
+            "type": "string"
+          }
+        }
+      },
+      "nps_signal": {
+        "type": "enum",
+        "values": [
+          "promoter",
+          "passive",
+          "detractor",
+          "unclear"
+        ]
+      },
+      "emotional_resolution": {
+        "type": "enum",
+        "values": [
+          "positive",
+          "negative",
+          "neutral"
+        ]
+      },
+      "narrative_tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "note": "Reference themes with STRONG/MIXED evidence + any emerging themes"
+      },
+      "most_powerful_verbatim": {
+        "type": "string",
+        "note": "Single most insight-carrying quote — exact copy from transcript"
+      },
+      "all_passages": {
+        "type": "array",
+        "items": {
+          "content": {
+            "type": "string",
+            "rule": "30+ words verbatim from transcript"
+          },
+          "sentiment": {
+            "type": "enum",
+            "values": [
+              "positive",
+              "negative",
+              "neutral",
+              "ambivalent"
+            ]
+          },
+          "topic": {
+            "type": "string"
+          },
+          "pain_point": {
+            "type": "boolean"
+          },
+          "decision_signal": {
+            "type": "boolean"
+          },
+          "section": {
+            "type": "string"
+          },
+          "paragraph_index": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "layer2": {
+    "description": "pilot-fpmg-test — project-specific extraction dimensions",
+    "fields": {
+      "respondent_archetype": {
+        "type": "enum",
+        "description": "Respondent type as inductively observed across sample transcripts, not a stock category.",
+        "values": [
+          "self_reliant_decision_maker",
+          "brand_loyal_multitasker",
+          "selective_attachment_user",
+          "social_media_influenced_cook"
+        ],
+        "scoring_rule": "Assign the closest-matching observed type; note in narrative_tags if a respondent doesn't fit any cleanly."
+      },
+      "family_size": {
+        "type": "integer",
+        "description": "Number of people living in the respondent's household."
+      },
+      "decision_influence": {
+        "type": "enum",
+        "description": "Primary source influencing appliance purchase decisions.",
+        "values": [
+          "self",
+          "family",
+          "friends",
+          "online",
+          "brand",
+          "others"
+        ]
+      },
+      "cooking_routine_time": {
+        "type": "string",
+        "description": "Typical time of day when cooking occurs (e.g., morning, evening)."
+      },
+      "cooking_style": {
+        "type": "array",
+        "description": "Types of cuisine prepared by the respondent."
+      },
+      "appliance_noise": {
+        "type": "boolean",
+        "description": "Whether the respondent reports noise or vibration from appliances."
+      },
+      "appliance_repair_frequency_months": {
+        "type": "integer",
+        "description": "Average number of months between appliance repairs or maintenance."
+      },
+      "appliance_capacity": {
+        "type": "string",
+        "description": "Electrical capacity or power rating of the primary appliance (e.g., 750W)."
+      },
+      "appliance_attachments_used": {
+        "type": "array",
+        "description": "List of attachments or functions used on the primary appliance."
+      },
+      "social_media_influence": {
+        "type": "boolean",
+        "description": "Whether the respondent uses social media for cooking ideas or appliance recommendations."
+      },
+      "ready_made_food_usage": {
+        "type": "boolean",
+        "description": "Whether the respondent frequently uses ready-made food items."
+      },
+      "kitchen_layout": {
+        "type": "string",
+        "description": "Physical layout of the kitchen (e.g., fixed, open)."
+      },
+      "cooking_time_constraints": {
+        "type": "boolean",
+        "description": "Whether the respondent experiences time pressure during cooking."
+      },
+      "appliance_brand_variety": {
+        "type": "boolean",
+        "description": "Whether the respondent uses multiple brands of the same appliance type."
+      },
+      "appliance_maintenance": {
+        "type": "boolean",
+        "description": "Whether the respondent performs regular maintenance on appliances."
+      }
+    }
+  }
+}

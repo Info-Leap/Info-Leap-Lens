@@ -1,0 +1,156 @@
+{
+  "segment_key": "respondent_archetype",
+  "entity_label": "Respondent Type",
+  "study_context": "This study measures consumer reactions to a meal-kit subscription service, specifically the FreshBox concept, and identifies key adoption drivers and barriers.",
+  "kpi_fields": [
+    {
+      "path": "meal_planning_effort",
+      "label": "Meal Planning Effort",
+      "format": "high_count",
+      "ai_suggested": true
+    },
+    {
+      "path": "cooking_frequency",
+      "label": "Cooking Frequency",
+      "format": "/10",
+      "ai_suggested": true
+    },
+    {
+      "path": "price_value_perception",
+      "label": "Price Value Perception",
+      "format": "positive_pct",
+      "ai_suggested": true
+    },
+    {
+      "path": "drivers_to_subscribe",
+      "label": "Drivers to Subscribe",
+      "format": "high_count",
+      "ai_suggested": true
+    },
+    {
+      "path": "barriers_to_trial",
+      "label": "Barriers to Trial",
+      "format": "high_count",
+      "ai_suggested": true
+    }
+  ],
+  "signal_scores": [
+    {
+      "type": "field_avg_scaled",
+      "field": "meal_planning_effort",
+      "scale": "1-5",
+      "label": "Meal Planning Effort Score",
+      "ai_suggested": true
+    },
+    {
+      "type": "pain_severity",
+      "field": "barriers_to_trial",
+      "label": "Pain Severity Score",
+      "ai_suggested": true
+    },
+    {
+      "type": "aspiration_score",
+      "field": "drivers_to_subscribe",
+      "label": "Aspiration Score",
+      "ai_suggested": true
+    }
+  ],
+  "tab1_distributions": [
+    {
+      "path": "cooking_frequency",
+      "label": "Cooking Frequency"
+    },
+    {
+      "path": "respondent_archetype",
+      "label": "Respondent Type"
+    },
+    {
+      "path": "meal_planning_effort",
+      "label": "Meal Planning Effort"
+    }
+  ],
+  "tab1_verbatim_fields": [
+    {
+      "path": "initial_reaction",
+      "label": "Initial Reaction"
+    },
+    {
+      "path": "price_value_perception",
+      "label": "Price Value Perception"
+    }
+  ],
+  "filter_fields": [
+    {
+      "key": "respondent_archetype",
+      "label": "Respondent Type"
+    },
+    {
+      "key": "cooking_frequency",
+      "label": "Cooking Frequency"
+    },
+    {
+      "key": "meal_planning_effort",
+      "label": "Meal Planning Effort"
+    }
+  ],
+  "ai_insight_keys": [
+    "wants/loves",
+    "PAIN POINTS",
+    "TRUST SIGNAL",
+    "STRATEGIC SIGNAL"
+  ],
+  "tab3_reference_tags": [
+    "meal kit",
+    "subscription service",
+    "cooking frequency",
+    "meal planning effort",
+    "price value perception",
+    "drivers to subscribe",
+    "barriers to trial"
+  ],
+  "tab4_label": "Meal-Kit Subscription Concept Study",
+  "tab4_sections": [
+    {
+      "type": "adoption_detail",
+      "drivers_field": "drivers_to_subscribe",
+      "barriers_field": "barriers_to_trial"
+    },
+    {
+      "type": "distribution",
+      "fields": [
+        {
+          "path": "cooking_frequency",
+          "label": "Cooking Frequency"
+        },
+        {
+          "path": "respondent_archetype",
+          "label": "Respondent Type"
+        },
+        {
+          "path": "meal_planning_effort",
+          "label": "Meal Planning Effort"
+        }
+      ]
+    },
+    {
+      "type": "verbatim_list",
+      "field": "initial_reaction",
+      "max_items": 10
+    }
+  ],
+  "tab5_trust_field": "price_value_perception",
+  "tab5_trust_verbatim": "initial_reaction",
+  "tab5_trust_builders": "drivers_to_subscribe",
+  "tab5_distributions": [
+    {
+      "path": "cooking_frequency",
+      "label": "Cooking Frequency"
+    },
+    {
+      "path": "respondent_archetype",
+      "label": "Respondent Type"
+    }
+  ],
+  "generated_at": "2026-07-10T07:39:14.386938+00:00",
+  "project_id": "test-dynamic-pipeline"
+}

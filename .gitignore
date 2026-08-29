@@ -19,11 +19,18 @@ dist/
 build/
 
 # ── Data / DB (never commit raw survey data) ──────────────────────────────────
-data/
+/data/
 oxdata/data/
 lens/
-# infoleap/data/ — all data served from Google Drive (STORAGE_BACKEND=gdrive), never committed
-infoleap/data/
+# infoleap/data/ — all survey data served from Google Drive, never committed
+# Use ** (not trailing /) so !-exceptions below can unblock metadata files
+infoleap/data/**
+# Exceptions: qual project metadata — no survey data, no transcripts, no matrices
+!infoleap/data/projects/
+!infoleap/data/projects/registry.json
+!infoleap/data/projects/*/
+!infoleap/data/projects/*/schema/
+!infoleap/data/projects/*/schema/*.json
 *.sqlite
 *.sqlite3
 

@@ -1,0 +1,1181 @@
+{
+  "schema_version": "1.0",
+  "project_id": "karat-coindcx",
+  "project_type": "concept_testing",
+  "study_summary": "This study measures investor attitudes toward digital gold, focusing on security, transparency, and government affiliation, while exploring how digital gold fits into their broader investment strategies.",
+  "generated_at": "2026-07-23T03:31:54.998540+00:00",
+  "source_documents": {
+    "dg": "DG_Prj_Karat_Qual.docx",
+    "ai_prompt": "AI_Prompt_CoinDCX_Digital_Gold.docx"
+  },
+  "discovery": {
+    "study_domain_observed": "This study explores investor attitudes toward digital gold, focusing on security, transparency, and government affiliation. Respondents discuss their investment strategies, balancing traditional assets like gold and mutual funds with newer options like crypto, while emphasizing cautious and pragmatic approaches.",
+    "respondent_types": [
+      {
+        "type_name": "cautious_detail_oriented_investor",
+        "definition": "A cautious investor who values security and transparency, balancing introversion with professional extroversion.",
+        "doc_id": "DI_6_Male_FDMF_Delhi_m4a",
+        "distinguishing_quote": "I wait for the market to open the next day. Then I look at the graph, how it's going up and down."
+      },
+      {
+        "type_name": "pragmatic_cautious_investor",
+        "definition": "A pragmatic investor prioritizing security and gradual progress, relying on digital tools and market research.",
+        "doc_id": "DI_5_Male_Stock_Investor_Lucknow_m4a",
+        "distinguishing_quote": "Because it is obvious that if something is coming to the place, then it is better for us to go digital, our personal thing."
+      },
+      {
+        "type_name": "proactive_cautious_investor",
+        "definition": "A proactive investor balancing traditional and newer investments, valuing transparency and government compliance.",
+        "doc_id": "DI_2_Male_Digital_Gold_Delhi_m4a",
+        "distinguishing_quote": "I also invested in crypto as crypto had also come down recently."
+      }
+    ],
+    "emergent_topics": [
+      {
+        "topic": "government_affiliation",
+        "doc_id": "DI_6_Male_FDMF_Delhi_m4a",
+        "example_quote": "I liked the concept. One last thing I did not like was that at least it is government affiliated."
+      },
+      {
+        "topic": "digital_transformation",
+        "doc_id": "DI_5_Male_Stock_Investor_Lucknow_m4a",
+        "example_quote": "Because it is obvious that if something is coming to the place, then it is better for us to go digital, our personal thing."
+      },
+      {
+        "topic": "investment_diversification",
+        "doc_id": "DI_8_Male_FDMF_Lucknow_m4a",
+        "example_quote": "Right now, I plan to invest in some gold and some mutual funds."
+      }
+    ],
+    "suggested_dimensions": [
+      {
+        "field_name": "investment_portfolio_diversity",
+        "type": "array",
+        "description": "Types of investments respondents currently hold or plan to hold.",
+        "enum_values": [
+          "gold",
+          "mutual_funds",
+          "crypto",
+          "stocks",
+          "insurance"
+        ],
+        "scoring_rule": null,
+        "verbatim_field": false,
+        "ui_section": "category_context"
+      },
+      {
+        "field_name": "government_affiliation_preference",
+        "type": "boolean",
+        "description": "Whether respondents prioritize government affiliation in their investments.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": false,
+        "ui_section": "trust_adoption"
+      },
+      {
+        "field_name": "digital_transformation_attitude",
+        "type": "string",
+        "description": "Respondents' attitudes toward digital transformation in investments.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": true,
+        "ui_section": "category_context"
+      }
+    ],
+    "brief_dg_mismatch": [],
+    "_sample_docs": [
+      "DI_6_Male_FDMF_Delhi_m4a.md",
+      "DI_5_Male_Stock_Investor_Lucknow_m4a.md",
+      "DI 6_Male_FDMF_Delhi.m4a.docx",
+      "DI_8_Male_FDMF_Lucknow_m4a.md",
+      "DI_2_Male_Digital_Gold_Delhi_m4a.md"
+    ],
+    "_observations": [
+      {
+        "doc_id": "DI_6_Male_FDMF_Delhi_m4a",
+        "filename": "DI_6_Male_FDMF_Delhi_m4a.md",
+        "characterization": "Naveen is a cautious and detail-oriented investor who values security and transparency in his financial decisions. He balances his introverted nature with a professional extroversion, driven by a desire for stability and growth.",
+        "quotes": [
+          "I am self oriented and basically I don't talk much.",
+          "I invest in multiple places, not just one, like the stock market.",
+          "I wait for the market to open the next day. Then I look at the graph, how it's going up and down.",
+          "I follow many people on YouTube. I have many technical gurus on YouTube.",
+          "I liked investing in gold. Initially, it seemed very strange to me.",
+          "I think whatever is going on is going well.",
+          "I liked the concept. One last thing I did not like was that at least it is government affiliated.",
+          "I Think Tank."
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "DI_5_Male_Stock_Investor_Lucknow_m4a",
+        "filename": "DI_5_Male_Stock_Investor_Lucknow_m4a.md",
+        "characterization": "Ajit is a pragmatic and cautious investor who values security and gradual progress in his investments. He relies on digital tools and market research to make informed decisions, balancing his portfolio across various asset classes while prioritizing long-term stability over high-risk gains.",
+        "quotes": [
+          "We put some into investments, some into LIC. Now, that's in place.",
+          "It is obvious that if we think of thousand rupees, if we invest thousand then after a few days at least 15, 15 will be at zero place.",
+          "Because it is obvious that if something is coming to the place, then it is better for us to go digital, our personal thing.",
+          "You can say that like I told you about crypto. It is possible that since then it is safe for you at that place.",
+          "Because mutual funds work on compounding interest. I'm doing this at the local level as well. It seems much better.",
+          "If you provide gold in the form of gold instead of cash and that too will not be your taxable amount at that place.",
+          "It doesn't matter that much to me."
+        ],
+        "_dropped_unverified": [
+          "It is obvious that if someone is told to take Paytm digital gold at the place then it is obvious that the market operates in a volatile system."
+        ]
+      },
+      {
+        "doc_id": "DI 6_Male_FDMF_Delhi.m4a",
+        "filename": "DI 6_Male_FDMF_Delhi.m4a.docx",
+        "characterization": "Unable to characterize due to missing transcript content; document could not be read.",
+        "quotes": [],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "DI_8_Male_FDMF_Lucknow_m4a",
+        "filename": "DI_8_Male_FDMF_Lucknow_m4a.md",
+        "characterization": "The respondent is pragmatic and cautious in his financial decisions, prioritizing safety and gradual growth over high-risk investments. He values transparency and government-backed security in his investments.",
+        "quotes": [
+          "I want to achieve at least enough so that when I retire, I earn at least 500,000 rupees a month.",
+          "Right now, I plan to invest in some gold and some mutual funds.",
+          "The only goal of most investments is that if the loss increases then there will be profit, otherwise there will be no profit.",
+          "I invest mostly in the banking sector, particularly through stocks and mutual funds.",
+          "We're used to investing something every month. What should we do?",
+          "We just hope it keeps giving us returns on time. We don't have to do anything else.",
+          "If we talk about the old times then we talk about that and if we talk about us then we talk about insurance."
+        ],
+        "_dropped_unverified": [
+          "It's easy to explain this to someone, like it is easy to tell it to parents etc."
+        ]
+      },
+      {
+        "doc_id": "DI_2_Male_Digital_Gold_Delhi_m4a",
+        "filename": "DI_2_Male_Digital_Gold_Delhi_m4a.md",
+        "characterization": "The respondent is a cautious yet proactive investor who prioritizes security and market trends, balancing traditional investments like gold with newer options like crypto. He values transparency and trusts platforms with government compliance.",
+        "quotes": [
+          "I try to save 35 percent of it.",
+          "I recently invested in gold. I was late.",
+          "Gold is such that its demand is increasing in the future.",
+          "I am holding myself. In whatever way it is.",
+          "I also invested in crypto as crypto had also come down recently.",
+          "I follow some influencers and they keep posting news.",
+          "I feel good after reading this."
+        ],
+        "_dropped_unverified": [
+          "I bought it for future purpose, brother."
+        ]
+      }
+    ]
+  },
+  "objective_coverage": [
+    {
+      "objective": "Understand the respondent's investment portfolio diversity.",
+      "covered_by": "investment_portfolio_diversity"
+    },
+    {
+      "objective": "Assess the importance of government affiliation in investment decisions.",
+      "covered_by": "government_affiliation_preference"
+    },
+    {
+      "objective": "Gauge attitudes toward digital transformation in the investment sector.",
+      "covered_by": "digital_transformation_attitude"
+    },
+    {
+      "objective": "Measure the appeal of the digital gold concept.",
+      "covered_by": "concept_appeal_score"
+    },
+    {
+      "objective": "Assess how well respondents understand the digital gold concept.",
+      "covered_by": "concept_comprehension_score"
+    },
+    {
+      "objective": "Capture detailed reactions to the digital gold concept.",
+      "covered_by": "verbatim_reaction"
+    }
+  ],
+  "_uncovered_objectives": [],
+  "_not_chartable_objectives": [],
+  "_scope_fields_missing": [],
+  "_scope_synced_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "layer1": {
+    "description": "Universal fields present in all project matrices",
+    "fields": {
+      "doc_id": {
+        "type": "string",
+        "required": true
+      },
+      "filename": {
+        "type": "string",
+        "required": true
+      },
+      "word_count": {
+        "type": "integer"
+      },
+      "respondent": {
+        "city": {
+          "type": "string"
+        },
+        "segment": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "age_band": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        }
+      },
+      "pain_points": {
+        "type": "array",
+        "items": {
+          "severity": {
+            "type": "enum",
+            "values": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ],
+            "scoring_rules": {
+              "critical": "Explicit deal-breaker, 3+ reinforcing statements",
+              "high": "Strong hesitation requiring resolution, 2+ statements",
+              "medium": "Conditional acceptance, 1-2 mentions",
+              "low": "Single passive mention"
+            }
+          },
+          "issue_description": {
+            "type": "string"
+          },
+          "verbatim_quote": {
+            "type": "string",
+            "rule": "exact copy — never paraphrase"
+          },
+          "product_area": {
+            "type": "string"
+          },
+          "dg_section": {
+            "type": "string"
+          }
+        }
+      },
+      "nps_signal": {
+        "type": "enum",
+        "values": [
+          "promoter",
+          "passive",
+          "detractor",
+          "unclear"
+        ]
+      },
+      "emotional_resolution": {
+        "type": "enum",
+        "values": [
+          "positive",
+          "negative",
+          "neutral"
+        ]
+      },
+      "narrative_tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "note": "Reference themes with STRONG/MIXED evidence + any emerging themes"
+      },
+      "most_powerful_verbatim": {
+        "type": "string",
+        "rule": "exact copy — never paraphrase",
+        "note": "Single most insight-carrying quote — exact copy from transcript"
+      },
+      "all_passages": {
+        "type": "array",
+        "items": {
+          "content": {
+            "type": "string",
+            "rule": "30+ words verbatim from transcript"
+          },
+          "sentiment": {
+            "type": "enum",
+            "values": [
+              "positive",
+              "negative",
+              "neutral",
+              "ambivalent"
+            ]
+          },
+          "topic": {
+            "type": "string"
+          },
+          "pain_point": {
+            "type": "boolean"
+          },
+          "decision_signal": {
+            "type": "boolean"
+          },
+          "section": {
+            "type": "string"
+          },
+          "paragraph_index": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "layer2": {
+    "description": "CoinDCX Karat — Digital Gold Concept Test — project-specific extraction dimensions",
+    "fields": {
+      "preferred_route": {
+        "type": "enum",
+        "description": "Preferred communication route",
+        "values": [
+          "route1",
+          "route2"
+        ],
+        "scoring_rule": "Based on respondent's explicit preference",
+        "anchors": {
+          "route1": [
+            {
+              "quote": "I definitely liked what you just wrote about it. The routes you've written, especially Route 1, are very informative.",
+              "doc_id": "DI_23_Male_FDMF_Ahmedabad_m4a"
+            }
+          ]
+        }
+      },
+      "coindcx_trust": {
+        "type": "enum",
+        "description": "Trust in CoinDCX as a crypto platform",
+        "values": [
+          "high",
+          "medium",
+          "low"
+        ],
+        "scoring_rule": "Based on respondent's explicit statements",
+        "anchors": {
+          "high": [
+            {
+              "quote": "I was interested in digital platforms, their transparency, customer accountability, and their supportive nature and trust. I mean, I've experienced all of that. I haven't had a single issue in all these years.",
+              "doc_id": "DI_10_Male_Stock_Investor_Lucknow_m4a"
+            }
+          ]
+        }
+      },
+      "benchmark_comparisons": {
+        "type": "array",
+        "description": "Comparisons to other investment products",
+        "scoring_rule": "Based on respondent's explicit comparisons"
+      },
+      "investment_motivation": {
+        "type": "enum",
+        "description": "Primary driver behind choosing gold investments",
+        "values": [
+          "family_security",
+          "long_term_stability",
+          "yield_seeking",
+          "diversification"
+        ],
+        "anchors": {
+          "family_security": [
+            {
+              "quote": "Like Dehra Super Station, also in the world. You should have some short of gold to prevent evil eye. And what you said about having gold, it will be enough for your daughter-in-law, or if you get a chain made, then the feeling is also related to the gold that comes from some property, or bangles, etc., or the change happening among the younger generation, so it has some importance.",
+              "doc_id": "DI_10_Male_Stock_Investor_Lucknow_m4a"
+            }
+          ],
+          "long_term_stability": [
+            {
+              "quote": "Gold always has power to be liquid and at the same time it is always useful right. In all way and history it is increasing so one thing is returns and the other thing is you are safe investment ok.",
+              "doc_id": "DI_16_Male_Stock_Investor_Mumbai_m4a"
+            }
+          ]
+        }
+      },
+      "tagline_reaction": {
+        "type": "object",
+        "description": "Reaction to specific taglines tested.",
+        "sub_fields": [
+          {
+            "name": "preferred_tagline",
+            "type": "enum",
+            "values": [
+              "Your Gold, Fully Protected Growing Every Year",
+              "Gold that earns you more gold. Every single year."
+            ],
+            "description": "Which tagline the respondent preferred.",
+            "anchors": {
+              "Gold that earns you more gold. Every single year.": [
+                {
+                  "quote": "Gold, that gives you more gold every single year.",
+                  "doc_id": "DI_20_Male_Digital_Gold_Ahmedabad_m4a"
+                }
+              ]
+            }
+          },
+          {
+            "name": "tagline_verbatim",
+            "type": "string",
+            "verbatim_field": true,
+            "description": "Exact quote explaining the preference."
+          }
+        ]
+      },
+      "concept_understanding": {
+        "type": "object",
+        "description": "Comprehension of the digital gold yield concept as presented.",
+        "sub_fields": [
+          {
+            "name": "route_shown",
+            "type": "enum",
+            "values": [
+              "Route1",
+              "Route2",
+              "Both"
+            ],
+            "description": "Which communication route(s) this respondent saw.",
+            "anchors": {
+              "Route1": [
+                {
+                  "quote": "I definitely liked what you just wrote about it. The routes you've written, especially Route 1, are very informative.",
+                  "doc_id": "DI_23_Male_FDMF_Ahmedabad_m4a"
+                }
+              ]
+            }
+          },
+          {
+            "name": "initial_framing",
+            "type": "string",
+            "description": "How the respondent first framed/understood the concept."
+          },
+          {
+            "name": "comprehension_score",
+            "type": "integer",
+            "description": "1-10 comprehension rating."
+          },
+          {
+            "name": "comprehension_reasoning",
+            "type": "string",
+            "description": "Why that comprehension score was assigned."
+          },
+          {
+            "name": "spontaneous_reaction_verbatim",
+            "type": "string",
+            "verbatim_field": true,
+            "description": "Exact first reaction quote."
+          }
+        ]
+      },
+      "gold_behavior": {
+        "type": "object",
+        "description": "Current gold investment behaviour and role of gold in portfolio.",
+        "sub_fields": [
+          {
+            "name": "formats_owned",
+            "type": "array",
+            "description": "Gold formats currently owned (digital_gold, physical, sgb, gold_mf, etc)."
+          },
+          {
+            "name": "gold_role",
+            "type": "enum",
+            "values": [
+              "safety_store",
+              "return_vehicle",
+              "emotional_insurance",
+              "growth_asset",
+              "family_tradition",
+              "diversifier"
+            ],
+            "description": "Role gold plays in this respondent portfolio.",
+            "anchors": {
+              "safety_store": [
+                {
+                  "quote": "Safety first again. Very important. Safety again. Return second.",
+                  "doc_id": "DI_12_Male_Digital_Gold_Bangalore_m4a"
+                }
+              ],
+              "return_vehicle": [
+                {
+                  "quote": "Gold always gold like investment also you liquid even after started investing. Seen good returns.",
+                  "doc_id": "DI_12_Male_Digital_Gold_Bangalore_m4a"
+                }
+              ]
+            }
+          },
+          {
+            "name": "gold_role_verbatim",
+            "type": "string",
+            "verbatim_field": true,
+            "description": "Exact quote explaining gold role."
+          },
+          {
+            "name": "sgb_awareness",
+            "type": "enum",
+            "values": [
+              "none",
+              "low",
+              "medium",
+              "high"
+            ],
+            "description": "Awareness of Sovereign Gold Bonds.",
+            "anchors": {
+              "none": [
+                {
+                  "quote": "Actually, I have this question. But I don't know about safe and digital investments. What is this question?",
+                  "doc_id": "DI_12_Male_Digital_Gold_Bangalore_m4a"
+                }
+              ]
+            }
+          },
+          {
+            "name": "purchase_trigger",
+            "type": "string",
+            "description": "What triggers a gold purchase for this respondent."
+          },
+          {
+            "name": "digital_gold_view",
+            "type": "string",
+            "description": "Their view specifically on digital gold as a format."
+          }
+        ]
+      },
+      "key_claim_reactions": {
+        "type": "array",
+        "description": "Reaction to each specific product claim tested.",
+        "sub_fields": [
+          {
+            "name": "claim",
+            "type": "string",
+            "description": "The claim text shown."
+          },
+          {
+            "name": "reaction",
+            "type": "enum",
+            "values": [
+              "confused",
+              "acceptance",
+              "strong_acceptance",
+              "skepticism",
+              "rejection"
+            ],
+            "description": "Reaction category.",
+            "anchors": {
+              "acceptance": [
+                {
+                  "quote": "It seems quite interesting that you can earn 5 to 7% annually just by holding your gold.",
+                  "doc_id": "DI_1_Male_Digital_Gold_Delhi_m4a"
+                }
+              ]
+            }
+          },
+          {
+            "name": "understood",
+            "type": "boolean",
+            "description": "Whether the respondent understood the claim."
+          },
+          {
+            "name": "verbatim",
+            "type": "string",
+            "verbatim_field": true,
+            "description": "Exact quote reacting to the claim."
+          }
+        ]
+      },
+      "final_advice": {
+        "type": "string",
+        "description": "Respondent's final advice for the product team",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "gold_awareness": {
+        "type": "array",
+        "description": "Awareness of different gold investment formats",
+        "values": [
+          "physical_gold",
+          "digital_gold",
+          "gold_etfs",
+          "sovereign_gold_bonds",
+          "gold_mutual_funds"
+        ],
+        "scoring_rule": "Extract from verbatim response to 'When you think about investing in gold, what options come to mind?'",
+        "anchors": {
+          "digital_gold": [
+            {
+              "quote": "I always try to make for used platform. That is government authorized and government approved there so in future we have to face anything like on the ODI world cup and its crush and.",
+              "doc_id": "DI_10_Male_Stock_Investor_Lucknow_m4a"
+            }
+          ]
+        }
+      },
+      "demographics": {
+        "type": "object",
+        "description": "Basic demographic information about the respondent.",
+        "sub_fields": [
+          {
+            "name": "age",
+            "type": "integer",
+            "description": "Age of the respondent"
+          },
+          {
+            "name": "occupation",
+            "type": "string",
+            "description": "Current occupation"
+          },
+          {
+            "name": "city",
+            "type": "string",
+            "description": "City of residence"
+          }
+        ]
+      },
+      "t1_liquidity_understood": {
+        "type": "enum",
+        "description": "Captures understanding of liquidity in gold investments.",
+        "values": [
+          "liquid",
+          "investment"
+        ],
+        "_discovery_source_quote": "Gold always gold like investment also you liquid even after started investing.",
+        "_discovery_source_doc": "DI_12_Male_Digital_Gold_Bangalore_m4a.md",
+        "anchors": {
+          "liquid": [
+            {
+              "quote": "Gold always has power to be liquid and at the same time it is always useful right. In all way and history it is increasing so one thing is returns and the other thing is you are safe investment ok.",
+              "doc_id": "DI_16_Male_Stock_Investor_Mumbai_m4a"
+            }
+          ]
+        }
+      },
+      "gold_usage_journey": {
+        "type": "object",
+        "description": "Respondent's journey and process for gold investment",
+        "sub_fields": [
+          {
+            "name": "first_investment_story",
+            "type": "string",
+            "description": "Story of first gold investment",
+            "rule": "exact copy from transcript — never paraphrase"
+          },
+          {
+            "name": "current_process",
+            "type": "string",
+            "description": "Current gold investment process",
+            "rule": "exact copy from transcript — never paraphrase"
+          },
+          {
+            "name": "platforms_used",
+            "type": "array",
+            "description": "Platforms used for gold investment"
+          }
+        ]
+      },
+      "ideal_gold_product": {
+        "type": "string",
+        "description": "Respondent's description of an ideal gold investment product",
+        "scoring_rule": "Verbatim description of ideal product",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "value_perception": {
+        "type": "object",
+        "description": "Perception of the value proposition (5–7% yield in gold units)",
+        "sub_fields": [
+          {
+            "name": "yield_interpretation",
+            "type": "string",
+            "description": "How respondent interprets the yield",
+            "rule": "exact copy from transcript — never paraphrase"
+          },
+          {
+            "name": "benchmark_comparison",
+            "type": "string",
+            "description": "Comparison to other investment benchmarks",
+            "rule": "exact copy from transcript — never paraphrase"
+          },
+          {
+            "name": "risk_association",
+            "type": "string",
+            "description": "Perceived risk associated with the yield",
+            "rule": "exact copy from transcript — never paraphrase"
+          }
+        ]
+      },
+      "adoption_drivers_barriers": {
+        "type": "object",
+        "description": "Drivers and barriers to adoption of the product",
+        "sub_fields": [
+          {
+            "name": "drivers",
+            "type": "array",
+            "description": "Factors driving adoption"
+          },
+          {
+            "name": "barriers",
+            "type": "array",
+            "description": "Barriers to adoption"
+          },
+          {
+            "name": "trial_conditions",
+            "type": "array",
+            "description": "Conditions for trial adoption"
+          }
+        ]
+      },
+      "crypto_association_effect": {
+        "type": "enum",
+        "description": "Effect of CoinDCX's crypto association on trust",
+        "values": [
+          "positive",
+          "negative",
+          "neutral",
+          "conditional"
+        ],
+        "scoring_rule": "Based on respondent's stated effect",
+        "anchors": {
+          "positive": [
+            {
+              "quote": "It's positive itself.",
+              "doc_id": "DI_12_Male_Digital_Gold_Bangalore_m4a"
+            }
+          ]
+        }
+      },
+      "benchmark_confidence_valid": {
+        "type": "boolean",
+        "description": "False if respondent favourably compares the product to SGB (or another benchmark) while their gold_behavior.sgb_awareness is none or name-only — a comparison to a benchmark they cannot describe is false confidence, not a valid comprehension signal.",
+        "scoring_rule": "AMBIGUITY RULE 4: SGB comparison made + sgb_awareness none/name-only = false. Otherwise true. Null if no benchmark comparison made."
+      },
+      "trial_motivation": {
+        "type": "enum",
+        "description": "Whether a stated small-amount trial (e.g. an initial deposit to test) is framed as testing the platform/app itself, versus genuine conviction in the product/yield mechanic. These require different follow-up communication strategies.",
+        "values": [
+          "platform_trial",
+          "product_conviction",
+          "not_applicable"
+        ],
+        "scoring_rule": "AMBIGUITY RULE 6: trial framed as just to try the app = platform_trial. Framed as to test if the yield actually works = product_conviction. No trial mentioned = not_applicable.",
+        "anchors": {
+          "platform_trial": [
+            {
+              "quote": "I'll try with a minimum amount. So, after a year, I've decided whether he's paying them back or not.",
+              "doc_id": "DI_20_Male_Digital_Gold_Ahmedabad_m4a"
+            }
+          ]
+        }
+      },
+      "intent_has_stated_condition": {
+        "type": "object",
+        "description": "Whether a likelihood score of 7 or above is backed by a specific stated trial condition or proof requirement, versus an aspirational score with nothing behind it.",
+        "sub_fields": [
+          {
+            "name": "has_condition",
+            "type": "boolean",
+            "description": "True if a concrete condition/proof requirement was stated alongside a high score."
+          },
+          {
+            "name": "condition_text",
+            "type": "string",
+            "description": "The stated condition, verbatim or closely paraphrased. Null if none."
+          }
+        ]
+      },
+      "gold_role_framing": {
+        "type": "enum",
+        "description": "How respondents frame gold's role in their portfolio",
+        "values": [
+          "emotional_insurance",
+          "return_asset",
+          "growth_asset"
+        ],
+        "anchors": {
+          "emotional_insurance": [
+            {
+              "quote": "Like Dehra Super Station, also in the world. You should have some short of gold to prevent evil eye. And what you said about having gold, it will be enough for your daughter-in-law, or if you get a chain made, then the feeling is also related to the gold that comes from some property, or bangles, etc., or the change happening among the younger generation, so it has some importance.",
+              "doc_id": "DI_10_Male_Stock_Investor_Lucknow_m4a"
+            }
+          ]
+        }
+      },
+      "yield_comprehension_level": {
+        "type": "enum",
+        "description": "Level of understanding of the yield mechanic",
+        "values": [
+          "clear",
+          "partial",
+          "confused"
+        ],
+        "anchors": {
+          "clear": [
+            {
+              "quote": "It seems quite interesting that you can earn 5 to 7% annually just by holding your gold.",
+              "doc_id": "DI_1_Male_Digital_Gold_Delhi_m4a"
+            }
+          ]
+        }
+      },
+      "adoption_likelihood": {
+        "type": "object",
+        "description": "Likelihood and conditions for adopting the product",
+        "sub_fields": [
+          {
+            "name": "likelihood_score",
+            "type": "integer",
+            "description": "1-10 scale"
+          },
+          {
+            "name": "trial_amount",
+            "type": "integer",
+            "description": "Amount respondent would start with"
+          },
+          {
+            "name": "proof_requirements",
+            "type": "string",
+            "description": "Specific conditions for trial",
+            "rule": "exact copy from transcript — never paraphrase"
+          }
+        ]
+      },
+      "platform_association": {
+        "type": "string",
+        "description": "Restored — was in existing matrices but dropped by a schema regeneration."
+      },
+      "coindcx_specific_concerns": {
+        "type": "string",
+        "description": "Auto-added stub — named in scope guidance's \"Schema fields:\" list but never created by any discovery run. Refine the type/values/rule before relying on it in analysis."
+      },
+      "life_stage": {
+        "type": "enum",
+        "description": "Phase of life the respondent identifies with professionally.",
+        "values": [
+          "exploring",
+          "growing",
+          "settled",
+          "transitioning",
+          "other"
+        ],
+        "scoring_rule": "Based on respondent's self-description.",
+        "_source_objective": "SECTION 1 — Life Stage & Self-Description: In which phase of life do you see yourself right now professionally? Probe for: Exploring / Growing / Settled / Transitioning.",
+        "_rationale": "Enum captures distinct life stages as defined in the DG, ensuring consistent classification across respondents.",
+        "anchors": {
+          "settled": [
+            {
+              "quote": "I am already home so I want to have my holiday home actually so I am looking for more life of mind kind of things and luxury.",
+              "doc_id": "DI_16_Male_Stock_Investor_Mumbai_m4a"
+            }
+          ]
+        }
+      },
+      "financial_worries": {
+        "type": "array",
+        "description": "Respondent's financial concerns.",
+        "scoring_rule": "Extract verbatim mentions of financial worries.",
+        "_source_objective": "SECTION 1 — Financial Mindset & Ambitions: What are your biggest financial worries, if any?",
+        "_rationale": "Array allows capturing multiple worries mentioned by the respondent."
+      },
+      "risk_orientation": {
+        "type": "enum",
+        "description": "Respondent's attitude towards financial risk.",
+        "values": [
+          "risk_averse",
+          "risk_neutral",
+          "risk_seeking"
+        ],
+        "scoring_rule": "Based on respondent's investment behaviors and statements about risk.",
+        "_source_objective": "SECTION 1 — Financial Mindset & Ambitions: What steps have you taken to address those concerns? Probe for: Saving, investing, building a second income.",
+        "_rationale": "Enum captures distinct risk orientations based on respondent's actions and statements.",
+        "anchors": {
+          "risk_averse": [
+            {
+              "quote": "Safety first again. Very important. Safety again. Return second.",
+              "doc_id": "DI_12_Male_Digital_Gold_Bangalore_m4a"
+            }
+          ],
+          "risk_neutral": [
+            {
+              "quote": "I invest in good money where it really can happen and where I can expect some basic return.",
+              "doc_id": "DI_11_Male_Stock_Investor_Bangalore_m4a"
+            }
+          ],
+          "risk_seeking": [
+            {
+              "quote": "We should get at least a 20% return. If we're investing for the short term, say one or two years, it should be secure.",
+              "doc_id": "DI_21_Male_Stock_Investor_Ahmedabad_m4a"
+            }
+          ]
+        }
+      },
+      "portfolio_split": {
+        "type": "object",
+        "description": "Breakdown of respondent's investment portfolio by asset class.",
+        "_source_objective": "SECTION 2 — Portfolio Overview: Can you walk me through your approximate portfolio distribution — how do you split your investments across instruments in percentage terms?",
+        "_rationale": "Object structure allows detailed tracking of percentages across multiple asset classes.",
+        "sub_fields": [
+          {
+            "name": "gold_percentage",
+            "type": "integer",
+            "description": "Percentage of portfolio in gold."
+          },
+          {
+            "name": "equities_percentage",
+            "type": "integer",
+            "description": "Percentage of portfolio in equities."
+          },
+          {
+            "name": "mutual_funds_percentage",
+            "type": "integer",
+            "description": "Percentage of portfolio in mutual funds."
+          },
+          {
+            "name": "fds_percentage",
+            "type": "integer",
+            "description": "Percentage of portfolio in fixed deposits."
+          },
+          {
+            "name": "other_percentage",
+            "type": "integer",
+            "description": "Percentage of portfolio in other instruments."
+          }
+        ]
+      },
+      "allocation_logic": {
+        "type": "string",
+        "description": "Reasoning behind respondent's portfolio allocation.",
+        "scoring_rule": "Extract verbatim explanation of allocation logic.",
+        "_source_objective": "SECTION 2 — Portfolio Overview: What is the logic behind that split? Is it based on perceived risk, expected returns, experience, or someone's advice?",
+        "_rationale": "Free text captures nuanced reasoning that may not fit into predefined categories.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "allocation_change_trigger": {
+        "type": "string",
+        "description": "Events or factors that led to changes in portfolio allocation.",
+        "scoring_rule": "Extract verbatim mentions of triggers.",
+        "_source_objective": "SECTION 2 — Portfolio Overview: Has this split changed over time? If yes, what triggered the change? Was it a market event, a gain or loss, or someone's recommendation?",
+        "_rationale": "Free text captures diverse triggers mentioned by respondents.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "platforms_active": {
+        "type": "array",
+        "description": "Platforms or apps respondent uses for investing.",
+        "scoring_rule": "Extract verbatim mentions of platforms and usage reasons.",
+        "_source_objective": "SECTION 2 — Portfolio Overview: On which app/platform are you doing? Which platforms are you most active on vs less active on, and why?",
+        "_rationale": "Array allows capturing multiple platforms mentioned by the respondent."
+      },
+      "gold_formats_used": {
+        "type": "array",
+        "description": "Formats of gold investment respondent has used.",
+        "scoring_rule": "Extract verbatim mentions of gold formats used.",
+        "_source_objective": "SECTION 3 — Current Gold Investment Behaviour: Which gold investment options have you personally used?",
+        "_rationale": "Array allows capturing multiple formats mentioned by the respondent."
+      },
+      "gold_investment_process": {
+        "type": "string",
+        "description": "Respondent's current process for investing in gold.",
+        "scoring_rule": "Extract verbatim description of investment process.",
+        "_source_objective": "SECTION 3 — Current Gold Investment Behaviour: Walk me through how you invest in gold today — what does that process look like from start to finish?",
+        "_rationale": "Free text captures detailed process descriptions.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "gold_decision_making": {
+        "type": "string",
+        "description": "Factors influencing respondent's gold investment decisions.",
+        "scoring_rule": "Extract verbatim explanation of decision-making process.",
+        "_source_objective": "SECTION 3 — Current Gold Investment Behaviour: Tell me about what goes through your mind when you decide to put money into gold — what does that decision look like?",
+        "_rationale": "Free text captures nuanced decision-making factors.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "gold_return_expectations": {
+        "type": "string",
+        "description": "Respondent's expectations for returns from gold investments.",
+        "scoring_rule": "Extract verbatim statements about return expectations.",
+        "_source_objective": "SECTION 3 — Current Gold Investment Behaviour: What’s the general expectation on return from gold? And how does it compare to other investment/trading tools like stocks, MF, F/O, etc.?",
+        "_rationale": "Free text captures diverse return expectations and comparisons.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "spontaneous_reaction": {
+        "type": "string",
+        "description": "Respondent's immediate reaction to the digital gold product concept.",
+        "scoring_rule": "Extract verbatim spontaneous reaction.",
+        "_source_objective": "SECTION 4 — Product Perception & Understanding: What is going through your mind? Take spontaneous reactions first.",
+        "_rationale": "Free text captures unfiltered initial impressions.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "message_comprehension": {
+        "type": "enum",
+        "description": "Level of respondent's understanding of the product's main message.",
+        "values": [
+          "clear",
+          "partial",
+          "confused"
+        ],
+        "scoring_rule": "Based on respondent's ability to correctly paraphrase the main message.",
+        "_source_objective": "SECTION 4 — Product Perception & Understanding: What is the main message this concept is trying to communicate?",
+        "_rationale": "Enum allows consistent scoring of comprehension levels across respondents.",
+        "anchors": {
+          "clear": [
+            {
+              "quote": "It seems quite interesting that you can earn 5 to 7% annually just by holding your gold. Plus, there's no lock-in. You can sell it the same day.",
+              "doc_id": "DI_1_Male_Digital_Gold_Delhi_m4a"
+            }
+          ],
+          "confused": [
+            {
+              "quote": "Actually, I have this question. But I don't know about safe and digital investments.",
+              "doc_id": "DI_12_Male_Digital_Gold_Bangalore_m4a"
+            }
+          ]
+        }
+      },
+      "route1_evaluation": {
+        "type": "object",
+        "description": "Respondent's evaluation of Route 1 (Safety & Ownership).",
+        "_source_objective": "SECTION 4 — Route 1 evaluation: Safety and Ownership-led route.",
+        "_rationale": "Object structure allows detailed scoring of multiple aspects of route evaluation.",
+        "sub_fields": [
+          {
+            "name": "appeal_rating",
+            "type": "integer",
+            "description": "1-10 rating of route appeal."
+          },
+          {
+            "name": "appeal_reasons",
+            "type": "string",
+            "description": "Reasons for appeal rating.",
+            "rule": "exact copy from transcript — never paraphrase"
+          },
+          {
+            "name": "credibility_gaps",
+            "type": "string",
+            "description": "Elements that raised credibility concerns.",
+            "rule": "exact copy from transcript — never paraphrase"
+          }
+        ]
+      },
+      "route2_evaluation": {
+        "type": "object",
+        "description": "Respondent's evaluation of Route 2 (Returns & Value).",
+        "_source_objective": "SECTION 4 — Route 2 evaluation: Returns and Value-led route.",
+        "_rationale": "Object structure allows detailed scoring of multiple aspects of route evaluation.",
+        "sub_fields": [
+          {
+            "name": "appeal_rating",
+            "type": "integer",
+            "description": "1-10 rating of route appeal."
+          },
+          {
+            "name": "appeal_reasons",
+            "type": "string",
+            "description": "Reasons for appeal rating.",
+            "rule": "exact copy from transcript — never paraphrase"
+          },
+          {
+            "name": "credibility_gaps",
+            "type": "string",
+            "description": "Elements that raised credibility concerns.",
+            "rule": "exact copy from transcript — never paraphrase"
+          }
+        ]
+      },
+      "opportunity_areas": {
+        "type": "array",
+        "description": "Key opportunities for product improvement or communication.",
+        "scoring_rule": "Extract verbatim opportunity areas.",
+        "_source_objective": "SECTION 6 — Final Summary: 5 to 8 biggest opportunity areas.",
+        "_rationale": "Array allows capturing multiple opportunity areas."
+      },
+      "job_security_concern_level": {
+        "type": "enum",
+        "description": "Degree of anxiety about job security affecting financial decisions.",
+        "values": [
+          "high",
+          "medium",
+          "low",
+          "none"
+        ],
+        "scoring_rule": "Based on explicit mentions of job insecurity or private sector volatility.",
+        "anchors": {
+          "high": [
+            {
+              "quote": "The biggest worry is related to the job that if the job is secure then we will be able to add money and increase our salary and all this is because no jobs are secure and in the private sector it is not at all.",
+              "doc_id": "DI_1_Male_Digital_Gold_Delhi_m4a"
+            }
+          ],
+          "low": [
+            {
+              "quote": "Financial freedom well like you know when you have things on your own you can you don't have to work for someone, you are financial freedom you make an choice and also personal happiness, also no matters not because you keep a good work life balance well.",
+              "doc_id": "DI_16_Male_Stock_Investor_Mumbai_m4a"
+            }
+          ]
+        }
+      },
+      "preferred_trust_proof": {
+        "type": "array",
+        "description": "List of trust-building elements respondents prioritize (e.g., audits, SEBI registration, vault location).",
+        "scoring_rule": "Extract verbatim mentions of specific proof points."
+      },
+      "trial_amount_stated": {
+        "type": "integer",
+        "description": "Explicit amount respondent would start with to test the product (e.g., ₹500, ₹5,000).",
+        "scoring_rule": "Capture exact amounts mentioned; ignore vague statements like 'small amount'."
+      },
+      "gold_emotional_driver": {
+        "type": "string",
+        "description": "Captures emotional or traditional reasons for investing in gold",
+        "_discovery_source_quote": "Gold is safe for me. Since childhood, I have been hearing since old times that if you have gold, you will never get beaten, someone or the other will buy it",
+        "_discovery_source_doc": "DI_1_Male_Digital_Gold_Delhi_m4a.md"
+      },
+      "yield_explanation_in_own_words": {
+        "type": "string",
+        "description": "Captures personal explanations or understandings of yield or returns",
+        "_discovery_source_quote": "Money grows in the sense. Right now I am investing somewhere and I am getting returns using my technique. For example, if I invest somewhere and build a building, then I will get a side income from there",
+        "_discovery_source_doc": "DI_11_Male_Stock_Investor_Bangalore_m4a.md"
+      },
+      "government_affiliation_preference": {
+        "type": "boolean",
+        "description": "Whether respondents prioritize government affiliation in their investments.",
+        "ui_section": "trust_adoption",
+        "_source_objective": "Assess the importance of government affiliation in investment decisions.",
+        "_rationale": "This field directly addresses the trust factor associated with government affiliation, a key theme in the transcripts."
+      },
+      "digital_transformation_attitude": {
+        "type": "string",
+        "description": "Respondents' attitudes toward digital transformation in investments.",
+        "ui_section": "category_context",
+        "_source_objective": "Gauge attitudes toward digital transformation in the investment sector.",
+        "_rationale": "This field captures verbatim responses to understand nuanced attitudes toward digital investment options.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "concept_appeal_score": {
+        "type": "integer",
+        "description": "1-10 scale rating the appeal of the digital gold concept.",
+        "scoring_rule": "Rate on a scale from 1 (not appealing) to 10 (very appealing).",
+        "ui_section": "concept_reaction",
+        "_source_objective": "Measure the appeal of the digital gold concept.",
+        "_rationale": "A numerical score allows for quantitative comparison across respondents."
+      },
+      "concept_comprehension_score": {
+        "type": "integer",
+        "description": "1-10 scale rating the comprehension of the digital gold concept.",
+        "scoring_rule": "Rate on a scale from 1 (not understood) to 10 (fully understood).",
+        "ui_section": "concept_reaction",
+        "_source_objective": "Assess how well respondents understand the digital gold concept.",
+        "_rationale": "A numerical score allows for quantitative comparison across respondents."
+      },
+      "verbatim_reaction": {
+        "type": "string",
+        "description": "Exact quote of respondent's reaction to the digital gold concept.",
+        "ui_section": "concept_reaction",
+        "_source_objective": "Capture detailed reactions to the digital gold concept.",
+        "_rationale": "Verbatim responses provide qualitative depth to complement quantitative scores.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "respondent_archetype": {
+        "type": "enum",
+        "description": "Respondent type as inductively observed across sample transcripts, not a stock category.",
+        "values": [
+          "cautious_detail_oriented_investor",
+          "pragmatic_cautious_investor",
+          "proactive_cautious_investor"
+        ],
+        "scoring_rule": "Assign the closest-matching observed type; note in narrative_tags if a respondent doesn't fit any cleanly."
+      }
+    }
+  }
+}

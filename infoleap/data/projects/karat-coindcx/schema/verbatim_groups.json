@@ -1,0 +1,1015 @@
+{
+  "groups": [
+    {
+      "group_id": "trust_in_digital_custody",
+      "name": "Trust in Digital Custody",
+      "sentiment": "negative",
+      "theme": "trust",
+      "definition": "Quotes expressing skepticism or concern about the safety and transparency of digital gold custody.",
+      "members": [
+        {
+          "doc_id": "DI_10",
+          "field": "spontaneous_reaction",
+          "quote": "On paper everything is good, but in reality, I need to experience it. Like, does the gold actually show up in my account?"
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "pain_points",
+          "quote": "Trust in Digital Custody"
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "pain_points",
+          "quote": "I don’t know if my gold actually exists"
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "most_powerful_verbatim",
+          "quote": "On paper everything is good, but in reality, I need to experience it. Like, does the gold actually show up in my account?"
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "I don’t know if my gold actually exists. I need to verify if the gold appears in my account."
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "pain_points",
+          "quote": "Trust in CoinDCX due to its crypto association"
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "pain_points",
+          "quote": "Challenging point very sorry... existence safety purpose, perform return purpose."
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "pain_points",
+          "quote": "Clarity on purity certification and terms/conditions"
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "pain_points",
+          "quote": "Probably terms and conditions and purity certification... complete certified so that you can start."
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "pain_points",
+          "quote": "product transparency"
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "pain_points",
+          "quote": "Lack of SEBI regulation"
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "pain_points",
+          "quote": "Crypto is unregulated… need SEBI for gold trust"
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "all_passages",
+          "quote": "Lack of SEBI regulation"
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "all_passages",
+          "quote": "custodian transparency"
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "all_passages",
+          "quote": "Conflates yield/price initially"
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "pain_points",
+          "quote": "Crypto association requires mitigation"
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "pain_points",
+          "quote": "\"Need more than just FIU compliance\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "most_powerful_verbatim",
+          "quote": "\"Safety is first. Returns are secondary if I don’t trust where my gold is held.\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Safety is first. Returns are secondary if I don’t trust where my gold is held.\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Need more than just FIU compliance\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Verify audits/vault proofs\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Indian market isn’t mature for crypto\""
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "pain_points",
+          "quote": "Trust in Digital Custody"
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "pain_points",
+          "quote": "Paytm isn’t safe... no app in it"
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "pain_points",
+          "quote": "I’d need to see SEBI registration before I trust them with gold."
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "all_passages",
+          "quote": "It’s a crypto platform... I’d need to see SEBI registration before I trust them with gold."
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "all_passages",
+          "quote": "Paytm isn’t safe... no app in it."
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "pain_points",
+          "quote": "Trust deficit due to CoinDCX's crypto association"
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "pain_points",
+          "quote": "It's because of coins... my trust will not be there."
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "most_powerful_verbatim",
+          "quote": "It's because of coins... my trust will not be there."
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "pain_points",
+          "quote": "Unclear custodial ownership"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "pain_points",
+          "quote": "Yield comprehension gap"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "most_powerful_verbatim",
+          "quote": "If it’s under the government, it’s safe. But how do I verify my specific gold? Is it *mine* or just a ledger entry?"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "If it’s under the government, it’s safe. But how do I verify my specific gold? Is it *mine* or just a ledger entry?"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "100g becoming 107g is attractive, but how? Is this like crypto promises?"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "Crypto platforms have scams. I need to know who guarantees this gold."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "pain_points",
+          "quote": "Data Privacy Concerns"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "pain_points",
+          "quote": "Regulatory Uncertainty"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "pain_points",
+          "quote": "regulatory compliance"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "most_powerful_verbatim",
+          "quote": "If someone invests in gold, the first thing they'll consider is its custody. Whether it's audited, backed up, and complies with government norms. These are the key features."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "If someone invests in gold, the first thing they'll consider is its custody. Whether it's audited, backed up, and complies with government norms. These are the key features."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "First thing investors look for is safety."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "Gold is properly allocated and audited."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "government-funded backup needed"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "regulatory uncertainty"
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "pain_points",
+          "quote": "Trust deficit in private platforms"
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "pain_points",
+          "quote": "Government backing is crucial for trust. Without it, I cannot sleep peacefully."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "pain_points",
+          "quote": "Authenticity concerns about higher yield claims"
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "most_powerful_verbatim",
+          "quote": "Government backing is crucial for trust. Without it, I cannot sleep peacefully."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Government backing is crucial for trust. Without it, I cannot sleep peacefully."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Doubts the credibility of higher yield claims (e.g., 10–12%)."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Transparency and proof of reserves are essential."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Need government backing to trust CoinDCX."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Government backing is non-negotiable."
+        }
+      ]
+    },
+    {
+      "group_id": "market_fluctuations_and_gold_investment",
+      "name": "Market Fluctuations and Gold Investment",
+      "sentiment": "neutral",
+      "theme": "investment strategy",
+      "definition": "Quotes discussing how market trends or geopolitical events influence gold investment decisions.",
+      "members": [
+        {
+          "doc_id": "DI_10",
+          "field": "allocation_logic",
+          "quote": "Market fluctuations dictate gold investments."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "allocation_change_trigger",
+          "quote": "Market fluctuations dictate gold investments."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "I plan a lot. I invest when gold crashes. Gold will rise again, demand is unlimited."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "Market fluctuations dictate gold investments."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "I invest when gold crashes."
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "allocation_logic",
+          "quote": "Focuses on short-term trading and swing trading, using technical analysis and market trends."
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "allocation_change_trigger",
+          "quote": "geopolitical tensions or market rallies"
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "gold_decision_making",
+          "quote": "invests in gold during geopolitical tensions for short-term gains"
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "allocation_logic",
+          "quote": "Adjusts equity allocation based on market performance; prefers digital gold for its safety and documentation."
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "allocation_change_trigger",
+          "quote": "market trends and performance"
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "gold_decision_making",
+          "quote": "Monitors market trends and adjusts investments based on performance."
+        },
+        {
+          "doc_id": "DI_14",
+          "field": "allocation_logic",
+          "quote": "Momentum trading + SIPs for goals."
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "allocation_logic",
+          "quote": "Power of equity for long-term growth; gold for liquidity and averaging"
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "allocation_logic",
+          "quote": "Rebalanced towards digital gold due to recent underperformance of equities and gold’s perceived safety during geopolitical crises (Ukraine-Russia)."
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "allocation_change_trigger",
+          "quote": "Geopolitical events (e.g., Ukraine war)."
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Rebalanced towards digital gold due to recent underperformance of equities and gold’s perceived safety during geopolitical crises (Ukraine-Russia).\""
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "allocation_logic",
+          "quote": "Safety, inflation hedge, long-term returns"
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "allocation_change_trigger",
+          "quote": "Reduced equity exposure after market crashes"
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "allocation_change_trigger",
+          "quote": "Market volatility, gold price trends."
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "allocation_logic",
+          "quote": "Liquidity focus post-COVID; gold minimized due to volatility"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "High-risk equities for growth, gold/SGBs for safety + fixed returns"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "allocation_logic",
+          "quote": "Diversification + gold’s historical appreciation."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "Diversification + gold’s historical appreciation."
+        },
+        {
+          "doc_id": "DI_25",
+          "field": "allocation_logic",
+          "quote": "Stability, inflation hedge"
+        },
+        {
+          "doc_id": "DI_25",
+          "field": "gold_decision_making",
+          "quote": "Stability, inflation hedge"
+        }
+      ]
+    },
+    {
+      "group_id": "yield_and_return_expectations",
+      "name": "Yield and Return Expectations",
+      "sentiment": "mixed",
+      "theme": "returns",
+      "definition": "Quotes expressing confusion, skepticism, or interest in the yield mechanics and return potential of digital gold.",
+      "members": [
+        {
+          "doc_id": "DI_11",
+          "field": "pain_points",
+          "quote": "low yield (5-7%) compared to his expectation of 10%+ returns in short-term gold trading"
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "pain_points",
+          "quote": "This is for people who want to play very safely... I expect at least 10% in two to three months."
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "most_powerful_verbatim",
+          "quote": "This is for people who want to play very safely... I expect at least 10% in two to three months."
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "all_passages",
+          "quote": "This is for people who want to play very safely... I expect at least 10% in two to three months."
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "pain_points",
+          "quote": "Lack of transparency in current digital gold"
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "pain_points",
+          "quote": "Confusion on yield mechanics"
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "pain_points",
+          "quote": "Getting 5% extra gold is good, but how is it generated?"
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "pain_points",
+          "quote": "No cash interest... I don't understand."
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "most_powerful_verbatim",
+          "quote": "Safety is first priority. Returns come second."
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "all_passages",
+          "quote": "Getting 5% extra gold is good, but how is it generated?"
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "all_passages",
+          "quote": "No cash interest... I don't understand."
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "spontaneous_reaction",
+          "quote": "returns in gold units"
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "spontaneous_reaction",
+          "quote": "purity certification"
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "spontaneous_reaction",
+          "quote": "terms and conditions"
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "all_passages",
+          "quote": "Returns from gold will be converted into grams... so capital gold return will be added."
+        },
+        {
+          "doc_id": "DI_13",
+          "field": "all_passages",
+          "quote": "Probably terms and conditions and purity certification... complete certified so that you can start."
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "all_passages",
+          "quote": "It’s like dividend yield"
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "pain_points",
+          "quote": "Lack of clarity on yield sourcing"
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"How is 5-7% generated?\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Units keep increasing passively\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Compares to digital gold, not SGB’s 2.5% interest.\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Start small (~₹5,000) to test yield mechanics.\""
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "gold_decision_making",
+          "quote": "Notes gold’s 10% returns YTD."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "spontaneous_reaction",
+          "quote": "Confused about how you’re going to cover the extra income part."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "pain_points",
+          "quote": "Lock-in period and lack of clarity on liquidity."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "pain_points",
+          "quote": "SGBs: Lock-in period and lack of clarity on liquidity."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "pain_points",
+          "quote": "No yield from digital gold."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "most_powerful_verbatim",
+          "quote": "Gold never goes to zero. But with this [yield], I need to know how you’re giving extra—practical possible?"
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Gold never goes to zero. But with this [yield], I need to know how you’re giving extra—practical possible?"
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Confused about how you’re going to cover the extra income part."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Gold never goes to zero."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Notes gold’s 10% returns YTD."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Gold that earns you more gold."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Additional grams of gold."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Start with ₹500 to check performance."
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "all_passages",
+          "quote": "100g becomes 105–107g regardless of price."
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "all_passages",
+          "quote": "if I have 100 grams, I get 5 to 7 more grams every year"
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "spontaneous_reaction",
+          "quote": "If he gives 5–7% interest, don’t give it. Only interested and attractive, otherwise not."
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "pain_points",
+          "quote": "Skepticism about yield sustainability."
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "pain_points",
+          "quote": "It sounds interesting, but how will they pay 5–7% regardless of price movement?"
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "pain_points",
+          "quote": "Unclear custodial safeguards."
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "all_passages",
+          "quote": "If he gives 5–7% interest, don’t give it. Only interested and attractive, otherwise not."
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "all_passages",
+          "quote": "It sounds interesting, but how will they pay 5–7% regardless of price movement?"
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "all_passages",
+          "quote": "I’ll try with a minimum amount. After a year, if he pays, I’ll invest more."
+        },
+        {
+          "doc_id": "DI_20",
+          "field": "all_passages",
+          "quote": "gold never goes to zero"
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "spontaneous_reaction",
+          "quote": "If it's giving returns like Ram Ram, then it's a good investment opportunity, but it depends on how true it is."
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "pain_points",
+          "quote": "Skepticism about yield sustainability"
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "pain_points",
+          "quote": "If it's giving returns like Ram Ram, then it's a good investment opportunity, but it depends on how true it is."
+        },
+        {
+          "doc_id": "DI_21",
+          "field": "all_passages",
+          "quote": "If it's giving returns like Ram Ram, then it's a good investment opportunity, but it depends on how true it is."
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "ideal_gold_product",
+          "quote": "Government-backed gold with high yield and liquidity"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "100g becoming 107g is attractive, but how? Is this like crypto promises?"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "Gold never goes to zero; price rises with demand"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "Prefers Sovereign Gold Bonds (SGBs) for government-backed security + 2.5% interest"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "Government-backed gold with yield"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "Understands units but questions sourcing"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "If I invest in 100 grams, it could become 105–107 grams."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "If I have 100 units, next year it becomes 105–107 units."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Yield is separate from price appreciation."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Returns in gold units are not taxed as income."
+        },
+        {
+          "doc_id": "DI_25",
+          "field": "spontaneous_reaction",
+          "quote": "How is 5-7% generated?"
+        },
+        {
+          "doc_id": "DI_25",
+          "field": "pain_points",
+          "quote": "Yield Mechanism Unclear"
+        },
+        {
+          "doc_id": "DI_25",
+          "field": "most_powerful_verbatim",
+          "quote": "If this [safety claim] is true, then it is revolutionary. But it’s new—I need to see it work first."
+        },
+        {
+          "doc_id": "DI_25",
+          "field": "all_passages",
+          "quote": "Gold is safe, never falls."
+        },
+        {
+          "doc_id": "DI_25",
+          "field": "all_passages",
+          "quote": "Gold returns are low (~6-7%), so I don’t research it deeply."
+        }
+      ]
+    },
+    {
+      "group_id": "government_backing_and_regulation",
+      "name": "Government Backing and Regulation",
+      "sentiment": "positive",
+      "theme": "trust",
+      "definition": "Quotes highlighting the importance of government backing, regulatory compliance, and audits for building trust in digital gold.",
+      "members": [
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "Government norms mean it’s legal. FIU registered builds trust."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "It is getting compounded, like RBI FD."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "Allocation is audited → increases security."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "They follow government norms, so gold product should be fine."
+        },
+        {
+          "doc_id": "DI_10",
+          "field": "all_passages",
+          "quote": "I check app updates for trust."
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "all_passages",
+          "quote": "Manish trusts CoinDCX due to its registration with the Financial Intelligence Unit (FIU) and compliance with government norms. However, he suggests that CoinDCX needs to market its gold product separately from its crypto identity to build trust among older, conservative investors."
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "all_passages",
+          "quote": "While he trusts CoinDCX’s regulatory compliance, he suggests that older generations may need more reassurance through physical documents or certificates to trust digital gold platforms."
+        },
+        {
+          "doc_id": "DI_11",
+          "field": "all_passages",
+          "quote": "trust in government backing"
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "all_passages",
+          "quote": "Quarterly audits give confidence."
+        },
+        {
+          "doc_id": "DI_12",
+          "field": "all_passages",
+          "quote": "Government norms mean safety."
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "all_passages",
+          "quote": "Security is primary… government backing increases trust."
+        },
+        {
+          "doc_id": "DI_16",
+          "field": "all_passages",
+          "quote": "Government backing is non-negotiable."
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "pain_points",
+          "quote": "\"Need more than just FIU compliance\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Safety is first... I’d need to see audits and government compliance.\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"If they tie up with ICICI, trust will be higher.\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"I’d check quarterly reports\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Need more than just FIU compliance\""
+        },
+        {
+          "doc_id": "DI_17",
+          "field": "all_passages",
+          "quote": "\"Verify audits/vault proofs\""
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "spontaneous_reaction",
+          "quote": "Very good idea... 100% transparency."
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "spontaneous_reaction",
+          "quote": "government-backed assurances"
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "pain_points",
+          "quote": "Platform reliability concerns"
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "all_passages",
+          "quote": "Very good idea... 100% transparency. Hidden things are not... I like whiteboard it individual... audit report... government... very boost."
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "all_passages",
+          "quote": "Financial Intelligence Unit compliance... government of India."
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "all_passages",
+          "quote": "Quarterly result publish... very boost."
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "all_passages",
+          "quote": "Audit report... government... very good."
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "all_passages",
+          "quote": "Very secure investment, traditional asset passed down through generations."
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "all_passages",
+          "quote": "Appreciates digital gold for its ease of conversion and liquidity."
+        },
+        {
+          "doc_id": "DI_18",
+          "field": "all_passages",
+          "quote": "Long-term goals (retirement, child education) and family traditions."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "Highlight SEBI/FIU oversight prominently."
+        },
+        {
+          "doc_id": "DI_19",
+          "field": "all_passages",
+          "quote": "I will check which government authorities monitor this platform."
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "all_passages",
+          "quote": "Government is involved so it’s safe."
+        },
+        {
+          "doc_id": "DI_1",
+          "field": "all_passages",
+          "quote": "Crypto apps allow selling on weekends."
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "spontaneous_reaction",
+          "quote": "If it’s under the government, it’s safe. But how do I verify my specific gold? Is it *mine* or just a ledger entry?"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "most_powerful_verbatim",
+          "quote": "If it’s under the government, it’s safe. But how do I verify my specific gold? Is it *mine* or just a ledger entry?"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "If it’s under the government, it’s safe. But how do I verify my specific gold? Is it *mine* or just a ledger entry?"
+        },
+        {
+          "doc_id": "DI_22",
+          "field": "all_passages",
+          "quote": "Government-backed gold with yield"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "most_powerful_verbatim",
+          "quote": "If someone invests in gold, the first thing they'll consider is its custody. Whether it's audited, backed up, and complies with government norms. These are the key features."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "If someone invests in gold, the first thing they'll consider is its custody. Whether it's audited, backed up, and complies with government norms. These are the key features."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "FIU is a large organization, reduces fraud risk."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "First thing investors look for is safety."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "Gold is properly allocated and audited."
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "government-funded backup needed"
+        },
+        {
+          "doc_id": "DI_23",
+          "field": "all_passages",
+          "quote": "regulatory uncertainty"
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "pain_points",
+          "quote": "Government backing is crucial for trust. Without it, I cannot sleep peacefully."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "most_powerful_verbatim",
+          "quote": "Government backing is crucial for trust. Without it, I cannot sleep peacefully."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Government backing is crucial for trust. Without it, I cannot sleep peacefully."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Doubts the credibility of higher yield claims (e.g., 10–12%)."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Transparency and proof of reserves are essential."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Need government backing to trust CoinDCX."
+        },
+        {
+          "doc_id": "DI_24",
+          "field": "all_passages",
+          "quote": "Government backing is non-negotiable."
+        }
+      ]
+    },
+    {
+      "group_id": "manual_4",
+      "name": "New group",
+      "sentiment": "positive",
+      "theme": "",
+      "definition": "",
+      "members": []
+    }
+  ],
+  "assignments": {},
+  "generated_at": "2026-07-20T14:41:03"
+}

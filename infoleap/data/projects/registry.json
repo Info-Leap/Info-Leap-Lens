@@ -1,0 +1,74 @@
+{
+  "version": "1.0",
+  "description": "InfoLeap Pulse qualitative project registry. Each entry is one research study. Drop files in projects/{id}/ and hit Refresh in Quote Explorer to trigger processing.",
+  "projects": [
+    {
+      "id": "mixer",
+      "display_name": "Crompton FMCD — Mixer & Food Processor Study",
+      "study_type": "ethnographic",
+      "status": "processed",
+      "transcript_format": "md",
+      "description": "In-home ethnographic IDIs with kitchen appliance buyers across 18 Indian cities. Covers mixer-grinders, food processors, blenders, juicers. 8 brands studied.",
+      "segment_key": "brand_owned",
+      "filter_keys": [
+        "brand",
+        "city",
+        "journey_stage"
+      ],
+      "data_paths": {
+        "transcripts": "data/projects/mixer/transcripts",
+        "matrices": "data/projects/mixer/matrices",
+        "trees": "data/projects/mixer/trees",
+        "schema": "data/projects/mixer/schema/extraction_schema.json"
+      },
+      "created_at": "2026-06-02",
+      "last_processed": "2026-05-31"
+    },
+    {
+      "id": "karat-coindcx",
+      "display_name": "CoinDCX Karat — Digital Gold Concept Test",
+      "study_type": "concept_testing",
+      "status": "processed",
+      "transcript_format": "docx",
+      "description": "Concept testing study for CoinDCX digital gold with 5-7% yield. 23 DIs across 5 cities, 3 investor segments, 2 concept routes (safety-led vs returns-led).",
+      "segment_key": "segment",
+      "filter_keys": [
+        "segment",
+        "city",
+        "concept_route",
+        "preferred_route"
+      ],
+      "data_paths": {
+        "transcripts": "data/projects/karat-coindcx/transcripts",
+        "matrices": "data/projects/karat-coindcx/matrices",
+        "trees": "data/projects/karat-coindcx/trees",
+        "source_docs": "data/projects/karat-coindcx/source_docs",
+        "schema": "data/projects/karat-coindcx/schema/extraction_schema.json"
+      },
+      "created_at": "2026-06-02",
+      "last_processed": "2026-07-23"
+    },
+    {
+      "id": "test-dynamic-pipeline",
+      "display_name": "SYNTHETIC TEST — Meal-Kit Subscription Concept Study",
+      "study_type": "attitude_study",
+      "status": "raw",
+      "transcript_format": "docx",
+      "transcript_count": 4,
+      "description": "SYNTHETIC/FICTIONAL test data — built to validate the dynamic project-onboarding pipeline (schema_generator.py -> project_extractor.py -> qual_generic_renderer.py). Not a real client study. Safe to delete.",
+      "segment_key": "segment",
+      "filter_keys": [
+        "segment",
+        "city"
+      ],
+      "data_paths": {
+        "transcripts": "data/projects/test-dynamic-pipeline/transcripts",
+        "matrices": "data/projects/test-dynamic-pipeline/matrices",
+        "source_docs": "data/projects/test-dynamic-pipeline/source_docs",
+        "schema": "data/projects/test-dynamic-pipeline/schema/extraction_schema.json"
+      },
+      "created_at": "2026-07-10",
+      "last_processed": null
+    }
+  ]
+}
