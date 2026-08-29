@@ -272,9 +272,9 @@ def _full_verbatim_wall(passages: list[dict], key_prefix: str,
             safe_content = html.escape(str(p.get("content", "")))
             st.markdown(
                 f'<div style="border-left:3px solid {color};'
-                f'border-radius:5px;background:rgba(255,255,255,0.03);'
+                f'border-radius:5px;background:#1e293b;'
                 f'padding:10px 14px;margin:6px 0;">'
-                f'<p style="font-size:0.7rem;color:#6b7280;margin:0 0 4px;">{safe_meta}</p>'
+                f'<p style="font-size:0.7rem;color:#94a3b8;margin:0 0 4px;">{safe_meta}</p>'
                 f'<p style="font-size:0.9rem;color:#e2e8f0;margin:0;line-height:1.6;">'
                 f'"{safe_content}"</p></div>',
                 unsafe_allow_html=True,
@@ -396,7 +396,7 @@ def _render_consumer_profiles(matrices: list, findings_dir: str, call_or: Callab
             with col:
                 st.markdown(
                     f'<div style="border:1px solid {color};border-radius:8px;'
-                    f'background:rgba(255,255,255,0.03);padding:14px 16px;margin-bottom:12px;">'
+                    f'background:#1e293b;padding:14px 16px;margin-bottom:12px;">'
                     f'<p style="margin:0 0 4px;font-size:0.78rem;font-weight:700;'
                     f'letter-spacing:0.08em;text-transform:uppercase;color:{color};">{seg}</p>'
                     f'<p style="margin:0 0 8px;font-size:1.5rem;font-weight:700;color:#f1f5f9;">{sn}</p>'
@@ -631,7 +631,7 @@ def _render_pain_points(matrices: list, findings_dir: str, call_or: Callable) ->
     _insight_banner(
         f"{total_mentions} total pain mentions · {high_sev} high/critical severity "
         f"· top problem area: {top_area}",
-        "All counts aggregated from pain_points arrays across {n} respondent matrices.",
+        f"All counts aggregated from pain_points arrays across {len(matrices)} respondent matrices.",
     )
 
     section_header("Pain Severity Matrix", "Product area × severity bubble chart")
