@@ -21,6 +21,7 @@ import os
 import io
 import json
 import tempfile
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -329,6 +330,60 @@ class DriveClient:
             pass
 
         return results
+
+    # ── Qual matrices ZIP sync ────────────────────────────────────────────────
+
+    def upload_qual_matrices(self, project_id: str, matrices_dir: str) -> Optional[str]:
+        """Zip all *_matrix.json files in matrices_dir and upload as matrices.zip to Drive qual/{project_id}/.
+        Returns Drive file ID on success, None on failure."""
+        md = Path(matrices_dir)
+        if not md.exists():
+            return None
+        files = list(md.glob("*_matrix.json"))
+        if not files:
+            return None
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+            tmp_path = tmp.name
+        try:
+            with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                for f in files:
+                    zf.write(f, f.name)
+            fid = self.upload_file(project_id, tmp_path, "matrices.zip", kind="qual")
+        finally:
+            Path(tmp_path).unlink(missing_ok=True)
+        return fid
+
+    def sync_qual_matrices_if_needed(self, project_id: str, matrices_dir: str) -> bool:
+        """Download and extract matrices.zip from Drive if matrices_dir is empty or missing.
+        Returns True if matrices are now available locally."""
+        md = Path(matrices_dir)
+        existing = list(md.glob("*_matrix.json")) if md.exists() else []
+        if existing:
+            return True  # already present
+        if self._svc is None:
+            return False
+        folder_id = self._project_folder_id(project_id, "qual")
+        if not folder_id:
+            return False
+        zip_meta = self._find("matrices.zip", folder_id)
+        if not zip_meta:
+            return False
+        try:
+            request = self._svc.files().get_media(fileId=zip_meta["id"])
+            md.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+                tmp_path = tmp.name
+            with open(tmp_path, "wb") as fh:
+                downloader = MediaIoBaseDownload(fh, request)
+                done = False
+                while not done:
+                    _, done = downloader.next_chunk()
+            with zipfile.ZipFile(tmp_path, "r") as zf:
+                zf.extractall(str(md))
+            Path(tmp_path).unlink(missing_ok=True)
+            return True
+        except Exception:
+            return False
 
     # ── Create new project folder ──────────────────────────────────────────────
 

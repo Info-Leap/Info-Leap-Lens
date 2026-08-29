@@ -67,6 +67,33 @@ class ProjectManager:
                 self._save_registry()
                 return
 
+    def ensure_matrices_local(self, project_id: str) -> bool:
+        """If matrices dir is empty and Drive backend is active, download matrices.zip from Drive.
+        Returns True if matrices are available locally after the call."""
+        p = self.get_project(project_id)
+        if not p:
+            return False
+        matrices_dir = p["abs_paths"]["matrices"]
+        existing = list(matrices_dir.glob("*_matrix.json")) if matrices_dir.exists() else []
+        if existing:
+            return True
+        try:
+            import os
+            backend = os.environ.get("STORAGE_BACKEND", "")
+            if not backend:
+                try:
+                    import streamlit as st
+                    backend = st.secrets.get("STORAGE_BACKEND", "")
+                except Exception:
+                    pass
+            if backend != "gdrive":
+                return False
+            from infoleap.gdrive.client import DriveClient
+            client = DriveClient()
+            return client.sync_qual_matrices_if_needed(project_id, str(matrices_dir))
+        except Exception:
+            return False
+
     def trigger_processing(self, project_id: str, full: bool = False) -> dict:
         """
         Triggers the full pipeline for a project.
