@@ -23,7 +23,29 @@ import pandas as pd
 
 # R scripts directory
 _SCRIPTS_DIR = Path(__file__).parent.parent / "r_scripts"
-_R_EXECUTABLE = r"C:\Program Files\R\R-4.6.0\bin\Rscript.exe"
+import sys as _sys
+import shutil as _shutil
+
+def _find_rscript() -> str:
+    """Find Rscript executable cross-platform (Windows .exe OR Linux/Mac PATH)."""
+    # Prefer system PATH first (works on Linux/Mac + custom Windows installs)
+    found = _shutil.which("Rscript") or _shutil.which("rscript")
+    if found:
+        return found
+    # Windows fallbacks — scan common install dirs
+    if _sys.platform == "win32":
+        import glob as _glob
+        patterns = [
+            r"C:\Program Files\R\R-*\bin\Rscript.exe",
+            r"C:\Program Files (x86)\R\R-*\bin\Rscript.exe",
+        ]
+        for pat in patterns:
+            matches = sorted(_glob.glob(pat), reverse=True)
+            if matches:
+                return matches[0]
+    return ""
+
+_R_EXECUTABLE = _find_rscript()
 
 _SCRIPT_MAP = {
     "cronbach_alpha":  "cronbach_alpha.R",
@@ -36,8 +58,8 @@ _SCRIPT_MAP = {
 
 
 def r_available() -> bool:
-    """Check if Rscript.exe is accessible."""
-    return Path(_R_EXECUTABLE).exists()
+    """Check if Rscript is accessible."""
+    return bool(_R_EXECUTABLE) and Path(_R_EXECUTABLE).exists()
 
 
 def r_check() -> dict:

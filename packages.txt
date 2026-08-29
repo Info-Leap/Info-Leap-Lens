@@ -1,0 +1,2 @@
+r-base
+r-cran-jsonlite
