@@ -4009,6 +4009,16 @@ if _study_type == "concept_testing":
 
     _render_pipeline_sync_banner(_active_project)
 
+    # Drive backend: download matrices.zip + schema.zip if not present locally
+    _ct_matrices_path = _BASE / "data" / "projects" / _active_project / "matrices"
+    if not list(_ct_matrices_path.glob("*_matrix.json")) if _ct_matrices_path.exists() else True:
+        with st.spinner("Syncing project matrices from Drive…"):
+            _pm.ensure_matrices_local(_active_project)
+    _ct_schema_path = _BASE / "data" / "projects" / _active_project / "schema"
+    if not (_ct_schema_path / "ui_config.json").exists():
+        with st.spinner("Syncing project schema from Drive…"):
+            _pm.ensure_schema_local(_active_project)
+
     if st.toggle("🔬 Extraction Studio — redo extraction with review", key="_es_toggle_open"):
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
         _render_extraction_studio(_active_project, _ct_proj)
