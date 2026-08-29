@@ -353,6 +353,37 @@ class DriveClient:
             Path(tmp_path).unlink(missing_ok=True)
         return fid
 
+    def sync_qual_schema_if_needed(self, project_id: str, schema_dir: str) -> bool:
+        """Download and extract schema.zip from Drive if schema_dir has no ui_config.json.
+        Returns True if ui_config.json is available locally after the call."""
+        sd = Path(schema_dir)
+        if (sd / "ui_config.json").exists():
+            return True
+        if self._svc is None:
+            return False
+        folder_id = self._project_folder_id(project_id, "qual")
+        if not folder_id:
+            return False
+        zip_meta = self._find("schema.zip", folder_id)
+        if not zip_meta:
+            return False
+        try:
+            request = self._svc.files().get_media(fileId=zip_meta["id"])
+            sd.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
+                tmp_path = tmp.name
+            with open(tmp_path, "wb") as fh:
+                downloader = MediaIoBaseDownload(fh, request)
+                done = False
+                while not done:
+                    _, done = downloader.next_chunk()
+            with zipfile.ZipFile(tmp_path, "r") as zf:
+                zf.extractall(str(sd))
+            Path(tmp_path).unlink(missing_ok=True)
+            return (sd / "ui_config.json").exists()
+        except Exception:
+            return False
+
     def sync_qual_matrices_if_needed(self, project_id: str, matrices_dir: str) -> bool:
         """Download and extract matrices.zip from Drive if matrices_dir is empty or missing.
         Returns True if matrices are now available locally."""

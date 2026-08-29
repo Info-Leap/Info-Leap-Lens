@@ -67,6 +67,21 @@ class ProjectManager:
                 self._save_registry()
                 return
 
+    def ensure_schema_local(self, project_id: str) -> bool:
+        """If schema/ui_config.json missing and Drive backend active, download schema.zip."""
+        p = self.get_project(project_id)
+        if not p:
+            return False
+        schema_dir = p["abs_paths"]["schema"].parent
+        if (schema_dir / "ui_config.json").exists():
+            return True
+        try:
+            from infoleap.gdrive.client import DriveClient
+            client = DriveClient()
+            return client.sync_qual_schema_if_needed(project_id, str(schema_dir))
+        except Exception:
+            return False
+
     def ensure_matrices_local(self, project_id: str) -> bool:
         """If matrices dir is empty and Drive backend is active, download matrices.zip from Drive.
         Returns True if matrices are available locally after the call."""
