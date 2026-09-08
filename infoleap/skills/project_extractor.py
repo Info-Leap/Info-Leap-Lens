@@ -1181,7 +1181,7 @@ def run_extraction(project_id: str, force: bool = False, single_file: str | None
 
     project_cfg = json.loads(project_json_path.read_text(encoding="utf-8"))
 
-    schema_path = _DATA_DIR / project_cfg["data_paths"]["schema"]
+    schema_path = _OXDATA_DIR / project_cfg["data_paths"]["schema"]
     prompt_path = project_dir / "schema" / "master_prompt.txt"
     transcripts_processed_dir = project_dir / "transcripts" / "processed"
     matrices_dir = project_dir / "matrices"
