@@ -2195,6 +2195,7 @@ Upload → switch to project → paste master_prompt.txt in the editor → extra
                             _minimal = {
                                 "id":               _proj_id_new,
                                 "display_name":     _display_new,
+                                "study_type":       "unclassified",
                                 "transcript_format": _t_fmt_new,
                                 "status":           "raw",
                                 "description":      "",

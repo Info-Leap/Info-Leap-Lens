@@ -59,7 +59,7 @@ if _registry_path.exists():
             except Exception:
                 pass
 
-        with st.expander(f"**{proj['display_name']}** — {proj['study_type']} · {n_matrices} matrices", expanded=True):
+        with st.expander(f"**{proj.get('display_name', proj.get('id', 'Unknown'))}** — {proj.get('study_type', 'unclassified')} · {n_matrices} matrices", expanded=True):
             c1, c2, c3, c4 = st.columns(4)
             with c1: kpi_card("Interviews", str(n_matrices), "#1a5d4d")
             with c2: kpi_card("Findings", str(max(n_findings, 0)), "#0ea5e9")
@@ -71,7 +71,15 @@ if _registry_path.exists():
 # ── LLM Models ────────────────────────────────────────────────────────────────
 section_header("LLM Models — OpenRouter Free Tier")
 
-st.info("All AI inference uses OpenRouter free-tier models only. No paid model fallback.", icon="🔓")
+st.warning(
+    "As of 2026-08-31, OpenRouter pulled/paywalled every :free model below — all now return "
+    "a 404. findings_generator.py, fix_narrative_tags.py, and transcript_matrix_builder.py "
+    "have a cheap paid fallback (openai/gpt-4o-mini) appended after this list so they don't "
+    "silently produce nothing. Quote Explorer's live AI narrative generation (quote_explorer.py) "
+    "deliberately still has NO paid fallback — that's a per-page-view cost decision, not yet "
+    "revisited.",
+    icon="⚠️",
+)
 
 _model_table = [
     ("deepseek/deepseek-r1:free", "671B", "Findings generation, complex analysis", "Primary — best reasoning quality"),
@@ -81,6 +89,7 @@ _model_table = [
     ("openai/gpt-oss-120b:free", "120B", "Extraction, verbatim analysis", "General purpose"),
     ("microsoft/phi-4-reasoning:free", "14B", "Small reasoning tasks", "Low-latency fallback"),
     ("google/gemma-4-31b-it:free", "31B", "Simple classification tasks", "Last fallback"),
+    ("openai/gpt-4o-mini", "—", "Paid fallback (findings/fix_narrative_tags/matrix_builder only)", "Only used when every free model above fails"),
 ]
 
 model_data = []
