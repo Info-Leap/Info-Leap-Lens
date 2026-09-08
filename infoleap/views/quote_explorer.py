@@ -2791,8 +2791,13 @@ def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir):
                 pass  # Drive sync optional — never break the pipeline over it
 
         st.cache_data.clear()
-        st.success("Pipeline run finished — reloading…")
-        st.rerun()
+        if _ok:
+            st.success("Pipeline run finished — reloading…")
+            st.rerun()
+        else:
+            st.error("Pipeline finished with errors — see details above. Fix the issue and click Run again.")
+            if st.button("↻ Reload page", key="_qp_reload_err"):
+                st.rerun()
 
 
 def _render_extraction_studio(proj_id: str, proj: dict):
