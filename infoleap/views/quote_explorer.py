@@ -2587,6 +2587,110 @@ def _render_pipeline_sync_banner(proj_id: str):
         )
 
 
+def _run_schema_discovery_ui(proj_id: str, project_dir):
+    """Runs schema_generator + docx_to_md only (stops before extraction).
+    Called for new projects that have no schema yet. After completion the user lands in the
+    Phase 1/2/3 interactive UI where they can review/edit the discovered fields before
+    triggering the per-transcript extraction."""
+    if project_dir is None:
+        st.error("Cannot determine project directory — check project.json paths.")
+        return
+
+    source_docs_dir = project_dir / "source_docs"
+    schema_dir = project_dir / "schema"
+    schema_out = schema_dir / "extraction_schema.json"
+    prompt_out = schema_dir / "master_prompt.txt"
+
+    _dg_matches = list(source_docs_dir.glob("*DG*.docx")) if source_docs_dir.exists() else []
+    _prompt_matches = ([p for p in source_docs_dir.glob("*.docx")
+                         if "prompt" in p.name.lower()] if source_docs_dir.exists() else [])
+    _dg_name = _dg_matches[0].name if _dg_matches else None
+    _prompt_name = _prompt_matches[0].name if _prompt_matches else None
+
+    st.caption(
+        f"Discussion guide: `{_dg_name}`" if _dg_name else
+        "Discussion guide: not found in `source_docs/` — schema will be grounded on transcripts only."
+    )
+    st.caption(
+        f"AI analysis prompt: `{_prompt_name}`" if _prompt_name else
+        "AI analysis prompt: not found in `source_docs/` — schema will be grounded on transcripts only."
+    )
+
+    if st.button("▶ Run Schema Discovery", key=f"_qp_discover_{proj_id}", type="primary"):
+        from infoleap.skills import schema_generator as _sg
+        from infoleap.skills import docx_to_md as _d2m
+        _ok = True
+        with st.status("Step 1/2 — Generating extraction schema…", expanded=True) as _status:
+            try:
+                _sg.generate_schema(
+                    proj_id,
+                    dg_path=_dg_matches[0] if _dg_matches else None,
+                    prompt_path=_prompt_matches[0] if _prompt_matches else None,
+                    force=False,
+                )
+                st.write("Schema + master prompt written.")
+                # Propagate inferred project_type into project.json
+                try:
+                    if schema_out.exists():
+                        _sch = json.loads(schema_out.read_text(encoding="utf-8"))
+                        _ptype = _sch.get("project_type")
+                        if _ptype:
+                            _pj_path = project_dir / "project.json"
+                            if _pj_path.exists():
+                                _pj_data = json.loads(_pj_path.read_text(encoding="utf-8"))
+                                if _pj_data.get("study_type") != _ptype:
+                                    _pj_data["study_type"] = _ptype
+                                    if _ptype != "ethnographic":
+                                        _pj_data["segment_key"] = "segment"
+                                        if "segment" not in _pj_data.get("filter_keys", []):
+                                            _pj_data["filter_keys"] = ["segment"] + [
+                                                k for k in _pj_data.get("filter_keys", []) if k != "segment"
+                                            ]
+                                    _pj_path.write_text(json.dumps(_pj_data, indent=2), encoding="utf-8")
+                                    _pm._update_registry_entry(proj_id, study_type=_ptype)
+                except Exception:
+                    pass
+                _status.update(label="Step 1/2 — Schema ready", state="complete")
+            except SystemExit as _e:
+                _ok = False
+                st.error(f"Schema generation exited (code {_e.code}) — check logs / OpenRouter key.")
+                _status.update(label="Step 1/2 — Schema generation failed", state="error")
+            except Exception as _e:
+                _ok = False
+                st.error(f"Schema generation failed: {_e}")
+                _status.update(label="Step 1/2 — Schema generation failed", state="error")
+
+        if _ok:
+            with st.status("Step 2/2 — Converting transcripts (.docx → .md)…", expanded=True) as _status:
+                try:
+                    _idx = _d2m.process_project(proj_id, force=False)
+                    if _idx:
+                        _n_ok = sum(1 for v in _idx.values() if v.get("status") == "ok")
+                        _n_skip = sum(1 for v in _idx.values() if v.get("status") == "skipped")
+                        _n_err = sum(1 for v in _idx.values() if v.get("status") == "error")
+                        st.write(f"{_n_ok} converted, {_n_skip} skipped, {_n_err} errors.")
+                    else:
+                        st.write("No new transcripts to convert (or none found).")
+                    _status.update(label="Step 2/2 — Transcripts converted", state="complete")
+                except SystemExit as _e:
+                    _ok = False
+                    st.error(f"Transcript conversion exited (code {_e.code}).")
+                    _status.update(label="Step 2/2 — Transcript conversion failed", state="error")
+                except Exception as _e:
+                    _ok = False
+                    st.error(f"Transcript conversion failed: {_e}")
+                    _status.update(label="Step 2/2 — Transcript conversion failed", state="error")
+
+        st.cache_data.clear()
+        if _ok:
+            st.success("Schema discovery done — reloading to review discovered fields…")
+            st.rerun()
+        else:
+            st.error("Discovery finished with errors — see details above.")
+            if st.button("↻ Reload page", key=f"_qp_disc_reload_{proj_id}"):
+                st.rerun()
+
+
 def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir):
     """One-click UI for the schema_generator → docx_to_md → project_extractor chain that
     previously had to be run by hand via three separate CLI invocations (there was no UI
@@ -2813,24 +2917,27 @@ def _render_extraction_studio(proj_id: str, proj: dict):
 
     _matrices_exist = bool(matrices_dir and matrices_dir.exists()
                             and list(matrices_dir.glob("*_matrix.json")))
-    if not (schema_path and schema_path.exists() and mp_path and mp_path.exists()
-            and index_path and index_path.exists() and _matrices_exist):
-        _missing = []
+    _schema_ready = bool(schema_path and schema_path.exists()
+                         and mp_path and mp_path.exists()
+                         and index_path and index_path.exists())
+
+    if not _schema_ready:
+        # Schema doesn't exist yet — run discovery only (schema_generator + docx_to_md).
+        # After this completes the user lands back in the Phase 1/2/3 interactive UI to
+        # review discovered fields before triggering extraction.
+        _missing_artifacts = []
         if not (schema_path and schema_path.exists()):
-            _missing.append("`extraction_schema.json` (schema generation)")
+            _missing_artifacts.append("`extraction_schema.json`")
         if not (mp_path and mp_path.exists()):
-            _missing.append("`master_prompt.txt` (produced alongside the schema)")
+            _missing_artifacts.append("`master_prompt.txt`")
         if not (index_path and index_path.exists()):
-            _missing.append("`processed_index.json` (transcript→markdown conversion)")
-        if not _matrices_exist:
-            _missing.append("`matrices/*_matrix.json` (extraction pass)")
+            _missing_artifacts.append("`processed_index.json`")
         st.caption(
-            "This project is missing extraction artifacts — " + "; ".join(_missing) +
-            ". Run the pipeline below (schema → transcript conversion → extraction), a single "
-            "click builds whatever is missing; steps that already have output are skipped "
-            "unless you force a re-run."
+            "Schema not yet generated — " + ", ".join(_missing_artifacts) + " missing. "
+            "Run schema discovery below. After it completes you'll see the discovered fields "
+            "and can edit the extraction prompt before running the full per-transcript extraction."
         )
-        _run_qual_extraction_pipeline_ui(proj_id, project_dir)
+        _run_schema_discovery_ui(proj_id, project_dir)
         return
 
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
