@@ -116,23 +116,35 @@ def collect_verbatims(matrices_dir: Path, verbatim_fields: set[str], cap: int = 
     return out[:cap]
 
 
-def propose_groups(quotes: list[dict], project_name: str, study_type: str) -> Optional[list[dict]]:
+def propose_groups(quotes: list[dict], project_name: str, study_type: str,
+                   research_focus: Optional[str] = None) -> Optional[list[dict]]:
     """One grounded LLM call: propose 4-10 sentiment x theme groups from real quotes only.
     Every group cites quotes by index into `quotes` — the response is never trusted to contain
-    quote text of its own, so nothing here can hallucinate a quote."""
+    quote text of its own, so nothing here can hallucinate a quote.
+
+    research_focus: optional researcher-supplied analytical lens (e.g. 'focus on trust vs.
+    adoption barriers') that steers how groups are named and defined. Without it the model
+    falls back to a generic sentiment × topic split that may not match the study's questions.
+    """
     if not quotes:
         return None
     quote_block = "\n".join(
         f'[{i}] doc_id={q["doc_id"]} field={q["field"]}: "{q["quote"][:300]}"'
         for i, q in enumerate(quotes)
     )
+    focus_line = (
+        f"\nRESEARCH FOCUS (use this as your primary grouping lens): {research_focus}"
+        if research_focus else
+        "\nRESEARCH FOCUS: none specified — use whatever axes best fit this study's quotes."
+    )
     prompt = f"""You are grouping real respondent verbatims from a qualitative study into a small
 number of groups a researcher can scan quickly — a mix of SENTIMENT (positive/negative/mixed/
 neutral) and THEME (what the quote is actually about: behaviour, barrier, need, trust, price,
 whatever genuinely fits). Do not force a generic template; name groups after what these specific
-quotes actually say, at whatever axes fit THIS study's content.
+quotes actually say, at whatever axes fit THIS study's content. Prioritise the research focus
+below if one is given — it tells you what the client actually wants to understand.
 
-PROJECT: {project_name} (study type: {study_type})
+PROJECT: {project_name} (study type: {study_type}){focus_line}
 
 QUOTES (numbered — cite by number only, never invent or alter a quote):
 {quote_block}
