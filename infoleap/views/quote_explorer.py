@@ -4546,6 +4546,12 @@ if _study_type not in ("concept_testing", "ethnographic"):  # unknown study type
     _render_project_setup(_active_project, _gen_proj)
     _render_pipeline_sync_banner(_active_project)
 
+    if st.toggle("🔬 Extraction Studio — redo extraction with review",
+                 key=f"_es_toggle_open_{_active_project}"):
+        st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+        _render_extraction_studio(_active_project, _gen_proj)
+        st.divider()
+
     # If matrices exist, show generic analysis driven by ui_config.json
     _gen_m_count = len(list(_gen_m_dir.glob("*_matrix.json"))) if _gen_m_dir and _gen_m_dir.exists() else 0
     if _gen_m_count > 0:
