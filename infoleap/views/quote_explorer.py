@@ -2622,13 +2622,16 @@ def _run_schema_discovery_ui(proj_id: str, project_dir):
         _ok = True
         with st.status("Step 1/2 — Generating extraction schema…", expanded=True) as _status:
             try:
-                _sg.generate_schema(
-                    proj_id,
-                    dg_path=_dg_matches[0] if _dg_matches else None,
-                    prompt_path=_prompt_matches[0] if _prompt_matches else None,
-                    force=False,
-                )
-                st.write("Schema + master prompt written.")
+                if schema_out.exists() and prompt_out.exists():
+                    st.write("Schema already exists (from ZIP) — skipping generation.")
+                else:
+                    _sg.generate_schema(
+                        proj_id,
+                        dg_path=_dg_matches[0] if _dg_matches else None,
+                        prompt_path=_prompt_matches[0] if _prompt_matches else None,
+                        force=False,
+                    )
+                    st.write("Schema + master prompt written.")
                 # Propagate inferred project_type into project.json
                 try:
                     if schema_out.exists():
@@ -2922,21 +2925,30 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                          and index_path and index_path.exists())
 
     if not _schema_ready:
-        # Schema doesn't exist yet — run discovery only (schema_generator + docx_to_md).
-        # After this completes the user lands back in the Phase 1/2/3 interactive UI to
-        # review discovered fields before triggering extraction.
-        _missing_artifacts = []
-        if not (schema_path and schema_path.exists()):
-            _missing_artifacts.append("`extraction_schema.json`")
-        if not (mp_path and mp_path.exists()):
-            _missing_artifacts.append("`master_prompt.txt`")
-        if not (index_path and index_path.exists()):
-            _missing_artifacts.append("`processed_index.json`")
-        st.caption(
-            "Schema not yet generated — " + ", ".join(_missing_artifacts) + " missing. "
-            "Run schema discovery below. After it completes you'll see the discovered fields "
-            "and can edit the extraction prompt before running the full per-transcript extraction."
-        )
+        # Schema/index not ready — run discovery (schema_generator + docx_to_md).
+        # If schema already in ZIP (Path 2), only docx_to_md runs; schema step is skipped.
+        # After completion the user lands in Phase 1/2/3 to review fields before extraction.
+        _schema_in_zip = bool(schema_path and schema_path.exists()
+                              and mp_path and mp_path.exists())
+        if _schema_in_zip:
+            st.caption(
+                "Schema loaded from ZIP — transcripts not yet converted to markdown. "
+                "Click below to convert transcripts, then review the extraction schema "
+                "in Phase 2 before running extraction."
+            )
+        else:
+            _missing_artifacts = []
+            if not (schema_path and schema_path.exists()):
+                _missing_artifacts.append("`extraction_schema.json`")
+            if not (mp_path and mp_path.exists()):
+                _missing_artifacts.append("`master_prompt.txt`")
+            if not (index_path and index_path.exists()):
+                _missing_artifacts.append("`processed_index.json`")
+            st.caption(
+                "Schema not yet generated — " + ", ".join(_missing_artifacts) + " missing. "
+                "Click below to run schema discovery. After it completes you'll see the "
+                "discovered fields and can edit the extraction prompt before running extraction."
+            )
         _run_schema_discovery_ui(proj_id, project_dir)
         return
 
