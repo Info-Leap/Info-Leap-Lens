@@ -2594,7 +2594,7 @@ def _render_pipeline_sync_banner(proj_id: str):
         )
 
 
-def _run_schema_discovery_ui(proj_id: str, project_dir):
+def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=None):
     """Runs schema_generator + docx_to_md only (stops before extraction).
     Called for new projects that have no schema yet. After completion the user lands in the
     Phase 1/2/3 interactive UI where they can review/edit the discovered fields before
@@ -2604,6 +2604,9 @@ def _run_schema_discovery_ui(proj_id: str, project_dir):
         return
 
     source_docs_dir = project_dir / "source_docs"
+    # On cloud project_dir = /tmp/ — source_docs live in the git-mount readable path
+    if not source_docs_dir.exists() and readable_project_dir:
+        source_docs_dir = readable_project_dir / "source_docs"
     schema_dir = project_dir / "schema"
     schema_out = schema_dir / "extraction_schema.json"
     prompt_out = schema_dir / "master_prompt.txt"
@@ -2774,7 +2777,7 @@ Be specific to THESE transcripts. Bold (**) field names."""
                 st.rerun()
 
 
-def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir):
+def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir, readable_project_dir=None):
     """One-click UI for the schema_generator → docx_to_md → project_extractor chain that
     previously had to be run by hand via three separate CLI invocations (there was no UI
     trigger at all — the old message here pointed at a "Setup section" that doesn't exist).
@@ -2787,6 +2790,8 @@ def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir):
     for a project that died partway through (e.g. schema exists, no matrices yet).
     """
     source_docs_dir = project_dir / "source_docs"
+    if not source_docs_dir.exists() and readable_project_dir:
+        source_docs_dir = readable_project_dir / "source_docs"
     schema_dir = project_dir / "schema"
     schema_out = schema_dir / "extraction_schema.json"
     prompt_out = schema_dir / "master_prompt.txt"
@@ -3076,7 +3081,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                 "Click below to run schema discovery. After it completes you'll see the "
                 "discovered fields and can edit the extraction prompt before running extraction."
             )
-        _run_schema_discovery_ui(proj_id, project_dir)
+        _run_schema_discovery_ui(proj_id, project_dir, readable_project_dir=_readable_project_dir)
         return
 
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -3469,9 +3474,12 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             # reinforce/extend what's already in that document, not replace it, and the user
             # explicitly asked to see them side by side instead of guessing what's in the docx.
             source_docs_dir = project_dir / "source_docs" if project_dir else None
+            if source_docs_dir and not source_docs_dir.exists() and _readable_project_dir:
+                source_docs_dir = _readable_project_dir / "source_docs"
             _brief_path = None
             if source_docs_dir and source_docs_dir.exists():
-                for pattern in ["AI_Prompt*.docx", "*prompt*.docx", "*analysis*.docx", "*brief*.docx"]:
+                for pattern in ["AI_Prompt*.docx", "*prompt*.docx", "*analysis*.docx", "*brief*.docx",
+                                 "AI_Prompt*.md", "*prompt*.md", "*analysis*.md", "*brief*.md"]:
                     matches = list(source_docs_dir.glob(pattern))
                     if matches:
                         _brief_path = matches[0]
