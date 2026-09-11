@@ -166,6 +166,7 @@ def process_project(project_id: str, force: bool = False) -> dict:
                 "status": "ok",
                 "source": str(md_path),
                 "output": str(md_path),
+                "output_md": str(md_path.relative_to(_DATA_DIR / "projects" / project_id)),
                 "metadata": meta,
                 "format": "md",
             }

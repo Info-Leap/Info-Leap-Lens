@@ -3381,7 +3381,14 @@ def _render_extraction_studio(proj_id: str, proj: dict):
         def _resolve_md_path(fn: str):
             entry = index[fn]
             md_rel = entry.get("output_md")
-            return (project_dir / md_rel) if md_rel else None
+            if md_rel:
+                return project_dir / md_rel
+            # fallback: index written for all-.md projects may store absolute "output" path
+            abs_out = entry.get("output")
+            if abs_out:
+                p = Path(abs_out)
+                return p if p.exists() else t_dir / fn
+            return t_dir / fn if (t_dir / fn).exists() else None
 
         # ── Step 1b: Scope & thinking guidance ─────────────────────────────────────
         _scope_path = schema_path.parent / "scope_notes.txt"
