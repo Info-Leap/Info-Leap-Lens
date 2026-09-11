@@ -2623,6 +2623,77 @@ def _run_schema_discovery_ui(proj_id: str, project_dir):
         "AI analysis prompt: not found in `source_docs/` — schema will be grounded on transcripts only."
     )
 
+    # Scope input — collected here so it can guide the very first discovery run
+    _init_scope_path = project_dir / "schema" / "scope_notes.txt"
+    _init_existing_scope = _init_scope_path.read_text(encoding="utf-8") if _init_scope_path.exists() else ""
+    _init_scope_key = f"{proj_id}_init_scope"
+
+    with st.expander("📝 Add scope / research objectives before discovery (recommended)", expanded=not _dg_name):
+        st.caption(
+            "Tell the AI what to look for — research objectives, key topics, respondent segments. "
+            "Without this and without source_docs, discovery reads transcripts cold and may miss "
+            "study-specific nuance. You can also auto-generate from 3 sample transcripts below."
+        )
+
+        # Auto-generate from transcripts
+        _t_dir_init = project_dir / "transcripts"
+        _init_md_files = sorted(_t_dir_init.glob("*.md"))[:3] if _t_dir_init.exists() else []
+        _gen_col1, _gen_col2 = st.columns([2, 3])
+        with _gen_col1:
+            _gen_clicked = st.button(
+                "🔍 Generate scope from sample transcripts",
+                key=f"{proj_id}_init_gen_scope",
+                disabled=not _init_md_files,
+            )
+        with _gen_col2:
+            _gen_context = st.text_input(
+                "Study context (optional)",
+                key=f"{proj_id}_init_gen_ctx",
+                placeholder="e.g. Concept test for CoinDCX digital gold, 3 investor segments",
+                label_visibility="collapsed",
+            )
+        if _gen_clicked and _init_md_files:
+            with st.spinner(f"Reading {len(_init_md_files)} transcript(s)…"):
+                from infoleap.skills.llm_client import call_llm_safe
+                _ts_texts = [f.read_text(encoding="utf-8")[:5000] for f in _init_md_files]
+                _gen_prompt = f"""You are a senior qualitative researcher. Read these sample transcripts and write a STRUCTURED EXTRACTION DIRECTIVE guiding an AI analyst coding all transcripts from this study.
+
+STUDY CONTEXT: {_gen_context.strip() if _gen_context.strip() else 'Infer from transcripts.'}
+
+SAMPLE TRANSCRIPTS:
+{"".join(f"--- TRANSCRIPT {i+1} ---\n{t}\n\n" for i, t in enumerate(_ts_texts))}
+
+Output structured guidance with these sections (markdown headers ##):
+## STUDY FRAMING
+## KEY THEMES TO EXTRACT
+## FIELDS TO PRIORITISE (8-15 fields, snake_case, one-line definition each)
+## SEGMENT RULES
+## AMBIGUITY DECISION RULES
+## EVIDENCE DISCIPLINE
+
+Be specific to THESE transcripts. Bold (**) field names."""
+                _gen_result = call_llm_safe([{"role": "user", "content": _gen_prompt}], max_tokens=5000, temp=0.2)
+                if _gen_result:
+                    st.session_state[_init_scope_key] = _gen_result.strip()
+                    _init_existing_scope = _gen_result.strip()
+                    st.success("Scope generated — review below, then run discovery.")
+                else:
+                    st.error("Generation failed — write manually or skip.")
+
+        _init_scope_text = st.text_area(
+            "Scope & research objectives",
+            value=_init_existing_scope,
+            height=200,
+            key=_init_scope_key,
+            label_visibility="collapsed",
+            placeholder="e.g. Focus on trust barriers, investment motivation, and yield comprehension for CoinDCX digital gold concept test...",
+        )
+        if st.button("💾 Save scope", key=f"{proj_id}_init_save_scope"):
+            _init_scope_path.parent.mkdir(parents=True, exist_ok=True)
+            _init_scope_path.write_text(_init_scope_text, encoding="utf-8")
+            st.success("Saved — will be used in discovery.")
+        _init_scope_now = _init_scope_path.read_text(encoding="utf-8") if _init_scope_path.exists() else (_init_scope_text.strip() or None)
+
     if st.button("▶ Run Schema Discovery", key=f"_qp_discover_{proj_id}", type="primary"):
         from infoleap.skills import schema_generator as _sg
         from infoleap.skills import docx_to_md as _d2m
@@ -2637,6 +2708,7 @@ def _run_schema_discovery_ui(proj_id: str, project_dir):
                         dg_path=_dg_matches[0] if _dg_matches else None,
                         prompt_path=_prompt_matches[0] if _prompt_matches else None,
                         force=False,
+                        user_scope=_init_scope_now or None,
                     )
                     st.write("Schema + master prompt written.")
                 # Propagate inferred project_type into project.json
