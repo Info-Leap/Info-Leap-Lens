@@ -35,6 +35,7 @@ infoleap/data/**
 !infoleap/data/projects/coindcx-fresh-test/
 !infoleap/data/projects/coindcx-fresh-test/transcripts/
 !infoleap/data/projects/coindcx-fresh-test/transcripts/*.md
+!infoleap/data/projects/coindcx-fresh-test/transcripts/processed_index.json
 !infoleap/data/projects/coindcx-fresh-test/project_meta.json
 *.sqlite
 *.sqlite3

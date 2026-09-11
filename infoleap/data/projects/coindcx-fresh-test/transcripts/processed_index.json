@@ -1,0 +1,67 @@
+{
+  "DI01_Priya_Mumbai.md": {
+    "status": "ok",
+    "source": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI01_Priya_Mumbai.md",
+    "output": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI01_Priya_Mumbai.md",
+    "output_md": "transcripts\\DI01_Priya_Mumbai.md",
+    "metadata": {
+      "di_number": null,
+      "gender": "Priya",
+      "segment": "Mumbai.md",
+      "city": null
+    },
+    "format": "md"
+  },
+  "DI02_Rahul_Delhi.md": {
+    "status": "ok",
+    "source": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI02_Rahul_Delhi.md",
+    "output": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI02_Rahul_Delhi.md",
+    "output_md": "transcripts\\DI02_Rahul_Delhi.md",
+    "metadata": {
+      "di_number": null,
+      "gender": "Rahul",
+      "segment": "Delhi.md",
+      "city": null
+    },
+    "format": "md"
+  },
+  "DI03_Sunita_Pune.md": {
+    "status": "ok",
+    "source": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI03_Sunita_Pune.md",
+    "output": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI03_Sunita_Pune.md",
+    "output_md": "transcripts\\DI03_Sunita_Pune.md",
+    "metadata": {
+      "di_number": null,
+      "gender": "Sunita",
+      "segment": "Pune.md",
+      "city": null
+    },
+    "format": "md"
+  },
+  "DI04_Aditya_Bangalore.md": {
+    "status": "ok",
+    "source": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI04_Aditya_Bangalore.md",
+    "output": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI04_Aditya_Bangalore.md",
+    "output_md": "transcripts\\DI04_Aditya_Bangalore.md",
+    "metadata": {
+      "di_number": null,
+      "gender": "Aditya",
+      "segment": "Bangalore.md",
+      "city": null
+    },
+    "format": "md"
+  },
+  "DI05_Meera_Chennai.md": {
+    "status": "ok",
+    "source": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI05_Meera_Chennai.md",
+    "output": "D:\\antigravity project\\infoleap project\\info-leap\\infoleap\\data\\projects\\coindcx-fresh-test\\transcripts\\DI05_Meera_Chennai.md",
+    "output_md": "transcripts\\DI05_Meera_Chennai.md",
+    "metadata": {
+      "di_number": null,
+      "gender": "Meera",
+      "segment": "Chennai.md",
+      "city": null
+    },
+    "format": "md"
+  }
+}

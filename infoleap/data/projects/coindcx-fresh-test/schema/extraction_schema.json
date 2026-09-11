@@ -1,0 +1,530 @@
+{
+  "schema_version": "1.0",
+  "project_id": "coindcx-fresh-test",
+  "project_type": "concept_testing",
+  "study_summary": "This study measures investor reactions to CoinDCX's digital gold product with 5-7% yield, focusing on trust, transparency, and yield appeal across safety-first, yield-seeking, and traditional gold investor segments.",
+  "generated_at": "2026-09-11T05:58:40.376169+00:00",
+  "source_documents": {
+    "dg": null,
+    "ai_prompt": null
+  },
+  "discovery": {
+    "study_domain_observed": "This study explores reactions to CoinDCX's digital gold product offering a 5-7% yield, focusing on trust, transparency, and yield appeal across different investor segments. It examines how traditional gold buyers, safety-first investors, and yield-seekers perceive digital gold compared to physical gold and other investment vehicles.",
+    "respondent_types": [
+      {
+        "type_name": "analytical_yield_seeker",
+        "definition": "Investors who prioritize yield and efficiency, demanding transparency and credible partnerships.",
+        "doc_id": "DI04_Aditya_Bangalore",
+        "distinguishing_quote": "If digital gold gave 5-7% on top of price appreciation, the math suddenly changes."
+      },
+      {
+        "type_name": "conservative_safety_investor",
+        "definition": "Investors who prioritize safety and trust only established institutions like banks and post offices.",
+        "doc_id": "DI05_Meera_Chennai",
+        "distinguishing_quote": "I don't use fintech for big amounts. I use SBI, post office. These I trust because they've been there for 50 years."
+      },
+      {
+        "type_name": "risk_tolerant_yield_focused",
+        "definition": "Investors who prioritize high returns and flexibility, preferring volatile assets like crypto but open to gold if it offers competitive yields.",
+        "doc_id": "DI02_Rahul_Delhi",
+        "distinguishing_quote": "Returns. Plain and simple. FDs give 6-7%, inflation eats that up. Crypto is volatile but the upside is huge."
+      },
+      {
+        "type_name": "traditional_gold_investor",
+        "definition": "Investors who value physical possession of gold and trust in known institutions, skeptical of digital concepts.",
+        "doc_id": "DI03_Sunita_Pune",
+        "distinguishing_quote": "For me gold means I can touch it, keep it in my house or locker. Online gold feels like it's not real."
+      },
+      {
+        "type_name": "cautious_stability_seeker",
+        "definition": "Investors who prioritize safety and stability, preferring traditional instruments and skeptical of new digital products.",
+        "doc_id": "DI01_Priya_Mumbai",
+        "distinguishing_quote": "Because FDs are safe. I know exactly what I'm getting. With mutual funds I've seen my portfolio go down and it's stressful. So I like having something stable."
+      }
+    ],
+    "emergent_topics": [
+      {
+        "topic": "trust_in_crypto_brand",
+        "doc_id": "DI01_Priya_Mumbai",
+        "example_quote": "But CoinDCX is a crypto company, right? I don't do crypto. Will my gold be used for crypto things?",
+        "_unverified": true
+      },
+      {
+        "topic": "need_for_trusted_endorsements",
+        "doc_id": "DI05_Meera_Chennai",
+        "example_quote": "Good idea but wrong company for people like me. Either get a bank to co-brand this, or get a credible endorsement from somewhere."
+      },
+      {
+        "topic": "transparency_in_yield_source",
+        "doc_id": "DI01_Priya_Mumbai",
+        "example_quote": "7% sounds like mutual fund returns. But gold is supposed to be safe, not risky. If I'm getting 7% it means someone is taking a risk. Who is taking that risk? Me or CoinDCX?"
+      }
+    ],
+    "suggested_dimensions": [
+      {
+        "field_name": "trust_in_crypto_brand",
+        "type": "enum",
+        "description": "Level of trust in CoinDCX due to its association with crypto.",
+        "enum_values": [
+          "high",
+          "medium",
+          "low",
+          "none"
+        ],
+        "scoring_rule": null,
+        "verbatim_field": false,
+        "ui_section": "trust_adoption"
+      },
+      {
+        "field_name": "preferred_endorsement",
+        "type": "array",
+        "description": "Types of endorsements or partnerships that would increase trust in the product.",
+        "enum_values": [
+          "bank",
+          "SEBI",
+          "post_office",
+          "community_reference"
+        ],
+        "scoring_rule": null,
+        "verbatim_field": false,
+        "ui_section": "trust_adoption"
+      },
+      {
+        "field_name": "yield_transparency_concern",
+        "type": "boolean",
+        "description": "Whether the respondent expressed concerns about how the yield is generated.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": true,
+        "ui_section": "concept_reaction"
+      },
+      {
+        "field_name": "physical_gold_preference",
+        "type": "boolean",
+        "description": "Whether the respondent prefers physical gold over digital gold.",
+        "enum_values": null,
+        "scoring_rule": null,
+        "verbatim_field": true,
+        "ui_section": "category_context"
+      }
+    ],
+    "brief_dg_mismatch": [],
+    "_sample_docs": [
+      "DI04_Aditya_Bangalore.md",
+      "DI05_Meera_Chennai.md",
+      "DI02_Rahul_Delhi.md",
+      "DI03_Sunita_Pune.md",
+      "DI01_Priya_Mumbai.md"
+    ],
+    "_observations": [
+      {
+        "doc_id": "DI04_Aditya_Bangalore",
+        "filename": "DI04_Aditya_Bangalore.md",
+        "characterization": "Aditya is a highly analytical and financially literate investor who prioritizes efficiency, transparency, and yield in his investment decisions. He carefully evaluates risks and opportunities, demanding clear disclosures and credible partnerships before committing to new financial products.",
+        "quotes": [
+          "Gold is mostly for portfolio balance, not because I love gold.",
+          "Physical gold has 5-10% loss on resale. It's just better.",
+          "If digital gold gave 5-7% on top of price appreciation, the math suddenly changes.",
+          "CoinDCX's brand alone doesn't close the trust gap for me.",
+          "Transparency matters more than the number itself.",
+          "We want to be convinced, not sold to.",
+          "Execute on: full fee transparency, custodian disclosure, minimum guaranteed floor yield, and SEBI-compliant documentation."
+        ],
+        "_dropped_unverified": [
+          "That's competitive with equity for a 'safe' asset. I'd look at this seriously."
+        ]
+      },
+      {
+        "doc_id": "DI05_Meera_Chennai",
+        "filename": "DI05_Meera_Chennai.md",
+        "characterization": "Meera is a conservative investor who prioritizes safety and trusts only established institutions like banks and post offices. She values simplicity in financial products and is deeply skeptical of new fintech solutions, especially those involving digital gold or crypto.",
+        "quotes": [
+          "We are very conservative. PPF we both contribute to maximum — 1.5 lakhs each. NPS for my husband's retirement. Some RDs. And gold — we have a lot of gold from my side of the family.",
+          "South Indian families, you know, gold is everything.",
+          "Never. Gold is kept for important occasions — daughter's wedding, emergencies. We don't sell it.",
+          "That sounds good but I'm suspicious. How? Gold earning money sounds like those chit fund scams. I've heard of people losing money.",
+          "Lending my gold to jewellers? But what if jeweller doesn't return? In south India many people have lost gold this way — given to a jeweller for work and he runs away.",
+          "I don't use fintech for big amounts. I use SBI, post office. These I trust because they've been there for 50 years.",
+          "Crypto I don't understand and I don't trust. This is a crypto company?",
+          "Good idea but wrong company for people like me. Either get a bank to co-brand this, or get a credible endorsement from somewhere."
+        ],
+        "_dropped_unverified": []
+      },
+      {
+        "doc_id": "DI02_Rahul_Delhi",
+        "filename": "DI02_Rahul_Delhi.md",
+        "characterization": "Rahul is a risk-tolerant, yield-focused investor who prioritizes high returns and flexibility over safety, preferring volatile assets like crypto but open to gold if it offers competitive yields and liquidity.",
+        "quotes": [
+          "I do crypto mostly — I have about 40% of my savings in crypto.",
+          "Returns. Plain and simple. FDs give 6-7%, inflation eats that up. Crypto is volatile but the upside is huge.",
+          "Gold doesn't really excite me.",
+          "If it gave me returns. Otherwise why not just buy a gold ETF which is more liquid?",
+          "Okay now this is interesting. So basically it's like staking but for gold?",
+          "That's actually a good combination. Like, if gold goes up 5% and I also earn 7%, that's 12% total return with less volatility than crypto.",
+          "Fix the yield transparency — give a floor rate. Add staking-like flexibility (no lock-in or short lock-in)."
+        ],
+        "_dropped_unverified": [
+          "Route 2 definitely. 'Gold that earns more gold every year.' That's a great line. I'd click on that."
+        ]
+      },
+      {
+        "doc_id": "DI03_Sunita_Pune",
+        "filename": "DI03_Sunita_Pune.md",
+        "characterization": "Sunita is a cautious, traditional gold investor who values physical possession and trust in institutions she knows, showing skepticism towards unfamiliar digital concepts unless backed by trusted entities or community validation.",
+        "quotes": [
+          "I keep some in post office savings — very safe.",
+          "For me gold means I can touch it, keep it in my house or locker. Online gold feels like it's not real.",
+          "That would be good. But why is someone giving me interest on my gold? Who is using my gold?",
+          "SEBI I've heard. But it's not a bank. Can the bank offer this? HDFC or SBI?",
+          "If my neighbour or someone in my kitty party has used it and found it good, then I'd consider. Otherwise I won't risk it.",
+          "This needs to come through someone I trust — a bank, a post office, or someone in my community."
+        ],
+        "_dropped_unverified": [
+          "Route 1 — 'Your gold, always yours.' This I understand.",
+          "If I get a paper saying 'Sunita Patil owns 10 grams stored in XYZ vault,' then I'll feel comfortable."
+        ]
+      },
+      {
+        "doc_id": "DI01_Priya_Mumbai",
+        "filename": "DI01_Priya_Mumbai.md",
+        "characterization": "Priya is a cautious investor who prioritizes safety and stability over high returns, preferring traditional instruments like FDs and mutual funds. She is skeptical of new digital investment products, especially those associated with crypto, and values trust, regulatory backing, and the option to start with small amounts.",
+        "quotes": [
+          "Because FDs are safe. I know exactly what I'm getting. With mutual funds I've seen my portfolio go down and it's stressful. So I like having something stable.",
+          "Honestly, I wasn't sure who is holding it. Like if Paytm has my gold, and Paytm shuts down tomorrow, what happens? I don't trust it fully.",
+          "My first reaction is — this sounds too good. Gold already protects against inflation, and now also giving 7%? I'd want to know: is my gold safe?",
+          "SEBI I trust more than a fintech company name I don't know. But CoinDCX is a crypto company, right? I don't do crypto. Will my gold be used for crypto things?",
+          "If a bank was involved. Like if HDFC said this is safe, I'd consider it. Or if there's an insurance on my gold amount.",
+          "7% sounds like mutual fund returns. But gold is supposed to be safe, not risky. If I'm getting 7% it means someone is taking a risk. Who is taking that risk? Me or CoinDCX?",
+          "But you need to fix the trust issue with CoinDCX's crypto image. Partner with a bank or show a government backing. And start with smaller investment amounts so people can try."
+        ],
+        "_dropped_unverified": [
+          "Route 1 for sure. 'Your gold, always yours, earning for you.' That resonates. I don't care so much about returns as I care about safety."
+        ]
+      }
+    ]
+  },
+  "objective_coverage": [
+    {
+      "objective": "Understand trust barriers related to CoinDCX's crypto brand association.",
+      "covered_by": "trust_in_crypto_brand"
+    },
+    {
+      "objective": "Identify trust-building endorsements for digital gold.",
+      "covered_by": "preferred_endorsement"
+    },
+    {
+      "objective": "Assess concerns about yield transparency and source.",
+      "covered_by": "yield_transparency_concern"
+    },
+    {
+      "objective": "Understand preference for physical vs. digital gold.",
+      "covered_by": "physical_gold_preference"
+    },
+    {
+      "objective": "Measure appeal of the 5-7% yield offer.",
+      "covered_by": "yield_appeal"
+    },
+    {
+      "objective": "Assess perceived risk of digital gold compared to other investments.",
+      "covered_by": "risk_perception"
+    },
+    {
+      "objective": "Understand current gold investment behaviors.",
+      "covered_by": "current_gold_investment"
+    },
+    {
+      "objective": "Identify key investment priorities for different segments.",
+      "covered_by": "investment_priorities"
+    },
+    {
+      "objective": "Understand potential portfolio allocation for digital gold.",
+      "covered_by": "portfolio_allocation"
+    }
+  ],
+  "_uncovered_objectives": [],
+  "_not_chartable_objectives": [],
+  "_scope_fields_missing": [],
+  "_scope_synced_hash": "c6809930923f91e4b2d68ad150eaca0de2a9198715f52612b33c0f9367248f2a",
+  "layer1": {
+    "description": "Universal fields present in all project matrices",
+    "fields": {
+      "doc_id": {
+        "type": "string",
+        "required": true
+      },
+      "filename": {
+        "type": "string",
+        "required": true
+      },
+      "word_count": {
+        "type": "integer"
+      },
+      "respondent": {
+        "city": {
+          "type": "string"
+        },
+        "segment": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "age_band": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        }
+      },
+      "pain_points": {
+        "type": "array",
+        "items": {
+          "severity": {
+            "type": "enum",
+            "values": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ],
+            "scoring_rules": {
+              "critical": "Explicit deal-breaker, 3+ reinforcing statements",
+              "high": "Strong hesitation requiring resolution, 2+ statements",
+              "medium": "Conditional acceptance, 1-2 mentions",
+              "low": "Single passive mention"
+            }
+          },
+          "issue_description": {
+            "type": "string"
+          },
+          "verbatim_quote": {
+            "type": "string",
+            "rule": "exact copy — never paraphrase"
+          },
+          "product_area": {
+            "type": "string"
+          },
+          "dg_section": {
+            "type": "string"
+          }
+        }
+      },
+      "nps_signal": {
+        "type": "enum",
+        "values": [
+          "promoter",
+          "passive",
+          "detractor",
+          "unclear"
+        ]
+      },
+      "emotional_resolution": {
+        "type": "enum",
+        "values": [
+          "positive",
+          "negative",
+          "neutral"
+        ]
+      },
+      "narrative_tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "note": "Reference themes with STRONG/MIXED evidence + any emerging themes"
+      },
+      "most_powerful_verbatim": {
+        "type": "string",
+        "rule": "exact copy — never paraphrase",
+        "note": "Single most insight-carrying quote — exact copy from transcript"
+      },
+      "all_passages": {
+        "type": "array",
+        "items": {
+          "content": {
+            "type": "string",
+            "rule": "30+ words verbatim from transcript"
+          },
+          "sentiment": {
+            "type": "enum",
+            "values": [
+              "positive",
+              "negative",
+              "neutral",
+              "ambivalent"
+            ]
+          },
+          "topic": {
+            "type": "string"
+          },
+          "pain_point": {
+            "type": "boolean"
+          },
+          "decision_signal": {
+            "type": "boolean"
+          },
+          "section": {
+            "type": "string"
+          },
+          "paragraph_index": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "layer2": {
+    "description": "coindcx-fresh-test — project-specific extraction dimensions",
+    "fields": {
+      "trust_in_crypto_brand": {
+        "type": "enum",
+        "description": "Level of trust in CoinDCX due to its association with crypto.",
+        "values": [
+          "high",
+          "medium",
+          "low",
+          "none"
+        ],
+        "ui_section": "trust_adoption",
+        "_source_objective": "Understand trust barriers related to CoinDCX's crypto brand association.",
+        "_rationale": "Enum with specific levels of trust to quantify and compare across segments."
+      },
+      "preferred_endorsement": {
+        "type": "array",
+        "description": "Types of endorsements or partnerships that would increase trust in the product.",
+        "values": [
+          "bank",
+          "SEBI",
+          "post_office",
+          "community_reference"
+        ],
+        "ui_section": "trust_adoption",
+        "_source_objective": "Identify trust-building endorsements for digital gold.",
+        "_rationale": "Array to capture multiple potential endorsements that could increase trust."
+      },
+      "yield_transparency_concern": {
+        "type": "boolean",
+        "description": "Whether the respondent expressed concerns about how the yield is generated.",
+        "ui_section": "concept_reaction",
+        "_source_objective": "Assess concerns about yield transparency and source.",
+        "_rationale": "Boolean to flag if yield transparency is a concern, enabling segmentation."
+      },
+      "physical_gold_preference": {
+        "type": "boolean",
+        "description": "Whether the respondent prefers physical gold over digital gold.",
+        "ui_section": "category_context",
+        "_source_objective": "Understand preference for physical vs. digital gold.",
+        "_rationale": "Boolean to clearly distinguish between physical and digital gold preferences."
+      },
+      "yield_appeal": {
+        "type": "object",
+        "description": "Evaluation of the yield appeal of digital gold.",
+        "ui_section": "concept_reaction",
+        "_source_objective": "Measure appeal of the 5-7% yield offer.",
+        "_rationale": "Object to capture multiple aspects of yield appeal: score, comparison, and verbatim reaction.",
+        "sub_fields": [
+          {
+            "name": "appeal_score",
+            "type": "integer",
+            "description": "1-10 scale of yield appeal"
+          },
+          {
+            "name": "comparison_to_alternatives",
+            "type": "string",
+            "description": "How yield compares to other investments"
+          },
+          {
+            "name": "verbatim_reaction",
+            "type": "string",
+            "description": "Exact quote on yield appeal",
+            "rule": "exact copy from transcript — never paraphrase"
+          }
+        ]
+      },
+      "risk_perception": {
+        "type": "object",
+        "description": "Perception of risk associated with digital gold.",
+        "ui_section": "concept_reaction",
+        "_source_objective": "Assess perceived risk of digital gold compared to other investments.",
+        "_rationale": "Object to capture risk perception score, comparison, and verbatim concerns.",
+        "sub_fields": [
+          {
+            "name": "risk_score",
+            "type": "integer",
+            "description": "1-10 scale of perceived risk"
+          },
+          {
+            "name": "comparison_to_alternatives",
+            "type": "string",
+            "description": "How risk compares to other investments"
+          },
+          {
+            "name": "verbatim_concerns",
+            "type": "string",
+            "description": "Exact quote on risk concerns",
+            "rule": "exact copy from transcript — never paraphrase"
+          }
+        ]
+      },
+      "current_gold_investment": {
+        "type": "object",
+        "description": "Current gold investment behaviors and preferences.",
+        "ui_section": "category_context",
+        "_source_objective": "Understand current gold investment behaviors.",
+        "_rationale": "Object to capture type, frequency, and reasons for current gold investments.",
+        "sub_fields": [
+          {
+            "name": "investment_type",
+            "type": "string",
+            "description": "Type of gold investment (physical, digital, ETF, etc.)"
+          },
+          {
+            "name": "investment_frequency",
+            "type": "string",
+            "description": "How often gold is purchased"
+          },
+          {
+            "name": "investment_reason",
+            "type": "string",
+            "description": "Reason for investing in gold",
+            "rule": "exact copy from transcript — never paraphrase"
+          }
+        ]
+      },
+      "investment_priorities": {
+        "type": "array",
+        "description": "Top priorities when choosing an investment.",
+        "values": [
+          "safety",
+          "yield",
+          "liquidity",
+          "trust",
+          "flexibility"
+        ],
+        "ui_section": "category_context",
+        "_source_objective": "Identify key investment priorities for different segments.",
+        "_rationale": "Array to capture multiple investment priorities for segmentation."
+      },
+      "portfolio_allocation": {
+        "type": "string",
+        "description": "How digital gold would fit into current portfolio.",
+        "ui_section": "category_context",
+        "_source_objective": "Understand potential portfolio allocation for digital gold.",
+        "_rationale": "String to capture free-text description of portfolio fit.",
+        "rule": "exact copy from transcript — never paraphrase"
+      },
+      "respondent_archetype": {
+        "type": "enum",
+        "description": "Respondent type as inductively observed across sample transcripts, not a stock category.",
+        "values": [
+          "analytical_yield_seeker",
+          "conservative_safety_investor",
+          "risk_tolerant_yield_focused",
+          "traditional_gold_investor",
+          "cautious_stability_seeker"
+        ],
+        "scoring_rule": "Assign the closest-matching observed type; note in narrative_tags if a respondent doesn't fit any cleanly."
+      }
+    }
+  }
+}
