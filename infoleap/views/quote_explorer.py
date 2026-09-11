@@ -3362,6 +3362,25 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                            "placeholder — pulls out research objectives, respondent segments, and key "
                            "things to track, written as direction the AI can act on. Review before saving.")
 
+            # Second row — generate scope from sample transcripts (works even without source_docs)
+            _ts_col1, _ts_col2 = st.columns([2, 3])
+            _selected_now = [fn for fn, v in st.session_state.get(_sel_key, {}).items() if v]
+            with _ts_col1:
+                _ts_clicked = st.button(
+                    "🔍 Generate scope from sample transcripts",
+                    key=f"{proj_id}_es_gen_scope_ts",
+                    disabled=not _selected_now,
+                    help="Reads up to 3 selected transcripts and any brief available, then writes "
+                         "structured extraction guidance into the scope box — no source_docs needed.",
+                )
+            with _ts_col2:
+                _ts_context = st.text_input(
+                    "Study context (optional)",
+                    key=f"{proj_id}_es_ts_context",
+                    placeholder="e.g. Concept test for CoinDCX digital gold, 3 investor segments, 5 cities",
+                    label_visibility="collapsed",
+                )
+
             _draft_model = _DRAFT_MODEL_OPTIONS.get(_draft_model_label)
             if _draft_model == "__divider__":
                 _draft_model = None
@@ -3436,6 +3455,57 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                         st.success("Drafted — review below, edit if needed, then Save.")
                     else:
                         st.error("Drafting failed — LLM call returned nothing. Try again or write manually.")
+
+            if _ts_clicked and _selected_now:
+                _sample_fns = _selected_now[:3]
+                with st.spinner(f"Reading {len(_sample_fns)} transcript(s) and generating scope…"):
+                    from infoleap.skills.llm_client import call_llm_safe
+                    from infoleap.skills import schema_generator as _sg
+                    _ts_texts = []
+                    for _fn in _sample_fns:
+                        _md_p = _resolve_md_path(_fn)
+                        if _md_p and _md_p.exists():
+                            _ts_texts.append(_md_p.read_text(encoding="utf-8")[:6000])
+                    _ts_brief_snippet = ""
+                    if _brief_path:
+                        _ts_brief_snippet = f"\n\nRESEARCH BRIEF (source document):\n{_sg._read_docx(_brief_path)[:3000]}"
+                    _ts_prompt = f"""You are a senior qualitative research methodologist. Read the sample transcripts below and produce a STRUCTURED EXTRACTION DIRECTIVE that will guide an AI analyst coding ALL transcripts from this study.
+
+STUDY CONTEXT: {_ts_context.strip() if _ts_context.strip() else 'Not provided — infer from the transcripts.'}{_ts_brief_snippet}
+
+SAMPLE TRANSCRIPTS ({len(_ts_texts)} of up to 3):
+{"".join(f"--- TRANSCRIPT {i+1} ---\n{t}\n\n" for i, t in enumerate(_ts_texts))}
+
+Based on these transcripts, output structured extraction guidance using EXACTLY these sections with markdown headers (##) and bullet points:
+
+## STUDY FRAMING
+2-4 bullets. State what this study is about, who the respondents are, what business question it answers.
+
+## KEY THEMES TO EXTRACT
+One bullet per major theme observed. For each: theme name — what to look for — example evidence from these transcripts (quote or paraphrase).
+
+## FIELDS TO PRIORITISE
+List 8-15 field names (snake_case) the AI should definitely extract, with a one-line definition each. Base these on what actually appears in the transcripts, not generic research templates.
+
+## SEGMENT RULES
+How to identify and differentiate respondent segments (if visible). Any segment-specific extraction rules.
+
+## AMBIGUITY DECISION RULES
+IF/THEN rules for known ambiguities visible in these transcripts.
+
+## EVIDENCE DISCIPLINE
+3-5 imperative bullets ("Never infer X", "If absent write DATA NOT AVAILABLE").
+
+Be specific to THESE transcripts and this study — no generic research filler. Bold (**) field names and key terms."""
+                    _ts_drafted = call_llm_safe(
+                        [{"role": "user", "content": _ts_prompt}], max_tokens=6000, temp=0.2,
+                        model=_draft_model)
+                    if _ts_drafted:
+                        st.session_state[_scope_key] = _ts_drafted.strip()
+                        _existing_scope = _ts_drafted.strip()
+                        st.success(f"Scope generated from {len(_sample_fns)} transcript(s) — review below, edit if needed, then Save.")
+                    else:
+                        st.error("Generation failed — LLM returned nothing. Try again or write manually.")
 
             _scope_text = st.text_area(
                 "Project scope & thinking guidance", value=_existing_scope, height=220,

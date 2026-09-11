@@ -223,3 +223,86 @@ for pid in projects:
                     if st.button("🗑️ Delete", key=f"del_{pid}"):
                         st.session_state[confirm_key] = True
                         st.rerun()
+
+# ── Qual Projects (Quote Explorer / Extraction Studio) ────────────────────────
+st.divider()
+st.subheader("📝 Qual Projects (Extraction Studio)")
+st.caption("Projects installed via the Quote Explorer ZIP uploader. Deleting removes the project folder and registry entry.")
+
+import json as _json
+
+_QUAL_PROJECTS_DIR = DATA_DIR / "projects"
+_QUAL_REGISTRY_PATH = _QUAL_PROJECTS_DIR / "registry.json"
+
+def _load_qual_registry():
+    if _QUAL_REGISTRY_PATH.exists():
+        try:
+            return _json.loads(_QUAL_REGISTRY_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {"projects": []}
+
+def _save_qual_registry(reg: dict):
+    _QUAL_REGISTRY_PATH.write_text(_json.dumps(reg, indent=2, ensure_ascii=False), encoding="utf-8")
+
+_qual_reg = _load_qual_registry()
+_registered_ids = {p["id"] for p in _qual_reg.get("projects", [])}
+
+# Also find any unregistered folders (ephemeral installs)
+_all_qual_ids = set()
+if _QUAL_PROJECTS_DIR.exists():
+    for _d in _QUAL_PROJECTS_DIR.iterdir():
+        if _d.is_dir() and _d.name != "__pycache__":
+            _all_qual_ids.add(_d.name)
+
+_all_qual_ids.discard("registry.json")
+
+if not _all_qual_ids:
+    st.info("No qual projects found.")
+else:
+    for _qpid in sorted(_all_qual_ids):
+        _qp_dir = _QUAL_PROJECTS_DIR / _qpid
+        _qp_reg_entry = next((p for p in _qual_reg.get("projects", []) if p["id"] == _qpid), None)
+        _display_name = _qp_reg_entry.get("display_name", _qpid) if _qp_reg_entry else _qpid
+        _n_transcripts = len(list((_qp_dir / "transcripts").glob("*.docx")) + list((_qp_dir / "transcripts").glob("*.md"))) if (_qp_dir / "transcripts").exists() else 0
+        _n_matrices = len(list((_qp_dir / "matrices").glob("*_matrix.json"))) if (_qp_dir / "matrices").exists() else 0
+        _schema_exists = (_qp_dir / "schema" / "extraction_schema.json").exists()
+        _in_registry = _qpid in _registered_ids
+
+        with st.container(border=True):
+            _qc1, _qc2, _qc3 = st.columns([3, 1.5, 1.5])
+            with _qc1:
+                _qlabel = f"**{_display_name}**"
+                if not _in_registry:
+                    _qlabel += " ⚠️ _not in registry_"
+                st.markdown(_qlabel)
+                st.caption(f"`{_qpid}` · {_n_transcripts} transcript(s) · {_n_matrices} matrix/matrices · schema: {'✅' if _schema_exists else '❌'}")
+            with _qc2:
+                st.metric("Transcripts", _n_transcripts)
+            with _qc3:
+                st.metric("Matrices", _n_matrices)
+
+            _q_confirm_key = f"confirm_del_qual_{_qpid}"
+            if st.session_state.get(_q_confirm_key):
+                st.warning(f"Really delete qual project `{_qpid}`? Removes folder + registry entry permanently.")
+                _qcc1, _qcc2 = st.columns(2)
+                with _qcc1:
+                    if st.button("✅ Yes, delete", key=f"del_qual_yes_{_qpid}", type="primary"):
+                        try:
+                            shutil.rmtree(_qp_dir)
+                            _qual_reg["projects"] = [p for p in _qual_reg.get("projects", []) if p["id"] != _qpid]
+                            _save_qual_registry(_qual_reg)
+                            st.session_state.pop(_q_confirm_key, None)
+                            st.cache_data.clear()
+                            st.success(f"Deleted qual project `{_qpid}`.")
+                            st.rerun()
+                        except Exception as _e:
+                            st.error(f"Delete failed: {_e}")
+                with _qcc2:
+                    if st.button("Cancel", key=f"del_qual_cancel_{_qpid}"):
+                        st.session_state.pop(_q_confirm_key, None)
+                        st.rerun()
+            else:
+                if st.button("🗑️ Delete qual project", key=f"del_qual_{_qpid}"):
+                    st.session_state[_q_confirm_key] = True
+                    st.rerun()
