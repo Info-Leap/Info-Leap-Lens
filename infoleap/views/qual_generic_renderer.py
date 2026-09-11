@@ -936,9 +936,6 @@ def render_generic_project(proj: dict, ui_config: dict, base_path: Path, call_op
         if _tmp_m.exists() and any(_tmp_m.iterdir()):
             m_dir = _tmp_m
     files = sorted(m_dir.glob("*_matrix.json")) if m_dir and m_dir.exists() else []
-    if not files and m_dir and m_dir.exists():
-        files = [f for f in sorted(m_dir.glob("*.json"))
-                 if not f.name.startswith(("registry", "processed_index", "project_meta"))]
     all_m = []
     for f in files:
         try: all_m.append(json.loads(f.read_text(encoding="utf-8")))

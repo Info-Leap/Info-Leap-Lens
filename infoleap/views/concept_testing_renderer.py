@@ -1530,11 +1530,7 @@ def _load_matrices(matrices_dir: str) -> list[dict]:
     d = Path(matrices_dir)
     if not d.exists():
         return []
-    # Primary: app-extracted files use *_matrix.json; fallback: committed files use *.json
-    files = sorted(d.glob("*_matrix.json")) or [
-        f for f in sorted(d.glob("*.json"))
-        if not f.name.startswith(("registry", "processed_index", "project_meta"))
-    ]
+    files = sorted(d.glob("*_matrix.json"))
     out = []
     for fp in files:
         try:

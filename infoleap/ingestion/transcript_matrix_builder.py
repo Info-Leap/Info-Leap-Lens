@@ -40,6 +40,10 @@ FREE_MODELS = [
     "openai/gpt-oss-20b:free",         # 20B fallback
     "moonshotai/kimi-k2.6:free",       # fallback
     "google/gemma-4-31b-it:free",      # last resort
+    # 2026-08-31: OpenRouter pulled/paywalled the free tier (see findings_generator.py's note
+    # of the same date) — every :free model now 404s. Cheap paid fallback so this doesn't
+    # silently no-op if the free chain stays dead.
+    "openai/gpt-4o-mini",
 ]
 
 MAX_WORKERS      = 5     # concurrent docs — no rate limit observed on this key

@@ -1,0 +1,14 @@
+{
+    "last_successful_index": 4,
+    "total_questions": 30,
+    "history": [],
+    "failures": {
+        "5": {
+            "question": "What is the overall NPS for Crompton across all zones?",
+            "truth": "64.0",
+            "agent_answer": "The city with the highest number of respondents is Delhi.",
+            "score": 0,
+            "critique": "Based on the provided information, here's my critique:\n\n1. **Accuracy**: The answer does not match the truth numbers/facts, as the Golden Truth is a numerical value (64.0) and the agent's answer is a city name (Delhi). This indicates a significant mismatch. (Score: 0/3)\n2. **Storytelling**: The agent's answer is brief and lacks professional explanation or context, failing to provide a clear connection to the Golden Truth. (Score: 1/3)\n3. **Strategic Depth**: The answer does not provide useful context or commit to the answer in a meaningful way, as it doesn't relate to the numerical value provided as the Golden Truth. (Score: 1/3)\n\n**FINAL SCORE**: 2/10\n\nThe agent's answer lacks accuracy, fails to provide a professional explanation, and does not offer strategic depth or context relevant to the Golden Truth. Significant improvement is needed to align with the expected standards of a Senior Strategic Research Auditor."
+        }
+    }
+}

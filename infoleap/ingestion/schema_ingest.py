@@ -1385,6 +1385,62 @@ def _build_user_content(packet: dict, project_id: str,
     )
 
 
+def _reconcile_missing_columns(result: dict, all_columns: list) -> dict:
+    """Guarantee every raw column ends up represented in `result["questions"]`.
+
+    2026-08-31 root-cause fix: the LLM classification step (whether single-call or
+    batched) can simply omit a column from its response — no bucket, no explicit SKIP,
+    nothing. Nothing downstream back-fills that gap: write_master_excel() only ever
+    iterates `result["questions"]`, so an omitted column silently never appears in
+    BUCKET_CONFIG at all (not bucketed, not SKIP, not even in the UI's "need review"
+    list). Observed live on a 1027-column client file: 197 columns vanished this way,
+    including a whole appliance-ownership grid, several open-ends, and a block of ~45
+    tail questions — real, substantive columns, not just droppable PII.
+
+    This runs as a final reconciliation pass after classification: diff the full raw
+    column list against every column already covered by `result["questions"]` (a
+    question's source_column, plus its dummy_columns for multi_select_dummies/
+    multivalent_source shapes), and append an explicit, low-confidence SKIP entry for
+    anything left over — tagged so a human reviewing BUCKET_CONFIG can see it was never
+    actually opined on by the classifier, not deliberately excluded.
+    """
+    questions = result.get("questions", [])
+    covered: set = set()
+    for q in questions:
+        src = q.get("source_column")
+        if src:
+            covered.add(str(src))
+        for dc in (q.get("dummy_columns") or []):
+            covered.add(str(dc))
+
+    missing = [c for c in all_columns if str(c) not in covered]
+    if not missing:
+        return result
+
+    added = []
+    for col in missing:
+        added.append({
+            "question_code": str(col),
+            "question_text": "",
+            "bucket": "SKIP",
+            "shape": "single_value",
+            "source_column": str(col),
+            "delimiter": "",
+            "dummy_columns": [],
+            "code_to_label": {},
+            "confidence": 0.0,
+            "reasoning": "auto-added: not returned by classifier (reconciliation back-fill)",
+        })
+    result["questions"] = questions + added
+    result.setdefault("_downgrade_warnings", []).append(
+        f"Reconciliation: {len(added)} raw column(s) never returned by the classifier "
+        f"were auto-added as explicit SKIP rows so they aren't silently dropped: "
+        + ", ".join(str(c) for c in missing[:20])
+        + (f" ... (+{len(missing) - 20} more)" if len(missing) > 20 else "")
+    )
+    return result
+
+
 def classify_all_questions(packet: dict, project_id: str, api_key: str, model,
                             timeout: int = 180, max_real_tokens: int = 100_000) -> dict:
     """JSON-schema-constrained LLM classification of every question in the survey.
@@ -1525,6 +1581,7 @@ def classify_all_questions(packet: dict, project_id: str, api_key: str, model,
         result["_model_used"] = model_used
         if all_warnings:
             result["_downgrade_warnings"] = all_warnings
+        result = _reconcile_missing_columns(result, packet["raw_sample_columns"])
         return result
 
     # --- Single-call path (≤_MAX_STEMS_PER_BATCH stems) ---
@@ -1550,6 +1607,7 @@ def classify_all_questions(packet: dict, project_id: str, api_key: str, model,
             errors.append(f"{m}: {e}")
             continue
         result["_model_used"] = m
+        result = _reconcile_missing_columns(result, packet["raw_sample_columns"])
         return result
 
     raise RuntimeError(

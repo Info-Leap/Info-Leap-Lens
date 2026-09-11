@@ -21,6 +21,10 @@ _FREE_MODELS = [
     "openai/gpt-oss-120b:free",
     "moonshotai/kimi-k2.6:free",
     "google/gemma-4-31b-it:free",
+    # 2026-08-31: OpenRouter pulled/paywalled the free tier (see findings_generator.py's note
+    # of the same date) — every :free model now 404s. Cheap paid fallback so this doesn't
+    # silently no-op if the free chain stays dead.
+    "openai/gpt-4o-mini",
 ]
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 

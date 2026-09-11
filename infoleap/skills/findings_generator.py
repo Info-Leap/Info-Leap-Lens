@@ -37,9 +37,17 @@ _FREE_MODELS = [
     "google/gemma-4-31b-it:free",          # Smaller fallback only
 ]
 
+# 2026-08-31: OpenRouter pulled/paywalled every model above — all 7 now return a hard 404
+# ("This model is unavailable for free") regardless of quota, so findings generation was
+# silently producing zero output for every project. A cheap paid model (same default used
+# elsewhere in this codebase, e.g. add_project.py's classify step) as the final fallback
+# keeps this working; still tries the free chain first in case OpenRouter restores any of them.
+_PAID_FALLBACK_MODEL = "openai/gpt-4o-mini"
+
 def _get_models(env_file: Path) -> list[str]:
-    """Strictly free models only — no paid fallback."""
-    return list(_FREE_MODELS)
+    """Free models first, then one cheap paid fallback so this doesn't hard-fail if
+    OpenRouter's free tier is unavailable (as it was on 2026-08-31 — see note above)."""
+    return list(_FREE_MODELS) + [_PAID_FALLBACK_MODEL]
 
 _FINDING_MAX_TOKENS = 1800
 _BACKOFF = 4

@@ -1,0 +1,57 @@
+[
+    {
+        "q": "How many total unique respondents are in the database?",
+        "truth": "6631",
+        "domain": "Base"
+    },
+    {
+        "q": "What is the overlap between quantitative and qualitative participants?",
+        "truth": "20",
+        "domain": "Base"
+    },
+    {
+        "q": "How many unique cities are covered in the research?",
+        "truth": "18",
+        "domain": "Base"
+    },
+    {
+        "q": "What is the breakdown of respondents by gender?",
+        "truth": "Female: 2729, Male: 3902",
+        "domain": "Base"
+    },
+    {
+        "q": "Which city has the highest number of respondents?",
+        "truth": "Delhi (620)",
+        "domain": "Base"
+    },
+    {
+        "q": "What is the overall NPS for Crompton across all zones?",
+        "truth": "64.0",
+        "domain": "NPS"
+    },
+    {
+        "q": "What is Bajaj's NPS in Mumbai?",
+        "truth": "73.0",
+        "domain": "NPS"
+    },
+    {
+        "q": "Compare Preethi vs Bajaj NPS in the South Zone.",
+        "truth": "Preethi: 58.2",
+        "domain": "NPS"
+    },
+    {
+        "q": "Which brand has the highest 'Ever Used' share for Mixer Grinders?",
+        "truth": "Bajaj",
+        "domain": "Share"
+    },
+    {
+        "q": "What do consumers in Kolkata say about Preethi durability?",
+        "truth": "Handle cracking and jar breaking issues reported (e.g. Doc_842).",
+        "domain": "Qual"
+    },
+    {
+        "q": "What do Mumbai consumers like most about Crompton?",
+        "truth": "Fast motor cooling and reliability.",
+        "domain": "Qual"
+    }
+]
