@@ -2366,7 +2366,7 @@ def generate_schema(project_id: str, dg_path: Path = None, prompt_path: Path = N
     print(f"Study type: {study_type}")
     print()
 
-    if not dg_text and not prompt_text:
+    if not dg_text and not prompt_text and not user_scope:
         msg = "No DG or AI Prompt found. Add them to source_docs/ and retry."
         print(f"ERROR: {msg}")
         if __name__ == "__main__":
