@@ -3429,6 +3429,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             entry = index[fn]
             md_rel = entry.get("output_md")
             if md_rel:
+                md_rel = md_rel.replace("\\", "/")
                 p = project_dir / md_rel
                 if p.exists():
                     return p
@@ -3445,7 +3446,7 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             # fallback: index written for all-.md projects may store absolute "output" path
             abs_out = entry.get("output")
             if abs_out:
-                p = Path(abs_out)
+                p = Path(abs_out.replace("\\", "/"))
                 return p if p.exists() else t_dir / fn
             return t_dir / fn if (t_dir / fn).exists() else None
 
