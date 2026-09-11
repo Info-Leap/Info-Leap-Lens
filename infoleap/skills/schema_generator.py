@@ -2342,19 +2342,28 @@ def generate_schema(project_id: str, dg_path: Path = None, prompt_path: Path = N
 
     # Auto-find DG and AI prompt if not provided
     if not dg_path:
-        for pattern in ["DG_*.docx", "dg_*.docx", "*DG*.docx", "*discussion*guide*.docx"]:
+        for pattern in ["DG_*.docx", "dg_*.docx", "*DG*.docx", "*discussion*guide*.docx",
+                         "DG_*.md", "dg_*.md", "*DG*.md", "*discussion*guide*.md"]:
             matches = list(source_docs_dir.glob(pattern))
             if matches:
                 dg_path = matches[0]; break
     if not prompt_path:
-        for pattern in ["AI_Prompt*.docx", "*prompt*.docx", "*analysis*.docx", "*brief*.docx"]:
+        for pattern in ["AI_Prompt*.docx", "*prompt*.docx", "*analysis*.docx", "*brief*.docx",
+                         "AI_Prompt*.md", "*prompt*.md", "*analysis*.md", "*brief*.md"]:
             matches = list(source_docs_dir.glob(pattern))
             if matches:
                 prompt_path = matches[0]; break
 
-    # Read documents
-    dg_text = _read_docx(dg_path) if dg_path and dg_path.exists() else ""
-    prompt_text = _read_docx(prompt_path) if prompt_path and prompt_path.exists() else ""
+    # Read documents — support both .docx and .md
+    def _read_source_doc(p):
+        if p is None or not p.exists():
+            return ""
+        if p.suffix.lower() == ".md":
+            return p.read_text(encoding="utf-8")
+        return _read_docx(p)
+
+    dg_text = _read_source_doc(dg_path)
+    prompt_text = _read_source_doc(prompt_path)
 
     # Load project.json for context
     pj = {}

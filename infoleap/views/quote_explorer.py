@@ -2608,8 +2608,9 @@ def _run_schema_discovery_ui(proj_id: str, project_dir):
     schema_out = schema_dir / "extraction_schema.json"
     prompt_out = schema_dir / "master_prompt.txt"
 
-    _dg_matches = list(source_docs_dir.glob("*DG*.docx")) if source_docs_dir.exists() else []
-    _prompt_matches = ([p for p in source_docs_dir.glob("*.docx")
+    _dg_matches = (list(source_docs_dir.glob("*DG*.docx")) + list(source_docs_dir.glob("*DG*.md"))
+                   ) if source_docs_dir.exists() else []
+    _prompt_matches = ([p for p in list(source_docs_dir.glob("*.docx")) + list(source_docs_dir.glob("*.md"))
                          if "prompt" in p.name.lower()] if source_docs_dir.exists() else [])
     _dg_name = _dg_matches[0].name if _dg_matches else None
     _prompt_name = _prompt_matches[0].name if _prompt_matches else None
@@ -2791,8 +2792,9 @@ def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir):
     prompt_out = schema_dir / "master_prompt.txt"
     index_path = project_dir / "transcripts" / "processed_index.json"
 
-    _dg_matches = list(source_docs_dir.glob("*DG*.docx")) if source_docs_dir.exists() else []
-    _prompt_matches = ([p for p in source_docs_dir.glob("*.docx")
+    _dg_matches = (list(source_docs_dir.glob("*DG*.docx")) + list(source_docs_dir.glob("*DG*.md"))
+                   ) if source_docs_dir.exists() else []
+    _prompt_matches = ([p for p in list(source_docs_dir.glob("*.docx")) + list(source_docs_dir.glob("*.md"))
                          if "prompt" in p.name.lower()] if source_docs_dir.exists() else [])
     _dg_name = _dg_matches[0].name if _dg_matches else None
     _prompt_name = _prompt_matches[0].name if _prompt_matches else None
