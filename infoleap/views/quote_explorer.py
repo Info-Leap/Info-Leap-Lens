@@ -2162,9 +2162,12 @@ Upload → switch to project → paste master_prompt.txt in the editor → extra
                     _names = _zf.namelist()
 
                     # Detect top-level folder prefix (e.g. my-project/ wrapping everything)
+                    # Do NOT treat known content folders as a prefix wrapper
+                    _KNOWN_FOLDERS = {"transcripts", "source_docs", "schema", "matrices", "trees"}
                     _top = _names[0].split("/")[0] + "/" if _names else ""
-                    _all_under_top = _top and all(n.startswith(_top) or n == _top.rstrip("/") for n in _names)
-                    _prefix = _top if _all_under_top else ""
+                    _top_bare = _top.rstrip("/")
+                    _all_under_top = _top and all(n.startswith(_top) or n == _top_bare for n in _names)
+                    _prefix = _top if (_all_under_top and _top_bare not in _KNOWN_FOLDERS) else ""
 
                     # Validate: must have transcripts/
                     _has_t = any(
