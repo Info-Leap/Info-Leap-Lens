@@ -2245,7 +2245,7 @@ brand_idx_map = {b: i for i, b in enumerate(opts["brands"])}
 # Renders file structure + master prompt editor + extraction trigger.
 # Called from the generic project block AND can be reused by project-specific views.
 # ─────────────────────────────────────────────────────────────────────────────
-def _render_project_setup(proj_id: str, proj: dict):
+def _render_project_setup(proj_id: str, proj: dict, hide_prompt: bool = False):
     paths        = proj.get("abs_paths", {})
     display_name = proj.get("display_name", proj_id)
     t_dir        = paths.get("transcripts")
@@ -2342,13 +2342,17 @@ def _render_project_setup(proj_id: str, proj: dict):
             if not _trans_files:
                 st.warning(f"No {t_ext} files found in transcripts folder.")
 
-    # Master prompt
+    # Master prompt — hidden when Extraction Studio is active (prompt review lives in Phase 2/3)
     _master_txt = ""
     if mp_path and mp_path.exists():
         try:
             _master_txt = mp_path.read_text(encoding="utf-8")
         except Exception:
             pass
+
+    if hide_prompt:
+        # Extraction Studio handles prompt review in Phase 2/3 — skip here
+        return
 
     _section("🤖 Extraction Master Prompt", "Review · edit · confirm before running extraction")
 
@@ -4542,12 +4546,16 @@ if _study_type not in ("concept_testing", "ethnographic"):  # unknown study type
         _BASE / "data" / "projects" / _active_project / "schema"
     )
 
-    # Always show setup UI first (handles extraction flow)
-    _render_project_setup(_active_project, _gen_proj)
+    # Check Extraction Studio toggle FIRST so _render_project_setup can hide
+    # the master prompt section (it belongs in Phase 2/3 of the studio, not here).
+    _es_active = st.toggle("🔬 Extraction Studio — redo extraction with review",
+                           key=f"_es_toggle_open_{_active_project}")
+
+    # Show setup UI (file list + pipeline trigger); skip master prompt when ES is on
+    _render_project_setup(_active_project, _gen_proj, hide_prompt=_es_active)
     _render_pipeline_sync_banner(_active_project)
 
-    if st.toggle("🔬 Extraction Studio — redo extraction with review",
-                 key=f"_es_toggle_open_{_active_project}"):
+    if _es_active:
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
         _render_extraction_studio(_active_project, _gen_proj)
         st.divider()
