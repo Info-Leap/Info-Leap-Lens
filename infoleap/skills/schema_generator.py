@@ -1901,7 +1901,9 @@ Return ONLY valid JSON, no markdown fences:
     return data
 
 
-def _resync_master_prompt_from_schema(project_id: str) -> None:
+def _resync_master_prompt_from_schema(project_id: str,
+                                      schema_path_override=None,
+                                      mp_path_override=None) -> None:
     """
     Rebuild master_prompt.txt's DIMENSIONS TO EXTRACT block and JSON template directly from
     extraction_schema.json's current layer2 fields — no LLM call, pure formatting. Needed
@@ -1911,9 +1913,13 @@ def _resync_master_prompt_from_schema(project_id: str) -> None:
     the exact fix for the bug found live earlier this session: a merge correctly updated the
     schema JSON but left the master prompt still asking for the old, pre-merge field list.
     """
-    project_dir = _DATA_DIR / "projects" / project_id
-    schema_path = project_dir / "schema" / "extraction_schema.json"
-    mp_path = project_dir / "schema" / "master_prompt.txt"
+    if schema_path_override:
+        schema_path = Path(schema_path_override)
+        mp_path = Path(mp_path_override) if mp_path_override else schema_path.parent / "master_prompt.txt"
+    else:
+        project_dir = _DATA_DIR / "projects" / project_id
+        schema_path = project_dir / "schema" / "extraction_schema.json"
+        mp_path = project_dir / "schema" / "master_prompt.txt"
     if not schema_path.exists() or not mp_path.exists():
         return
 

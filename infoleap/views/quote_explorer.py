@@ -2997,6 +2997,52 @@ def _render_extraction_studio(proj_id: str, proj: dict):
     index_path = (t_dir / "processed_index.json") if t_dir else None
     matrices_dir = paths.get("matrices")
 
+    # ── Streamlit Cloud: /mount/src/ is read-only — redirect writes to /tmp/ ──
+    # Detect by checking write-access on schema parent (git mount = read-only on cloud).
+    import os as _os, shutil as _shutil
+    _is_cloud = bool(schema_path and not _os.access(str(schema_path.parent), _os.W_OK))
+    _readable_project_dir = project_dir  # for reading .md transcripts (always git mount)
+    if _is_cloud:
+        _tmp_proj = Path(f"/tmp/infoleap/{proj_id}")
+        _tmp_schema_dir = _tmp_proj / "schema"
+        _w_schema = _tmp_schema_dir / "extraction_schema.json"
+        _w_mp = _tmp_schema_dir / "master_prompt.txt"
+        _w_matrices = _tmp_proj / "matrices"
+        # Bootstrap schema: GDrive first, then git-mount fallback
+        if not _w_schema.exists():
+            _tmp_schema_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                from infoleap.gdrive.client import DriveClient as _DC_boot
+                _dc_boot = _DC_boot()
+                if _dc_boot._svc:
+                    _dc_boot.sync_qual_schema_if_needed(proj_id, str(_tmp_schema_dir))
+            except Exception:
+                pass
+            if not _w_schema.exists() and schema_path and schema_path.exists():
+                _shutil.copy2(str(schema_path), str(_w_schema))
+            if not _w_mp.exists() and mp_path and mp_path.exists():
+                _shutil.copy2(str(mp_path), str(_w_mp))
+        # Bootstrap scope_notes.txt if present in git mount
+        _orig_scope = schema_path.parent / "scope_notes.txt" if schema_path else None
+        _tmp_scope = _tmp_schema_dir / "scope_notes.txt"
+        if _orig_scope and _orig_scope.exists() and not _tmp_scope.exists():
+            _shutil.copy2(str(_orig_scope), str(_tmp_scope))
+        # Bootstrap matrices: GDrive first, then git-mount copy
+        _existing_w_mats = list(_w_matrices.glob("*_matrix.json")) if _w_matrices.exists() else []
+        if not _existing_w_mats:
+            try:
+                from infoleap.gdrive.client import DriveClient as _DC_mat
+                _dc_mat = _DC_mat()
+                if _dc_mat._svc:
+                    _dc_mat.sync_qual_matrices_if_needed(proj_id, str(_w_matrices))
+            except Exception:
+                pass
+        # Override path variables — all writes/reads of artifacts now go to /tmp/
+        schema_path = _w_schema
+        mp_path = _w_mp
+        matrices_dir = _w_matrices
+        project_dir = _tmp_proj
+
     _matrices_exist = bool(matrices_dir and matrices_dir.exists()
                             and list(matrices_dir.glob("*_matrix.json")))
     _schema_ready = bool(schema_path and schema_path.exists()
@@ -3260,7 +3306,8 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             schema_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False),
                                                     encoding="utf-8")
                             from infoleap.skills import schema_generator as _sg
-                            _sg._resync_master_prompt_from_schema(proj_id)
+                            _sg._resync_master_prompt_from_schema(proj_id,
+                                schema_path_override=str(schema_path), mp_path_override=str(mp_path))
                             st.success(f"Added `{_mf}` as a stub field and resynced master_prompt.txt.")
                             st.cache_data.clear()
                             st.rerun()
@@ -3382,7 +3429,19 @@ def _render_extraction_studio(proj_id: str, proj: dict):
             entry = index[fn]
             md_rel = entry.get("output_md")
             if md_rel:
-                return project_dir / md_rel
+                p = project_dir / md_rel
+                if p.exists():
+                    return p
+                # On cloud project_dir = /tmp/ — try readable git mount path
+                if _readable_project_dir and _readable_project_dir != project_dir:
+                    p2 = _readable_project_dir / md_rel
+                    if p2.exists():
+                        return p2
+                # Try absolute path stored in index (docx_to_md writes it there)
+                abs_out = entry.get("output")
+                if abs_out and Path(abs_out).exists():
+                    return Path(abs_out)
+                return p  # return even if missing — caller does .exists() check
             # fallback: index written for all-.md projects may store absolute "output" path
             abs_out = entry.get("output")
             if abs_out:
@@ -3951,12 +4010,22 @@ Be specific to THESE transcripts and this study — no generic research filler. 
                         # invalidation code needed.
                         schema["_field_review_applied"] = True
                         schema_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False), encoding="utf-8")
-                        # Resync master_prompt.txt too — editing schema['layer2']['fields'] here without
-                        # this left the actual prompt sent to every extraction call still listing fields
-                        # that were just dropped (found live, this session — the schema said N fields,
-                        # the prompt still asked for the old set).
+                        # Resync master_prompt.txt — pass explicit paths so it works on
+                        # Streamlit Cloud where _DATA_DIR is read-only (/mount/src/).
                         from infoleap.skills import schema_generator as _sg2
-                        _sg2._resync_master_prompt_from_schema(proj_id)
+                        _sg2._resync_master_prompt_from_schema(
+                            proj_id,
+                            schema_path_override=str(schema_path),
+                            mp_path_override=str(mp_path),
+                        )
+                        # Upload updated schema to GDrive so it survives instance restarts.
+                        try:
+                            from infoleap.gdrive.client import DriveClient as _DC_apply
+                            _dc_apply = _DC_apply()
+                            if _dc_apply._svc is not None:
+                                _dc_apply.upload_qual_schema(proj_id, str(schema_path.parent))
+                        except Exception:
+                            pass
                         st.cache_data.clear()
                         _msg = f"Applied — {len(kept)} field(s) kept"
                         if dropped: _msg += f", dropped: {', '.join(dropped)}"
@@ -4042,7 +4111,8 @@ Be specific to THESE transcripts and this study — no generic research filler. 
                         })
                         schema_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False), encoding="utf-8")
                         from infoleap.skills import schema_generator as _sg3
-                        _sg3._resync_master_prompt_from_schema(proj_id)
+                        _sg3._resync_master_prompt_from_schema(proj_id,
+                            schema_path_override=str(schema_path), mp_path_override=str(mp_path))
                         # Backfill existing matrices non-destructively — copy whatever values the
                         # source fields already have into the new nested key, skip matrices missing
                         # all source fields so an empty composite isn't written everywhere.
@@ -4257,9 +4327,7 @@ Be specific to THESE transcripts and this study — no generic research filler. 
                              key=f"{proj_id}_es_run_step1", type="primary"):
                     prog = st.progress(0.0)
                     for i, fn in enumerate(selected):
-                        entry = index[fn]
-                        md_rel = entry.get("output_md")
-                        md_path = (project_dir / md_rel) if md_rel else None
+                        md_path = _resolve_md_path(fn)
                         if not md_path or not md_path.exists():
                             st.session_state[_s1_key][fn] = {"status": "error", "text": f"md not found: {md_path}"}
                             prog.progress((i + 1) / len(selected))
@@ -4451,9 +4519,7 @@ Be specific to THESE transcripts and this study — no generic research filler. 
                 _status_area = st.empty()
                 _results = []
                 for i, fn in enumerate(_all_files):
-                    entry = index[fn]
-                    md_rel = entry.get("output_md")
-                    md_path = (project_dir / md_rel) if md_rel else None
+                    md_path = _resolve_md_path(fn)
                     doc_id = _doc_id_for_project(proj, fn)
                     _status_area.caption(f"Processing {doc_id} ({i+1}/{len(_all_files)})…")
                     if not md_path or not md_path.exists():
