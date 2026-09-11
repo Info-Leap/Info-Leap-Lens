@@ -1,0 +1,186 @@
+{
+  "doc_id": "DI03_Sunita_Pune",
+  "filename": "DI03_Sunita_Pune.md",
+  "word_count": 568,
+  "respondent": {
+    "city": "Pune",
+    "segment": "Traditional Gold Buyer",
+    "gender": "Female",
+    "age_band": "45",
+    "occupation": "Homemaker"
+  },
+  "trust_in_crypto_brand": "low",
+  "preferred_endorsement": [
+    "bank"
+  ],
+  "yield_transparency_concern": "Who is using my gold?",
+  "physical_gold_preference": "For me gold means I can touch it, keep it in my house or locker. Online gold feels like it's not real.",
+  "yield_appeal": {
+    "appeal_score": 6,
+    "comparison_to_alternatives": "That would be good. But why is someone giving me interest on my gold?",
+    "verbatim_reaction": "That would be good. But why is someone giving me interest on my gold?"
+  },
+  "risk_perception": {
+    "risk_score": 8,
+    "comparison_to_alternatives": "This is risky no?",
+    "verbatim_concerns": "This is risky no?"
+  },
+  "current_gold_investment": {
+    "investment_type": "physical",
+    "investment_frequency": "On festivals we always buy some.",
+    "investment_reason": "My mother-in-law's jewellery, some coins we bought for the children's future."
+  },
+  "investment_priorities": [
+    "safety"
+  ],
+  "portfolio_allocation": null,
+  "respondent_archetype": "traditional_gold_investor",
+  "pain_points": [
+    {
+      "severity": "high",
+      "issue_description": "Lack of trust in CoinDCX as a new company",
+      "verbatim_quote": "CoinDCX — I've never heard this name. What kind of company is this? If it's a new company, no. If it's like a bank or government, then okay.",
+      "product_area": "trust",
+      "dg_section": null
+    },
+    {
+      "severity": "medium",
+      "issue_description": "Concern about the physical existence of gold",
+      "verbatim_quote": "But where is the gold? I can't see it? What if the company closes? This is risky no?",
+      "product_area": "trust",
+      "dg_section": null
+    }
+  ],
+  "nps_signal": "unclear",
+  "emotional_resolution": "neutral",
+  "narrative_tags": [
+    "trust",
+    "transparency",
+    "physical_vs_digital",
+    "need_for_trusted_endorsements"
+  ],
+  "most_powerful_verbatim": "This needs to come through someone I trust — a bank, a post office, or someone in my community. Marketing in apps won't work for people like me. Also, show me a clear certificate that my gold exists. If I get a paper saying 'Sunita Patil owns 10 grams stored in XYZ vault,' then I'll feel comfortable.",
+  "all_passages": [
+    {
+      "content": "My husband handles the business accounts, but household savings I manage. I keep some in post office savings — very safe. And we have a lot of gold. My mother-in-law's jewellery, some coins we bought for the children's future. On festivals we always buy some.",
+      "sentiment": "neutral",
+      "topic": "current investment behavior",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "No, what is that? Is it like an online thing?",
+      "sentiment": "neutral",
+      "topic": "digital gold concept",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 1
+    },
+    {
+      "content": "But where is the gold? I can't see it? What if the company closes? This is risky no?",
+      "sentiment": "negative",
+      "topic": "digital gold concept",
+      "pain_point": true,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 2
+    },
+    {
+      "content": "I don't know these names. For me gold means I can touch it, keep it in my house or locker. Online gold feels like it's not real.",
+      "sentiment": "negative",
+      "topic": "digital gold concept",
+      "pain_point": true,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 3
+    },
+    {
+      "content": "What does that mean? Like interest on gold?",
+      "sentiment": "neutral",
+      "topic": "yield concept",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 4
+    },
+    {
+      "content": "That would be good. But why is someone giving me interest on my gold? Who is using my gold?",
+      "sentiment": "neutral",
+      "topic": "yield concept",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 5
+    },
+    {
+      "content": "Jewellers I understand. But I would want to know — is my gold actually there? Can I take it back as physical gold if I want?",
+      "sentiment": "neutral",
+      "topic": "yield concept",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 6
+    },
+    {
+      "content": "That makes me feel better. But delivery charges will be there? And making charges?",
+      "sentiment": "neutral",
+      "topic": "yield concept",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 7
+    },
+    {
+      "content": "CoinDCX — I've never heard this name. What kind of company is this? If it's a new company, no. If it's like a bank or government, then okay.",
+      "sentiment": "negative",
+      "topic": "trust barriers",
+      "pain_point": true,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 8
+    },
+    {
+      "content": "SEBI I've heard. But it's not a bank. Can the bank offer this? HDFC or SBI?",
+      "sentiment": "neutral",
+      "topic": "trust barriers",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 9
+    },
+    {
+      "content": "Then I'd want to know — has anyone I know used it? If my neighbour or someone in my kitty party has used it and found it good, then I'd consider. Otherwise I won't risk it.",
+      "sentiment": "neutral",
+      "topic": "trust barriers",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 10
+    },
+    {
+      "content": "Route 1 — 'Your gold, always yours.' This I understand. Route 2 with 'earns more gold every year' — I like the idea but it sounds too good. I don't fully believe it.",
+      "sentiment": "neutral",
+      "topic": "preferred route",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 11
+    },
+    {
+      "content": "This needs to come through someone I trust — a bank, a post office, or someone in my community. Marketing in apps won't work for people like me. Also, show me a clear certificate that my gold exists. If I get a paper saying 'Sunita Patil owns 10 grams stored in XYZ vault,' then I'll feel comfortable.",
+      "sentiment": "neutral",
+      "topic": "final advice",
+      "pain_point": false,
+      "decision_signal": true,
+      "section": null,
+      "paragraph_index": 12
+    }
+  ],
+  "_type_coerced": [
+    "preferred_endorsement: str -> list",
+    "investment_priorities: str -> list"
+  ]
+}

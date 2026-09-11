@@ -526,5 +526,6 @@
         "scoring_rule": "Assign the closest-matching observed type; note in narrative_tags if a respondent doesn't fit any cleanly."
       }
     }
-  }
+  },
+  "_field_review_applied": true
 }

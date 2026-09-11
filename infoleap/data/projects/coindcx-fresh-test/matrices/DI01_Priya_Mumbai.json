@@ -1,0 +1,159 @@
+{
+  "doc_id": "DI01_Priya_Mumbai",
+  "filename": "DI01_Priya_Mumbai.md",
+  "word_count": 565,
+  "respondent": {
+    "city": "Mumbai",
+    "segment": "Safety-First Investor",
+    "gender": "Female",
+    "age_band": "32",
+    "occupation": "Salaried Professional"
+  },
+  "trust_in_crypto_brand": "low",
+  "preferred_endorsement": [
+    "bank"
+  ],
+  "yield_transparency_concern": "Who is taking that risk? Me or CoinDCX?",
+  "physical_gold_preference": "Yes, prefers physical gold as it is perceived as safe and just 'there'.",
+  "yield_appeal": {
+    "appeal_score": 7,
+    "comparison_to_alternatives": "7% sounds like mutual fund returns.",
+    "verbatim_reaction": "Oh, interesting. So it's like a gold FD? That's actually a nice idea."
+  },
+  "risk_perception": {
+    "risk_score": 6,
+    "comparison_to_alternatives": "Gold is supposed to be safe, not risky. If I'm getting 7% it means someone is taking a risk.",
+    "verbatim_concerns": "I'd want to know: is my gold safe? What if the jeweller doesn't return it?"
+  },
+  "current_gold_investment": {
+    "investment_type": "physical",
+    "investment_frequency": "irregular",
+    "investment_reason": "Gold I have in the form of jewellery that my parents gave me, but I don't think of that as investment really. It's just... there."
+  },
+  "investment_priorities": [
+    "safety"
+  ],
+  "portfolio_allocation": "Would start with maybe 5,000 rupees just to test. Not more.",
+  "respondent_archetype": "conservative_safety_investor",
+  "pain_points": [
+    {
+      "severity": "high",
+      "issue_description": "Lack of trust in CoinDCX due to its association with crypto.",
+      "verbatim_quote": "CoinDCX is a crypto company, right? I don't do crypto. Will my gold be used for crypto things?",
+      "product_area": "trust",
+      "dg_section": null
+    },
+    {
+      "severity": "medium",
+      "issue_description": "Concerns about the safety of digital gold and the risk involved in generating yield.",
+      "verbatim_quote": "I'd want to know: is my gold safe? What if the jeweller doesn't return it?",
+      "product_area": "risk_perception",
+      "dg_section": null
+    }
+  ],
+  "nps_signal": "passive",
+  "emotional_resolution": "neutral",
+  "narrative_tags": [
+    "trust",
+    "risk_perception",
+    "physical_vs_digital",
+    "need_for_trusted_endorsements"
+  ],
+  "most_powerful_verbatim": "I think this is a good product for people like me who have idle gold at home. But you need to fix the trust issue with CoinDCX's crypto image. Partner with a bank or show a government backing. And start with smaller investment amounts so people can try.",
+  "all_passages": [
+    {
+      "content": "So I have my salary coming in every month, and I do a SIP in a large-cap fund — about 8,000 a month. Then I have FDs for my emergency fund. Gold I have in the form of jewellery that my parents gave me, but I don't think of that as investment really. It's just... there.",
+      "sentiment": "neutral",
+      "topic": "current_investment_behavior",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "Because FDs are safe. I know exactly what I'm getting. With mutual funds I've seen my portfolio go down and it's stressful. So I like having something stable.",
+      "sentiment": "positive",
+      "topic": "investment_priorities",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "Honestly, I wasn't sure who is holding it. Like if Paytm has my gold, and Paytm shuts down tomorrow, what happens? I don't trust it fully.",
+      "sentiment": "negative",
+      "topic": "trust",
+      "pain_point": true,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "Oh, interesting. So it's like a gold FD? That's actually a nice idea.",
+      "sentiment": "positive",
+      "topic": "yield_appeal",
+      "pain_point": false,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "My first reaction is — this sounds too good. Gold already protects against inflation, and now also giving 7%? I'd want to know: is my gold safe? What if the jeweller doesn't return it?",
+      "sentiment": "ambivalent",
+      "topic": "risk_perception",
+      "pain_point": true,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "SEBI I trust more than a fintech company name I don't know. But CoinDCX is a crypto company, right? I don't do crypto. Will my gold be used for crypto things?",
+      "sentiment": "negative",
+      "topic": "trust_in_crypto_brand",
+      "pain_point": true,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "If a bank was involved. Like if HDFC said this is safe, I'd consider it. Or if there's an insurance on my gold amount. Right now I'd start with maybe 5,000 rupees just to test. Not more.",
+      "sentiment": "neutral",
+      "topic": "preferred_endorsement",
+      "pain_point": false,
+      "decision_signal": true,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "7% sounds like mutual fund returns. But gold is supposed to be safe, not risky. If I'm getting 7% it means someone is taking a risk. Who is taking that risk? Me or CoinDCX?",
+      "sentiment": "negative",
+      "topic": "yield_transparency_concern",
+      "pain_point": true,
+      "decision_signal": false,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "Route 1 for sure. 'Your gold, always yours, earning for you.' That resonates. I don't care so much about returns as I care about safety. Route 2 sounds like a mutual fund ad.",
+      "sentiment": "positive",
+      "topic": "messaging_preference",
+      "pain_point": false,
+      "decision_signal": true,
+      "section": null,
+      "paragraph_index": 0
+    },
+    {
+      "content": "I think this is a good product for people like me who have idle gold at home. But you need to fix the trust issue with CoinDCX's crypto image. Partner with a bank or show a government backing. And start with smaller investment amounts so people can try.",
+      "sentiment": "positive",
+      "topic": "final_advice",
+      "pain_point": false,
+      "decision_signal": true,
+      "section": null,
+      "paragraph_index": 0
+    }
+  ],
+  "_type_coerced": [
+    "preferred_endorsement: str -> list",
+    "investment_priorities: str -> list"
+  ]
+}
