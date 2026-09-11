@@ -2641,13 +2641,17 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
 
         # Auto-generate from transcripts
         _t_dir_init = project_dir / "transcripts"
-        _init_md_files = sorted(_t_dir_init.glob("*.md"))[:3] if _t_dir_init.exists() else []
+        # Also check readable_project_dir (git-mount) when project_dir = /tmp/
+        _t_dir_readable = (readable_project_dir / "transcripts") if readable_project_dir else _t_dir_init
+        _init_md_files = (sorted(_t_dir_init.glob("*.md")) + sorted(_t_dir_readable.glob("*.md")))[:3] if _t_dir_init.exists() or (_t_dir_readable and _t_dir_readable.exists()) else []
+        _init_docx_files = (sorted(_t_dir_init.glob("*.docx")) + sorted(_t_dir_readable.glob("*.docx")))[:3] if not _init_md_files and (_t_dir_init.exists() or (_t_dir_readable and _t_dir_readable.exists())) else []
+        _init_sample_files = _init_md_files or _init_docx_files
         _gen_col1, _gen_col2 = st.columns([2, 3])
         with _gen_col1:
             _gen_clicked = st.button(
                 "🔍 Generate scope from sample transcripts",
                 key=f"{proj_id}_init_gen_scope",
-                disabled=not _init_md_files,
+                disabled=not _init_sample_files,
             )
         with _gen_col2:
             _gen_context = st.text_input(
@@ -2656,10 +2660,16 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
                 placeholder="e.g. Concept test for CoinDCX digital gold, 3 investor segments",
                 label_visibility="collapsed",
             )
-        if _gen_clicked and _init_md_files:
-            with st.spinner(f"Reading {len(_init_md_files)} transcript(s)…"):
+        if _gen_clicked and _init_sample_files:
+            with st.spinner(f"Reading {len(_init_sample_files)} transcript(s)…"):
                 from infoleap.skills.llm_client import call_llm_safe
-                _ts_texts = [f.read_text(encoding="utf-8")[:5000] for f in _init_md_files]
+                from infoleap.skills import schema_generator as _sg_scope
+                def _read_sample(p):
+                    if p.suffix.lower() == ".docx":
+                        try: return _sg_scope._read_docx(p)[:5000]
+                        except Exception: return ""
+                    return p.read_text(encoding="utf-8")[:5000]
+                _ts_texts = [_read_sample(f) for f in _init_sample_files]
                 _gen_prompt = f"""You are a senior qualitative researcher. Read these sample transcripts and write a STRUCTURED EXTRACTION DIRECTIVE guiding an AI analyst coding all transcripts from this study.
 
 STUDY CONTEXT: {_gen_context.strip() if _gen_context.strip() else 'Infer from transcripts.'}
