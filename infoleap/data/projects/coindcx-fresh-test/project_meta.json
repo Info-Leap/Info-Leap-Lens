@@ -1,0 +1,8 @@
+{
+  "display_name": "CoinDCX Fresh — Digital Gold Concept Test",
+  "study_type": "concept_testing",
+  "transcript_format": "md",
+  "description": "Concept testing study for CoinDCX digital gold with 5-7% yield. 5 synthetic DIs across Mumbai, Delhi, Pune, Bangalore, Chennai. 3 investor segments: Safety-First, Yield-Seeker, Traditional Gold Buyer.",
+  "segment_key": "segment",
+  "filter_keys": ["segment", "city"]
+}
