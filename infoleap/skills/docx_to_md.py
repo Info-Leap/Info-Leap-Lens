@@ -156,8 +156,23 @@ def process_project(project_id: str, force: bool = False) -> dict:
     )
 
     if not docx_files:
-        print(f"No .docx files found in {transcripts_dir}")
-        return {}
+        print(f"No .docx files found in {transcripts_dir} — indexing existing .md files.")
+        # transcripts are already .md — build index from them so processed_index.json exists
+        existing_md = sorted(transcripts_dir.glob("*.md"))
+        index = {}
+        for md_path in existing_md:
+            meta = _parse_filename(md_path.name)
+            index[md_path.name] = {
+                "status": "ok",
+                "source": str(md_path),
+                "output": str(md_path),
+                "metadata": meta,
+                "format": "md",
+            }
+        index_path = transcripts_dir / "processed_index.json"
+        index_path.write_text(json.dumps(index, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"Index written: {index_path} ({len(index)} .md files)")
+        return index
 
     total = len(docx_files)
     index = {}
