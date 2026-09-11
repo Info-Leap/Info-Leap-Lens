@@ -929,7 +929,20 @@ def render_generic_project(proj: dict, ui_config: dict, base_path: Path, call_op
     proj_id = proj.get("id", ""); proj_dn = proj.get("display_name", proj_id)
     page_banner(proj_dn, ui_config.get("study_context", "Intelligence Engine"), eyebrow="ACTIVE PROJECT")
     m_dir = proj.get("abs_paths", {}).get("matrices")
-    all_m = [json.loads(f.read_text(encoding="utf-8")) for f in sorted(m_dir.glob("*_matrix.json"))] if m_dir and m_dir.exists() else []
+    # On Streamlit Cloud, prefer /tmp/ path where app-extracted matrices live
+    import os as _os
+    _tmp_m = Path(f"/tmp/infoleap/{proj_id}/matrices")
+    if m_dir and not _os.access(str(m_dir.parent if m_dir.exists() else m_dir), _os.W_OK):
+        if _tmp_m.exists() and any(_tmp_m.iterdir()):
+            m_dir = _tmp_m
+    files = sorted(m_dir.glob("*_matrix.json")) if m_dir and m_dir.exists() else []
+    if not files and m_dir and m_dir.exists():
+        files = [f for f in sorted(m_dir.glob("*.json"))
+                 if not f.name.startswith(("registry", "processed_index", "project_meta"))]
+    all_m = []
+    for f in files:
+        try: all_m.append(json.loads(f.read_text(encoding="utf-8")))
+        except Exception: pass
     if not all_m: empty_state("No data found.", icon="📂"); return
     # Quality gate: "critical"-quality extractions (verbatim fidelity check failed badly) are
     # excluded from every chart's aggregate data, not just flagged in the Health tab below —

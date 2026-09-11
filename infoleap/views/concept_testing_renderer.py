@@ -1530,8 +1530,13 @@ def _load_matrices(matrices_dir: str) -> list[dict]:
     d = Path(matrices_dir)
     if not d.exists():
         return []
+    # Primary: app-extracted files use *_matrix.json; fallback: committed files use *.json
+    files = sorted(d.glob("*_matrix.json")) or [
+        f for f in sorted(d.glob("*.json"))
+        if not f.name.startswith(("registry", "processed_index", "project_meta"))
+    ]
     out = []
-    for fp in sorted(d.glob("*_matrix.json")):
+    for fp in files:
         try:
             m = json.loads(fp.read_text(encoding="utf-8"))
             m["_source_file"] = fp.name
@@ -4662,6 +4667,25 @@ def render_concept_testing(
     matrices_dir = base_path / "data" / "projects" / proj_id / "matrices"
     findings_dir = base_path / "data" / "projects" / proj_id / "findings"
     schema_dir   = base_path / "data" / "projects" / proj_id / "schema"
+
+    # On Streamlit Cloud, /mount/src/ is read-only and matrices are written to /tmp/.
+    # Prefer /tmp/ path when it has files; fall back to git-mount path otherwise.
+    import os as _os
+    _tmp_matrices = Path(f"/tmp/infoleap/{proj_id}/matrices")
+    if not _os.access(str(matrices_dir.parent if matrices_dir.exists() else matrices_dir), _os.W_OK):
+        if _tmp_matrices.exists() and any(_tmp_matrices.iterdir()):
+            matrices_dir = _tmp_matrices
+        else:
+            # Try syncing from GDrive on first render
+            try:
+                from infoleap.gdrive.client import DriveClient as _DCr
+                _dcr = _DCr()
+                if _dcr._svc:
+                    _dcr.sync_qual_matrices_if_needed(proj_id, str(_tmp_matrices))
+                    if _tmp_matrices.exists() and any(_tmp_matrices.iterdir()):
+                        matrices_dir = _tmp_matrices
+            except Exception:
+                pass
 
     all_matrices = _load_matrices(str(matrices_dir))
     if not all_matrices:
