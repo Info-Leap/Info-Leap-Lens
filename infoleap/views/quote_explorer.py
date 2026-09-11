@@ -2713,6 +2713,7 @@ Be specific to THESE transcripts. Bold (**) field names."""
                         prompt_path=_prompt_matches[0] if _prompt_matches else None,
                         force=False,
                         user_scope=_init_scope_now or None,
+                        output_dir=schema_out.parent,
                     )
                     st.write("Schema + master prompt written.")
                 # Propagate inferred project_type into project.json
@@ -3005,9 +3006,15 @@ def _render_extraction_studio(proj_id: str, proj: dict):
     matrices_dir = paths.get("matrices")
 
     # ── Streamlit Cloud: /mount/src/ is read-only — redirect writes to /tmp/ ──
-    # Detect by checking write-access on schema parent (git mount = read-only on cloud).
+    # Detect by attempting to create schema dir; if PermissionError → cloud read-only mount.
     import os as _os, shutil as _shutil
-    _is_cloud = bool(schema_path and not _os.access(str(schema_path.parent), _os.W_OK))
+    _is_cloud = False
+    if schema_path:
+        try:
+            schema_path.parent.mkdir(parents=True, exist_ok=True)
+            _is_cloud = not _os.access(str(schema_path.parent), _os.W_OK)
+        except (PermissionError, OSError):
+            _is_cloud = True
     _readable_project_dir = project_dir  # for reading .md transcripts (always git mount)
     if _is_cloud:
         _tmp_proj = Path(f"/tmp/infoleap/{proj_id}")

@@ -2323,9 +2323,10 @@ Return ONLY valid JSON. No markdown fences, no explanation."""
 
 def generate_schema(project_id: str, dg_path: Path = None, prompt_path: Path = None, force: bool = False,
                      transcripts_dir: Path = None, n_samples: int = 5, skip_discovery: bool = False,
-                     sample_paths: list[Path] | None = None, user_scope: str | None = None):
+                     sample_paths: list[Path] | None = None, user_scope: str | None = None,
+                     output_dir: Path = None):
     project_dir = _DATA_DIR / "projects" / project_id
-    schema_dir = project_dir / "schema"
+    schema_dir = Path(output_dir) if output_dir else (project_dir / "schema")
     schema_dir.mkdir(parents=True, exist_ok=True)
     source_docs_dir = project_dir / "source_docs"
 
