@@ -2477,22 +2477,140 @@ def _render_project_setup(proj_id: str, proj: dict, hide_prompt: bool = False):
             disabled=(not _master_txt),
         ):
             if st.session_state.get(_confirm_key):
-                t_count = proj.get("transcript_count", "?")
-                with st.spinner(f"Running full pipeline for {t_count} transcripts… keep this tab open."):
-                    try:
-                        _results = _pm.trigger_processing(proj_id)
-                        if _results.get("ok"):
-                            st.success("Pipeline complete! Refresh page to see results.")
-                        else:
-                            st.error("Pipeline finished with errors.")
-                        for _step in _results.get("steps", []):
-                            _icon = "✓" if _step["ok"] else "✗"
-                            st.markdown(f"`{_icon} {_step['step']}`")
-                            if not _step["ok"] and _step.get("error"):
-                                st.code(_step["error"][-400:])
-                    except Exception as _xe:
-                        st.error(f"Error: {_xe}")
                 st.session_state.pop(_confirm_key, None)
+                # In-process pipeline — same Python process as Streamlit so API keys /
+                # secrets are inherited.  Subprocesses don't inherit st.secrets, causing
+                # LLM failures + silent multi-minute retry loops that look like hangs.
+                _project_dir = schema_path.parent.parent if schema_path else None
+                _index_path  = (t_dir / "processed_index.json") if t_dir else None
+                _ok_pipe = True
+
+                from infoleap.skills import docx_to_md as _d2m_mod
+                from infoleap.skills import project_extractor as _pex_mod
+
+                with st.status("Step 1/3 — Schema", expanded=True) as _st1:
+                    try:
+                        if mp_path and mp_path.exists() and schema_path and schema_path.exists():
+                            st.write("Schema + master prompt already exist — skipping generation.")
+                        elif _project_dir:
+                            from infoleap.skills import schema_generator as _sg_mod
+                            _sg_mod.generate_schema(proj_id, output_dir=_project_dir / "schema")
+                            st.write("Schema + master prompt written.")
+                        _st1.update(label="Step 1/3 — Schema ready", state="complete")
+                    except SystemExit as _e:
+                        _ok_pipe = False
+                        st.error(f"Schema exited (code {_e.code}) — check OpenRouter key.")
+                        _st1.update(label="Step 1/3 — Schema failed", state="error")
+                    except Exception as _e:
+                        _ok_pipe = False
+                        st.error(f"Schema generation failed: {_e}")
+                        _st1.update(label="Step 1/3 — Schema failed", state="error")
+
+                if _ok_pipe and t_fmt == "docx":
+                    with st.status("Step 2/3 — Converting .docx → .md…", expanded=True) as _st2:
+                        try:
+                            _idx2 = _d2m_mod.process_project(proj_id, force=False)
+                            _n_ok2 = sum(1 for v in (_idx2 or {}).values() if v.get("status") == "ok")
+                            _n_sk2 = sum(1 for v in (_idx2 or {}).values() if v.get("status") == "skipped")
+                            _n_er2 = sum(1 for v in (_idx2 or {}).values() if v.get("status") == "error")
+                            st.write(f"{_n_ok2} converted, {_n_sk2} skipped, {_n_er2} errors.")
+                            _st2.update(label="Step 2/3 — Transcripts converted", state="complete")
+                        except SystemExit as _e:
+                            _ok_pipe = False
+                            st.error(f"Conversion exited (code {_e.code}).")
+                            _st2.update(label="Step 2/3 — Conversion failed", state="error")
+                        except Exception as _e:
+                            _ok_pipe = False
+                            st.error(f"Conversion failed: {_e}")
+                            _st2.update(label="Step 2/3 — Conversion failed", state="error")
+                elif _ok_pipe:
+                    st.info("Step 2/3 — Transcripts are .md format, skipping conversion.")
+
+                if _ok_pipe:
+                    with st.status("Step 3/3 — Extracting (LLM pass per transcript)…", expanded=True) as _st3:
+                        try:
+                            if _index_path and not _index_path.exists():
+                                st.error("processed_index.json not found — conversion step may have failed.")
+                                _st3.update(label="Step 3/3 — Extraction skipped", state="error")
+                                _ok_pipe = False
+                            else:
+                                _pex_mod.run_extraction(proj_id, force=False)
+                                _rep_p = _project_dir / "extraction_report.json" if _project_dir else None
+                                if _rep_p and _rep_p.exists():
+                                    _rep_d = json.loads(_rep_p.read_text(encoding="utf-8"))
+                                    st.write(
+                                        f"Extraction: {_rep_d.get('ok',0)} OK, "
+                                        f"{_rep_d.get('skipped',0)} skipped, "
+                                        f"{_rep_d.get('errors',0)} errors "
+                                        f"(of {_rep_d.get('total',0)} transcripts)."
+                                    )
+                                _st3.update(label="Step 3/3 — Extraction complete", state="complete")
+                        except SystemExit as _e:
+                            _ok_pipe = False
+                            st.error(f"Extraction exited (code {_e.code}).")
+                            _st3.update(label="Step 3/3 — Extraction failed", state="error")
+                        except Exception as _e:
+                            _ok_pipe = False
+                            st.error(f"Extraction failed: {_e}")
+                            _st3.update(label="Step 3/3 — Extraction failed", state="error")
+
+                # Best-effort: verification → findings → registry update → Drive sync
+                if _ok_pipe:
+                    try:
+                        from infoleap.skills import verify_verbatims as _vv_mod
+                        with st.status("Verifying verbatims…", expanded=False) as _vst:
+                            try:
+                                _vv_mod.run_verification(proj_id)
+                                _vst.update(label="Verification complete", state="complete")
+                            except Exception as _e:
+                                _vst.update(label=f"Verification skipped: {_e}", state="error")
+                    except Exception:
+                        pass
+                    try:
+                        from infoleap.skills import findings_generator as _fg_mod
+                        with st.status("Generating findings…", expanded=False) as _fst:
+                            try:
+                                _fg_mod.run_generation(proj_id)
+                                _fst.update(label="Findings generated", state="complete")
+                            except Exception as _e:
+                                _fst.update(label=f"Findings skipped: {_e}", state="error")
+                    except Exception:
+                        pass
+                    try:
+                        from datetime import date as _date_cls
+                        _pm._update_registry_entry(proj_id, status="processed",
+                                                    last_processed=str(_date_cls.today()))
+                    except Exception:
+                        pass
+                    try:
+                        from infoleap.gdrive.client import DriveClient as _DC2
+                        _dc2 = _DC2()
+                        if _dc2._svc is not None and _project_dir:
+                            with st.status("Syncing to Drive…", expanded=False) as _dst2:
+                                _synced2 = []
+                                _s2 = _project_dir / "schema"
+                                _m2 = _project_dir / "matrices"
+                                _f2 = _project_dir / "findings"
+                                if _s2.exists() and _dc2.upload_qual_schema(proj_id, str(_s2)):
+                                    _synced2.append("schema")
+                                if _m2.exists() and _dc2.upload_qual_matrices(proj_id, str(_m2)):
+                                    _synced2.append("matrices")
+                                if _f2.exists() and _dc2.upload_qual_findings(proj_id, str(_f2)):
+                                    _synced2.append("findings")
+                                _pj2 = _project_dir / "project.json"
+                                if _pj2.exists() and _dc2.upload_qual_file(proj_id, str(_pj2), "project.json"):
+                                    _synced2.append("project.json")
+                                _dst2.update(
+                                    label=f"☁️ Drive: {', '.join(_synced2) or 'nothing to sync'}",
+                                    state="complete",
+                                )
+                    except Exception:
+                        pass
+                    st.cache_data.clear()
+                    st.success("Pipeline complete — reloading…")
+                    st.rerun()
+                else:
+                    st.error("Pipeline finished with errors — see details above.")
             else:
                 st.session_state[_confirm_key] = True
                 t_count = proj.get("transcript_count", "?")
