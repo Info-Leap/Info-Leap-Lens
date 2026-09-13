@@ -2917,6 +2917,24 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
         _init_md_files = (sorted(_t_dir_init.glob("*.md")) + sorted(_t_dir_readable.glob("*.md")))[:3] if _t_dir_init.exists() or (_t_dir_readable and _t_dir_readable.exists()) else []
         _init_docx_files = (sorted(_t_dir_init.glob("*.docx")) + sorted(_t_dir_readable.glob("*.docx")))[:3] if not _init_md_files and (_t_dir_init.exists() or (_t_dir_readable and _t_dir_readable.exists())) else []
         _init_sample_files = _init_md_files or _init_docx_files
+        # If still no local transcripts, download 3 samples from Drive for scope generation
+        if not _init_sample_files:
+            try:
+                from infoleap.gdrive.client import DriveClient as _DC_scope
+                _dc_scope = _DC_scope()
+                _drive_scope_files = _dc_scope.list_project_files(proj_id, kind="qual") if _dc_scope._svc else []
+                _scope_t_files = [f for f in _drive_scope_files if f["name"].startswith("transcripts/") and f["name"].endswith(".docx")][:3]
+                if _scope_t_files:
+                    _t_dir_init.mkdir(parents=True, exist_ok=True)
+                    for _stf in _scope_t_files:
+                        _stfname = _stf["name"].split("/", 1)[-1]
+                        _dest_stf = _t_dir_init / _stfname
+                        if not _dest_stf.exists():
+                            _dc_scope.download_qual_file(proj_id, _stf["name"], str(_dest_stf))
+                    _init_docx_files = sorted(_t_dir_init.glob("*.docx"))[:3]
+                    _init_sample_files = _init_docx_files
+            except Exception:
+                pass
         _gen_col1, _gen_col2 = st.columns([2, 3])
         with _gen_col1:
             _gen_clicked = st.button(
@@ -3038,7 +3056,27 @@ Be specific to THESE transcripts and the analysis brief. Bold (**) field names."
         if _ok:
             with st.status("Step 2/2 — Converting transcripts (.docx → .md)…", expanded=True) as _status:
                 try:
-                    _idx = _d2m.process_project(proj_id, force=False)
+                    # For Drive-backed projects on Cloud, transcripts live on Drive not local FS.
+                    # Download up to 23 transcripts to project_dir/transcripts/ (writable /tmp/).
+                    _local_t_dir = project_dir / "transcripts"
+                    _has_local_docx = _local_t_dir.exists() and bool(list(_local_t_dir.glob("*.docx")))
+                    if not _has_local_docx:
+                        try:
+                            from infoleap.gdrive.client import DriveClient as _DC2
+                            _dc2 = _DC2()
+                            _drive_all = _dc2.list_project_files(proj_id, kind="qual") if _dc2._svc else []
+                            _t_files = [f for f in _drive_all if f["name"].startswith("transcripts/") and f["name"].endswith(".docx")]
+                            if _t_files:
+                                _local_t_dir.mkdir(parents=True, exist_ok=True)
+                                st.write(f"Downloading {len(_t_files)} transcripts from Drive…")
+                                for _tf in _t_files:
+                                    _tfname = _tf["name"].split("/", 1)[-1]
+                                    _dc2.download_qual_file(proj_id, _tf["name"], str(_local_t_dir / _tfname))
+                                _has_local_docx = True
+                        except Exception as _dl_err:
+                            st.warning(f"Drive transcript download failed: {_dl_err}")
+                    _idx = _d2m.process_project(proj_id, force=False,
+                                                 transcripts_dir=_local_t_dir if _local_t_dir.exists() else None)
                     if _idx:
                         _n_ok = sum(1 for v in _idx.values() if v.get("status") == "ok")
                         _n_skip = sum(1 for v in _idx.values() if v.get("status") == "skipped")

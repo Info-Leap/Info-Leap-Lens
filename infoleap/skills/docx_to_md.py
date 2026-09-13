@@ -131,13 +131,15 @@ def _build_md(meta: dict, lines: list[str], source_file: str) -> str:
     return frontmatter + "\n" + body + "\n"
 
 
-def process_project(project_id: str, force: bool = False) -> dict:
+def process_project(project_id: str, force: bool = False, transcripts_dir: Path | None = None) -> dict:
     """
     Convert all .docx files in projects/{project_id}/transcripts/ to .md.
     Writes output to transcripts/processed/.
     Returns index dict.
+    Pass transcripts_dir to override the default _DATA_DIR-based path (e.g. /tmp/ on Cloud).
     """
-    transcripts_dir = _DATA_DIR / "projects" / project_id / "transcripts"
+    if transcripts_dir is None:
+        transcripts_dir = _DATA_DIR / "projects" / project_id / "transcripts"
     processed_dir = transcripts_dir / "processed"
 
     if not transcripts_dir.exists():
@@ -166,7 +168,7 @@ def process_project(project_id: str, force: bool = False) -> dict:
                 "status": "ok",
                 "source": str(md_path),
                 "output": str(md_path),
-                "output_md": str(md_path.relative_to(_DATA_DIR / "projects" / project_id)),
+                "output_md": str(md_path.relative_to(transcripts_dir.parent)),
                 "metadata": meta,
                 "format": "md",
             }
@@ -194,7 +196,7 @@ def process_project(project_id: str, force: bool = False) -> dict:
         if out_path.exists() and not force:
             print(f"{label} — SKIP (already processed)")
             index[filename] = {
-                "output_md": str(out_path.relative_to(_DATA_DIR / "projects" / project_id)),
+                "output_md": str(out_path.relative_to(transcripts_dir.parent)),
                 "metadata": meta,
                 "status": "skipped",
             }
@@ -207,7 +209,7 @@ def process_project(project_id: str, force: bool = False) -> dict:
             word_count = sum(len(line.split()) for line in lines)
             print(f"{label} — OK ({word_count} words, {len(lines)} paragraphs)")
             index[filename] = {
-                "output_md": str(out_path.relative_to(_DATA_DIR / "projects" / project_id)),
+                "output_md": str(out_path.relative_to(transcripts_dir.parent)),
                 "metadata": meta,
                 "word_count": word_count,
                 "paragraph_count": len(lines),
