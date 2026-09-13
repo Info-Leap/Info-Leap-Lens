@@ -2863,6 +2863,21 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
     # On cloud project_dir = /tmp/ — source_docs live in the git-mount readable path
     if not source_docs_dir.exists() and readable_project_dir:
         source_docs_dir = readable_project_dir / "source_docs"
+    # If still missing, try downloading source_docs from Drive
+    if not source_docs_dir.exists():
+        try:
+            from infoleap.gdrive.client import DriveClient as _DC
+            _dc = _DC()
+            _drive_files = _dc.list_project_files(proj_id, kind="qual") if _dc._svc else []
+            _sd_files = [f for f in _drive_files if f["name"].startswith("source_docs/")]
+            if _sd_files:
+                source_docs_dir.mkdir(parents=True, exist_ok=True)
+                for _sdf in _sd_files:
+                    _fname = _sdf["name"].split("/", 1)[-1]
+                    _dest = source_docs_dir / _fname
+                    _dc.download_qual_file(proj_id, _sdf["name"], str(_dest))
+        except Exception:
+            pass
     schema_dir = project_dir / "schema"
     schema_out = schema_dir / "extraction_schema.json"
     prompt_out = schema_dir / "master_prompt.txt"
@@ -3066,6 +3081,21 @@ def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir, readable_project
     source_docs_dir = project_dir / "source_docs"
     if not source_docs_dir.exists() and readable_project_dir:
         source_docs_dir = readable_project_dir / "source_docs"
+    # If still missing, try downloading source_docs from Drive
+    if not source_docs_dir.exists():
+        try:
+            from infoleap.gdrive.client import DriveClient as _DC
+            _dc = _DC()
+            _drive_files = _dc.list_project_files(proj_id, kind="qual") if _dc._svc else []
+            _sd_files = [f for f in _drive_files if f["name"].startswith("source_docs/")]
+            if _sd_files:
+                source_docs_dir.mkdir(parents=True, exist_ok=True)
+                for _sdf in _sd_files:
+                    _fname = _sdf["name"].split("/", 1)[-1]
+                    _dest = source_docs_dir / _fname
+                    _dc.download_qual_file(proj_id, _sdf["name"], str(_dest))
+        except Exception:
+            pass
     schema_dir = project_dir / "schema"
     schema_out = schema_dir / "extraction_schema.json"
     prompt_out = schema_dir / "master_prompt.txt"
