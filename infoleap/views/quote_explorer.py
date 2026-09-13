@@ -2154,8 +2154,27 @@ Upload → switch to project → paste master_prompt.txt in the editor → extra
 
         _proj_dir = _BASE / "data" / "projects" / _proj_id_new
 
-        if _proj_dir.exists():
+        # If folder exists but project is not in registry (happens after git hot-reload
+        # reverts registry.json while /mount/src/ writes persist), re-register it.
+        _reg_path_chk = _BASE / "data" / "projects" / "registry.json"
+        _reg_chk = json.loads(_reg_path_chk.read_text(encoding="utf-8")) if _reg_path_chk.exists() else {"projects": []}
+        _already_registered = any(p["id"] == _proj_id_new for p in _reg_chk.get("projects", []))
+
+        if _proj_dir.exists() and _already_registered:
             st.error(f"Project '{_proj_id_new}' already exists. Choose a different ID or delete the existing folder.")
+        elif _proj_dir.exists() and not _already_registered:
+            # Folder exists but not in registry — re-register from project.json
+            _pj_re = _proj_dir / "project.json"
+            if _pj_re.exists():
+                _meta_re = json.loads(_pj_re.read_text(encoding="utf-8"))
+                _reg_chk.setdefault("projects", []).append(_meta_re)
+                _reg_path_chk.write_text(json.dumps(_reg_chk, indent=2, ensure_ascii=False), encoding="utf-8")
+                st.session_state["active_project"] = _proj_id_new
+                st.cache_data.clear()
+                st.success(f"Project '{_proj_id_new}' re-registered (folder already exists). Switching…")
+                st.rerun()
+            else:
+                st.error(f"Project folder exists but project.json is missing. Delete the folder and reinstall.")
         else:
             try:
                 with zipfile.ZipFile(io.BytesIO(_up_zip.getvalue())) as _zf:
