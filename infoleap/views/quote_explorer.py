@@ -2414,6 +2414,15 @@ def _render_project_setup(proj_id: str, proj: dict, hide_prompt: bool = False):
                 except Exception as _pe:
                     st.error(f"Save failed: {_pe}")
     else:
+        # Check if schema has never been generated (no schema file at all)
+        _schema_file = schema_path if schema_path else None
+        if not (_schema_file and _schema_file.exists()):
+            st.info(
+                "**Schema not yet generated.**  "
+                "Enable **Extraction Studio** (toggle above) → run **Schema Discovery** "
+                "to auto-generate the extraction schema and master prompt."
+            )
+            return
         st.warning("master_prompt.txt not found at expected path.")
         st.caption(f"Expected: {mp_path}")
         _new_prompt = st.text_area(
