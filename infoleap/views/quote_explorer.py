@@ -2926,10 +2926,17 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
                         except Exception: return ""
                     return p.read_text(encoding="utf-8")[:5000]
                 _ts_texts = [_read_sample(f) for f in _init_sample_files]
-                _gen_prompt = f"""You are a senior qualitative researcher. Read these sample transcripts and write a STRUCTURED EXTRACTION DIRECTIVE guiding an AI analyst coding all transcripts from this study.
+                # Include AI analysis prompt from source_docs if available
+                _ai_prompt_text = ""
+                if _prompt_matches:
+                    try:
+                        _ai_prompt_text = _read_sample(_prompt_matches[0])[:3000]
+                    except Exception:
+                        _ai_prompt_text = ""
+                _ai_prompt_section = f"\nAI ANALYSIS BRIEF (from {_prompt_matches[0].name}):\n{_ai_prompt_text}\n" if _ai_prompt_text else ""
+                _gen_prompt = f"""You are a senior qualitative researcher. Read the AI analysis brief and sample transcripts, then write a STRUCTURED EXTRACTION DIRECTIVE guiding an AI analyst coding all transcripts from this study.
 
-STUDY CONTEXT: {_gen_context.strip() if _gen_context.strip() else 'Infer from transcripts.'}
-
+STUDY CONTEXT: {_gen_context.strip() if _gen_context.strip() else 'Infer from transcripts and brief.'}{_ai_prompt_section}
 SAMPLE TRANSCRIPTS:
 {"".join(f"--- TRANSCRIPT {i+1} ---\n{t}\n\n" for i, t in enumerate(_ts_texts))}
 
@@ -2941,7 +2948,7 @@ Output structured guidance with these sections (markdown headers ##):
 ## AMBIGUITY DECISION RULES
 ## EVIDENCE DISCIPLINE
 
-Be specific to THESE transcripts. Bold (**) field names."""
+Be specific to THESE transcripts and the analysis brief. Bold (**) field names."""
                 _gen_result = call_llm_safe([{"role": "user", "content": _gen_prompt}], max_tokens=5000, temp=0.2)
                 if _gen_result:
                     st.session_state[_init_scope_key] = _gen_result.strip()
