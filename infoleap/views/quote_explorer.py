@@ -3056,11 +3056,20 @@ Be specific to THESE transcripts and the analysis brief. Bold (**) field names."
         if _ok:
             with st.status("Step 2/2 — Converting transcripts (.docx → .md)…", expanded=True) as _status:
                 try:
-                    # For Drive-backed projects on Cloud, transcripts live on Drive not local FS.
-                    # Download up to 23 transcripts to project_dir/transcripts/ (writable /tmp/).
+                    # On Cloud, project_dir = /tmp/ (writable). ZIP extraction writes to
+                    # readable_project_dir (git-mount, read-only). Check both for transcripts.
                     _local_t_dir = project_dir / "transcripts"
-                    _has_local_docx = _local_t_dir.exists() and bool(list(_local_t_dir.glob("*.docx")))
-                    if not _has_local_docx:
+                    _readable_t_dir = (readable_project_dir / "transcripts") if readable_project_dir else None
+                    # 1. Check git-mount path (where ZIP extraction writes)
+                    _src_t_dir = None
+                    if _readable_t_dir and _readable_t_dir.exists() and list(_readable_t_dir.glob("*.docx")):
+                        _src_t_dir = _readable_t_dir
+                        st.write(f"Found {len(list(_readable_t_dir.glob('*.docx')))} transcripts from ZIP.")
+                    # 2. Check /tmp/ writable path
+                    elif _local_t_dir.exists() and list(_local_t_dir.glob("*.docx")):
+                        _src_t_dir = _local_t_dir
+                    # 3. Fall back to Drive download
+                    if _src_t_dir is None:
                         try:
                             from infoleap.gdrive.client import DriveClient as _DC2
                             _dc2 = _DC2()
@@ -3072,11 +3081,11 @@ Be specific to THESE transcripts and the analysis brief. Bold (**) field names."
                                 for _tf in _t_files:
                                     _tfname = _tf["name"].split("/", 1)[-1]
                                     _dc2.download_qual_file(proj_id, _tf["name"], str(_local_t_dir / _tfname))
-                                _has_local_docx = True
+                                _src_t_dir = _local_t_dir
                         except Exception as _dl_err:
                             st.warning(f"Drive transcript download failed: {_dl_err}")
                     _idx = _d2m.process_project(proj_id, force=False,
-                                                 transcripts_dir=_local_t_dir if _local_t_dir.exists() else None)
+                                                 transcripts_dir=_src_t_dir)
                     if _idx:
                         _n_ok = sum(1 for v in _idx.values() if v.get("status") == "ok")
                         _n_skip = sum(1 for v in _idx.values() if v.get("status") == "skipped")

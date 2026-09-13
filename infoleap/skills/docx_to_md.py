@@ -131,7 +131,7 @@ def _build_md(meta: dict, lines: list[str], source_file: str) -> str:
     return frontmatter + "\n" + body + "\n"
 
 
-def process_project(project_id: str, force: bool = False, transcripts_dir: Path | None = None) -> dict:
+def process_project(project_id: str, force: bool = False, transcripts_dir=None) -> dict:
     """
     Convert all .docx files in projects/{project_id}/transcripts/ to .md.
     Writes output to transcripts/processed/.
