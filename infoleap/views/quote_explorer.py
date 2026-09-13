@@ -2311,7 +2311,7 @@ def _render_project_setup(proj_id: str, proj: dict, hide_prompt: bool = False):
             _rerun_confirm_key = f"_{proj_id}_rerun_confirmed"
             if st.button("▶ Re-run Extraction Pipeline", type="primary",
                          use_container_width=True, key=f"{proj_id}_trigger_rerun",
-                         disabled=(not _master_txt)):
+                         disabled=(not (mp_path and mp_path.exists()))):
                 if st.session_state.get(_rerun_confirm_key):
                     st.session_state.pop(_rerun_confirm_key, None)
                     _project_dir_r = schema_path.parent.parent if schema_path else None
