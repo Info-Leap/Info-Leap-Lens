@@ -2295,7 +2295,117 @@ def _render_project_setup(proj_id: str, proj: dict, hide_prompt: bool = False):
     )
 
     if m_count > 0:
-        # Matrices exist — caller (generic renderer) handles display. Just return silently.
+        # Matrices exist — caller (generic renderer) handles display.
+        # Still show pipeline trigger in a collapsed expander so user can re-run.
+        with st.expander(f"🔄 Re-run extraction pipeline ({m_count} matrices exist)", expanded=False):
+            _rerun_note_c1, _rerun_note_c2 = st.columns([3, 1])
+            with _rerun_note_c1:
+                st.info(
+                    f"**Re-run full pipeline:** schema → docx→md → extraction → verification → findings.\n"
+                    f"Skips transcripts that already have a matrix unless you check Force below.\n"
+                    f"Manual: `python infoleap/skills/project_extractor.py --project {proj_id}`"
+                )
+            with _rerun_note_c2:
+                _force_rerun = st.checkbox("Force re-extract all", key=f"{proj_id}_force_rerun",
+                                            help="Re-extract every transcript even if matrix exists.")
+            _rerun_confirm_key = f"_{proj_id}_rerun_confirmed"
+            if st.button("▶ Re-run Extraction Pipeline", type="primary",
+                         use_container_width=True, key=f"{proj_id}_trigger_rerun",
+                         disabled=(not _master_txt)):
+                if st.session_state.get(_rerun_confirm_key):
+                    st.session_state.pop(_rerun_confirm_key, None)
+                    _project_dir_r = schema_path.parent.parent if schema_path else None
+                    _index_path_r  = (t_dir / "processed_index.json") if t_dir else None
+                    _ok_r = True
+                    from infoleap.skills import docx_to_md as _d2m_r
+                    from infoleap.skills import project_extractor as _pex_r
+                    with st.status("Step 1/3 — Schema", expanded=True) as _sr1:
+                        try:
+                            if mp_path and mp_path.exists() and schema_path and schema_path.exists():
+                                st.write("Schema + prompt exist — skipping.")
+                            elif _project_dir_r:
+                                from infoleap.skills import schema_generator as _sg_r
+                                _sg_r.generate_schema(proj_id, output_dir=_project_dir_r / "schema")
+                                st.write("Schema written.")
+                            _sr1.update(label="Step 1/3 — Schema ready", state="complete")
+                        except Exception as _e:
+                            _ok_r = False
+                            st.error(f"Schema failed: {_e}")
+                            _sr1.update(label="Step 1/3 — Schema failed", state="error")
+                    if _ok_r and t_fmt == "docx":
+                        with st.status("Step 2/3 — .docx → .md", expanded=True) as _sr2:
+                            try:
+                                _idx_r = _d2m_r.process_project(proj_id, force=_force_rerun)
+                                _n_ok_r = sum(1 for v in (_idx_r or {}).values() if v.get("status") == "ok")
+                                _n_sk_r = sum(1 for v in (_idx_r or {}).values() if v.get("status") == "skipped")
+                                st.write(f"{_n_ok_r} converted, {_n_sk_r} skipped.")
+                                _sr2.update(label="Step 2/3 — Converted", state="complete")
+                            except Exception as _e:
+                                _ok_r = False
+                                st.error(f"Conversion failed: {_e}")
+                                _sr2.update(label="Step 2/3 — Failed", state="error")
+                    if _ok_r:
+                        with st.status("Step 3/3 — LLM extraction", expanded=True) as _sr3:
+                            try:
+                                _pex_r.run_extraction(proj_id, force=_force_rerun)
+                                _rep_r = _project_dir_r / "extraction_report.json" if _project_dir_r else None
+                                if _rep_r and _rep_r.exists():
+                                    _rd = json.loads(_rep_r.read_text(encoding="utf-8"))
+                                    st.write(f"{_rd.get('ok',0)} OK, {_rd.get('skipped',0)} skipped, {_rd.get('errors',0)} errors.")
+                                _sr3.update(label="Step 3/3 — Extraction complete", state="complete")
+                            except Exception as _e:
+                                _ok_r = False
+                                st.error(f"Extraction failed: {_e}")
+                                _sr3.update(label="Step 3/3 — Failed", state="error")
+                    if _ok_r:
+                        try:
+                            from infoleap.skills import verify_verbatims as _vv_r
+                            with st.status("Verifying verbatims…", expanded=False) as _vr:
+                                try:
+                                    _vv_r.run_verification(proj_id)
+                                    _vr.update(label="Verification done", state="complete")
+                                except Exception as _e:
+                                    _vr.update(label=f"Verification skipped: {_e}", state="error")
+                        except Exception:
+                            pass
+                        try:
+                            from infoleap.skills import findings_generator as _fg_r
+                            with st.status("Generating findings…", expanded=False) as _fr:
+                                try:
+                                    _fg_r.run_generation(proj_id)
+                                    _fr.update(label="Findings done", state="complete")
+                                except Exception as _e:
+                                    _fr.update(label=f"Findings skipped: {_e}", state="error")
+                        except Exception:
+                            pass
+                        try:
+                            from datetime import date as _dr
+                            _pm._update_registry_entry(proj_id, status="processed", last_processed=str(_dr.today()))
+                        except Exception:
+                            pass
+                        try:
+                            from infoleap.gdrive.client import DriveClient as _DC3
+                            _dc3 = _DC3()
+                            if _dc3._svc is not None and _project_dir_r:
+                                with st.status("Syncing to Drive…", expanded=False) as _dr3:
+                                    _syn3 = []
+                                    if (_project_dir_r/"schema").exists() and _dc3.upload_qual_schema(proj_id, str(_project_dir_r/"schema")): _syn3.append("schema")
+                                    if (_project_dir_r/"matrices").exists() and _dc3.upload_qual_matrices(proj_id, str(_project_dir_r/"matrices")): _syn3.append("matrices")
+                                    if (_project_dir_r/"findings").exists() and _dc3.upload_qual_findings(proj_id, str(_project_dir_r/"findings")): _syn3.append("findings")
+                                    _pj3 = _project_dir_r/"project.json"
+                                    if _pj3.exists() and _dc3.upload_qual_file(proj_id, str(_pj3), "project.json"): _syn3.append("project.json")
+                                    _dr3.update(label=f"☁️ Drive: {', '.join(_syn3) or 'nothing'}", state="complete")
+                        except Exception:
+                            pass
+                        st.cache_data.clear()
+                        st.success("Re-extraction complete — reloading…")
+                        st.rerun()
+                    else:
+                        st.error("Pipeline finished with errors — see details above.")
+                else:
+                    st.session_state[_rerun_confirm_key] = True
+                    _fc_note = " (force mode — all matrices will be overwritten)" if _force_rerun else " (skip already-extracted)"
+                    st.warning(f"⚠ Re-extract all transcripts{_fc_note}. Click **Re-run Extraction Pipeline** again to confirm.")
         return
 
     # No matrices yet — show setup / confirm flow
