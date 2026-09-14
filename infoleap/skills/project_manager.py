@@ -39,12 +39,24 @@ class ProjectManager:
 
     def _load_merged_registry(self) -> dict:
         """Merge git registry (canonical) + user registry (ZIP installs).
-        Git registry is authoritative — its IDs always win over user registry."""
+        Git registry is authoritative — its IDs always win over user registry.
+
+        On Streamlit Cloud, overlayfs can shadow registry.json with stale entries
+        from previous ZIP installs. We guard against this by only accepting canonical
+        entries whose project directory actually exists on disk — git-rm'd ghost
+        projects have no directory and are filtered out automatically.
+        """
         canonical = _load_json(self._path)
         user = _load_json(self._user_path)
-        canonical_ids = {p["id"] for p in canonical.get("projects", [])}
+        projects_dir = _DATA_DIR / "projects"
+        # Filter canonical: only include entries with an existing project dir
+        valid_canonical = [
+            p for p in canonical.get("projects", [])
+            if (projects_dir / p["id"]).is_dir()
+        ]
+        canonical_ids = {p["id"] for p in valid_canonical}
         # Only include user projects not already in canonical
-        merged = list(canonical.get("projects", []))
+        merged = list(valid_canonical)
         for p in user.get("projects", []):
             if p["id"] not in canonical_ids:
                 merged.append(p)
