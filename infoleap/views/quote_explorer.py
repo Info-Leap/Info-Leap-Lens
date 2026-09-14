@@ -2971,47 +2971,67 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
         "AI analysis prompt: not found in `source_docs/` — schema will be grounded on transcripts only."
     )
 
-    # ── Scope input ────────────────────────────────────────────────────────────
+    # ── Step 1: Files ──────────────────────────────────────────────────────────
+    # Discovery always reads every transcript in the project (there's no per-file
+    # selection at this pre-schema stage — that only exists in Phase 1 after discovery
+    # runs). This is just a "here's what got installed" check, shown right after
+    # upload/install and before Scope, matching the 1→2→3 order described below.
+    _t_dir_init = project_dir / "transcripts"
+    _t_dir_readable = (readable_project_dir / "transcripts") if readable_project_dir else _t_dir_init
+    _local_t_files = []
+    if _t_dir_init.exists():
+        _local_t_files = sorted(_t_dir_init.glob("*.md")) + sorted(_t_dir_init.glob("*.docx"))
+    if not _local_t_files and _t_dir_readable and _t_dir_readable.exists():
+        _local_t_files = sorted(_t_dir_readable.glob("*.md")) + sorted(_t_dir_readable.glob("*.docx"))
+
+    # Drive transcript list
+    _drive_t_names = []
+    try:
+        from infoleap.gdrive.client import DriveClient as _DC_scope
+        _dc_scope = _DC_scope()
+        if _dc_scope._svc:
+            _drive_t_meta = _dc_scope.list_qual_subfolder(proj_id, "transcripts")
+            _drive_t_names = [f["name"] for f in _drive_t_meta
+                               if f["name"].lower().endswith((".docx", ".md"))]
+    except Exception:
+        pass
+
+    # Build display options: local files shown as filename, Drive-only ones marked with ☁
+    _local_names = {f.name for f in _local_t_files}
+    _all_t_names = list(_local_names) + [n for n in _drive_t_names if n not in _local_names]
+    _all_t_names = sorted(_all_t_names, key=lambda x: (
+        int(__import__("re").search(r"DI[_\s]*(\d+)", x, __import__("re").IGNORECASE).group(1))
+        if __import__("re").search(r"DI[_\s]*(\d+)", x, __import__("re").IGNORECASE) else 9999
+    ))
+
+    _section("1 · Files", f"{len(_all_t_names)} transcript(s) detected — discovery reads all of them",
+             accent=_P["teal"], icon="📁")
+    with st.container(border=True):
+        if _all_t_names:
+            st.caption(
+                ("☁ = on Drive, will be downloaded when discovery runs. " if _drive_t_names else "")
+                + "Discovery reads every transcript below — there's no per-file selection at this "
+                "stage. You'll get fine-grained per-file selection in Phase 1, after discovery."
+            )
+            st.markdown(
+                "".join(
+                    f"- {n}{' ☁' if n not in _local_names else ''}\n" for n in _all_t_names
+                )
+            )
+        else:
+            st.warning("No transcripts detected yet in `transcripts/` (local or Drive).")
+
+    # ── Step 2: Scope ────────────────────────────────────────────────────────────
     _init_scope_path = project_dir / "schema" / "scope_notes.txt"
     _init_existing_scope = _init_scope_path.read_text(encoding="utf-8") if _init_scope_path.exists() else ""
     _init_scope_key = f"{proj_id}_init_scope"
 
-    with st.expander("📝 Add scope / research objectives before discovery (recommended)", expanded=not _dg_name):
+    with st.expander("📝 2 · Add scope / research objectives before discovery (recommended)", expanded=not _dg_name):
         st.caption(
             "Tell the AI what to look for — research objectives, key topics, respondent segments. "
             "Without this and without source_docs, discovery reads transcripts cold and may miss "
             "study-specific nuance. Select sample transcripts below and auto-generate."
         )
-
-        # ── Transcript selection for scope generation ──────────────────────────
-        # Collect available transcripts: local first, then Drive
-        _t_dir_init = project_dir / "transcripts"
-        _t_dir_readable = (readable_project_dir / "transcripts") if readable_project_dir else _t_dir_init
-        _local_t_files = []
-        if _t_dir_init.exists():
-            _local_t_files = sorted(_t_dir_init.glob("*.md")) + sorted(_t_dir_init.glob("*.docx"))
-        if not _local_t_files and _t_dir_readable and _t_dir_readable.exists():
-            _local_t_files = sorted(_t_dir_readable.glob("*.md")) + sorted(_t_dir_readable.glob("*.docx"))
-
-        # Drive transcript list
-        _drive_t_names = []
-        try:
-            from infoleap.gdrive.client import DriveClient as _DC_scope
-            _dc_scope = _DC_scope()
-            if _dc_scope._svc:
-                _drive_t_meta = _dc_scope.list_qual_subfolder(proj_id, "transcripts")
-                _drive_t_names = [f["name"] for f in _drive_t_meta
-                                   if f["name"].lower().endswith((".docx", ".md"))]
-        except Exception:
-            pass
-
-        # Build display options: local files shown as filename, Drive-only ones marked with ☁
-        _local_names = {f.name for f in _local_t_files}
-        _all_t_names = list(_local_names) + [n for n in _drive_t_names if n not in _local_names]
-        _all_t_names = sorted(_all_t_names, key=lambda x: (
-            int(__import__("re").search(r"DI[_\s]*(\d+)", x, __import__("re").IGNORECASE).group(1))
-            if __import__("re").search(r"DI[_\s]*(\d+)", x, __import__("re").IGNORECASE) else 9999
-        ))
 
         _selected_t_names = st.multiselect(
             "Select transcripts for scope generation",
