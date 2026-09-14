@@ -2223,11 +2223,15 @@ Upload → switch to project → paste master_prompt.txt in the editor → extra
                             from infoleap.gdrive.client import DriveClient as _DC_install
                             _dc_install = _DC_install()
                             if _dc_install._svc:
-                                # Upload source_docs (md files preferred, docx fallback)
+                                # Upload source_docs — skip .docx if .md sibling exists (prefer converted)
                                 if _sd_dir_install.exists():
+                                    _sd_md_stems = {p.stem for p in _sd_dir_install.glob("*.md")}
                                     for _sdf in sorted(_sd_dir_install.iterdir()):
-                                        if _sdf.is_file():
-                                            _dc_install.upload_qual_subfolder_file(_proj_id_new, "source_docs", str(_sdf))
+                                        if not _sdf.is_file():
+                                            continue
+                                        if _sdf.suffix.lower() == ".docx" and _sdf.stem in _sd_md_stems:
+                                            continue  # skip original docx — md version already uploaded
+                                        _dc_install.upload_qual_subfolder_file(_proj_id_new, "source_docs", str(_sdf))
                                 # Upload transcripts
                                 _t_dir_install = _proj_dir / "transcripts"
                                 if _t_dir_install.exists():
@@ -2913,10 +2917,19 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
     prompt_out = schema_dir / "master_prompt.txt"
 
     # ── Source docs detection: local first, Drive fallback ────────────────────
-    _dg_matches = (list(source_docs_dir.glob("*DG*.docx")) + list(source_docs_dir.glob("*DG*.md"))
-                   ) if source_docs_dir.exists() else []
-    _prompt_matches = ([p for p in list(source_docs_dir.glob("*.docx")) + list(source_docs_dir.glob("*.md"))
-                         if "prompt" in p.name.lower()] if source_docs_dir.exists() else [])
+    # Prefer .md (converted) over .docx; dedup by stem so both versions don't both match
+    def _sd_detect_dg(d):
+        md = list(d.glob("*DG*.md"))
+        docx = [p for p in d.glob("*DG*.docx") if not (d / (p.stem + ".md")).exists()]
+        return md + docx
+
+    def _sd_detect_prompt(d):
+        md = [p for p in d.glob("*.md") if "prompt" in p.name.lower()]
+        docx = [p for p in d.glob("*.docx") if "prompt" in p.name.lower() and not (d / (p.stem + ".md")).exists()]
+        return md + docx
+
+    _dg_matches = _sd_detect_dg(source_docs_dir) if source_docs_dir.exists() else []
+    _prompt_matches = _sd_detect_prompt(source_docs_dir) if source_docs_dir.exists() else []
 
     # Drive fallback: download source_docs if not found locally
     _drive_sd_files = []
@@ -2928,16 +2941,20 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
                 _drive_sd_files = _dc_sd.list_qual_subfolder(proj_id, "source_docs")
                 _sd_tmp = project_dir / "source_docs"
                 _sd_tmp.mkdir(parents=True, exist_ok=True)
+                # Download .md files first, skip .docx if .md already exists for same stem
+                _md_names = {f["name"] for f in _drive_sd_files if f["name"].endswith(".md")}
                 for _dsdf in _drive_sd_files:
+                    _skip = _dsdf["name"].endswith(".docx") and (_dsdf["name"][:-5] + ".md") in _md_names
+                    if _skip:
+                        continue
                     _local_sd = _sd_tmp / _dsdf["name"]
                     if not _local_sd.exists():
                         _dc_sd.download_qual_subfolder_file(proj_id, "source_docs", _dsdf["name"], str(_local_sd))
                 # Re-detect after download
                 if not _dg_matches:
-                    _dg_matches = list(_sd_tmp.glob("*DG*.docx")) + list(_sd_tmp.glob("*DG*.md"))
+                    _dg_matches = _sd_detect_dg(_sd_tmp)
                 if not _prompt_matches:
-                    _prompt_matches = [p for p in list(_sd_tmp.glob("*.docx")) + list(_sd_tmp.glob("*.md"))
-                                       if "prompt" in p.name.lower()]
+                    _prompt_matches = _sd_detect_prompt(_sd_tmp)
         except Exception:
             pass
 
@@ -3236,10 +3253,18 @@ def _run_qual_extraction_pipeline_ui(proj_id: str, project_dir, readable_project
     prompt_out = schema_dir / "master_prompt.txt"
     index_path = project_dir / "transcripts" / "processed_index.json"
 
-    _dg_matches = (list(source_docs_dir.glob("*DG*.docx")) + list(source_docs_dir.glob("*DG*.md"))
-                   ) if source_docs_dir.exists() else []
-    _prompt_matches = ([p for p in list(source_docs_dir.glob("*.docx")) + list(source_docs_dir.glob("*.md"))
-                         if "prompt" in p.name.lower()] if source_docs_dir.exists() else [])
+    def _sd2_detect_dg(d):
+        md = list(d.glob("*DG*.md"))
+        docx = [p for p in d.glob("*DG*.docx") if not (d / (p.stem + ".md")).exists()]
+        return md + docx
+
+    def _sd2_detect_prompt(d):
+        md = [p for p in d.glob("*.md") if "prompt" in p.name.lower()]
+        docx = [p for p in d.glob("*.docx") if "prompt" in p.name.lower() and not (d / (p.stem + ".md")).exists()]
+        return md + docx
+
+    _dg_matches = _sd2_detect_dg(source_docs_dir) if source_docs_dir.exists() else []
+    _prompt_matches = _sd2_detect_prompt(source_docs_dir) if source_docs_dir.exists() else []
     _dg_name = _dg_matches[0].name if _dg_matches else None
     _prompt_name = _prompt_matches[0].name if _prompt_matches else None
 
