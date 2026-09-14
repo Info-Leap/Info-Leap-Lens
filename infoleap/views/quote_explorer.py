@@ -4828,58 +4828,181 @@ Be specific to THESE transcripts and this study — no generic research filler. 
                 "discovery starts locked again, so a human always reviews what changed before it "
                 "reaches every transcript."
             )
-        # ── Step 4: Run extraction (Step 1) ───────────────────────────────────────
-        _section("4 · Run extraction — Step 1", "Initial findings, free-form reasoning per transcript",
-                 accent=_P["teal"], icon="▶")
-        with st.container(border=True):
-            _extraction_model_options = _get_top_extraction_models(20)
-            _ex_col1, _ex_col2 = st.columns([1.3, 1.3])
-            with _ex_col2:
-                _extraction_model_label = st.selectbox(
-                    "Model (used for Step 1, Step 2, and Reconcile below)",
-                    options=list(_extraction_model_options.keys()),
-                    key=f"{proj_id}_es_extraction_model",
-                )
-            _extraction_model = _extraction_model_options.get(_extraction_model_label)
-            with _ex_col1:
-                if st.button("▶ Run Step 1 — initial findings",
-                             disabled=(not selected or not acknowledged or not _p3_review_applied),
-                             key=f"{proj_id}_es_run_step1", type="primary"):
-                    prog = st.progress(0.0)
-                    for i, fn in enumerate(selected):
-                        md_path = _resolve_md_path(fn)
-                        if not md_path or not md_path.exists():
-                            st.session_state[_s1_key][fn] = {"status": "error", "text": f"md not found: {md_path}"}
-                            prog.progress((i + 1) / len(selected))
-                            continue
-                        try:
-                            md_text = md_path.read_text(encoding="utf-8")
-                            _meta, body = _pex._parse_frontmatter(md_text)
-                            text = _pex.run_step1(step1_section, body, model=_extraction_model,
-                                                   project_id=proj_id,
-                                                   doc_id=_doc_id_for_project(proj, fn))
-                            st.session_state[_s1_key][fn] = {
-                                "status": "pending_review", "text": text, "edited": text,
-                                "meta": _meta, "body": body, "approved": True,
-                            }
-                        except Exception as e:
-                            st.session_state[_s1_key][fn] = {"status": "error", "text": str(e)}
-                        prog.progress((i + 1) / len(selected))
-                    st.rerun()
-                if not selected:
-                    st.caption("Select at least one file in Step 1 above to enable this.")
-                elif not acknowledged:
-                    st.caption("Acknowledge the brief/DG mismatches above to enable this.")
-                elif not _p3_review_applied:
-                    st.caption("Apply Step 2b — Review discovered fields (above) to enable this.")
 
-        # ── Step 5: Review & select ───────────────────────────────────────────────
-        reviewable = {fn: r for fn, r in st.session_state[_s1_key].items()
-                      if r.get("status") == "pending_review"}
-        if reviewable:
-            _section("5 · Review & select", f"{len(reviewable)} transcript(s) awaiting review",
-                     accent=_P["purple"], icon="📝")
-            with st.container(border=True):
+        # ── Shared model picker — used by every action in this phase (extract all,
+        # manual per-file review, reconcile). One picker, not three copies of it.
+        _extraction_model_options = _get_top_extraction_models(20)
+        _extraction_model_label = st.selectbox(
+            "Model (used for extraction, manual review, and reconcile below)",
+            options=list(_extraction_model_options.keys()),
+            key=f"{proj_id}_es_extraction_model",
+        )
+        _extraction_model = _extraction_model_options.get(_extraction_model_label)
+
+        # ── 4 · Extract all interviews (PRIMARY ACTION) ────────────────────────────
+        # This is the normal path: settle the schema in Phase 2, then run this once.
+        # It runs the complete pipeline — Step 1, Step 2, type coercion, normalisation,
+        # verbatim-fidelity gate, reflection-retry — on EVERY transcript in the project,
+        # no per-file review pause (that checkpoint already happened, on the sample,
+        # during schema design). Ignores the file-selection checkboxes on purpose —
+        # this is "process everything," not "process what's currently checked."
+        _section("4 · Extract all interviews",
+                 f"Runs Step 1 + Step 2 + gate + retry on every one of the {len(index)} transcripts "
+                 f"and stores the result — no per-file review",
+                 accent=_P["red"], icon="⚡")
+        with st.container(border=True):
+            st.caption(
+                "Use this once the schema is settled (Phase 2 above). This runs the full pipeline "
+                "on every transcript in the project — Step 1 → Step 2 → type coercion → gate → one "
+                "reflection-retry if needed — and writes straight to matrices/. Already-extracted "
+                "files are re-run too, so every respondent ends up on the current schema and master "
+                "prompt, not a mix of old and new."
+            )
+            if not _p3_review_applied:
+                st.caption("🔒 Apply Step 2b — Review discovered fields (above) to enable this — "
+                           "this button runs every kept field/value against every transcript in the "
+                           "project, so it must be a reviewed set, not whatever discovery last proposed.")
+            _p3_last_run_key = f"{proj_id}_es_last_run_results"
+            _p3_last_run = st.session_state.get(_p3_last_run_key)
+            if _p3_last_run:
+                st.success(f"Done — {_p3_last_run['n_ok']}/{_p3_last_run['n_total']} processed successfully.")
+                for fn, status in _p3_last_run["results"]:
+                    (st.warning if "needs review" in status else
+                     st.success if status == "OK" else st.error)(f"{fn}: {status}")
+                if st.button("Dismiss", key=f"{proj_id}_es_dismiss_run"):
+                    st.session_state.pop(_p3_last_run_key, None)
+                    st.rerun()
+            if st.button(f"⚡ Run full pipeline on all {len(index)} interviews",
+                         disabled=(not _p3_review_applied),
+                         key=f"{proj_id}_es_run_all", type="primary"):
+                matrices_dir.mkdir(parents=True, exist_ok=True)
+                _all_files = sorted(index.keys())
+                _prog = st.progress(0.0)
+                _status_area = st.empty()
+                _results = []
+                for i, fn in enumerate(_all_files):
+                    md_path = _resolve_md_path(fn)
+                    doc_id = _doc_id_for_project(proj, fn)
+                    _status_area.caption(f"Processing {doc_id} ({i+1}/{len(_all_files)})…")
+                    if not md_path or not md_path.exists():
+                        _results.append((fn, f"ERROR: md not found: {md_path}"))
+                        _prog.progress((i + 1) / len(_all_files))
+                        continue
+                    try:
+                        md_text = md_path.read_text(encoding="utf-8")
+                        _meta, body = _pex._parse_frontmatter(md_text)
+                        step1_text = _pex.run_step1(step1_section, body, model=_extraction_model,
+                                                     project_id=proj_id, doc_id=doc_id)
+                        respondent_hint = {
+                            "doc_id": doc_id, "filename": fn,
+                            "word_count": len(body.split()),
+                            "respondent": {
+                                "city": _meta.get("city"), "segment": _meta.get("segment"),
+                                "gender": _meta.get("gender"), "age_band": None, "occupation": None,
+                            },
+                        }
+                        step2_text = _pex.run_step2(step2_section, step1_text, respondent_hint,
+                                                     model=_extraction_model, project_id=proj_id,
+                                                     doc_id=doc_id)
+                        parsed = _pex._extract_json(step2_text)
+                        if parsed is None:
+                            _results.append((fn, "PARSE_ERROR"))
+                            _prog.progress((i + 1) / len(_all_files))
+                            continue
+                        parsed.setdefault("doc_id", doc_id)
+                        parsed.setdefault("filename", fn)
+                        parsed.setdefault("word_count", respondent_hint["word_count"])
+                        if "respondent" not in parsed:
+                            parsed["respondent"] = respondent_hint["respondent"]
+                        parsed = _pex._coerce_field_types(parsed, schema)
+                        parsed = _pex._normalise_matrix(parsed, schema)
+                        parsed = _pex.gate_matrix(parsed, schema, body)
+                        parsed = _pex.run_reflection_retry(parsed, schema, body, model=_extraction_model,
+                                                             project_id=proj_id, doc_id=doc_id)
+                        parsed["_step1_text"] = step1_text
+                        parsed["_extracted_at"] = datetime.now().isoformat()
+                        parsed["_schema_fields_at_extraction"] = sorted(
+                            schema.get("layer2", {}).get("fields", {}).keys())
+                        (matrices_dir / f"{doc_id}_matrix.json").write_text(
+                            json.dumps(parsed, indent=2, ensure_ascii=False), encoding="utf-8")
+                        q_label = parsed.get("_quality_label", "n/a")
+                        status = "OK" if not parsed.get("_needs_review") else f"OK — needs review ({q_label})"
+                        _results.append((fn, status))
+                    except Exception as e:
+                        _results.append((fn, f"ERROR: {e}"))
+                    _prog.progress((i + 1) / len(_all_files))
+                _status_area.empty()
+                n_ok = sum(1 for _, s in _results if s.startswith("OK"))
+                # Sync all matrices to Drive — prevents data loss on Streamlit Cloud
+                # instance restart (ephemeral filesystem).
+                try:
+                    from infoleap.gdrive.client import DriveClient as _DC7
+                    _dc7 = _DC7()
+                    if _dc7._svc is not None and matrices_dir.exists():
+                        with st.status("Syncing matrices to Drive…", expanded=False) as _dst7:
+                            if _dc7.upload_qual_matrices(proj_id, str(matrices_dir)):
+                                _dst7.update(label="☁️ Matrices synced to Drive", state="complete")
+                            else:
+                                _dst7.update(label="Drive sync skipped", state="complete")
+                except Exception:
+                    pass
+                # Store results in session_state and force a fresh top-to-bottom rerun so
+                # the PHASE 3 header badge / "MATRICES n/n" counter reflects the files just
+                # written instead of showing stale counts from before this run.
+                st.session_state[_p3_last_run_key] = {
+                    "n_ok": n_ok, "n_total": len(_results), "results": _results,
+                }
+                st.cache_data.clear()
+                st.rerun()
+
+        # ── Advanced: manual per-file review ────────────────────────────────────────
+        # Only needed if you want to hand-edit individual transcripts' Step 1 findings
+        # before they're written to matrices/. The normal flow is "4 · Extract all
+        # interviews" above — this is for hand-curation, not required for every project.
+        with st.expander(
+            "🛠️ Advanced — manual per-file review (redo Step 1 → Step 2 by hand, with a review "
+            "pause before writing)", expanded=False,
+        ):
+            st.caption(
+                "Run Step 1 on selected file(s) only, edit the findings text, approve, then finalize "
+                "(Step 2 + write matrices) for just those files. Use this to fix or re-review a "
+                "handful of respondents without re-running the whole project."
+            )
+            if st.button("▶ Run Step 1 — initial findings",
+                         disabled=(not selected or not acknowledged or not _p3_review_applied),
+                         key=f"{proj_id}_es_run_step1", type="secondary"):
+                prog = st.progress(0.0)
+                for i, fn in enumerate(selected):
+                    md_path = _resolve_md_path(fn)
+                    if not md_path or not md_path.exists():
+                        st.session_state[_s1_key][fn] = {"status": "error", "text": f"md not found: {md_path}"}
+                        prog.progress((i + 1) / len(selected))
+                        continue
+                    try:
+                        md_text = md_path.read_text(encoding="utf-8")
+                        _meta, body = _pex._parse_frontmatter(md_text)
+                        text = _pex.run_step1(step1_section, body, model=_extraction_model,
+                                               project_id=proj_id,
+                                               doc_id=_doc_id_for_project(proj, fn))
+                        st.session_state[_s1_key][fn] = {
+                            "status": "pending_review", "text": text, "edited": text,
+                            "meta": _meta, "body": body, "approved": True,
+                        }
+                    except Exception as e:
+                        st.session_state[_s1_key][fn] = {"status": "error", "text": str(e)}
+                    prog.progress((i + 1) / len(selected))
+                st.rerun()
+            if not selected:
+                st.caption("Select at least one file in Step 1 above to enable this.")
+            elif not acknowledged:
+                st.caption("Acknowledge the brief/DG mismatches above to enable this.")
+            elif not _p3_review_applied:
+                st.caption("Apply Step 2b — Review discovered fields (above) to enable this.")
+
+            reviewable = {fn: r for fn, r in st.session_state[_s1_key].items()
+                          if r.get("status") == "pending_review"}
+            if reviewable:
+                st.markdown(f"**Review & select** — {len(reviewable)} transcript(s) awaiting review")
                 for fn, r in reviewable.items():
                     doc_id = _doc_id_for_project(proj, fn)
                     _text = r.get("edited", r.get("text", ""))
@@ -4990,127 +5113,33 @@ Be specific to THESE transcripts and this study — no generic research filler. 
                         pass
                     st.cache_data.clear()
 
-        # ── Step 6: Reconcile ──────────────────────────────────────────────────────
-        _section("6 · Reconcile", "Optional — merges near-duplicate category values across matrices",
-                 accent=_P["green"], icon="🔄")
-        with st.container(border=True):
-            st.caption("Clusters near-duplicate category values used across this project's matrices "
-                        "(e.g. re-running discovery producing slightly different archetype names for the "
-                        "same thing) into one canonical label — logged, never silent.")
-            if st.button("🔄 Reconcile project", key=f"{proj_id}_es_reconcile"):
-                with st.spinner("Reconciling…"):
-                    report = _pex.reconcile_project(proj_id, model=_extraction_model)
-                if report.get("merged_fields"):
-                    st.success(f"Merged {len(report['merged_fields'])} field(s):")
-                    st.json(report["merged_fields"])
-                else:
-                    st.info("No fragmentation found — nothing to merge.")
-                st.cache_data.clear()
+        # ── Advanced: Reconcile categories ──────────────────────────────────────────
+        # Only useful after schema discovery has been re-run more than once, or when
+        # extraction used freeform (non-enum) category fields that drifted across
+        # respondents (e.g. "liquidity" vs "Liquidity (short-term)"). A single clean
+        # discovery + extraction run has nothing to reconcile — hidden until matrices exist.
+        if _p3_done > 0:
+            with st.expander(
+                "🔄 Advanced — Reconcile categories (optional, run after extraction)", expanded=False,
+            ):
+                st.caption(
+                    "Clusters near-duplicate category values used across this project's matrices "
+                    "(e.g. re-running discovery producing slightly different archetype names for the "
+                    "same thing) into one canonical label — logged, never silent. Only needed if you "
+                    "re-ran schema discovery more than once, or category values look fragmented on "
+                    "the dashboard."
+                )
+                if st.button("🔄 Reconcile project", key=f"{proj_id}_es_reconcile"):
+                    with st.spinner("Reconciling…"):
+                        report = _pex.reconcile_project(proj_id, model=_extraction_model)
+                    if report.get("merged_fields"):
+                        st.success(f"Merged {len(report['merged_fields'])} field(s):")
+                        st.json(report["merged_fields"])
+                    else:
+                        st.info("No fragmentation found — nothing to merge.")
+                    st.cache_data.clear()
 
-        # ── Step 7: Process all interviews ──────────────────────────────────────────
-        # The steps above (Discover, Review fields, Reconcile) work on a small sample to settle the
-        # schema. Once it's settled, this runs the complete pipeline — Step 1, Step 2, type coercion,
-        # normalisation, verbatim-fidelity gate, reflection-retry — on EVERY transcript in the
-        # project in one click, no per-file review pause (that checkpoint already happened, on the
-        # sample, during schema design). Ignores the Step 1 checkbox selection on purpose — this is
-        # "process everything," not "process what's currently checked."
-        _section("7 · Process all interviews",
-                 f"Runs Step 1 + Step 2 + gate + retry on every one of the {len(index)} transcripts "
-                 f"and stores the result — no per-file review",
-                 accent=_P["red"], icon="⚡")
-        with st.container(border=True):
-            st.caption(
-                "Use this once Discover/Review fields/Reconcile above have settled the schema on a "
-                "sample. This runs the full pipeline on every transcript in the project — Step 1 → "
-                "Step 2 → type coercion → gate → one reflection-retry if needed — and writes "
-                "straight to matrices/. Already-extracted files are re-run too, so every respondent "
-                "ends up on the current schema and master prompt, not a mix of old and new."
-            )
-            if not _p3_review_applied:
-                st.caption("🔒 Apply Step 2b — Review discovered fields (above) to enable this — "
-                           "this button runs every kept field/value against every transcript in the "
-                           "project, so it must be a reviewed set, not whatever discovery last proposed.")
-            if st.button(f"⚡ Run full pipeline on all {len(index)} interviews",
-                         disabled=(not _p3_review_applied),
-                         key=f"{proj_id}_es_run_all", type="primary"):
-                matrices_dir.mkdir(parents=True, exist_ok=True)
-                _all_files = sorted(index.keys())
-                _prog = st.progress(0.0)
-                _status_area = st.empty()
-                _results = []
-                for i, fn in enumerate(_all_files):
-                    md_path = _resolve_md_path(fn)
-                    doc_id = _doc_id_for_project(proj, fn)
-                    _status_area.caption(f"Processing {doc_id} ({i+1}/{len(_all_files)})…")
-                    if not md_path or not md_path.exists():
-                        _results.append((fn, f"ERROR: md not found: {md_path}"))
-                        _prog.progress((i + 1) / len(_all_files))
-                        continue
-                    try:
-                        md_text = md_path.read_text(encoding="utf-8")
-                        _meta, body = _pex._parse_frontmatter(md_text)
-                        step1_text = _pex.run_step1(step1_section, body, model=_extraction_model,
-                                                     project_id=proj_id, doc_id=doc_id)
-                        respondent_hint = {
-                            "doc_id": doc_id, "filename": fn,
-                            "word_count": len(body.split()),
-                            "respondent": {
-                                "city": _meta.get("city"), "segment": _meta.get("segment"),
-                                "gender": _meta.get("gender"), "age_band": None, "occupation": None,
-                            },
-                        }
-                        step2_text = _pex.run_step2(step2_section, step1_text, respondent_hint,
-                                                     model=_extraction_model, project_id=proj_id,
-                                                     doc_id=doc_id)
-                        parsed = _pex._extract_json(step2_text)
-                        if parsed is None:
-                            _results.append((fn, "PARSE_ERROR"))
-                            _prog.progress((i + 1) / len(_all_files))
-                            continue
-                        parsed.setdefault("doc_id", doc_id)
-                        parsed.setdefault("filename", fn)
-                        parsed.setdefault("word_count", respondent_hint["word_count"])
-                        if "respondent" not in parsed:
-                            parsed["respondent"] = respondent_hint["respondent"]
-                        parsed = _pex._coerce_field_types(parsed, schema)
-                        parsed = _pex._normalise_matrix(parsed, schema)
-                        parsed = _pex.gate_matrix(parsed, schema, body)
-                        parsed = _pex.run_reflection_retry(parsed, schema, body, model=_extraction_model,
-                                                             project_id=proj_id, doc_id=doc_id)
-                        parsed["_step1_text"] = step1_text
-                        parsed["_extracted_at"] = datetime.now().isoformat()
-                        parsed["_schema_fields_at_extraction"] = sorted(
-                            schema.get("layer2", {}).get("fields", {}).keys())
-                        (matrices_dir / f"{doc_id}_matrix.json").write_text(
-                            json.dumps(parsed, indent=2, ensure_ascii=False), encoding="utf-8")
-                        q_label = parsed.get("_quality_label", "n/a")
-                        status = "OK" if not parsed.get("_needs_review") else f"OK — needs review ({q_label})"
-                        _results.append((fn, status))
-                    except Exception as e:
-                        _results.append((fn, f"ERROR: {e}"))
-                    _prog.progress((i + 1) / len(_all_files))
-                _status_area.empty()
-                n_ok = sum(1 for _, s in _results if s.startswith("OK"))
-                st.success(f"Done — {n_ok}/{len(_results)} processed successfully.")
-                for fn, status in _results:
-                    (st.warning if "needs review" in status else
-                     st.success if status == "OK" else st.error)(f"{fn}: {status}")
-                # Sync all matrices to Drive — prevents data loss on Streamlit Cloud
-                # instance restart (ephemeral filesystem).
-                try:
-                    from infoleap.gdrive.client import DriveClient as _DC7
-                    _dc7 = _DC7()
-                    if _dc7._svc is not None and matrices_dir.exists():
-                        with st.status("Syncing matrices to Drive…", expanded=False) as _dst7:
-                            if _dc7.upload_qual_matrices(proj_id, str(matrices_dir)):
-                                _dst7.update(label="☁️ Matrices synced to Drive", state="complete")
-                            else:
-                                _dst7.update(label="Drive sync skipped", state="complete")
-                except Exception:
-                    pass
-                st.cache_data.clear()
-
-        # ── Step 8: Unmatched categories ────────────────────────────────────────────
+        # ── Step 5: Unmatched categories ────────────────────────────────────────────
         # Per-interview signal that a real answer didn't fit any value the schema currently declares
         # (the model was told to write "NEW: <label>" instead of force-fitting it — see master_prompt's
         # ENUM CONSTRAINTS). This is the "pipeline should tell me when a new category is needed" gap.
@@ -5127,7 +5156,7 @@ Be specific to THESE transcripts and this study — no generic research filler. 
                         {"doc_id": mdata.get("doc_id", mf.stem), "value": u.get("proposed_value", "")})
 
         if _unmatched_agg:
-            _section("8 · Unmatched categories", "Real answers that didn't fit any current schema value",
+            _section("5 · Unmatched categories", "Real answers that didn't fit any current schema value",
                      accent=_P["amber"], icon="⚠")
             with st.container(border=True):
                 st.caption("These respondents said something for a field that doesn't match any value "
