@@ -3955,10 +3955,35 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     if matches:
                         _brief_path = matches[0]
                         break
+            # Drive fallback: download source_docs if brief not found locally
+            if not _brief_path and project_dir:
+                try:
+                    from infoleap.gdrive.client import DriveClient as _DC_brief
+                    _dc_brief = _DC_brief()
+                    if _dc_brief._svc:
+                        _sd_drive = _dc_brief.list_qual_subfolder(proj_id, "source_docs")
+                        _sd_tmp2 = project_dir / "source_docs"
+                        _sd_tmp2.mkdir(parents=True, exist_ok=True)
+                        _md_names2 = {f["name"] for f in _sd_drive if f["name"].endswith(".md")}
+                        for _dsdf2 in _sd_drive:
+                            if _dsdf2["name"].endswith(".docx") and (_dsdf2["name"][:-5] + ".md") in _md_names2:
+                                continue
+                            _local2 = _sd_tmp2 / _dsdf2["name"]
+                            if not _local2.exists():
+                                _dc_brief.download_qual_subfolder_file(proj_id, "source_docs", _dsdf2["name"], str(_local2))
+                        for pattern in ["AI_Prompt*.md", "*prompt*.md", "AI_Prompt*.docx", "*prompt*.docx"]:
+                            matches = list(_sd_tmp2.glob(pattern))
+                            if matches:
+                                _brief_path = matches[0]
+                                break
+                        if not source_docs_dir or not source_docs_dir.exists():
+                            source_docs_dir = _sd_tmp2
+                except Exception:
+                    pass
             if _brief_path:
                 with st.expander(f"📄 View InfoLeap's actual brief — {_brief_path.name}", expanded=False):
                     from infoleap.skills import schema_generator as _sg
-                    _brief_text = _sg._read_docx(_brief_path)
+                    _brief_text = _brief_path.read_text(encoding="utf-8") if _brief_path.suffix.lower() == ".md" else _sg._read_docx(_brief_path)
                     st.text_area("brief_text", value=_brief_text, height=300,
                                   key=f"{proj_id}_es_brief_view", label_visibility="collapsed", disabled=True)
                     st.caption("Read-only — this is the source document, not editable here. Use the box "
@@ -4014,10 +4039,11 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     from infoleap.skills.llm_client import call_llm_safe
                     _dg_text_for_draft = ""
                     if source_docs_dir:
-                        for pattern in ["DG_*.docx", "dg_*.docx", "*DG*.docx", "*discussion*guide*.docx"]:
+                        for pattern in ["DG_*.md", "dg_*.md", "*DG*.md", "*discussion*guide*.md",
+                                        "DG_*.docx", "dg_*.docx", "*DG*.docx", "*discussion*guide*.docx"]:
                             _m = list(source_docs_dir.glob(pattern))
                             if _m:
-                                _dg_text_for_draft = _sg._read_docx(_m[0])
+                                _dg_text_for_draft = _m[0].read_text(encoding="utf-8") if _m[0].suffix.lower() == ".md" else _sg._read_docx(_m[0])
                                 break
                     _draft_prompt = f"""You are a senior qualitative research methodologist writing a STRICT
     EXTRACTION DIRECTIVE for a junior AI analyst that is about to read real transcripts and fill a structured
@@ -4091,7 +4117,8 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                             _ts_texts.append(_md_p.read_text(encoding="utf-8")[:6000])
                     _ts_brief_snippet = ""
                     if _brief_path:
-                        _ts_brief_snippet = f"\n\nRESEARCH BRIEF (source document):\n{_sg._read_docx(_brief_path)[:3000]}"
+                        _brief_raw = _brief_path.read_text(encoding="utf-8") if _brief_path.suffix.lower() == ".md" else _sg._read_docx(_brief_path)
+                        _ts_brief_snippet = f"\n\nRESEARCH BRIEF (source document):\n{_brief_raw[:3000]}"
                     _ts_prompt = f"""You are a senior qualitative research methodologist. Read the sample transcripts below and produce a STRUCTURED EXTRACTION DIRECTIVE that will guide an AI analyst coding ALL transcripts from this study.
 
 STUDY CONTEXT: {_ts_context.strip() if _ts_context.strip() else 'Not provided — infer from the transcripts.'}{_ts_brief_snippet}
