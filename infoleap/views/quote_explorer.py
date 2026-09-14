@@ -3212,6 +3212,9 @@ Be specific to THESE transcripts and the analysis brief. Bold (**) field names."
         st.cache_data.clear()
         if _ok:
             st.success("Schema discovery done — reloading to review discovered fields…")
+            # Keep Extraction Studio open after rerun (study_type may have changed,
+            # causing a different branch with a different toggle key — force it open).
+            st.session_state[f"_es_toggle_open_{proj_id}"] = True
             st.rerun()
         else:
             st.error("Discovery finished with errors — see details above.")
@@ -5171,7 +5174,7 @@ if _study_type == "concept_testing":
 
     _render_pipeline_sync_banner(_active_project)
 
-    if st.toggle("🔬 Extraction Studio — redo extraction with review", key="_es_toggle_open"):
+    if st.toggle("🔬 Extraction Studio — redo extraction with review", key=f"_es_toggle_open_{_active_project}"):
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
         _render_extraction_studio(_active_project, _ct_proj)
         st.divider()
