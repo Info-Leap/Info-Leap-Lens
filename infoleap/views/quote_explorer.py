@@ -2207,6 +2207,36 @@ Upload → switch to project → paste master_prompt.txt in the editor → extra
                             with _zf.open(_zi) as _src, open(_dest, "wb") as _dst:
                                 _dst.write(_src.read())
 
+                        # Convert source_docs/*.docx → .md and upload source_docs + transcripts to Drive
+                        _sd_dir_install = _proj_dir / "source_docs"
+                        if _sd_dir_install.exists():
+                            for _sd_docx in list(_sd_dir_install.glob("*.docx")):
+                                try:
+                                    from docx import Document as _DocxDoc
+                                    _doc_obj = _DocxDoc(str(_sd_docx))
+                                    _lines_md = [p.text.strip() for p in _doc_obj.paragraphs if p.text.strip()]
+                                    _md_out_path = _sd_docx.with_suffix(".md")
+                                    _md_out_path.write_text("\n\n".join(_lines_md), encoding="utf-8")
+                                except Exception:
+                                    pass
+                        try:
+                            from infoleap.gdrive.client import DriveClient as _DC_install
+                            _dc_install = _DC_install()
+                            if _dc_install._svc:
+                                # Upload source_docs (md files preferred, docx fallback)
+                                if _sd_dir_install.exists():
+                                    for _sdf in sorted(_sd_dir_install.iterdir()):
+                                        if _sdf.is_file():
+                                            _dc_install.upload_qual_subfolder_file(_proj_id_new, "source_docs", str(_sdf))
+                                # Upload transcripts
+                                _t_dir_install = _proj_dir / "transcripts"
+                                if _t_dir_install.exists():
+                                    for _tf_install in sorted(_t_dir_install.iterdir()):
+                                        if _tf_install.is_file() and _tf_install.suffix.lower() in (".docx", ".md"):
+                                            _dc_install.upload_qual_subfolder_file(_proj_id_new, "transcripts", str(_tf_install))
+                        except Exception:
+                            pass
+
                         # Auto-create project.json if missing
                         _pj = _proj_dir / "project.json"
                         if not _pj.exists():
@@ -2882,10 +2912,35 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
     schema_out = schema_dir / "extraction_schema.json"
     prompt_out = schema_dir / "master_prompt.txt"
 
+    # ── Source docs detection: local first, Drive fallback ────────────────────
     _dg_matches = (list(source_docs_dir.glob("*DG*.docx")) + list(source_docs_dir.glob("*DG*.md"))
                    ) if source_docs_dir.exists() else []
     _prompt_matches = ([p for p in list(source_docs_dir.glob("*.docx")) + list(source_docs_dir.glob("*.md"))
                          if "prompt" in p.name.lower()] if source_docs_dir.exists() else [])
+
+    # Drive fallback: download source_docs if not found locally
+    _drive_sd_files = []
+    if not _dg_matches or not _prompt_matches:
+        try:
+            from infoleap.gdrive.client import DriveClient as _DC_sd
+            _dc_sd = _DC_sd()
+            if _dc_sd._svc:
+                _drive_sd_files = _dc_sd.list_qual_subfolder(proj_id, "source_docs")
+                _sd_tmp = project_dir / "source_docs"
+                _sd_tmp.mkdir(parents=True, exist_ok=True)
+                for _dsdf in _drive_sd_files:
+                    _local_sd = _sd_tmp / _dsdf["name"]
+                    if not _local_sd.exists():
+                        _dc_sd.download_qual_subfolder_file(proj_id, "source_docs", _dsdf["name"], str(_local_sd))
+                # Re-detect after download
+                if not _dg_matches:
+                    _dg_matches = list(_sd_tmp.glob("*DG*.docx")) + list(_sd_tmp.glob("*DG*.md"))
+                if not _prompt_matches:
+                    _prompt_matches = [p for p in list(_sd_tmp.glob("*.docx")) + list(_sd_tmp.glob("*.md"))
+                                       if "prompt" in p.name.lower()]
+        except Exception:
+            pass
+
     _dg_name = _dg_matches[0].name if _dg_matches else None
     _prompt_name = _prompt_matches[0].name if _prompt_matches else None
 
@@ -2898,7 +2953,7 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
         "AI analysis prompt: not found in `source_docs/` — schema will be grounded on transcripts only."
     )
 
-    # Scope input — collected here so it can guide the very first discovery run
+    # ── Scope input ────────────────────────────────────────────────────────────
     _init_scope_path = project_dir / "schema" / "scope_notes.txt"
     _init_existing_scope = _init_scope_path.read_text(encoding="utf-8") if _init_scope_path.exists() else ""
     _init_scope_key = f"{proj_id}_init_scope"
@@ -2907,40 +2962,54 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
         st.caption(
             "Tell the AI what to look for — research objectives, key topics, respondent segments. "
             "Without this and without source_docs, discovery reads transcripts cold and may miss "
-            "study-specific nuance. You can also auto-generate from 3 sample transcripts below."
+            "study-specific nuance. Select sample transcripts below and auto-generate."
         )
 
-        # Auto-generate from transcripts
+        # ── Transcript selection for scope generation ──────────────────────────
+        # Collect available transcripts: local first, then Drive
         _t_dir_init = project_dir / "transcripts"
-        # Also check readable_project_dir (git-mount) when project_dir = /tmp/
         _t_dir_readable = (readable_project_dir / "transcripts") if readable_project_dir else _t_dir_init
-        _init_md_files = (sorted(_t_dir_init.glob("*.md")) + sorted(_t_dir_readable.glob("*.md")))[:3] if _t_dir_init.exists() or (_t_dir_readable and _t_dir_readable.exists()) else []
-        _init_docx_files = (sorted(_t_dir_init.glob("*.docx")) + sorted(_t_dir_readable.glob("*.docx")))[:3] if not _init_md_files and (_t_dir_init.exists() or (_t_dir_readable and _t_dir_readable.exists())) else []
-        _init_sample_files = _init_md_files or _init_docx_files
-        # If still no local transcripts, download 3 samples from Drive for scope generation
-        if not _init_sample_files:
-            try:
-                from infoleap.gdrive.client import DriveClient as _DC_scope
-                _dc_scope = _DC_scope()
-                _drive_scope_files = _dc_scope.list_project_files(proj_id, kind="qual") if _dc_scope._svc else []
-                _scope_t_files = [f for f in _drive_scope_files if f["name"].startswith("transcripts/") and f["name"].endswith(".docx")][:3]
-                if _scope_t_files:
-                    _t_dir_init.mkdir(parents=True, exist_ok=True)
-                    for _stf in _scope_t_files:
-                        _stfname = _stf["name"].split("/", 1)[-1]
-                        _dest_stf = _t_dir_init / _stfname
-                        if not _dest_stf.exists():
-                            _dc_scope.download_qual_file(proj_id, _stf["name"], str(_dest_stf))
-                    _init_docx_files = sorted(_t_dir_init.glob("*.docx"))[:3]
-                    _init_sample_files = _init_docx_files
-            except Exception:
-                pass
+        _local_t_files = []
+        if _t_dir_init.exists():
+            _local_t_files = sorted(_t_dir_init.glob("*.md")) + sorted(_t_dir_init.glob("*.docx"))
+        if not _local_t_files and _t_dir_readable and _t_dir_readable.exists():
+            _local_t_files = sorted(_t_dir_readable.glob("*.md")) + sorted(_t_dir_readable.glob("*.docx"))
+
+        # Drive transcript list
+        _drive_t_names = []
+        try:
+            from infoleap.gdrive.client import DriveClient as _DC_scope
+            _dc_scope = _DC_scope()
+            if _dc_scope._svc:
+                _drive_t_meta = _dc_scope.list_qual_subfolder(proj_id, "transcripts")
+                _drive_t_names = [f["name"] for f in _drive_t_meta
+                                   if f["name"].lower().endswith((".docx", ".md"))]
+        except Exception:
+            pass
+
+        # Build display options: local files shown as filename, Drive-only ones marked with ☁
+        _local_names = {f.name for f in _local_t_files}
+        _all_t_names = list(_local_names) + [n for n in _drive_t_names if n not in _local_names]
+        _all_t_names = sorted(_all_t_names, key=lambda x: (
+            int(__import__("re").search(r"DI[_\s]*(\d+)", x, __import__("re").IGNORECASE).group(1))
+            if __import__("re").search(r"DI[_\s]*(\d+)", x, __import__("re").IGNORECASE) else 9999
+        ))
+
+        _selected_t_names = st.multiselect(
+            "Select transcripts for scope generation",
+            options=_all_t_names,
+            default=_all_t_names[:3] if _all_t_names else [],
+            key=f"{proj_id}_scope_t_select",
+            format_func=lambda n: n + (" ☁" if n not in _local_names else ""),
+            help="☁ = will be downloaded from Drive. Pick 3-5 representative transcripts.",
+        )
+
         _gen_col1, _gen_col2 = st.columns([2, 3])
         with _gen_col1:
             _gen_clicked = st.button(
-                "🔍 Generate scope from sample transcripts",
+                "🔍 Generate scope from selected transcripts",
                 key=f"{proj_id}_init_gen_scope",
-                disabled=not _init_sample_files,
+                disabled=not _selected_t_names,
             )
         with _gen_col2:
             _gen_context = st.text_input(
@@ -2949,29 +3018,46 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
                 placeholder="e.g. Concept test for CoinDCX digital gold, 3 investor segments",
                 label_visibility="collapsed",
             )
-        if _gen_clicked and _init_sample_files:
-            with st.spinner(f"Reading {len(_init_sample_files)} transcript(s)…"):
-                from infoleap.skills.llm_client import call_llm_safe
-                from infoleap.skills import schema_generator as _sg_scope
-                def _read_sample(p):
-                    if p.suffix.lower() == ".docx":
-                        try: return _sg_scope._read_docx(p)[:5000]
-                        except Exception: return ""
-                    return p.read_text(encoding="utf-8")[:5000]
-                _ts_texts = [_read_sample(f) for f in _init_sample_files]
-                # Include AI analysis prompt from source_docs if available
-                _ai_prompt_text = ""
-                if _prompt_matches:
-                    try:
-                        _ai_prompt_text = _read_sample(_prompt_matches[0])[:3000]
-                    except Exception:
-                        _ai_prompt_text = ""
-                _ai_prompt_section = f"\nAI ANALYSIS BRIEF (from {_prompt_matches[0].name}):\n{_ai_prompt_text}\n" if _ai_prompt_text else ""
-                _gen_prompt = f"""You are a senior qualitative researcher. Read the AI analysis brief and sample transcripts, then write a STRUCTURED EXTRACTION DIRECTIVE guiding an AI analyst coding all transcripts from this study.
+
+        if _gen_clicked and _selected_t_names:
+            with st.spinner(f"Preparing {len(_selected_t_names)} transcript(s)…"):
+                # Download any Drive-only transcripts to project_dir/transcripts/
+                _t_dir_init.mkdir(parents=True, exist_ok=True)
+                _init_sample_files = []
+                for _tn in _selected_t_names:
+                    _local_p = _t_dir_init / _tn
+                    if _local_p.exists():
+                        _init_sample_files.append(_local_p)
+                    elif _drive_t_names and _tn in _drive_t_names:
+                        try:
+                            _dc_scope.download_qual_subfolder_file(proj_id, "transcripts", _tn, str(_local_p))
+                            if _local_p.exists():
+                                _init_sample_files.append(_local_p)
+                        except Exception:
+                            pass
+
+            if _init_sample_files:
+                with st.spinner(f"Reading {len(_init_sample_files)} transcript(s) + generating scope…"):
+                    from infoleap.skills.llm_client import call_llm_safe
+                    from infoleap.skills import schema_generator as _sg_scope
+                    def _read_sample(p):
+                        if p.suffix.lower() == ".docx":
+                            try: return _sg_scope._read_docx(p)[:5000]
+                            except Exception: return ""
+                        return p.read_text(encoding="utf-8")[:5000]
+                    _ts_texts = [_read_sample(f) for f in _init_sample_files]
+                    _ai_prompt_text = ""
+                    if _prompt_matches:
+                        try:
+                            _ai_prompt_text = _read_sample(_prompt_matches[0])[:3000]
+                        except Exception:
+                            _ai_prompt_text = ""
+                    _ai_prompt_section = f"\nAI ANALYSIS BRIEF (from {_prompt_matches[0].name}):\n{_ai_prompt_text}\n" if _ai_prompt_text else ""
+                    _gen_prompt = f"""You are a senior qualitative researcher. Read the AI analysis brief and sample transcripts, then write a STRUCTURED EXTRACTION DIRECTIVE guiding an AI analyst coding all transcripts from this study.
 
 STUDY CONTEXT: {_gen_context.strip() if _gen_context.strip() else 'Infer from transcripts and brief.'}{_ai_prompt_section}
 SAMPLE TRANSCRIPTS:
-{"".join(f"--- TRANSCRIPT {i+1} ---\n{t}\n\n" for i, t in enumerate(_ts_texts))}
+{"".join(f"--- TRANSCRIPT {i+1} ({_init_sample_files[i].name}) ---\n{t}\n\n" for i, t in enumerate(_ts_texts))}
 
 Output structured guidance with these sections (markdown headers ##):
 ## STUDY FRAMING
@@ -2982,13 +3068,15 @@ Output structured guidance with these sections (markdown headers ##):
 ## EVIDENCE DISCIPLINE
 
 Be specific to THESE transcripts and the analysis brief. Bold (**) field names."""
-                _gen_result = call_llm_safe([{"role": "user", "content": _gen_prompt}], max_tokens=5000, temp=0.2)
-                if _gen_result:
-                    st.session_state[_init_scope_key] = _gen_result.strip()
-                    _init_existing_scope = _gen_result.strip()
-                    st.success("Scope generated — review below, then run discovery.")
-                else:
-                    st.error("Generation failed — write manually or skip.")
+                    _gen_result = call_llm_safe([{"role": "user", "content": _gen_prompt}], max_tokens=5000, temp=0.2)
+                    if _gen_result:
+                        st.session_state[_init_scope_key] = _gen_result.strip()
+                        _init_existing_scope = _gen_result.strip()
+                        st.success("Scope generated — review below, then run discovery.")
+                    else:
+                        st.error("Generation failed — write manually or skip.")
+            else:
+                st.error("Could not load any selected transcripts — check Drive connection.")
 
         _init_scope_text = st.text_area(
             "Scope & research objectives",

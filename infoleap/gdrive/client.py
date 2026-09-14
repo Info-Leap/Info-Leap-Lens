@@ -240,6 +240,97 @@ class DriveClient:
     def download_qual_file(self, project_name: str, filename: str, dest_path: str) -> bool:
         return self.download_file(project_name, filename, dest_path, kind="qual")
 
+    # ── Qual subfolder helpers (source_docs/, transcripts/) ────────────────────
+
+    def _qual_subfolder_id(self, project_id: str, subfolder: str) -> Optional[str]:
+        """Get or create a named subfolder under qual/{project_id}/."""
+        proj_folder = self._project_folder_id(project_id, "qual")
+        if not proj_folder:
+            return None
+        return self._mkdir(subfolder, proj_folder)
+
+    def upload_qual_subfolder_file(self, project_id: str, subfolder: str, local_path: str, filename: Optional[str] = None) -> Optional[str]:
+        """Upload a file into qual/{project_id}/{subfolder}/. Returns Drive file ID."""
+        if self._svc is None:
+            return None
+        lp = Path(local_path)
+        if not lp.exists():
+            return None
+        sf_id = self._qual_subfolder_id(project_id, subfolder)
+        if not sf_id:
+            return None
+        fname = filename or lp.name
+        existing = self._find(fname, sf_id)
+        mime = _guess_mime(fname)
+        try:
+            media = MediaFileUpload(str(lp), mimetype=mime, resumable=True)
+            if existing:
+                f = self._svc.files().update(fileId=existing["id"], media_body=media, fields="id", supportsAllDrives=True).execute()
+            else:
+                f = self._svc.files().create(body={"name": fname, "parents": [sf_id]}, media_body=media, fields="id", supportsAllDrives=True).execute()
+            return f.get("id")
+        except Exception:
+            return None
+
+    def list_qual_subfolder(self, project_id: str, subfolder: str) -> list[dict]:
+        """List files in qual/{project_id}/{subfolder}/."""
+        if self._svc is None:
+            return []
+        proj_folder = self._project_folder_id(project_id, "qual")
+        if not proj_folder:
+            return []
+        sf_meta = self._find(subfolder, proj_folder)
+        if not sf_meta:
+            return []
+        return [
+            {"name": f["name"], "id": f["id"], "size": f.get("size")}
+            for f in self._list_children(sf_meta["id"])
+            if f.get("mimeType") != FOLDER_MIME
+        ]
+
+    def download_qual_subfolder_file(self, project_id: str, subfolder: str, filename: str, dest_path: str) -> bool:
+        """Download a file from qual/{project_id}/{subfolder}/."""
+        if self._svc is None:
+            return False
+        proj_folder = self._project_folder_id(project_id, "qual")
+        if not proj_folder:
+            return False
+        sf_meta = self._find(subfolder, proj_folder)
+        if not sf_meta:
+            return False
+        file_meta = self._find(filename, sf_meta["id"])
+        if not file_meta:
+            return False
+        try:
+            import io as _io
+            from googleapiclient.http import MediaIoBaseDownload
+            req = self._svc.files().get_media(fileId=file_meta["id"], supportsAllDrives=True)
+            buf = _io.BytesIO()
+            dl = MediaIoBaseDownload(buf, req)
+            done = False
+            while not done:
+                _, done = dl.next_chunk()
+            Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(dest_path).write_bytes(buf.getvalue())
+            return True
+        except Exception:
+            return False
+
+    def delete_qual_project_folder(self, project_id: str) -> bool:
+        """Trash the entire qual/{project_id}/ folder on Drive. Returns True on success."""
+        if self._svc is None:
+            return False
+        proj_folder = self._project_folder_id(project_id, "qual")
+        if not proj_folder:
+            return True  # doesn't exist — treat as success
+        try:
+            self._svc.files().update(
+                fileId=proj_folder, body={"trashed": True}, supportsAllDrives=True
+            ).execute()
+            return True
+        except Exception:
+            return False
+
     # ── List project files ─────────────────────────────────────────────────────
 
     def list_project_files(self, project_name: str, kind: str = "quant") -> list[dict]:

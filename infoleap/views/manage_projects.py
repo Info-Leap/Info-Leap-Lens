@@ -284,7 +284,7 @@ else:
 
             _q_confirm_key = f"confirm_del_qual_{_qpid}"
             if st.session_state.get(_q_confirm_key):
-                st.warning(f"Really delete qual project `{_qpid}`? Removes folder + registry entry permanently.")
+                st.warning(f"Really delete qual project `{_qpid}`? Removes local folder, registry entry, and Drive data permanently.")
                 _qcc1, _qcc2 = st.columns(2)
                 with _qcc1:
                     if st.button("✅ Yes, delete", key=f"del_qual_yes_{_qpid}", type="primary"):
@@ -292,9 +292,16 @@ else:
                             shutil.rmtree(_qp_dir)
                             _qual_reg["projects"] = [p for p in _qual_reg.get("projects", []) if p["id"] != _qpid]
                             _save_qual_registry(_qual_reg)
+                            # Also delete Drive qual/{proj_id}/ folder
+                            try:
+                                from infoleap.gdrive.client import DriveClient as _DC_del
+                                _dc_del = _DC_del()
+                                _dc_del.delete_qual_project_folder(_qpid)
+                            except Exception:
+                                pass
                             st.session_state.pop(_q_confirm_key, None)
                             st.cache_data.clear()
-                            st.success(f"Deleted qual project `{_qpid}`.")
+                            st.success(f"Deleted qual project `{_qpid}` (local + Drive).")
                             st.rerun()
                         except Exception as _e:
                             st.error(f"Delete failed: {_e}")
