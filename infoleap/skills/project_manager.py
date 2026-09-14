@@ -7,18 +7,51 @@ from pathlib import Path
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
+# User-installed projects (ZIP uploads) live here — writable on Streamlit Cloud
+# without polluting the git-mounted registry.json with overlayfs stale entries.
+_USER_REGISTRY_PATH = Path("/tmp/infoleap/user_projects.json")
+
+
+def _load_json(path: Path) -> dict:
+    if not path.exists():
+        return {"projects": []}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {"projects": []}
+
+
+def _save_json(path: Path, data: dict) -> None:
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
+
+
 class ProjectManager:
     def __init__(self, registry_path: Path = None):
+        # canonical_path = git-mounted registry (read-only on Cloud, source of truth)
         self._path = registry_path or _DATA_DIR / "projects" / "registry.json"
-        self._registry = self._load_registry()
+        # user_path = writable /tmp/ store for ZIP-installed projects
+        self._user_path = _USER_REGISTRY_PATH
+        self._registry = self._load_merged_registry()
 
-    def _load_registry(self) -> dict:
-        if not self._path.exists():
-            return {"projects": []}
-        try:
-            return json.loads(self._path.read_text(encoding="utf-8"))
-        except Exception:
-            return {"projects": []}
+    def _load_merged_registry(self) -> dict:
+        """Merge git registry (canonical) + user registry (ZIP installs).
+        Git registry is authoritative — its IDs always win over user registry."""
+        canonical = _load_json(self._path)
+        user = _load_json(self._user_path)
+        canonical_ids = {p["id"] for p in canonical.get("projects", [])}
+        # Only include user projects not already in canonical
+        merged = list(canonical.get("projects", []))
+        for p in user.get("projects", []):
+            if p["id"] not in canonical_ids:
+                merged.append(p)
+        return {"projects": merged}
+
+    def _reload(self) -> None:
+        self._registry = self._load_merged_registry()
 
     def list_projects(self) -> list[dict]:
         return self._registry.get("projects", [])
@@ -47,13 +80,37 @@ class ProjectManager:
         p = self.get_project(project_id)
         return p.get("status", "raw")
 
+    def _is_canonical(self, project_id: str) -> bool:
+        """True if project is in the git-mounted canonical registry."""
+        canonical = _load_json(self._path)
+        return any(p["id"] == project_id for p in canonical.get("projects", []))
+
     def _save_registry(self) -> None:
+        """Write canonical registry — only called for canonical projects."""
         try:
             self._path.write_text(
-                json.dumps(self._registry, indent=2, ensure_ascii=False), encoding="utf-8"
+                json.dumps({"projects": [p for p in self._registry.get("projects", [])
+                                         if self._is_canonical(p["id"])]},
+                           indent=2, ensure_ascii=False), encoding="utf-8"
             )
         except Exception:
             pass
+
+    def add_user_project(self, project_meta: dict) -> None:
+        """Register a ZIP-installed project in the user registry (/tmp/)."""
+        user = _load_json(self._user_path)
+        known = {p["id"] for p in user.get("projects", [])}
+        if project_meta["id"] not in known:
+            user.setdefault("projects", []).append(project_meta)
+            _save_json(self._user_path, user)
+        self._reload()
+
+    def remove_user_project(self, project_id: str) -> None:
+        """Remove a ZIP-installed project from the user registry."""
+        user = _load_json(self._user_path)
+        user["projects"] = [p for p in user.get("projects", []) if p["id"] != project_id]
+        _save_json(self._user_path, user)
+        self._reload()
 
     def _update_registry_entry(self, project_id: str, **fields) -> None:
         """Writes fields (e.g. status, last_processed) into the registry entry
@@ -61,11 +118,21 @@ class ProjectManager:
         the full subprocess chain without ever recording the outcome, so
         registry.json's status/last_processed silently went stale (confirmed
         wrong for karat-coindcx: 115 matrices on disk, registry said null)."""
+        # Update in-memory
         for entry in self._registry.get("projects", []):
             if entry.get("id") == project_id:
                 entry.update(fields)
-                self._save_registry()
-                return
+                break
+        # Persist to correct store
+        if self._is_canonical(project_id):
+            self._save_registry()
+        else:
+            user = _load_json(self._user_path)
+            for entry in user.get("projects", []):
+                if entry.get("id") == project_id:
+                    entry.update(fields)
+                    break
+            _save_json(self._user_path, user)
 
     def ensure_schema_local(self, project_id: str) -> bool:
         """If schema/ui_config.json missing and Drive backend active, download schema.zip."""

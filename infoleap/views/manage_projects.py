@@ -230,39 +230,31 @@ st.subheader("📝 Qual Projects (Extraction Studio)")
 st.caption("Projects installed via the Quote Explorer ZIP uploader. Deleting removes the project folder and registry entry.")
 
 import json as _json
+from infoleap.skills.project_manager import ProjectManager as _QualPM
 
 _QUAL_PROJECTS_DIR = DATA_DIR / "projects"
-_QUAL_REGISTRY_PATH = _QUAL_PROJECTS_DIR / "registry.json"
 
-def _load_qual_registry():
-    if _QUAL_REGISTRY_PATH.exists():
-        try:
-            return _json.loads(_QUAL_REGISTRY_PATH.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-    return {"projects": []}
+# Use merged registry (canonical git + /tmp/ user installs)
+_qual_pm = _QualPM()
+_qual_projects = _qual_pm.list_projects()
+_registered_ids = {p["id"] for p in _qual_projects}
 
-def _save_qual_registry(reg: dict):
-    _QUAL_REGISTRY_PATH.write_text(_json.dumps(reg, indent=2, ensure_ascii=False), encoding="utf-8")
-
-_qual_reg = _load_qual_registry()
-_registered_ids = {p["id"] for p in _qual_reg.get("projects", [])}
-
-# Also find any unregistered folders (ephemeral installs)
-_all_qual_ids = set()
+# All dirs on disk (catches orphaned folders not in any registry)
+_all_qual_ids = set(_registered_ids)
 if _QUAL_PROJECTS_DIR.exists():
     for _d in _QUAL_PROJECTS_DIR.iterdir():
         if _d.is_dir() and _d.name != "__pycache__":
             _all_qual_ids.add(_d.name)
 
-_all_qual_ids.discard("registry.json")
+# Build a lookup for display metadata
+_qual_reg_map = {p["id"]: p for p in _qual_projects}
 
 if not _all_qual_ids:
     st.info("No qual projects found.")
 else:
     for _qpid in sorted(_all_qual_ids):
         _qp_dir = _QUAL_PROJECTS_DIR / _qpid
-        _qp_reg_entry = next((p for p in _qual_reg.get("projects", []) if p["id"] == _qpid), None)
+        _qp_reg_entry = _qual_reg_map.get(_qpid)
         _display_name = _qp_reg_entry.get("display_name", _qpid) if _qp_reg_entry else _qpid
         _n_transcripts = len(list((_qp_dir / "transcripts").glob("*.docx")) + list((_qp_dir / "transcripts").glob("*.md"))) if (_qp_dir / "transcripts").exists() else 0
         _n_matrices = len(list((_qp_dir / "matrices").glob("*_matrix.json"))) if (_qp_dir / "matrices").exists() else 0
@@ -290,8 +282,11 @@ else:
                     if st.button("✅ Yes, delete", key=f"del_qual_yes_{_qpid}", type="primary"):
                         try:
                             shutil.rmtree(_qp_dir)
-                            _qual_reg["projects"] = [p for p in _qual_reg.get("projects", []) if p["id"] != _qpid]
-                            _save_qual_registry(_qual_reg)
+                            # Remove from user registry (/tmp/) if present
+                            try:
+                                _qual_pm.remove_user_project(_qpid)
+                            except Exception:
+                                pass
                             # Also delete Drive qual/{proj_id}/ folder
                             try:
                                 from infoleap.gdrive.client import DriveClient as _DC_del

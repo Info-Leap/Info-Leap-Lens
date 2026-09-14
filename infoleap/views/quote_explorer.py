@@ -2272,13 +2272,14 @@ Upload → switch to project → paste master_prompt.txt in the editor → extra
                             }
                             _pj.write_text(json.dumps(_minimal, indent=2), encoding="utf-8")
 
-                        # Register in registry.json
-                        _reg_path = _BASE / "data" / "projects" / "registry.json"
-                        _reg = json.loads(_reg_path.read_text(encoding="utf-8")) if _reg_path.exists() else {"projects": []}
-                        _known = {p["id"] for p in _reg.get("projects", [])}
-                        if _proj_id_new not in _known:
-                            _reg.setdefault("projects", []).append(json.loads(_pj.read_text(encoding="utf-8")))
-                            _reg_path.write_text(json.dumps(_reg, indent=2, ensure_ascii=False), encoding="utf-8")
+                        # Register in user registry (/tmp/) — avoids overlayfs stale entries
+                        try:
+                            from infoleap.skills.project_manager import ProjectManager as _PM_install
+                            _pm_install = _PM_install()
+                            if _proj_id_new not in {p["id"] for p in _pm_install.list_projects()}:
+                                _pm_install.add_user_project(json.loads(_pj.read_text(encoding="utf-8")))
+                        except Exception:
+                            pass
 
                         # Switch to new project
                         st.session_state["active_project"] = _proj_id_new
