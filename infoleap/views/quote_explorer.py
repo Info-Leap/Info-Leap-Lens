@@ -3058,16 +3058,16 @@ def _run_schema_discovery_ui(proj_id: str, project_dir, readable_project_dir=Non
                 with st.spinner(f"Reading {len(_init_sample_files)} transcript(s) + generating scope…"):
                     from infoleap.skills.llm_client import call_llm_safe
                     from infoleap.skills import schema_generator as _sg_scope
-                    def _read_sample(p):
+                    def _read_sample(p, limit=30000):
                         if p.suffix.lower() == ".docx":
-                            try: return _sg_scope._read_docx(p)[:5000]
+                            try: return _sg_scope._read_docx(p)[:limit]
                             except Exception: return ""
-                        return p.read_text(encoding="utf-8")[:5000]
+                        return p.read_text(encoding="utf-8")[:limit]
                     _ts_texts = [_read_sample(f) for f in _init_sample_files]
                     _ai_prompt_text = ""
                     if _prompt_matches:
                         try:
-                            _ai_prompt_text = _read_sample(_prompt_matches[0])[:3000]
+                            _ai_prompt_text = _read_sample(_prompt_matches[0], limit=10000)
                         except Exception:
                             _ai_prompt_text = ""
                     _ai_prompt_section = f"\nAI ANALYSIS BRIEF (from {_prompt_matches[0].name}):\n{_ai_prompt_text}\n" if _ai_prompt_text else ""
@@ -4114,11 +4114,19 @@ def _render_extraction_studio(proj_id: str, proj: dict):
                     for _fn in _sample_fns:
                         _md_p = _resolve_md_path(_fn)
                         if _md_p and _md_p.exists():
-                            _ts_texts.append(_md_p.read_text(encoding="utf-8")[:6000])
+                            _ts_texts.append(_md_p.read_text(encoding="utf-8")[:30000])
+                        else:
+                            # .md not converted yet — try reading the original .docx directly
+                            _docx_p = (t_dir / _fn) if t_dir else None
+                            if _docx_p and _docx_p.exists() and _docx_p.suffix.lower() == ".docx":
+                                try:
+                                    _ts_texts.append(_sg._read_docx(_docx_p)[:30000])
+                                except Exception:
+                                    pass
                     _ts_brief_snippet = ""
                     if _brief_path:
                         _brief_raw = _brief_path.read_text(encoding="utf-8") if _brief_path.suffix.lower() == ".md" else _sg._read_docx(_brief_path)
-                        _ts_brief_snippet = f"\n\nRESEARCH BRIEF (source document):\n{_brief_raw[:3000]}"
+                        _ts_brief_snippet = f"\n\nRESEARCH BRIEF (source document):\n{_brief_raw[:10000]}"
                     _ts_prompt = f"""You are a senior qualitative research methodologist. Read the sample transcripts below and produce a STRUCTURED EXTRACTION DIRECTIVE that will guide an AI analyst coding ALL transcripts from this study.
 
 STUDY CONTEXT: {_ts_context.strip() if _ts_context.strip() else 'Not provided — infer from the transcripts.'}{_ts_brief_snippet}
